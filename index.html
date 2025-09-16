@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buana Explorer - Knowledge at Your Fingertips</title>
+    <title>Buana Explorer - SMK AL-IRSYAD TEGAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -820,7 +820,7 @@
                     </div>
                     <div>
                         <h1 class="text-2xl font-bold text-gray-900 dark:text-white shimmer-text">Buana Explorer</h1>
-                        <p class="text-sm theme-text-600 dark:theme-text-400 font-medium shimmer-subtitle">Knowledge at Your Fingertips</p>
+                        <p class="text-sm theme-text-600 dark:theme-text-400 font-medium shimmer-subtitle">SMK AL-IRSYAD TEGAL</p>
                     </div>
                 </div>
                 
@@ -1705,42 +1705,101 @@
                 this.snowflakeSymbols = ['❄', '❅', '❆', '✻', '✼', '❋'];
                 this.bubbleSymbols = ['○', '◯', '◦', '●', '◉', '⚬'];
                 this.initialized = false;
+                this.initRetryCount = 0;
+                this.maxRetries = 20;
                 
+                console.log('SnowAnimation constructor called');
                 this.init();
             }
             
             init() {
-                // Always wait for DOM to be fully ready
-                const initializeWhenReady = () => {
-                    // Get elements with retry mechanism
-                    this.container = document.getElementById('snowContainer');
-                    this.toggle = document.getElementById('snowToggle');
-                    
-                    if (this.container && this.toggle && !this.initialized) {
+                console.log('SnowAnimation init called, retry count:', this.initRetryCount);
+                
+                // Force stop any existing animation first
+                this.forceStop();
+                
+                // Get elements immediately
+                this.container = document.getElementById('snowContainer');
+                this.toggle = document.getElementById('snowToggle');
+                
+                console.log('Snow elements found:', {
+                    container: !!this.container,
+                    toggle: !!this.toggle,
+                    initialized: this.initialized
+                });
+                
+                if (this.container && this.toggle) {
+                    if (!this.initialized) {
                         this.initialized = true;
+                        console.log('Setting up snow events...');
                         this.setupEvents();
-                        // Add small delay before loading saved state
+                        
+                        // Load saved state immediately
                         setTimeout(() => {
                             this.loadSavedState();
-                        }, 200);
-                    } else if (!this.initialized) {
-                        // Retry after a short delay if elements not found
-                        setTimeout(initializeWhenReady, 100);
+                        }, 100);
                     }
-                };
-                
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', initializeWhenReady);
                 } else {
-                    // DOM already loaded, but still use timeout for safety
-                    setTimeout(initializeWhenReady, 50);
+                    // Retry with exponential backoff
+                    this.initRetryCount++;
+                    if (this.initRetryCount < this.maxRetries) {
+                        const delay = Math.min(100 * this.initRetryCount, 1000);
+                        console.log(`Snow init retry ${this.initRetryCount} in ${delay}ms`);
+                        setTimeout(() => this.init(), delay);
+                    } else {
+                        console.error('Snow animation failed to initialize after max retries');
+                    }
                 }
             }
             
+            forceStop() {
+                // Force cleanup without saving state
+                if (this.animationInterval) {
+                    clearInterval(this.animationInterval);
+                    this.animationInterval = null;
+                }
+                
+                // Clear all snowflakes
+                this.snowflakes.forEach(snowflake => {
+                    if (snowflake && snowflake.parentNode) {
+                        try {
+                            snowflake.parentNode.removeChild(snowflake);
+                        } catch (e) {
+                            // Ignore errors
+                        }
+                    }
+                });
+                this.snowflakes = [];
+                
+                // Clear container if it exists
+                const container = document.getElementById('snowContainer');
+                if (container) {
+                    container.innerHTML = '';
+                    container.classList.add('hidden');
+                }
+                
+                // Reset toggle button
+                const toggle = document.getElementById('snowToggle');
+                if (toggle) {
+                    toggle.classList.remove('active');
+                }
+                
+                this.isActive = false;
+            }
+            
             setupEvents() {
-                // Toggle button event
+                console.log('Setting up snow events...');
+                
+                // Remove any existing event listeners first
                 if (this.toggle) {
+                    // Clone node to remove all event listeners
+                    const newToggle = this.toggle.cloneNode(true);
+                    this.toggle.parentNode.replaceChild(newToggle, this.toggle);
+                    this.toggle = newToggle;
+                    
+                    // Add new event listener
                     this.toggle.addEventListener('click', () => {
+                        console.log('Snow toggle clicked, current state:', this.isActive);
                         this.isActive ? this.stop() : this.start();
                     });
                 }
@@ -1759,16 +1818,20 @@
             }
             
             loadSavedState() {
-                // Clear any existing state first
-                this.stop();
+                console.log('Loading snow saved state...');
                 
-                // Load saved state with proper delay
+                // Don't call stop() here as it might interfere with initialization
                 const savedState = localStorage.getItem('snowAnimation');
+                console.log('Snow saved state:', savedState);
+                
                 // Default to active if no saved state exists, or if saved state is true
                 if (savedState === null || savedState === 'true') {
+                    console.log('Starting snow animation...');
                     setTimeout(() => {
                         this.start();
-                    }, 100);
+                    }, 50);
+                } else {
+                    console.log('Snow animation disabled by saved state');
                 }
             }
             
@@ -1848,10 +1911,26 @@
             }
             
             start() {
-                if (!this.container) return;
+                console.log('Starting snow animation...');
+                
+                // Ensure we have the container
+                if (!this.container) {
+                    this.container = document.getElementById('snowContainer');
+                }
+                
+                if (!this.container) {
+                    console.error('Snow container not found!');
+                    return;
+                }
+                
+                // Ensure we have the toggle
+                if (!this.toggle) {
+                    this.toggle = document.getElementById('snowToggle');
+                }
                 
                 this.isActive = true;
                 this.container.classList.remove('hidden');
+                
                 if (this.toggle) {
                     this.toggle.classList.add('active');
                 }
@@ -1861,28 +1940,41 @@
                     clearInterval(this.animationInterval);
                 }
                 
+                console.log('Snow animation started, creating snowflakes...');
+                
                 // Create snowflakes continuously
                 this.animationInterval = setInterval(() => {
                     if (this.isActive && this.snowflakes.length < this.maxSnowflakes) {
-                        const snowflake = this.createSnowflake();
-                        this.container.appendChild(snowflake);
-                        this.snowflakes.push(snowflake);
-                        
-                        // Remove snowflake after animation completes
-                        setTimeout(() => {
-                            if (snowflake && snowflake.parentNode) {
-                                snowflake.parentNode.removeChild(snowflake);
-                                const index = this.snowflakes.indexOf(snowflake);
-                                if (index > -1) {
-                                    this.snowflakes.splice(index, 1);
-                                }
+                        try {
+                            const snowflake = this.createSnowflake();
+                            if (snowflake && this.container) {
+                                this.container.appendChild(snowflake);
+                                this.snowflakes.push(snowflake);
+                                
+                                // Remove snowflake after animation completes
+                                setTimeout(() => {
+                                    if (snowflake && snowflake.parentNode) {
+                                        try {
+                                            snowflake.parentNode.removeChild(snowflake);
+                                            const index = this.snowflakes.indexOf(snowflake);
+                                            if (index > -1) {
+                                                this.snowflakes.splice(index, 1);
+                                            }
+                                        } catch (e) {
+                                            console.log('Error removing snowflake:', e);
+                                        }
+                                    }
+                                }, 20000); // Remove after 20 seconds
                             }
-                        }, 20000); // Remove after 20 seconds
+                        } catch (e) {
+                            console.error('Error creating snowflake:', e);
+                        }
                     }
                 }, 300); // Create new snowflake every 300ms
                 
                 // Save state
                 localStorage.setItem('snowAnimation', 'true');
+                console.log('Snow animation fully started');
             }
             
             stop() {
@@ -1926,27 +2018,94 @@
             }
         }
         
-        // Global initialization function
+        // Global initialization function with complete reset capability
         function initializeApp() {
-            // Clear any existing intervals/timeouts first
-            if (window.appInitialized) {
-                return;
+            console.log('Initializing app...');
+            
+            // Force cleanup of any existing instances
+            if (window.snowAnimation) {
+                try {
+                    window.snowAnimation.stop();
+                    window.snowAnimation = null;
+                } catch (e) {
+                    console.log('Snow cleanup error:', e);
+                }
             }
-            window.appInitialized = true;
             
-            // Initialize animations with proper delays
-            setTimeout(() => {
-                window.snowAnimation = new SnowAnimation();
-            }, 100);
+            if (window.particleAnimation) {
+                try {
+                    window.particleAnimation.stop();
+                    window.particleAnimation = null;
+                } catch (e) {
+                    console.log('Particle cleanup error:', e);
+                }
+            }
             
-            setTimeout(() => {
-                window.particleAnimation = new ParticleAnimation();
-            }, 200);
+            // Clear any existing timers
+            if (window.initTimers) {
+                window.initTimers.forEach(timer => clearTimeout(timer));
+            }
+            window.initTimers = [];
             
-            // Initialize file rendering
-            setTimeout(() => {
-                renderFiles();
-            }, 50);
+            // Reset initialization flag
+            window.appInitialized = false;
+            
+            // Wait for DOM to be completely ready
+            const initWhenReady = () => {
+                // Verify all required elements exist
+                const requiredElements = [
+                    'fileList', 'snowContainer', 'particleContainer', 
+                    'snowToggle', 'particleToggle', 'searchInput'
+                ];
+                
+                const allElementsReady = requiredElements.every(id => {
+                    const element = document.getElementById(id);
+                    return element !== null;
+                });
+                
+                if (!allElementsReady) {
+                    console.log('Waiting for DOM elements...');
+                    window.initTimers.push(setTimeout(initWhenReady, 100));
+                    return;
+                }
+                
+                console.log('All elements ready, initializing...');
+                window.appInitialized = true;
+                
+                // Initialize file rendering first (most important)
+                try {
+                    renderFiles();
+                    console.log('Files rendered successfully');
+                } catch (e) {
+                    console.error('File rendering error:', e);
+                }
+                
+                // Initialize animations with staggered delays
+                window.initTimers.push(setTimeout(() => {
+                    try {
+                        window.snowAnimation = new SnowAnimation();
+                        console.log('Snow animation initialized');
+                    } catch (e) {
+                        console.error('Snow animation error:', e);
+                    }
+                }, 200));
+                
+                window.initTimers.push(setTimeout(() => {
+                    try {
+                        window.particleAnimation = new ParticleAnimation();
+                        console.log('Particle animation initialized');
+                    } catch (e) {
+                        console.error('Particle animation error:', e);
+                    }
+                }, 400));
+            };
+            
+            // Start initialization
+            if (document.readyState === 'complete') {
+                window.initTimers.push(setTimeout(initWhenReady, 50));
+            } else {
+                window.initTimers.push(setTimeout(initWhenReady, 100));
+            }
         }
 
         // Particle Animation System
@@ -1960,6 +2119,10 @@
                 this.mouseY = 0;
                 this.lastMouseTime = 0;
                 this.initialized = false;
+                this.initRetryCount = 0;
+                this.maxRetries = 20;
+                this.mouseEventHandler = null;
+                this.clickEventHandler = null;
                 this.colors = [
                     'rgba(59, 130, 246, 0.8)',   // Blue
                     'rgba(147, 51, 234, 0.8)',   // Purple
@@ -1971,41 +2134,108 @@
                     'rgba(168, 85, 247, 0.8)'    // Violet
                 ];
                 
+                console.log('ParticleAnimation constructor called');
                 this.init();
             }
             
             init() {
-                const initializeWhenReady = () => {
-                    this.container = document.getElementById('particleContainer');
-                    this.toggle = document.getElementById('particleToggle');
-                    
-                    if (this.container && this.toggle && !this.initialized) {
+                console.log('ParticleAnimation init called, retry count:', this.initRetryCount);
+                
+                // Force cleanup first
+                this.forceStop();
+                
+                // Get elements immediately
+                this.container = document.getElementById('particleContainer');
+                this.toggle = document.getElementById('particleToggle');
+                
+                console.log('Particle elements found:', {
+                    container: !!this.container,
+                    toggle: !!this.toggle,
+                    initialized: this.initialized
+                });
+                
+                if (this.container && this.toggle) {
+                    if (!this.initialized) {
                         this.initialized = true;
+                        console.log('Setting up particle events...');
                         this.setupEvents();
+                        
+                        // Load saved state immediately
                         setTimeout(() => {
                             this.loadSavedState();
-                        }, 250);
-                    } else if (!this.initialized) {
-                        setTimeout(initializeWhenReady, 100);
+                        }, 100);
                     }
-                };
-                
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', initializeWhenReady);
                 } else {
-                    setTimeout(initializeWhenReady, 50);
+                    // Retry with exponential backoff
+                    this.initRetryCount++;
+                    if (this.initRetryCount < this.maxRetries) {
+                        const delay = Math.min(100 * this.initRetryCount, 1000);
+                        console.log(`Particle init retry ${this.initRetryCount} in ${delay}ms`);
+                        setTimeout(() => this.init(), delay);
+                    } else {
+                        console.error('Particle animation failed to initialize after max retries');
+                    }
                 }
             }
             
+            forceStop() {
+                // Remove event listeners
+                if (this.mouseEventHandler) {
+                    document.removeEventListener('mousemove', this.mouseEventHandler);
+                    this.mouseEventHandler = null;
+                }
+                
+                if (this.clickEventHandler) {
+                    document.removeEventListener('click', this.clickEventHandler);
+                    this.clickEventHandler = null;
+                }
+                
+                // Clear all particles
+                this.particles.forEach(particle => {
+                    if (particle && particle.parentNode) {
+                        try {
+                            particle.parentNode.removeChild(particle);
+                        } catch (e) {
+                            // Ignore errors
+                        }
+                    }
+                });
+                this.particles = [];
+                
+                // Clear container
+                const container = document.getElementById('particleContainer');
+                if (container) {
+                    container.innerHTML = '';
+                }
+                
+                // Reset toggle button
+                const toggle = document.getElementById('particleToggle');
+                if (toggle) {
+                    toggle.classList.remove('active');
+                }
+                
+                this.isActive = false;
+            }
+            
             setupEvents() {
+                console.log('Setting up particle events...');
+                
+                // Remove any existing event listeners first
                 if (this.toggle) {
+                    // Clone node to remove all event listeners
+                    const newToggle = this.toggle.cloneNode(true);
+                    this.toggle.parentNode.replaceChild(newToggle, this.toggle);
+                    this.toggle = newToggle;
+                    
+                    // Add new event listener
                     this.toggle.addEventListener('click', () => {
+                        console.log('Particle toggle clicked, current state:', this.isActive);
                         this.isActive ? this.stop() : this.start();
                     });
                 }
                 
-                // Mouse move event for particle creation
-                document.addEventListener('mousemove', (e) => {
+                // Create event handlers
+                this.mouseEventHandler = (e) => {
                     if (this.isActive) {
                         this.mouseX = e.clientX;
                         this.mouseY = e.clientY;
@@ -2018,26 +2248,36 @@
                             this.lastMouseTime = currentTime;
                         }
                     }
-                });
+                };
                 
-                // Click event for burst effect
-                document.addEventListener('click', (e) => {
+                this.clickEventHandler = (e) => {
                     if (this.isActive) {
+                        console.log('Click detected, creating burst at:', e.clientX, e.clientY);
                         this.createBurst(e.clientX, e.clientY);
                     }
-                });
+                };
+                
+                // Add event listeners
+                document.addEventListener('mousemove', this.mouseEventHandler);
+                document.addEventListener('click', this.clickEventHandler);
+                
+                console.log('Particle events set up successfully');
             }
             
             loadSavedState() {
-                // Clear any existing state first
-                this.stop();
+                console.log('Loading particle saved state...');
                 
                 const savedState = localStorage.getItem('particleAnimation');
+                console.log('Particle saved state:', savedState);
+                
                 // Default to active if no saved state exists, or if saved state is true
                 if (savedState === null || savedState === 'true') {
+                    console.log('Starting particle animation...');
                     setTimeout(() => {
                         this.start();
-                    }, 150);
+                    }, 50);
+                } else {
+                    console.log('Particle animation disabled by saved state');
                 }
             }
             
@@ -2148,15 +2388,32 @@
             }
             
             start() {
-                if (!this.container) return;
+                console.log('Starting particle animation...');
+                
+                // Ensure we have the container
+                if (!this.container) {
+                    this.container = document.getElementById('particleContainer');
+                }
+                
+                if (!this.container) {
+                    console.error('Particle container not found!');
+                    return;
+                }
+                
+                // Ensure we have the toggle
+                if (!this.toggle) {
+                    this.toggle = document.getElementById('particleToggle');
+                }
                 
                 this.isActive = true;
+                
                 if (this.toggle) {
                     this.toggle.classList.add('active');
                 }
                 
                 // Save state
                 localStorage.setItem('particleAnimation', 'true');
+                console.log('Particle animation fully started');
             }
             
             stop() {
@@ -2190,24 +2447,86 @@
             }
         }
         
-        // Initialize the entire application
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeApp);
-        } else {
-            // DOM already loaded
-            setTimeout(initializeApp, 100);
+        // Initialize the entire application with multiple entry points
+        function startApp() {
+            console.log('Starting app initialization...');
+            
+            // Clear any existing initialization
+            if (window.initializationTimeout) {
+                clearTimeout(window.initializationTimeout);
+            }
+            
+            // Force initialization
+            window.initializationTimeout = setTimeout(() => {
+                initializeApp();
+            }, 100);
         }
+        
+        // Multiple initialization triggers to ensure app starts
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startApp);
+            // Backup trigger
+            setTimeout(startApp, 2000);
+        } else if (document.readyState === 'interactive') {
+            // DOM is ready but resources might still be loading
+            startApp();
+            // Backup trigger
+            setTimeout(startApp, 1000);
+        } else {
+            // DOM and resources are fully loaded
+            startApp();
+        }
+        
+        // Additional backup triggers
+        window.addEventListener('load', startApp);
+        
+        // Force initialization after a delay as final fallback
+        setTimeout(() => {
+            if (!window.appInitialized) {
+                console.log('Force initializing app as fallback...');
+                initializeApp();
+            }
+        }, 3000);
         
         // Cleanup function for page unload
         window.addEventListener('beforeunload', () => {
+            console.log('Page unloading, cleaning up...');
+            
             if (window.snowAnimation) {
-                window.snowAnimation.stop();
+                try {
+                    window.snowAnimation.stop();
+                } catch (e) {
+                    console.log('Snow cleanup error:', e);
+                }
             }
+            
             if (window.particleAnimation) {
-                window.particleAnimation.stop();
+                try {
+                    window.particleAnimation.stop();
+                } catch (e) {
+                    console.log('Particle cleanup error:', e);
+                }
             }
+            
+            // Clear timers
+            if (window.initTimers) {
+                window.initTimers.forEach(timer => clearTimeout(timer));
+            }
+            
+            if (window.initializationTimeout) {
+                clearTimeout(window.initializationTimeout);
+            }
+            
             window.appInitialized = false;
         });
+        
+        // Handle page visibility changes (for browser back/forward)
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && !window.appInitialized) {
+                console.log('Page became visible, reinitializing...');
+                setTimeout(startApp, 500);
+            }
+        });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9802a2ba41e0cecb',t:'MTc1ODA0OTUzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9802b7d24572cec7',t:'MTc1ODA1MDM5NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
