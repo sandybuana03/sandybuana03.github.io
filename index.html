@@ -1304,7 +1304,8 @@
                 this.toggle = document.getElementById('snowToggle');
                 this.isActive = false;
                 this.snowflakes = [];
-                this.maxSnowflakes = 50;
+                this.maxSnowflakes = 30;
+                this.animationInterval = null;
                 this.snowflakeSymbols = ['❄', '❅', '❆', '✻', '✼', '❋'];
                 this.bubbleSymbols = ['○', '◯', '◦', '●', '◉', '⚬'];
                 
@@ -1312,15 +1313,68 @@
             }
             
             init() {
-                // Load saved state
-                const savedState = localStorage.getItem('snowAnimation');
-                if (savedState === 'true') {
-                    this.start();
+                // Ensure DOM is ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', () => {
+                        this.setupEvents();
+                        this.loadSavedState();
+                    });
+                } else {
+                    this.setupEvents();
+                    this.loadSavedState();
+                }
+            }
+            
+            setupEvents() {
+                // Toggle button event
+                if (this.toggle) {
+                    this.toggle.addEventListener('click', () => {
+                        this.isActive ? this.stop() : this.start();
+                    });
                 }
                 
-                // Toggle button event
-                this.toggle.addEventListener('click', () => {
-                    this.isActive ? this.stop() : this.start();
+                // Listen for theme changes to update animation style
+                const observer = new MutationObserver(() => {
+                    if (this.isActive) {
+                        this.updateSnowflakeStyles();
+                    }
+                });
+                
+                observer.observe(document.documentElement, {
+                    attributes: true,
+                    attributeFilter: ['class']
+                });
+            }
+            
+            loadSavedState() {
+                // Load saved state with a small delay to ensure everything is ready
+                setTimeout(() => {
+                    const savedState = localStorage.getItem('snowAnimation');
+                    if (savedState === 'true') {
+                        this.start();
+                    }
+                }, 100);
+            }
+            
+            updateSnowflakeStyles() {
+                // Update existing snowflakes when theme changes
+                this.snowflakes.forEach(snowflake => {
+                    if (snowflake && snowflake.parentNode) {
+                        const isDarkMode = document.documentElement.classList.contains('dark');
+                        if (isDarkMode) {
+                            snowflake.innerHTML = this.snowflakeSymbols[Math.floor(Math.random() * this.snowflakeSymbols.length)];
+                            snowflake.style.background = 'none';
+                            snowflake.style.border = 'none';
+                            snowflake.style.boxShadow = 'none';
+                            snowflake.style.borderRadius = '0';
+                        } else {
+                            snowflake.innerHTML = this.bubbleSymbols[Math.floor(Math.random() * this.bubbleSymbols.length)];
+                            snowflake.style.background = 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(59, 130, 246, 0.3))';
+                            snowflake.style.border = '1px solid rgba(59, 130, 246, 0.2)';
+                            snowflake.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.3)';
+                            snowflake.style.borderRadius = '50%';
+                        }
+                    }
                 });
             }
             
@@ -1334,13 +1388,39 @@
                 if (isDarkMode) {
                     // Snow mode for dark theme
                     snowflake.innerHTML = this.snowflakeSymbols[Math.floor(Math.random() * this.snowflakeSymbols.length)];
+                    snowflake.style.color = 'rgba(255, 255, 255, 0.8)';
+                    snowflake.style.background = 'none';
+                    snowflake.style.border = 'none';
+                    snowflake.style.boxShadow = 'none';
+                    snowflake.style.width = 'auto';
+                    snowflake.style.height = 'auto';
+                    snowflake.style.borderRadius = '0';
+                    snowflake.style.display = 'block';
                 } else {
                     // Bubble mode for light theme
                     snowflake.innerHTML = this.bubbleSymbols[Math.floor(Math.random() * this.bubbleSymbols.length)];
+                    snowflake.style.color = 'rgba(59, 130, 246, 0.6)';
+                    snowflake.style.background = 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(59, 130, 246, 0.3))';
+                    snowflake.style.border = '1px solid rgba(59, 130, 246, 0.2)';
+                    snowflake.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.3)';
+                    snowflake.style.borderRadius = '50%';
+                    snowflake.style.width = '1em';
+                    snowflake.style.height = '1em';
+                    snowflake.style.display = 'flex';
+                    snowflake.style.alignItems = 'center';
+                    snowflake.style.justifyContent = 'center';
                 }
                 
                 // Random horizontal position
                 snowflake.style.left = Math.random() * 100 + '%';
+                
+                // Random size variations
+                const sizes = ['0.6em', '0.8em', '1em', '1.2em', '1.4em'];
+                snowflake.style.fontSize = sizes[Math.floor(Math.random() * sizes.length)];
+                
+                // Random animation duration
+                const durations = ['8s', '10s', '12s', '15s', '18s'];
+                snowflake.style.animationDuration = durations[Math.floor(Math.random() * durations.length)];
                 
                 // Random animation delay
                 snowflake.style.animationDelay = Math.random() * 2 + 's';
@@ -1352,49 +1432,38 @@
             }
             
             start() {
+                if (!this.container) return;
+                
                 this.isActive = true;
                 this.container.classList.remove('hidden');
-                this.toggle.classList.add('active');
-                
-                // Create initial snowflakes
-                for (let i = 0; i < this.maxSnowflakes; i++) {
-                    setTimeout(() => {
-                        if (this.isActive) {
-                            const snowflake = this.createSnowflake();
-                            this.container.appendChild(snowflake);
-                            this.snowflakes.push(snowflake);
-                            
-                            // Remove snowflake after animation
-                            setTimeout(() => {
-                                if (snowflake.parentNode) {
-                                    snowflake.parentNode.removeChild(snowflake);
-                                    const index = this.snowflakes.indexOf(snowflake);
-                                    if (index > -1) {
-                                        this.snowflakes.splice(index, 1);
-                                    }
-                                }
-                                
-                                // Create new snowflake if animation is still active
-                                if (this.isActive) {
-                                    const newSnowflake = this.createSnowflake();
-                                    this.container.appendChild(newSnowflake);
-                                    this.snowflakes.push(newSnowflake);
-                                    
-                                    // Schedule removal of new snowflake
-                                    setTimeout(() => {
-                                        if (newSnowflake.parentNode) {
-                                            newSnowflake.parentNode.removeChild(newSnowflake);
-                                            const newIndex = this.snowflakes.indexOf(newSnowflake);
-                                            if (newIndex > -1) {
-                                                this.snowflakes.splice(newIndex, 1);
-                                            }
-                                        }
-                                    }, 20000);
-                                }
-                            }, 20000);
-                        }
-                    }, i * 200);
+                if (this.toggle) {
+                    this.toggle.classList.add('active');
                 }
+                
+                // Clear any existing interval
+                if (this.animationInterval) {
+                    clearInterval(this.animationInterval);
+                }
+                
+                // Create snowflakes continuously
+                this.animationInterval = setInterval(() => {
+                    if (this.isActive && this.snowflakes.length < this.maxSnowflakes) {
+                        const snowflake = this.createSnowflake();
+                        this.container.appendChild(snowflake);
+                        this.snowflakes.push(snowflake);
+                        
+                        // Remove snowflake after animation completes
+                        setTimeout(() => {
+                            if (snowflake && snowflake.parentNode) {
+                                snowflake.parentNode.removeChild(snowflake);
+                                const index = this.snowflakes.indexOf(snowflake);
+                                if (index > -1) {
+                                    this.snowflakes.splice(index, 1);
+                                }
+                            }
+                        }, 20000); // Remove after 20 seconds
+                    }
+                }, 300); // Create new snowflake every 300ms
                 
                 // Save state
                 localStorage.setItem('snowAnimation', 'true');
@@ -1402,16 +1471,33 @@
             
             stop() {
                 this.isActive = false;
-                this.container.classList.add('hidden');
-                this.toggle.classList.remove('active');
+                
+                if (this.container) {
+                    this.container.classList.add('hidden');
+                }
+                
+                if (this.toggle) {
+                    this.toggle.classList.remove('active');
+                }
+                
+                // Clear interval
+                if (this.animationInterval) {
+                    clearInterval(this.animationInterval);
+                    this.animationInterval = null;
+                }
                 
                 // Clear all snowflakes
                 this.snowflakes.forEach(snowflake => {
-                    if (snowflake.parentNode) {
+                    if (snowflake && snowflake.parentNode) {
                         snowflake.parentNode.removeChild(snowflake);
                     }
                 });
                 this.snowflakes = [];
+                
+                // Clear container
+                if (this.container) {
+                    this.container.innerHTML = '';
+                }
                 
                 // Save state
                 localStorage.setItem('snowAnimation', 'false');
@@ -1424,5 +1510,5 @@
         // Initial render
         renderFiles();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97ffb07ca042cecf',t:'MTc1ODAxODYzNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97ffb9486121cecf',t:'MTc1ODAxODk5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
