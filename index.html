@@ -108,6 +108,54 @@
         .theme-hover-bg-200:hover { background-color: rgb(var(--theme-200)); }
         .theme-hover-bg-700:hover { background-color: rgb(var(--theme-700)); }
         .theme-hover-bg-900-10:hover { background-color: rgba(var(--theme-900), 0.1); }
+        
+        /* View Mode Styles */
+        .view-mode-btn {
+            color: #6b7280;
+        }
+        
+        .view-mode-btn.active {
+            background-color: rgb(var(--theme-500));
+            color: white;
+        }
+        
+        .view-mode-btn:not(.active):hover {
+            background-color: rgba(var(--theme-500), 0.1);
+            color: rgb(var(--theme-600));
+        }
+        
+        /* Grid View Styles */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+        
+        .grid-item {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgb(var(--theme-100));
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .dark .grid-item {
+            background: #374151;
+            border-color: rgb(var(--theme-800));
+        }
+        
+        .grid-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: rgb(var(--theme-300));
+        }
+        
+        .dark .grid-item:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border-color: rgb(var(--theme-600));
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen transition-all duration-300">
@@ -129,6 +177,28 @@
                 
                 <!-- Theme Controls -->
                 <div class="flex items-center space-x-2">
+                    <!-- View Mode Toggle -->
+                    <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
+                        <button 
+                            id="listViewBtn"
+                            class="p-2 rounded-lg transition-all duration-300 view-mode-btn active"
+                            title="Tampilan List"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                        <button 
+                            id="gridViewBtn"
+                            class="p-2 rounded-lg transition-all duration-300 view-mode-btn"
+                            title="Tampilan Grid"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
                     <!-- Color Picker Button -->
                     <div class="relative">
                         <button 
@@ -477,6 +547,9 @@
 
         // Current directory state
         let currentDirectory = '.';
+        
+        // View mode state
+        let currentViewMode = 'list'; // 'list' or 'grid'
 
         // Function to open file
         function openFile(filename, folder) {
@@ -531,6 +604,13 @@
             const fileList = document.getElementById('fileList');
             fileList.innerHTML = '';
 
+            // Apply view mode classes
+            if (currentViewMode === 'grid') {
+                fileList.className = 'grid-container';
+            } else {
+                fileList.className = 'divide-y divide-gray-200 dark:divide-gray-700';
+            }
+
             // If there's a search term, search across all folders
             if (searchTerm) {
                 let hasResults = false;
@@ -550,43 +630,65 @@
                             hasResults = true;
                             
                             const fileItem = document.createElement('div');
-                            fileItem.className = 'file-item p-6 theme-hover-bg-900-10 transition-all duration-300 animate-fade-in cursor-pointer';
                             fileItem.onclick = () => openFile(file.name, folderKey);
                             
-                            fileItem.innerHTML = `
-                                <!-- Desktop Layout -->
-                                <div class="hidden md:grid md:grid-cols-3 gap-4 items-center">
-                                    <div class="flex items-center space-x-4">
+                            if (currentViewMode === 'grid') {
+                                fileItem.className = 'grid-item animate-fade-in';
+                                fileItem.innerHTML = `
+                                    <div class="text-center">
+                                        <div class="text-5xl mb-4">${getFileIcon(file.name)}</div>
+                                        <div class="font-semibold text-gray-900 dark:text-white text-lg mb-2 line-clamp-2">${file.displayName || file.name}</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                                            ${getFileType(file.name)} • <span class="file-size">${formatFileSize(file.size)}</span>
+                                        </div>
+                                        <div class="text-xs theme-text-600 dark:theme-text-400 mb-1">
+                                            📁 ${folderKey}
+                                        </div>
+                                        <div class="text-xs theme-text-600 dark:theme-text-400 mb-1">
+                                            🎓 ${folder.jurusan || 'Tidak diatur'}
+                                        </div>
+                                        <div class="text-xs text-gray-600 dark:text-gray-300">
+                                            📚 ${folder.kelas || 'Tidak diatur'}
+                                        </div>
+                                    </div>
+                                `;
+                            } else {
+                                fileItem.className = 'file-item p-6 theme-hover-bg-900-10 transition-all duration-300 animate-fade-in cursor-pointer';
+                                fileItem.innerHTML = `
+                                    <!-- Desktop Layout -->
+                                    <div class="hidden md:grid md:grid-cols-3 gap-4 items-center">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="text-3xl">${getFileIcon(file.name)}</div>
+                                            <div>
+                                                <div class="font-semibold text-gray-900 dark:text-white text-lg">${file.displayName || file.name}</div>
+                                                <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                                    ${getFileType(file.name)} • <span class="file-size">${formatFileSize(file.size)}</span> • di folder "${folderKey}"
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="theme-text-600 dark:theme-text-400 font-medium text-base">
+                                            ${folder.jurusan || 'Tidak diatur'}
+                                        </div>
+                                        <div class="text-gray-600 dark:text-gray-300 font-medium text-base">
+                                            ${folder.kelas || 'Tidak diatur'}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Mobile Layout -->
+                                    <div class="md:hidden flex items-center space-x-4">
                                         <div class="text-3xl">${getFileIcon(file.name)}</div>
-                                        <div>
+                                        <div class="flex-1">
                                             <div class="font-semibold text-gray-900 dark:text-white text-lg">${file.displayName || file.name}</div>
                                             <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                                 ${getFileType(file.name)} • <span class="file-size">${formatFileSize(file.size)}</span> • di folder "${folderKey}"
                                             </div>
+                                            <div class="text-sm theme-text-600 dark:theme-text-400 mt-1">
+                                                ${folder.jurusan || 'Tidak diatur'} • ${folder.kelas || 'Tidak diatur'}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="theme-text-600 dark:theme-text-400 font-medium text-base">
-                                        ${folder.jurusan || 'Tidak diatur'}
-                                    </div>
-                                    <div class="text-gray-600 dark:text-gray-300 font-medium text-base">
-                                        ${folder.kelas || 'Tidak diatur'}
-                                    </div>
-                                </div>
-                                
-                                <!-- Mobile Layout -->
-                                <div class="md:hidden flex items-center space-x-4">
-                                    <div class="text-3xl">${getFileIcon(file.name)}</div>
-                                    <div class="flex-1">
-                                        <div class="font-semibold text-gray-900 dark:text-white text-lg">${file.displayName || file.name}</div>
-                                        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                            ${getFileType(file.name)} • <span class="file-size">${formatFileSize(file.size)}</span> • di folder "${folderKey}"
-                                        </div>
-                                        <div class="text-sm theme-text-600 dark:theme-text-400 mt-1">
-                                            ${folder.jurusan || 'Tidak diatur'} • ${folder.kelas || 'Tidak diatur'}
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
+                                `;
+                            }
                             
                             // Deteksi ukuran file secara otomatis
                             if (file.size === null) {
@@ -633,53 +735,75 @@
             // Show folders first (only when not searching)
             if (currentDirectory === '.') {
                 currentFolder.folders.forEach(folderName => {
-
                     const folderItem = document.createElement('div');
-                    folderItem.className = 'file-item p-6 theme-hover-bg-900-10 transition-all duration-300 animate-fade-in cursor-pointer';
                     folderItem.onclick = () => navigateToDirectory(folderName);
                     
-                    folderItem.innerHTML = `
-                        <!-- Desktop Layout -->
-                        <div class="hidden md:grid md:grid-cols-3 gap-4 items-center">
-                            <div class="flex items-center space-x-4">
+                    if (currentViewMode === 'grid') {
+                        folderItem.className = 'grid-item animate-fade-in';
+                        folderItem.innerHTML = `
+                            <div class="text-center">
+                                <div class="text-5xl mb-4">
+                                    <svg class="w-16 h-16 theme-text-500 mx-auto" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                                    </svg>
+                                </div>
+                                <div class="font-semibold text-gray-900 dark:text-white text-lg mb-2">${folderName}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                                    📁 ${fileStructure[folderName]?.files?.length || 0} file(s)
+                                </div>
+                                <div class="text-xs theme-text-600 dark:theme-text-400 mb-1">
+                                    🎓 ${fileStructure[folderName]?.jurusan || 'Tidak diatur'}
+                                </div>
+                                <div class="text-xs text-gray-600 dark:text-gray-300">
+                                    📚 ${fileStructure[folderName]?.kelas || 'Tidak diatur'}
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        folderItem.className = 'file-item p-6 theme-hover-bg-900-10 transition-all duration-300 animate-fade-in cursor-pointer';
+                        folderItem.innerHTML = `
+                            <!-- Desktop Layout -->
+                            <div class="hidden md:grid md:grid-cols-3 gap-4 items-center">
+                                <div class="flex items-center space-x-4">
+                                    <div class="text-3xl">
+                                        <svg class="w-8 h-8 theme-text-500" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <div class="font-semibold text-gray-900 dark:text-white text-lg">${folderName}</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                            Folder • ${fileStructure[folderName]?.files?.length || 0} file(s)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="theme-text-600 dark:theme-text-400 font-medium text-base">
+                                    ${fileStructure[folderName]?.jurusan || 'Tidak diatur'}
+                                </div>
+                                <div class="text-gray-600 dark:text-gray-300 font-medium text-base">
+                                    ${fileStructure[folderName]?.kelas || 'Tidak diatur'}
+                                </div>
+                            </div>
+                            
+                            <!-- Mobile Layout -->
+                            <div class="md:hidden flex items-center space-x-4">
                                 <div class="text-3xl">
                                     <svg class="w-8 h-8 theme-text-500" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
                                     </svg>
                                 </div>
-                                <div>
+                                <div class="flex-1">
                                     <div class="font-semibold text-gray-900 dark:text-white text-lg">${folderName}</div>
                                     <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                         Folder • ${fileStructure[folderName]?.files?.length || 0} file(s)
                                     </div>
+                                    <div class="text-sm theme-text-600 dark:theme-text-400 mt-1">
+                                        ${fileStructure[folderName]?.jurusan || 'Tidak diatur'} • ${fileStructure[folderName]?.kelas || 'Tidak diatur'}
+                                    </div>
                                 </div>
                             </div>
-                            <div class="theme-text-600 dark:theme-text-400 font-medium text-base">
-                                ${fileStructure[folderName]?.jurusan || 'Tidak diatur'}
-                            </div>
-                            <div class="text-gray-600 dark:text-gray-300 font-medium text-base">
-                                ${fileStructure[folderName]?.kelas || 'Tidak diatur'}
-                            </div>
-                        </div>
-                        
-                        <!-- Mobile Layout -->
-                        <div class="md:hidden flex items-center space-x-4">
-                            <div class="text-3xl">
-                                <svg class="w-8 h-8 theme-text-500" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
-                                </svg>
-                            </div>
-                            <div class="flex-1">
-                                <div class="font-semibold text-gray-900 dark:text-white text-lg">${folderName}</div>
-                                <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                    Folder • ${fileStructure[folderName]?.files?.length || 0} file(s)
-                                </div>
-                                <div class="text-sm theme-text-600 dark:theme-text-400 mt-1">
-                                    ${fileStructure[folderName]?.jurusan || 'Tidak diatur'} • ${fileStructure[folderName]?.kelas || 'Tidak diatur'}
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                        `;
+                    }
                     
                     fileList.appendChild(folderItem);
                 });
@@ -701,45 +825,64 @@
                 }
 
                 const fileItem = document.createElement('div');
-                fileItem.className = 'file-item p-6 theme-hover-bg-900-10 transition-all duration-300 animate-fade-in cursor-pointer';
                 
                 // Add click handler to open file
                 fileItem.onclick = () => openFile(file.name, currentDirectory);
                 
-                fileItem.innerHTML = `
-                    <!-- Desktop Layout -->
-                    <div class="hidden md:grid md:grid-cols-3 gap-4 items-center">
-                        <div class="flex items-center space-x-4">
+                if (currentViewMode === 'grid') {
+                    fileItem.className = 'grid-item animate-fade-in';
+                    fileItem.innerHTML = `
+                        <div class="text-center">
+                            <div class="text-5xl mb-4">${getFileIcon(file.name)}</div>
+                            <div class="font-semibold text-gray-900 dark:text-white text-lg mb-2 line-clamp-2">${file.displayName || file.name}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                                ${getFileType(file.name)} • <span class="file-size">${formatFileSize(file.size)}</span>
+                            </div>
+                            <div class="text-xs theme-text-600 dark:theme-text-400 mb-1">
+                                🎓 ${currentFolder.jurusan || 'Tidak diatur'}
+                            </div>
+                            <div class="text-xs text-gray-600 dark:text-gray-300">
+                                📚 ${currentFolder.kelas || 'Tidak diatur'}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    fileItem.className = 'file-item p-6 theme-hover-bg-900-10 transition-all duration-300 animate-fade-in cursor-pointer';
+                    fileItem.innerHTML = `
+                        <!-- Desktop Layout -->
+                        <div class="hidden md:grid md:grid-cols-3 gap-4 items-center">
+                            <div class="flex items-center space-x-4">
+                                <div class="text-3xl">${getFileIcon(file.name)}</div>
+                                <div>
+                                    <div class="font-semibold text-gray-900 dark:text-white text-lg">${file.displayName || file.name}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        ${getFileType(file.name)} • <span class="file-size">${formatFileSize(file.size)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="theme-text-600 dark:theme-text-400 font-medium text-base">
+                                ${currentFolder.jurusan || 'Tidak diatur'}
+                            </div>
+                            <div class="text-gray-600 dark:text-gray-300 font-medium text-base">
+                                ${currentFolder.kelas || 'Tidak diatur'}
+                            </div>
+                        </div>
+                        
+                        <!-- Mobile Layout -->
+                        <div class="md:hidden flex items-center space-x-4">
                             <div class="text-3xl">${getFileIcon(file.name)}</div>
-                            <div>
+                            <div class="flex-1">
                                 <div class="font-semibold text-gray-900 dark:text-white text-lg">${file.displayName || file.name}</div>
                                 <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                                     ${getFileType(file.name)} • <span class="file-size">${formatFileSize(file.size)}</span>
                                 </div>
+                                <div class="text-sm theme-text-600 dark:theme-text-400 mt-1">
+                                    ${currentFolder.jurusan || 'Tidak diatur'} • ${currentFolder.kelas || 'Tidak diatur'}
+                                </div>
                             </div>
                         </div>
-                        <div class="theme-text-600 dark:theme-text-400 font-medium text-base">
-                            ${currentFolder.jurusan || 'Tidak diatur'}
-                        </div>
-                        <div class="text-gray-600 dark:text-gray-300 font-medium text-base">
-                            ${currentFolder.kelas || 'Tidak diatur'}
-                        </div>
-                    </div>
-                    
-                    <!-- Mobile Layout -->
-                    <div class="md:hidden flex items-center space-x-4">
-                        <div class="text-3xl">${getFileIcon(file.name)}</div>
-                        <div class="flex-1">
-                            <div class="font-semibold text-gray-900 dark:text-white text-lg">${file.displayName || file.name}</div>
-                            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                ${getFileType(file.name)} • <span class="file-size">${formatFileSize(file.size)}</span>
-                            </div>
-                            <div class="text-sm theme-text-600 dark:theme-text-400 mt-1">
-                                ${currentFolder.jurusan || 'Tidak diatur'} • ${currentFolder.kelas || 'Tidak diatur'}
-                            </div>
-                        </div>
-                    </div>
-                `;
+                    `;
+                }
                 
                 // Deteksi ukuran file secara otomatis
                 if (file.size === null) {
@@ -846,6 +989,33 @@
             renderFiles();
         });
 
+        // View Mode Toggle functionality
+        const listViewBtn = document.getElementById('listViewBtn');
+        const gridViewBtn = document.getElementById('gridViewBtn');
+        
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            
+            // Update button states
+            listViewBtn.classList.toggle('active', mode === 'list');
+            gridViewBtn.classList.toggle('active', mode === 'grid');
+            
+            // Save preference
+            localStorage.setItem('viewMode', mode);
+            
+            // Re-render files with new view mode
+            renderFiles(searchInput.value);
+        }
+        
+        listViewBtn.addEventListener('click', () => setViewMode('list'));
+        gridViewBtn.addEventListener('click', () => setViewMode('grid'));
+        
+        // Load saved view mode
+        const savedViewMode = localStorage.getItem('viewMode');
+        if (savedViewMode && (savedViewMode === 'list' || savedViewMode === 'grid')) {
+            setViewMode(savedViewMode);
+        }
+
         // Search functionality
         const searchInput = document.getElementById('searchInput');
         const clearSearchBtn = document.getElementById('clearSearchBtn');
@@ -873,5 +1043,5 @@
         // Initial render
         renderFiles();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97ff7cbc15edcecf',t:'MTc1ODAxNjUxNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97ff820357b8cece',t:'MTc1ODAxNjczMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
