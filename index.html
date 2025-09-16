@@ -82,7 +82,7 @@
                             type="text" 
                             id="searchInput"
                             placeholder="Cari file atau folder..."
-                            class="w-64 sm:w-80 px-4 py-2 pl-10 bg-white dark:bg-gray-700 border border-islamic-green-200 dark:border-islamic-green-700 rounded-xl focus:outline-none search-glow text-gray-900 dark:text-white text-base"
+                            class="w-48 sm:w-64 lg:w-80 px-4 py-2 pl-10 bg-white dark:bg-gray-700 border border-islamic-green-200 dark:border-islamic-green-700 rounded-xl focus:outline-none search-glow text-gray-900 dark:text-white text-base"
                         >
                         <svg class="w-5 h-5 text-islamic-green-500 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -107,23 +107,29 @@
     </header>
 
     <!-- Breadcrumb Navigation -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="flex items-center space-x-2 mb-6 text-lg">
-            <button id="homeBtn" class="flex items-center space-x-2 px-4 py-2 bg-islamic-green-100 dark:bg-islamic-green-800 text-islamic-green-700 dark:text-islamic-green-300 rounded-lg hover:bg-islamic-green-200 dark:hover:bg-islamic-green-700 transition-all duration-300">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div class="flex items-center space-x-2 mb-4 sm:mb-6 text-base sm:text-lg">
+            <button id="homeBtn" class="flex items-center space-x-2 px-3 sm:px-4 py-2 bg-islamic-green-100 dark:bg-islamic-green-800 text-islamic-green-700 dark:text-islamic-green-300 rounded-lg hover:bg-islamic-green-200 dark:hover:bg-islamic-green-700 transition-all duration-300">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
                 </svg>
-                <span>Root</span>
+                <span class="text-sm sm:text-base">Root</span>
             </button>
-            <span id="breadcrumbPath" class="text-gray-500 dark:text-gray-400"></span>
+            <span id="breadcrumbPath" class="text-gray-500 dark:text-gray-400 text-sm sm:text-base"></span>
         </div>
 
         <!-- File List Header -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-islamic-green-100 dark:border-islamic-green-800 overflow-hidden">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-islamic-green-50 dark:bg-islamic-green-900/20 border-b border-islamic-green-200 dark:border-islamic-green-700">
+            <!-- Desktop Header -->
+            <div class="hidden md:grid md:grid-cols-3 gap-4 p-6 bg-islamic-green-50 dark:bg-islamic-green-900/20 border-b border-islamic-green-200 dark:border-islamic-green-700">
                 <div class="font-semibold text-islamic-green-800 dark:text-islamic-green-200 text-lg">Nama File</div>
-                <div class="font-semibold text-islamic-green-800 dark:text-islamic-green-200 text-lg hidden md:block">Jurusan</div>
-                <div class="font-semibold text-islamic-green-800 dark:text-islamic-green-200 text-lg hidden md:block">Kelas</div>
+                <div class="font-semibold text-islamic-green-800 dark:text-islamic-green-200 text-lg">Jurusan</div>
+                <div class="font-semibold text-islamic-green-800 dark:text-islamic-green-200 text-lg">Kelas</div>
+            </div>
+            
+            <!-- Mobile Header -->
+            <div class="md:hidden p-4 bg-islamic-green-50 dark:bg-islamic-green-900/20 border-b border-islamic-green-200 dark:border-islamic-green-700">
+                <div class="font-semibold text-islamic-green-800 dark:text-islamic-green-200 text-lg">File & Folder</div>
             </div>
 
             <!-- File List -->
@@ -315,20 +321,94 @@
             const fileList = document.getElementById('fileList');
             fileList.innerHTML = '';
 
+            // If there's a search term, search across all folders
+            if (searchTerm) {
+                let hasResults = false;
+                
+                // Search through all folders and their files
+                Object.keys(fileStructure).forEach(folderKey => {
+                    if (folderKey === '.') return; // Skip root
+                    
+                    const folder = fileStructure[folderKey];
+                    folder.files.forEach(file => {
+                        const fileName = file.name.toLowerCase();
+                        const displayName = (file.displayName || '').toLowerCase();
+                        const searchLower = searchTerm.toLowerCase();
+                        
+                        // Check if search term matches
+                        if (fileName.includes(searchLower) || displayName.includes(searchLower)) {
+                            hasResults = true;
+                            
+                            const fileItem = document.createElement('div');
+                            fileItem.className = 'file-item p-6 hover:bg-islamic-green-50 dark:hover:bg-islamic-green-900/10 transition-all duration-300 animate-fade-in cursor-pointer';
+                            fileItem.onclick = () => openFile(file.name, folderKey);
+                            
+                            fileItem.innerHTML = `
+                                <!-- Desktop Layout -->
+                                <div class="hidden md:grid md:grid-cols-3 gap-4 items-center">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="text-3xl">${getFileIcon(file.name)}</div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900 dark:text-white text-lg">${file.displayName || file.name}</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                                ${getFileType(file.name)} • ${formatFileSize(file.size)} • di folder "${folderKey}"
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-islamic-green-600 dark:text-islamic-green-400 font-medium text-base">
+                                        ${folder.jurusan || 'Tidak diatur'}
+                                    </div>
+                                    <div class="text-gray-600 dark:text-gray-300 font-medium text-base">
+                                        ${folder.kelas || 'Tidak diatur'}
+                                    </div>
+                                </div>
+                                
+                                <!-- Mobile Layout -->
+                                <div class="md:hidden flex items-center space-x-4">
+                                    <div class="text-3xl">${getFileIcon(file.name)}</div>
+                                    <div class="flex-1">
+                                        <div class="font-semibold text-gray-900 dark:text-white text-lg">${file.displayName || file.name}</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                            ${getFileType(file.name)} • ${formatFileSize(file.size)} • di folder "${folderKey}"
+                                        </div>
+                                        <div class="text-sm text-islamic-green-600 dark:text-islamic-green-400 mt-1">
+                                            ${folder.jurusan || 'Tidak diatur'} • ${folder.kelas || 'Tidak diatur'}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            
+                            fileList.appendChild(fileItem);
+                        }
+                    });
+                });
+                
+                if (!hasResults) {
+                    fileList.innerHTML = `
+                        <div class="p-12 text-center">
+                            <div class="text-6xl mb-4">🔍</div>
+                            <div class="text-xl text-gray-500 dark:text-gray-400 mb-2">Tidak ditemukan</div>
+                            <div class="text-sm text-gray-400 dark:text-gray-500">Coba kata kunci lain untuk pencarian</div>
+                        </div>
+                    `;
+                }
+                return;
+            }
+
             const currentFolder = fileStructure[currentDirectory];
             if (!currentFolder) return;
 
-            // Show folders first
+            // Show folders first (only when not searching)
             if (currentDirectory === '.') {
                 currentFolder.folders.forEach(folderName => {
-                    if (searchTerm && !folderName.toLowerCase().includes(searchTerm.toLowerCase())) return;
 
                     const folderItem = document.createElement('div');
                     folderItem.className = 'file-item p-6 hover:bg-islamic-green-50 dark:hover:bg-islamic-green-900/10 transition-all duration-300 animate-fade-in cursor-pointer';
                     folderItem.onclick = () => navigateToDirectory(folderName);
                     
                     folderItem.innerHTML = `
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                        <!-- Desktop Layout -->
+                        <div class="hidden md:grid md:grid-cols-3 gap-4 items-center">
                             <div class="flex items-center space-x-4">
                                 <div class="text-3xl">📁</div>
                                 <div>
@@ -338,11 +418,25 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="text-islamic-green-600 dark:text-islamic-green-400 font-medium text-base md:block hidden">
+                            <div class="text-islamic-green-600 dark:text-islamic-green-400 font-medium text-base">
                                 ${fileStructure[folderName]?.jurusan || 'Tidak diatur'}
                             </div>
-                            <div class="text-gray-600 dark:text-gray-300 font-medium text-base md:block hidden">
+                            <div class="text-gray-600 dark:text-gray-300 font-medium text-base">
                                 ${fileStructure[folderName]?.kelas || 'Tidak diatur'}
+                            </div>
+                        </div>
+                        
+                        <!-- Mobile Layout -->
+                        <div class="md:hidden flex items-center space-x-4">
+                            <div class="text-3xl">📁</div>
+                            <div class="flex-1">
+                                <div class="font-semibold text-gray-900 dark:text-white text-lg">${folderName}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                    Folder • ${fileStructure[folderName]?.files?.length || 0} file(s)
+                                </div>
+                                <div class="text-sm text-islamic-green-600 dark:text-islamic-green-400 mt-1">
+                                    ${fileStructure[folderName]?.jurusan || 'Tidak diatur'} • ${fileStructure[folderName]?.kelas || 'Tidak diatur'}
+                                </div>
                             </div>
                         </div>
                     `;
@@ -353,7 +447,18 @@
 
             // Show files
             currentFolder.files.forEach(file => {
-                if (searchTerm && !file.name.toLowerCase().includes(searchTerm.toLowerCase()) && !(file.displayName && file.displayName.toLowerCase().includes(searchTerm.toLowerCase()))) return;
+                // Enhanced search - check both file name and display name
+                if (searchTerm) {
+                    const fileName = file.name.toLowerCase();
+                    const displayName = (file.displayName || '').toLowerCase();
+                    const searchLower = searchTerm.toLowerCase();
+                    
+                    // Check if search term exists in either file name or display name
+                    const matchesFileName = fileName.includes(searchLower);
+                    const matchesDisplayName = displayName.includes(searchLower);
+                    
+                    if (!matchesFileName && !matchesDisplayName) return;
+                }
 
                 const fileItem = document.createElement('div');
                 fileItem.className = 'file-item p-6 hover:bg-islamic-green-50 dark:hover:bg-islamic-green-900/10 transition-all duration-300 animate-fade-in cursor-pointer';
@@ -362,7 +467,8 @@
                 fileItem.onclick = () => openFile(file.name, currentDirectory);
                 
                 fileItem.innerHTML = `
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <!-- Desktop Layout -->
+                    <div class="hidden md:grid md:grid-cols-3 gap-4 items-center">
                         <div class="flex items-center space-x-4">
                             <div class="text-3xl">${getFileIcon(file.name)}</div>
                             <div>
@@ -372,11 +478,25 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="text-islamic-green-600 dark:text-islamic-green-400 font-medium text-base md:block hidden">
+                        <div class="text-islamic-green-600 dark:text-islamic-green-400 font-medium text-base">
                             ${currentFolder.jurusan || 'Tidak diatur'}
                         </div>
-                        <div class="text-gray-600 dark:text-gray-300 font-medium text-base md:block hidden">
+                        <div class="text-gray-600 dark:text-gray-300 font-medium text-base">
                             ${currentFolder.kelas || 'Tidak diatur'}
+                        </div>
+                    </div>
+                    
+                    <!-- Mobile Layout -->
+                    <div class="md:hidden flex items-center space-x-4">
+                        <div class="text-3xl">${getFileIcon(file.name)}</div>
+                        <div class="flex-1">
+                            <div class="font-semibold text-gray-900 dark:text-white text-lg">${file.displayName || file.name}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                ${getFileType(file.name)} • ${formatFileSize(file.size)}
+                            </div>
+                            <div class="text-sm text-islamic-green-600 dark:text-islamic-green-400 mt-1">
+                                ${currentFolder.jurusan || 'Tidak diatur'} • ${currentFolder.kelas || 'Tidak diatur'}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -425,5 +545,5 @@
         // Initial render
         renderFiles();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97ff2bbc130acec2',t:'MTc1ODAxMzE5OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97ff384e3270ced3',t:'MTc1ODAxMzcxMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
