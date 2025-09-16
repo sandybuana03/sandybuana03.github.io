@@ -19,6 +19,9 @@
         .breadcrumb-item:hover {
             color: #3b82f6;
         }
+        .folder-item:hover {
+            background-color: #f3f4f6;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
@@ -35,34 +38,14 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 py-6">
-        <!-- Toolbar -->
+        <!-- Breadcrumb Navigation -->
         <div class="bg-white rounded-lg shadow-md p-4 mb-6">
-            <div class="flex items-center justify-between flex-wrap gap-4">
-                <!-- Breadcrumb -->
-                <div class="flex items-center space-x-2 text-sm">
-                    <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-9 9a1 1 0 001.414 1.414L2 12.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-4.586l.293.293a1 1 0 001.414-1.414l-9-9z"></path>
-                    </svg>
-                    <span id="breadcrumb" class="text-gray-600">/ (Root Directory)</span>
-                </div>
-
-                <!-- Controls -->
-                <div class="flex items-center space-x-3">
-                    <input type="file" id="fileInput" multiple class="hidden">
-                    <button onclick="document.getElementById('fileInput').click()" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span>Upload File</span>
-                    </button>
-                    <button onclick="refreshFiles()" 
-                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span>Refresh</span>
-                    </button>
+            <div class="flex items-center space-x-2 text-sm">
+                <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-9 9a1 1 0 001.414 1.414L2 12.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-4.586l.293.293a1 1 0 001.414-1.414l-9-9z"></path>
+                </svg>
+                <div id="breadcrumb" class="flex items-center space-x-2">
+                    <span class="breadcrumb-item text-blue-600 hover:text-blue-800" onclick="navigateToPath('.')">Root</span>
                 </div>
             </div>
         </div>
@@ -71,7 +54,7 @@
         <div class="bg-white rounded-lg shadow-md overflow-hidden">
             <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
                 <div class="grid grid-cols-12 gap-4 text-sm font-medium text-gray-700">
-                    <div class="col-span-6">Nama File</div>
+                    <div class="col-span-6">Nama</div>
                     <div class="col-span-2">Ukuran</div>
                     <div class="col-span-2">Tipe</div>
                     <div class="col-span-2">Terakhir Diubah</div>
@@ -82,34 +65,25 @@
             </div>
         </div>
 
-        <!-- Empty State -->
-        <div id="emptyState" class="hidden text-center py-12">
-            <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada file</h3>
-            <p class="text-gray-500">Upload file untuk mulai menggunakan file explorer</p>
+        <!-- Loading State -->
+        <div id="loadingState" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
+            <p class="text-gray-600">Memuat file dan folder...</p>
         </div>
-    </div>
 
-    <!-- Demo Notice -->
-    <div class="fixed bottom-4 right-4 bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded-lg shadow-lg max-w-sm">
-        <div class="flex items-start">
-            <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+        <!-- Error State -->
+        <div id="errorState" class="hidden text-center py-12">
+            <svg class="w-16 h-16 mx-auto text-red-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
             </svg>
-            <div>
-                <p class="font-medium text-sm">Demo Mode</p>
-                <p class="text-xs mt-1">File explorer ini menggunakan browser storage untuk simulasi. File yang diupload hanya tersimpan sementara di browser.</p>
-            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Gagal memuat direktori</h3>
+            <p class="text-gray-500" id="errorMessage">Terjadi kesalahan saat membaca direktori</p>
         </div>
     </div>
 
     <script>
-        // Simulated file system using localStorage
-        let fileSystem = JSON.parse(localStorage.getItem('webFileSystem')) || {};
-        let currentPath = '/';
-
+        let currentPath = '.';
+        
         // File type icons and colors
         const fileTypes = {
             'pdf': { icon: '📄', color: 'text-red-600', name: 'PDF Document' },
@@ -131,6 +105,7 @@
             'html': { icon: '🌐', color: 'text-orange-600', name: 'HTML File' },
             'css': { icon: '🎨', color: 'text-blue-600', name: 'CSS File' },
             'js': { icon: '⚡', color: 'text-yellow-600', name: 'JavaScript' },
+            'php': { icon: '🐘', color: 'text-purple-600', name: 'PHP File' },
             'default': { icon: '📄', color: 'text-gray-600', name: 'File' }
         };
 
@@ -147,8 +122,8 @@
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        function formatDate(date) {
-            return new Date(date).toLocaleDateString('id-ID', {
+        function formatDate(timestamp) {
+            return new Date(timestamp * 1000).toLocaleDateString('id-ID', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',
@@ -157,147 +132,143 @@
             });
         }
 
-        function renderFiles() {
-            const fileList = document.getElementById('fileList');
-            const emptyState = document.getElementById('emptyState');
+        function updateBreadcrumb(path) {
+            const breadcrumb = document.getElementById('breadcrumb');
+            const pathParts = path === '.' ? [] : path.split('/').filter(part => part !== '');
             
+            let breadcrumbHTML = '<span class="breadcrumb-item text-blue-600 hover:text-blue-800 cursor-pointer" onclick="navigateToPath(\'.\')">Root</span>';
+            
+            let currentPath = '';
+            pathParts.forEach((part, index) => {
+                currentPath += (currentPath ? '/' : '') + part;
+                breadcrumbHTML += `
+                    <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 111.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="breadcrumb-item text-blue-600 hover:text-blue-800 cursor-pointer" onclick="navigateToPath('${currentPath}')">${part}</span>
+                `;
+            });
+            
+            breadcrumb.innerHTML = breadcrumbHTML;
+        }
+
+        async function loadDirectory(path = '.') {
+            const loadingState = document.getElementById('loadingState');
+            const errorState = document.getElementById('errorState');
+            const fileList = document.getElementById('fileList');
+            
+            // Show loading state
+            loadingState.classList.remove('hidden');
+            errorState.classList.add('hidden');
             fileList.innerHTML = '';
             
-            const files = Object.values(fileSystem);
-            
-            if (files.length === 0) {
-                fileList.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-                return;
+            try {
+                const response = await fetch(`list_files.php?path=${encodeURIComponent(path)}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Hide loading state
+                loadingState.classList.add('hidden');
+                
+                // Update breadcrumb
+                updateBreadcrumb(path);
+                currentPath = path;
+                
+                // Render files and folders
+                renderItems(data.items);
+                
+            } catch (error) {
+                console.error('Error loading directory:', error);
+                loadingState.classList.add('hidden');
+                errorState.classList.remove('hidden');
+                document.getElementById('errorMessage').textContent = error.message;
             }
+        }
+
+        function renderItems(items) {
+            const fileList = document.getElementById('fileList');
+            fileList.innerHTML = '';
             
-            fileList.classList.remove('hidden');
-            emptyState.classList.add('hidden');
+            // Sort items: folders first, then files
+            items.sort((a, b) => {
+                if (a.type === 'directory' && b.type !== 'directory') return -1;
+                if (a.type !== 'directory' && b.type === 'directory') return 1;
+                return a.name.localeCompare(b.name);
+            });
             
-            files.forEach(file => {
-                const fileType = getFileType(file.name);
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer';
+            items.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'file-item px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer';
                 
-                fileItem.innerHTML = `
-                    <div class="grid grid-cols-12 gap-4 items-center">
-                        <div class="col-span-6 flex items-center space-x-3">
-                            <span class="file-icon text-2xl">${fileType.icon}</span>
-                            <div>
-                                <p class="font-medium text-gray-900">${file.name}</p>
-                                <p class="text-sm text-gray-500">${fileType.name}</p>
+                if (item.type === 'directory') {
+                    itemElement.innerHTML = `
+                        <div class="grid grid-cols-12 gap-4 items-center">
+                            <div class="col-span-6 flex items-center space-x-3">
+                                <span class="file-icon text-2xl">📁</span>
+                                <div>
+                                    <p class="font-medium text-gray-900">${item.name}</p>
+                                    <p class="text-sm text-gray-500">Folder</p>
+                                </div>
                             </div>
+                            <div class="col-span-2 text-sm text-gray-600">-</div>
+                            <div class="col-span-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-blue-600 bg-blue-100">
+                                    Folder
+                                </span>
+                            </div>
+                            <div class="col-span-2 text-sm text-gray-600">${formatDate(item.modified)}</div>
                         </div>
-                        <div class="col-span-2 text-sm text-gray-600">${formatFileSize(file.size)}</div>
-                        <div class="col-span-2">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${fileType.color} bg-gray-100">
-                                ${fileType.name}
-                            </span>
-                        </div>
-                        <div class="col-span-2 text-sm text-gray-600">${formatDate(file.lastModified)}</div>
-                    </div>
-                `;
-                
-                fileItem.addEventListener('click', () => {
-                    downloadFile(file);
-                });
-                
-                fileList.appendChild(fileItem);
-            });
-        }
-
-        function downloadFile(file) {
-            const blob = new Blob([file.content], { type: file.type });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = file.name;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        function refreshFiles() {
-            renderFiles();
-            
-            // Show refresh animation
-            const refreshBtn = event.target.closest('button');
-            const icon = refreshBtn.querySelector('svg');
-            icon.style.transform = 'rotate(360deg)';
-            icon.style.transition = 'transform 0.5s ease';
-            
-            setTimeout(() => {
-                icon.style.transform = 'rotate(0deg)';
-            }, 500);
-        }
-
-        // File upload handling
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const files = Array.from(e.target.files);
-            
-            files.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const fileData = {
-                        id: Date.now() + Math.random(),
-                        name: file.name,
-                        size: file.size,
-                        type: file.type,
-                        lastModified: file.lastModified || Date.now(),
-                        content: e.target.result
-                    };
+                    `;
                     
-                    fileSystem[fileData.id] = fileData;
-                    localStorage.setItem('webFileSystem', JSON.stringify(fileSystem));
-                    renderFiles();
-                };
-                reader.readAsArrayBuffer(file);
+                    itemElement.addEventListener('click', () => {
+                        const newPath = currentPath === '.' ? item.name : `${currentPath}/${item.name}`;
+                        navigateToPath(newPath);
+                    });
+                } else {
+                    const fileType = getFileType(item.name);
+                    itemElement.innerHTML = `
+                        <div class="grid grid-cols-12 gap-4 items-center">
+                            <div class="col-span-6 flex items-center space-x-3">
+                                <span class="file-icon text-2xl">${fileType.icon}</span>
+                                <div>
+                                    <p class="font-medium text-gray-900">${item.name}</p>
+                                    <p class="text-sm text-gray-500">${fileType.name}</p>
+                                </div>
+                            </div>
+                            <div class="col-span-2 text-sm text-gray-600">${formatFileSize(item.size)}</div>
+                            <div class="col-span-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${fileType.color} bg-gray-100">
+                                    ${fileType.name}
+                                </span>
+                            </div>
+                            <div class="col-span-2 text-sm text-gray-600">${formatDate(item.modified)}</div>
+                        </div>
+                    `;
+                    
+                    itemElement.addEventListener('click', () => {
+                        const filePath = currentPath === '.' ? item.name : `${currentPath}/${item.name}`;
+                        window.open(filePath, '_blank');
+                    });
+                }
+                
+                fileList.appendChild(itemElement);
             });
-            
-            // Reset input
-            e.target.value = '';
-        });
+        }
+
+        function navigateToPath(path) {
+            loadDirectory(path);
+        }
 
         // Initialize
-        renderFiles();
-
-        // Add some sample files for demonstration
-        if (Object.keys(fileSystem).length === 0) {
-            const sampleFiles = [
-                {
-                    id: 1,
-                    name: 'dokumen-contoh.pdf',
-                    size: 245760,
-                    type: 'application/pdf',
-                    lastModified: Date.now() - 86400000,
-                    content: new ArrayBuffer(245760)
-                },
-                {
-                    id: 2,
-                    name: 'presentasi.pptx',
-                    size: 1048576,
-                    type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-                    lastModified: Date.now() - 172800000,
-                    content: new ArrayBuffer(1048576)
-                },
-                {
-                    id: 3,
-                    name: 'data-excel.xlsx',
-                    size: 524288,
-                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                    lastModified: Date.now() - 259200000,
-                    content: new ArrayBuffer(524288)
-                }
-            ];
-            
-            sampleFiles.forEach(file => {
-                fileSystem[file.id] = file;
-            });
-            
-            localStorage.setItem('webFileSystem', JSON.stringify(fileSystem));
-            renderFiles();
-        }
+        loadDirectory();
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97fd4f8436fdce45',t:'MTc1Nzk5MzY5My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97fd59bf168adf8b',t:'MTc1Nzk5NDExMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
