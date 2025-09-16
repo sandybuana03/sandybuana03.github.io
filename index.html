@@ -1696,28 +1696,44 @@
         // Snow/Bubble Animation System
         class SnowAnimation {
             constructor() {
-                this.container = document.getElementById('snowContainer');
-                this.toggle = document.getElementById('snowToggle');
+                this.container = null;
+                this.toggle = null;
                 this.isActive = false;
                 this.snowflakes = [];
                 this.maxSnowflakes = 30;
                 this.animationInterval = null;
                 this.snowflakeSymbols = ['❄', '❅', '❆', '✻', '✼', '❋'];
                 this.bubbleSymbols = ['○', '◯', '◦', '●', '◉', '⚬'];
+                this.initialized = false;
                 
                 this.init();
             }
             
             init() {
-                // Ensure DOM is ready
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', () => {
+                // Always wait for DOM to be fully ready
+                const initializeWhenReady = () => {
+                    // Get elements with retry mechanism
+                    this.container = document.getElementById('snowContainer');
+                    this.toggle = document.getElementById('snowToggle');
+                    
+                    if (this.container && this.toggle && !this.initialized) {
+                        this.initialized = true;
                         this.setupEvents();
-                        this.loadSavedState();
-                    });
+                        // Add small delay before loading saved state
+                        setTimeout(() => {
+                            this.loadSavedState();
+                        }, 200);
+                    } else if (!this.initialized) {
+                        // Retry after a short delay if elements not found
+                        setTimeout(initializeWhenReady, 100);
+                    }
+                };
+                
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initializeWhenReady);
                 } else {
-                    this.setupEvents();
-                    this.loadSavedState();
+                    // DOM already loaded, but still use timeout for safety
+                    setTimeout(initializeWhenReady, 50);
                 }
             }
             
@@ -1743,14 +1759,17 @@
             }
             
             loadSavedState() {
-                // Load saved state with a small delay to ensure everything is ready
-                setTimeout(() => {
-                    const savedState = localStorage.getItem('snowAnimation');
-                    // Default to active if no saved state exists, or if saved state is true
-                    if (savedState === null || savedState === 'true') {
+                // Clear any existing state first
+                this.stop();
+                
+                // Load saved state with proper delay
+                const savedState = localStorage.getItem('snowAnimation');
+                // Default to active if no saved state exists, or if saved state is true
+                if (savedState === null || savedState === 'true') {
+                    setTimeout(() => {
                         this.start();
-                    }
-                }, 100);
+                    }, 100);
+                }
             }
             
             updateSnowflakeStyles() {
@@ -1886,7 +1905,11 @@
                 // Clear all snowflakes
                 this.snowflakes.forEach(snowflake => {
                     if (snowflake && snowflake.parentNode) {
-                        snowflake.parentNode.removeChild(snowflake);
+                        try {
+                            snowflake.parentNode.removeChild(snowflake);
+                        } catch (e) {
+                            // Element might already be removed
+                        }
                     }
                 });
                 this.snowflakes = [];
@@ -1896,24 +1919,47 @@
                     this.container.innerHTML = '';
                 }
                 
-                // Save state
-                localStorage.setItem('snowAnimation', 'false');
+                // Only save state if this is a user action, not initialization cleanup
+                if (this.initialized) {
+                    localStorage.setItem('snowAnimation', 'false');
+                }
             }
         }
         
-        // Initialize snow animation
-        const snowAnimation = new SnowAnimation();
+        // Global initialization function
+        function initializeApp() {
+            // Clear any existing intervals/timeouts first
+            if (window.appInitialized) {
+                return;
+            }
+            window.appInitialized = true;
+            
+            // Initialize animations with proper delays
+            setTimeout(() => {
+                window.snowAnimation = new SnowAnimation();
+            }, 100);
+            
+            setTimeout(() => {
+                window.particleAnimation = new ParticleAnimation();
+            }, 200);
+            
+            // Initialize file rendering
+            setTimeout(() => {
+                renderFiles();
+            }, 50);
+        }
 
         // Particle Animation System
         class ParticleAnimation {
             constructor() {
-                this.container = document.getElementById('particleContainer');
-                this.toggle = document.getElementById('particleToggle');
+                this.container = null;
+                this.toggle = null;
                 this.isActive = false;
                 this.particles = [];
                 this.mouseX = 0;
                 this.mouseY = 0;
                 this.lastMouseTime = 0;
+                this.initialized = false;
                 this.colors = [
                     'rgba(59, 130, 246, 0.8)',   // Blue
                     'rgba(147, 51, 234, 0.8)',   // Purple
@@ -1929,14 +1975,25 @@
             }
             
             init() {
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', () => {
+                const initializeWhenReady = () => {
+                    this.container = document.getElementById('particleContainer');
+                    this.toggle = document.getElementById('particleToggle');
+                    
+                    if (this.container && this.toggle && !this.initialized) {
+                        this.initialized = true;
                         this.setupEvents();
-                        this.loadSavedState();
-                    });
+                        setTimeout(() => {
+                            this.loadSavedState();
+                        }, 250);
+                    } else if (!this.initialized) {
+                        setTimeout(initializeWhenReady, 100);
+                    }
+                };
+                
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', initializeWhenReady);
                 } else {
-                    this.setupEvents();
-                    this.loadSavedState();
+                    setTimeout(initializeWhenReady, 50);
                 }
             }
             
@@ -1972,13 +2029,16 @@
             }
             
             loadSavedState() {
-                setTimeout(() => {
-                    const savedState = localStorage.getItem('particleAnimation');
-                    // Default to active if no saved state exists, or if saved state is true
-                    if (savedState === null || savedState === 'true') {
+                // Clear any existing state first
+                this.stop();
+                
+                const savedState = localStorage.getItem('particleAnimation');
+                // Default to active if no saved state exists, or if saved state is true
+                if (savedState === null || savedState === 'true') {
+                    setTimeout(() => {
                         this.start();
-                    }
-                }, 100);
+                    }, 150);
+                }
             }
             
             createParticle(x, y) {
@@ -2109,7 +2169,11 @@
                 // Clear all particles
                 this.particles.forEach(particle => {
                     if (particle && particle.parentNode) {
-                        particle.parentNode.removeChild(particle);
+                        try {
+                            particle.parentNode.removeChild(particle);
+                        } catch (e) {
+                            // Element might already be removed
+                        }
                     }
                 });
                 this.particles = [];
@@ -2119,16 +2183,31 @@
                     this.container.innerHTML = '';
                 }
                 
-                // Save state
-                localStorage.setItem('particleAnimation', 'false');
+                // Only save state if this is a user action, not initialization cleanup
+                if (this.initialized) {
+                    localStorage.setItem('particleAnimation', 'false');
+                }
             }
         }
         
-        // Initialize particle animation
-        const particleAnimation = new ParticleAnimation();
-
-        // Initial render
-        renderFiles();
+        // Initialize the entire application
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            // DOM already loaded
+            setTimeout(initializeApp, 100);
+        }
+        
+        // Cleanup function for page unload
+        window.addEventListener('beforeunload', () => {
+            if (window.snowAnimation) {
+                window.snowAnimation.stop();
+            }
+            if (window.particleAnimation) {
+                window.particleAnimation.stop();
+            }
+            window.appInitialized = false;
+        });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9800378de726cece',t:'MTc1ODAyNDE2OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9802a2ba41e0cecb',t:'MTc1ODA0OTUzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
