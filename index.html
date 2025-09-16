@@ -3,427 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EduLearn - Platform Pembelajaran Online</title>
+    <title>File Explorer Web</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .file-icon {
+            transition: all 0.2s ease;
         }
-        .card-hover {
-            transition: all 0.3s ease;
+        .file-item:hover .file-icon {
+            transform: scale(1.1);
         }
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        .breadcrumb-item {
+            cursor: pointer;
+            transition: color 0.2s ease;
         }
-        .loading-skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-        }
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+        .breadcrumb-item:hover {
+            color: #3b82f6;
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
     <!-- Header -->
-    <header class="gradient-bg text-white shadow-lg">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                        <span class="text-2xl">📚</span>
-                    </div>
-                    <h1 class="text-2xl font-bold">EduLearn</h1>
-                </div>
-                <nav class="hidden md:flex space-x-6">
-                    <a href="#beranda" class="hover:text-blue-200 transition-colors">Beranda</a>
-                    <a href="#materi" class="hover:text-blue-200 transition-colors">Materi</a>
-                    <a href="#tentang" class="hover:text-blue-200 transition-colors">Tentang</a>
-                    <a href="#kontak" class="hover:text-blue-200 transition-colors">Kontak</a>
-                </nav>
-                <button class="md:hidden text-white">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+    <div class="bg-white shadow-lg border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center">
+                <svg class="w-8 h-8 mr-3 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path>
+                </svg>
+                File Explorer Web
+            </h1>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Toolbar -->
+        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <!-- Breadcrumb -->
+                <div class="flex items-center space-x-2 text-sm">
+                    <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-9 9a1 1 0 001.414 1.414L2 12.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-4.586l.293.293a1 1 0 001.414-1.414l-9-9z"></path>
                     </svg>
-                </button>
-            </div>
-        </div>
-    </header>
+                    <span id="breadcrumb" class="text-gray-600">/ (Root Directory)</span>
+                </div>
 
-    <!-- Hero Section -->
-    <section id="beranda" class="gradient-bg text-white py-20">
-        <div class="container mx-auto px-6 text-center">
-            <h2 class="text-5xl font-bold mb-6">Belajar Tanpa Batas</h2>
-            <p class="text-xl mb-8 max-w-2xl mx-auto">Platform pembelajaran online terlengkap dengan materi berkualitas tinggi yang selalu terupdate</p>
-            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                <button onclick="scrollToSection('materi')" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
-                    Mulai Belajar
-                </button>
-                <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
-                    Pelajari Lebih Lanjut
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <!-- Stats Section -->
-    <section class="py-16 bg-white">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-                <div class="p-6">
-                    <div class="text-4xl font-bold text-blue-600 mb-2" id="totalMateri">0</div>
-                    <p class="text-gray-600">Materi Pembelajaran</p>
-                </div>
-                <div class="p-6">
-                    <div class="text-4xl font-bold text-green-600 mb-2">10+</div>
-                    <p class="text-gray-600">Kategori</p>
-                </div>
-                <div class="p-6">
-                    <div class="text-4xl font-bold text-purple-600 mb-2">24/7</div>
-                    <p class="text-gray-600">Akses Kapan Saja</p>
-                </div>
-                <div class="p-6">
-                    <div class="text-4xl font-bold text-orange-600 mb-2">100%</div>
-                    <p class="text-gray-600">Gratis</p>
+                <!-- Controls -->
+                <div class="flex items-center space-x-3">
+                    <input type="file" id="fileInput" multiple class="hidden">
+                    <button onclick="document.getElementById('fileInput').click()" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Upload File</span>
+                    </button>
+                    <button onclick="refreshFiles()" 
+                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
+                        </svg>
+                        <span>Refresh</span>
+                    </button>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- Materi Section -->
-    <section id="materi" class="py-16 bg-gray-50">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-bold text-gray-800 mb-4">Materi Pembelajaran</h2>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Koleksi materi pembelajaran yang terus bertambah dan selalu terupdate</p>
-            </div>
-
-            <!-- Filter Buttons -->
-            <div class="flex flex-wrap justify-center gap-4 mb-8">
-                <button onclick="filterMateri('semua')" class="filter-btn bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition-colors">
-                    Semua
-                </button>
-                <button onclick="filterMateri('matematika')" class="filter-btn bg-gray-200 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-300 transition-colors">
-                    Matematika
-                </button>
-                <button onclick="filterMateri('sains')" class="filter-btn bg-gray-200 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-300 transition-colors">
-                    Sains
-                </button>
-                <button onclick="filterMateri('bahasa')" class="filter-btn bg-gray-200 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-300 transition-colors">
-                    Bahasa
-                </button>
-                <button onclick="filterMateri('teknologi')" class="filter-btn bg-gray-200 text-gray-700 px-6 py-2 rounded-full hover:bg-gray-300 transition-colors">
-                    Teknologi
-                </button>
-            </div>
-
-            <!-- Loading State -->
-            <div id="loadingState" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                    <div class="loading-skeleton h-48"></div>
-                    <div class="p-6">
-                        <div class="loading-skeleton h-6 mb-3 rounded"></div>
-                        <div class="loading-skeleton h-4 mb-2 rounded"></div>
-                        <div class="loading-skeleton h-4 w-3/4 rounded"></div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                    <div class="loading-skeleton h-48"></div>
-                    <div class="p-6">
-                        <div class="loading-skeleton h-6 mb-3 rounded"></div>
-                        <div class="loading-skeleton h-4 mb-2 rounded"></div>
-                        <div class="loading-skeleton h-4 w-3/4 rounded"></div>
-                    </div>
-                </div>
-                <div class="bg-white rounded-xl shadow-md overflow-hidden">
-                    <div class="loading-skeleton h-48"></div>
-                    <div class="p-6">
-                        <div class="loading-skeleton h-6 mb-3 rounded"></div>
-                        <div class="loading-skeleton h-4 mb-2 rounded"></div>
-                        <div class="loading-skeleton h-4 w-3/4 rounded"></div>
-                    </div>
+        <!-- File List -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="bg-gray-50 px-6 py-3 border-b border-gray-200">
+                <div class="grid grid-cols-12 gap-4 text-sm font-medium text-gray-700">
+                    <div class="col-span-6">Nama File</div>
+                    <div class="col-span-2">Ukuran</div>
+                    <div class="col-span-2">Tipe</div>
+                    <div class="col-span-2">Terakhir Diubah</div>
                 </div>
             </div>
-
-            <!-- Materi Cards Container -->
-            <div id="materiContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 hidden">
-                <!-- Cards akan dimuat secara dinamis -->
-            </div>
-
-            <!-- Empty State -->
-            <div id="emptyState" class="text-center py-12 hidden">
-                <div class="text-6xl mb-4">📂</div>
-                <h3 class="text-2xl font-semibold text-gray-700 mb-2">Belum Ada Materi</h3>
-                <p class="text-gray-500 mb-6">Materi pembelajaran akan muncul di sini setelah file HTML diunggah ke folder materi</p>
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-2xl mx-auto text-left">
-                    <h4 class="font-semibold text-blue-800 mb-3">📋 Cara Menambah Materi:</h4>
-                    <ol class="text-blue-700 space-y-2">
-                        <li>1. Buat folder bernama "materi" di direktori website</li>
-                        <li>2. Simpan file HTML materi pembelajaran di folder tersebut</li>
-                        <li>3. Setiap file HTML akan otomatis muncul sebagai kartu materi</li>
-                        <li>4. Gunakan tag meta untuk informasi tambahan (kategori, deskripsi, dll)</li>
-                    </ol>
-                </div>
+            <div id="fileList" class="divide-y divide-gray-200">
+                <!-- Files will be populated here -->
             </div>
         </div>
-    </section>
 
-    <!-- About Section -->
-    <section id="tentang" class="py-16 bg-white">
-        <div class="container mx-auto px-6">
-            <div class="max-w-4xl mx-auto text-center">
-                <h2 class="text-4xl font-bold text-gray-800 mb-6">Tentang EduLearn</h2>
-                <p class="text-xl text-gray-600 mb-8">Platform pembelajaran yang dirancang untuk memudahkan akses pendidikan berkualitas bagi semua orang</p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <span class="text-2xl">🎯</span>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Mudah Digunakan</h3>
-                        <p class="text-gray-600">Interface yang intuitif dan mudah dipahami untuk semua kalangan</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <span class="text-2xl">🔄</span>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Selalu Update</h3>
-                        <p class="text-gray-600">Materi pembelajaran yang selalu fresh dan mengikuti perkembangan terkini</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <span class="text-2xl">🌟</span>
-                        </div>
-                        <h3 class="text-xl font-semibold mb-2">Berkualitas</h3>
-                        <p class="text-gray-600">Konten pembelajaran yang telah dikurasi dan berkualitas tinggi</p>
-                    </div>
-                </div>
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-12">
+            <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada file</h3>
+            <p class="text-gray-500">Upload file untuk mulai menggunakan file explorer</p>
+        </div>
+    </div>
+
+    <!-- Demo Notice -->
+    <div class="fixed bottom-4 right-4 bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded-lg shadow-lg max-w-sm">
+        <div class="flex items-start">
+            <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            <div>
+                <p class="font-medium text-sm">Demo Mode</p>
+                <p class="text-xs mt-1">File explorer ini menggunakan browser storage untuk simulasi. File yang diupload hanya tersimpan sementara di browser.</p>
             </div>
         </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-12">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                            <span class="text-lg">📚</span>
-                        </div>
-                        <h3 class="text-xl font-bold">EduLearn</h3>
-                    </div>
-                    <p class="text-gray-400">Platform pembelajaran online terbaik untuk masa depan yang lebih cerah</p>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Menu</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#beranda" class="hover:text-white transition-colors">Beranda</a></li>
-                        <li><a href="#materi" class="hover:text-white transition-colors">Materi</a></li>
-                        <li><a href="#tentang" class="hover:text-white transition-colors">Tentang</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Kategori</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li>Matematika</li>
-                        <li>Sains</li>
-                        <li>Bahasa</li>
-                        <li>Teknologi</li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Kontak</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li>📧 info@edulearn.com</li>
-                        <li>📱 +62 123 456 789</li>
-                        <li>📍 Jakarta, Indonesia</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2024 EduLearn. Semua hak dilindungi.</p>
-            </div>
-        </div>
-    </footer>
+    </div>
 
     <script>
-        // Data materi pembelajaran (simulasi)
-        let materiData = [];
-        let currentFilter = 'semua';
+        // Simulated file system using localStorage
+        let fileSystem = JSON.parse(localStorage.getItem('webFileSystem')) || {};
+        let currentPath = '/';
 
-        // Simulasi loading materi dari folder
-        async function loadMateriFromFolder() {
-            // Simulasi delay loading
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            // Simulasi data materi (dalam implementasi nyata, ini akan membaca folder materi)
-            const sampleMateri = [
-                {
-                    title: "Pengenalan Aljabar",
-                    category: "matematika",
-                    description: "Pelajari dasar-dasar aljabar dengan mudah dan menyenangkan",
-                    duration: "45 menit",
-                    level: "Pemula",
-                    filename: "aljabar-dasar.html",
-                    icon: "🔢"
-                },
-                {
-                    title: "Sistem Tata Surya",
-                    category: "sains",
-                    description: "Jelajahi keajaiban tata surya dan planet-planet di dalamnya",
-                    duration: "60 menit",
-                    level: "Menengah",
-                    filename: "tata-surya.html",
-                    icon: "🌌"
-                },
-                {
-                    title: "Grammar Bahasa Inggris",
-                    category: "bahasa",
-                    description: "Kuasai tata bahasa Inggris dengan latihan interaktif",
-                    duration: "30 menit",
-                    level: "Pemula",
-                    filename: "english-grammar.html",
-                    icon: "📝"
-                },
-                {
-                    title: "Pemrograman Web HTML",
-                    category: "teknologi",
-                    description: "Belajar membuat website dengan HTML dari nol",
-                    duration: "90 menit",
-                    level: "Pemula",
-                    filename: "html-basics.html",
-                    icon: "💻"
-                },
-                {
-                    title: "Geometri Bidang",
-                    category: "matematika",
-                    description: "Memahami konsep geometri bidang dan aplikasinya",
-                    duration: "50 menit",
-                    level: "Menengah",
-                    filename: "geometri-bidang.html",
-                    icon: "📐"
-                },
-                {
-                    title: "Ekosistem dan Lingkungan",
-                    category: "sains",
-                    description: "Pelajari hubungan makhluk hidup dengan lingkungannya",
-                    duration: "40 menit",
-                    level: "Pemula",
-                    filename: "ekosistem.html",
-                    icon: "🌿"
-                }
-            ];
+        // File type icons and colors
+        const fileTypes = {
+            'pdf': { icon: '📄', color: 'text-red-600', name: 'PDF Document' },
+            'doc': { icon: '📝', color: 'text-blue-600', name: 'Word Document' },
+            'docx': { icon: '📝', color: 'text-blue-600', name: 'Word Document' },
+            'xls': { icon: '📊', color: 'text-green-600', name: 'Excel Spreadsheet' },
+            'xlsx': { icon: '📊', color: 'text-green-600', name: 'Excel Spreadsheet' },
+            'ppt': { icon: '📋', color: 'text-orange-600', name: 'PowerPoint' },
+            'pptx': { icon: '📋', color: 'text-orange-600', name: 'PowerPoint' },
+            'txt': { icon: '📄', color: 'text-gray-600', name: 'Text File' },
+            'jpg': { icon: '🖼️', color: 'text-purple-600', name: 'Image' },
+            'jpeg': { icon: '🖼️', color: 'text-purple-600', name: 'Image' },
+            'png': { icon: '🖼️', color: 'text-purple-600', name: 'Image' },
+            'gif': { icon: '🖼️', color: 'text-purple-600', name: 'Image' },
+            'mp4': { icon: '🎬', color: 'text-red-600', name: 'Video' },
+            'mp3': { icon: '🎵', color: 'text-green-600', name: 'Audio' },
+            'zip': { icon: '🗜️', color: 'text-yellow-600', name: 'Archive' },
+            'rar': { icon: '🗜️', color: 'text-yellow-600', name: 'Archive' },
+            'html': { icon: '🌐', color: 'text-orange-600', name: 'HTML File' },
+            'css': { icon: '🎨', color: 'text-blue-600', name: 'CSS File' },
+            'js': { icon: '⚡', color: 'text-yellow-600', name: 'JavaScript' },
+            'default': { icon: '📄', color: 'text-gray-600', name: 'File' }
+        };
 
-            materiData = sampleMateri;
-            updateTotalMateri();
-            hideLoading();
-            displayMateri();
+        function getFileType(filename) {
+            const extension = filename.split('.').pop().toLowerCase();
+            return fileTypes[extension] || fileTypes.default;
         }
 
-        function updateTotalMateri() {
-            document.getElementById('totalMateri').textContent = materiData.length;
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        function hideLoading() {
-            document.getElementById('loadingState').classList.add('hidden');
-            document.getElementById('materiContainer').classList.remove('hidden');
+        function formatDate(date) {
+            return new Date(date).toLocaleDateString('id-ID', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
         }
 
-        function displayMateri() {
-            const container = document.getElementById('materiContainer');
+        function renderFiles() {
+            const fileList = document.getElementById('fileList');
             const emptyState = document.getElementById('emptyState');
             
-            let filteredMateri = materiData;
-            if (currentFilter !== 'semua') {
-                filteredMateri = materiData.filter(materi => materi.category === currentFilter);
-            }
-
-            if (filteredMateri.length === 0) {
-                container.classList.add('hidden');
+            fileList.innerHTML = '';
+            
+            const files = Object.values(fileSystem);
+            
+            if (files.length === 0) {
+                fileList.classList.add('hidden');
                 emptyState.classList.remove('hidden');
                 return;
             }
-
-            container.classList.remove('hidden');
+            
+            fileList.classList.remove('hidden');
             emptyState.classList.add('hidden');
-
-            container.innerHTML = filteredMateri.map(materi => `
-                <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover cursor-pointer" onclick="openMateri('${materi.filename}')">
-                    <div class="h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                        <span class="text-6xl">${materi.icon}</span>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full font-medium">
-                                ${getCategoryName(materi.category)}
+            
+            files.forEach(file => {
+                const fileType = getFileType(file.name);
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item px-6 py-4 hover:bg-gray-50 transition-colors cursor-pointer';
+                
+                fileItem.innerHTML = `
+                    <div class="grid grid-cols-12 gap-4 items-center">
+                        <div class="col-span-6 flex items-center space-x-3">
+                            <span class="file-icon text-2xl">${fileType.icon}</span>
+                            <div>
+                                <p class="font-medium text-gray-900">${file.name}</p>
+                                <p class="text-sm text-gray-500">${fileType.name}</p>
+                            </div>
+                        </div>
+                        <div class="col-span-2 text-sm text-gray-600">${formatFileSize(file.size)}</div>
+                        <div class="col-span-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${fileType.color} bg-gray-100">
+                                ${fileType.name}
                             </span>
-                            <span class="text-sm text-gray-500">${materi.level}</span>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-800 mb-2">${materi.title}</h3>
-                        <p class="text-gray-600 mb-4">${materi.description}</p>
-                        <div class="flex items-center justify-between text-sm text-gray-500">
-                            <span>⏱️ ${materi.duration}</span>
-                            <span class="text-blue-600 font-medium">Mulai Belajar →</span>
-                        </div>
+                        <div class="col-span-2 text-sm text-gray-600">${formatDate(file.lastModified)}</div>
                     </div>
-                </div>
-            `).join('');
-        }
-
-        function getCategoryName(category) {
-            const categoryNames = {
-                'matematika': 'Matematika',
-                'sains': 'Sains',
-                'bahasa': 'Bahasa',
-                'teknologi': 'Teknologi'
-            };
-            return categoryNames[category] || category;
-        }
-
-        function filterMateri(category) {
-            currentFilter = category;
-            
-            // Update button states
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('bg-gray-200', 'text-gray-700');
-            });
-            
-            event.target.classList.remove('bg-gray-200', 'text-gray-700');
-            event.target.classList.add('bg-blue-600', 'text-white');
-            
-            displayMateri();
-        }
-
-        function openMateri(filename) {
-            // Dalam implementasi nyata, ini akan membuka file HTML dari folder materi
-            alert(`Membuka materi: ${filename}\n\nDalam implementasi nyata, ini akan membuka file HTML dari folder "materi/${filename}"`);
-        }
-
-        function scrollToSection(sectionId) {
-            document.getElementById(sectionId).scrollIntoView({
-                behavior: 'smooth'
+                `;
+                
+                fileItem.addEventListener('click', () => {
+                    downloadFile(file);
+                });
+                
+                fileList.appendChild(fileItem);
             });
         }
 
-        // Smooth scrolling untuk navigation
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                }
+        function downloadFile(file) {
+            const blob = new Blob([file.content], { type: file.type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file.name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function refreshFiles() {
+            renderFiles();
+            
+            // Show refresh animation
+            const refreshBtn = event.target.closest('button');
+            const icon = refreshBtn.querySelector('svg');
+            icon.style.transform = 'rotate(360deg)';
+            icon.style.transition = 'transform 0.5s ease';
+            
+            setTimeout(() => {
+                icon.style.transform = 'rotate(0deg)';
+            }, 500);
+        }
+
+        // File upload handling
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fileData = {
+                        id: Date.now() + Math.random(),
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        lastModified: file.lastModified || Date.now(),
+                        content: e.target.result
+                    };
+                    
+                    fileSystem[fileData.id] = fileData;
+                    localStorage.setItem('webFileSystem', JSON.stringify(fileSystem));
+                    renderFiles();
+                };
+                reader.readAsArrayBuffer(file);
             });
+            
+            // Reset input
+            e.target.value = '';
         });
 
-        // Load materi saat halaman dimuat
-        window.addEventListener('load', loadMateriFromFolder);
+        // Initialize
+        renderFiles();
+
+        // Add some sample files for demonstration
+        if (Object.keys(fileSystem).length === 0) {
+            const sampleFiles = [
+                {
+                    id: 1,
+                    name: 'dokumen-contoh.pdf',
+                    size: 245760,
+                    type: 'application/pdf',
+                    lastModified: Date.now() - 86400000,
+                    content: new ArrayBuffer(245760)
+                },
+                {
+                    id: 2,
+                    name: 'presentasi.pptx',
+                    size: 1048576,
+                    type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                    lastModified: Date.now() - 172800000,
+                    content: new ArrayBuffer(1048576)
+                },
+                {
+                    id: 3,
+                    name: 'data-excel.xlsx',
+                    size: 524288,
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    lastModified: Date.now() - 259200000,
+                    content: new ArrayBuffer(524288)
+                }
+            ];
+            
+            sampleFiles.forEach(file => {
+                fileSystem[file.id] = file;
+            });
+            
+            localStorage.setItem('webFileSystem', JSON.stringify(fileSystem));
+            renderFiles();
+        }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97fd41e92425df83',t:'MTc1Nzk5MzEzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97fd4f8436fdce45',t:'MTc1Nzk5MzY5My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
