@@ -1280,14 +1280,15 @@
             if (currentDirectory === '.') {
                 breadcrumbPath.innerHTML = '';
             } else {
-                // Split the path into segments
-                const pathSegments = currentDirectory.split('/');
+                // For nested folders, we need to show the proper hierarchy
                 let breadcrumbHTML = '';
                 
-                pathSegments.forEach((segment, index) => {
-                    // Build the path up to this segment
-                    const pathToSegment = pathSegments.slice(0, index + 1).join('/');
-                    
+                // Check if current directory is a nested folder
+                const isNestedFolder = ['Basis Data', 'Pemrograman Berbasis Teks, Grafis, dan Multimedia', 
+                                       'Pemrograman Web', 'Pemrograman Perangkat Bergerak'].includes(currentDirectory);
+                
+                if (isNestedFolder) {
+                    // Show parent folder first
                     breadcrumbHTML += `
                         <div class="flex items-center space-x-2">
                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1295,14 +1296,46 @@
                             </svg>
                             <button 
                                 class="font-medium theme-text-600 dark:theme-text-400 hover:theme-text-800 dark:hover:theme-text-200 transition-colors duration-200 px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                                onclick="navigateToDirectory('${pathToSegment}')"
-                                title="Klik untuk masuk ke folder ${segment}"
+                                onclick="navigateToDirectory('Rekayasa Perangkat Lunak')"
+                                title="Klik untuk masuk ke folder Rekayasa Perangkat Lunak"
                             >
-                                ${segment}
+                                Rekayasa Perangkat Lunak
                             </button>
                         </div>
                     `;
-                });
+                    
+                    // Show current folder
+                    breadcrumbHTML += `
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                            <button 
+                                class="font-medium theme-text-600 dark:theme-text-400 hover:theme-text-800 dark:hover:theme-text-200 transition-colors duration-200 px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                                onclick="navigateToDirectory('${currentDirectory}')"
+                                title="Klik untuk masuk ke folder ${currentDirectory}"
+                            >
+                                ${currentDirectory}
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    // Regular folder - just show it
+                    breadcrumbHTML += `
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                            <button 
+                                class="font-medium theme-text-600 dark:theme-text-400 hover:theme-text-800 dark:hover:theme-text-200 transition-colors duration-200 px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                                onclick="navigateToDirectory('${currentDirectory}')"
+                                title="Klik untuk masuk ke folder ${currentDirectory}"
+                            >
+                                ${currentDirectory}
+                            </button>
+                        </div>
+                    `;
+                }
                 
                 breadcrumbPath.innerHTML = breadcrumbHTML;
             }
@@ -1311,7 +1344,27 @@
         // Navigate to directory
         function navigateToDirectory(dirName) {
             console.log('Navigating to directory:', dirName);
-            currentDirectory = dirName;
+            
+            // Handle nested folder navigation properly
+            // For nested folders like "Rekayasa Perangkat Lunak/Basis Data", 
+            // we need to use the final folder name as the key
+            let targetDirectory = dirName;
+            
+            // If it's a nested path, extract the final folder name
+            if (dirName.includes('/')) {
+                const pathParts = dirName.split('/');
+                targetDirectory = pathParts[pathParts.length - 1]; // Get the last part
+                console.log('Nested path detected. Using final folder:', targetDirectory);
+            }
+            
+            // Check if the target directory exists in our structure
+            if (!fileStructure[targetDirectory]) {
+                console.error('Directory not found in structure:', targetDirectory);
+                console.log('Available directories:', Object.keys(fileStructure));
+                return;
+            }
+            
+            currentDirectory = targetDirectory; // Use the actual key from fileStructure
             updateBreadcrumb();
             
             // Clear search when navigating
@@ -1663,10 +1716,20 @@
                 fileList.appendChild(fileItem);
             });
 
-            // Check if we need to show empty state
-            console.log('Final check - fileList children count:', fileList.children.length);
+            // Debug logging untuk troubleshooting
+            console.log('=== DEBUG INFO ===');
+            console.log('Current directory:', currentDirectory);
+            console.log('Current folder data:', currentFolder);
+            console.log('Folders in current directory:', currentFolder.folders);
+            console.log('Files in current directory:', currentFolder.files);
+            console.log('Number of folders added:', currentFolder.folders ? currentFolder.folders.length : 0);
+            console.log('Number of files added:', currentFolder.files ? currentFolder.files.length : 0);
+            console.log('Total elements in fileList:', fileList.children.length);
             console.log('Search term:', searchTerm);
+            console.log('View mode:', currentViewMode);
+            console.log('==================');
             
+            // Check if we need to show empty state
             if (fileList.children.length === 0) {
                 // Check if we're in search mode or just viewing an empty folder
                 if (searchTerm) {
@@ -2684,5 +2747,5 @@
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98080c4830d4cec3',t:'MTc1ODEwNjI4My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9808182106eccecf',t:'MTc1ODEwNjc2Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
