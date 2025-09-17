@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buana Explorer - Smart Learning Hub</title>
+    <title>Buana Explorer - SMK AL-IRSYAD TEGAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -820,7 +820,7 @@
                     </div>
                     <div>
                         <h1 class="text-2xl font-bold text-gray-900 dark:text-white shimmer-text">Buana Explorer</h1>
-                        <p class="text-sm theme-text-600 dark:theme-text-400 font-medium shimmer-subtitle">Smart Learning Hub</p>
+                        <p class="text-sm theme-text-600 dark:theme-text-400 font-medium shimmer-subtitle">SMK AL-IRSYAD TEGAL</p>
                     </div>
                 </div>
                 
@@ -906,7 +906,7 @@
                 </div>
                 
                 <!-- View Mode Toggle -->
-                <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-xl p-1 hidden">
+                <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
                     <button 
                         id="listViewBtn"
                         class="p-2.5 rounded-lg transition-all duration-300 view-mode-btn active"
@@ -939,8 +939,6 @@
                     <span class="text-sm sm:text-base">Root</span>
                 </button>
                 <span id="breadcrumbPath" class="text-gray-500 dark:text-gray-400 text-sm sm:text-base"></span>
-                <br>
-                <span class="text-gray-500 dark:text-gray-400 text-sm sm:text-base hidden">Klik Root Jika Data Tidak Muncul</span>
             </div>
         </div>
     </header>
@@ -1034,19 +1032,17 @@
                 folders: ['Basis Data'],
                 files: [
                     { name: 'cprpl.html', displayName: 'Capaian Pembelajaran Rekayasa Perangkat Lunak', size: null, modified: Date.now() / 1000 - 259200 }
-                ],
+                ]
+            },
 
-                'Basis Data': {
+            'Rekayasa Perangkat Lunak/Basis Data': {
                 jurusan: 'Rekayasa Perangkat Lunak',   // Atur jurusan di sini
                 kelas: 'Fase F',                    // Atur kelas di sini
                 folders: [],
                 files: [
                     { name: 'cpbasisdata.html', displayName: 'File Basis Data', size: null, modified: Date.now() / 1000 - 259200 }
-                    ]
-                }
+                ]
             },
-
-            
 
             'Informatika': {
                 jurusan: 'Semua Jurusan',   // Atur jurusan di sini
@@ -1267,14 +1263,32 @@
 
         // Navigate to directory
         function navigateToDirectory(dirName) {
+            console.log('Navigating to directory:', dirName);
             currentDirectory = dirName;
             updateBreadcrumb();
+            
+            // Clear search when navigating
+            if (searchInput) {
+                searchInput.value = '';
+                const clearBtn = document.getElementById('clearSearchBtn');
+                if (clearBtn) {
+                    clearBtn.classList.add('hidden');
+                }
+            }
+            
             renderFiles();
         }
 
         // Render files and folders
         function renderFiles(searchTerm = '') {
+            console.log('Rendering files - Directory:', currentDirectory, 'Search:', searchTerm, 'View Mode:', currentViewMode);
+            
             const fileList = document.getElementById('fileList');
+            if (!fileList) {
+                console.error('File list element not found!');
+                return;
+            }
+            
             fileList.innerHTML = '';
 
             // Apply view mode classes
@@ -1406,10 +1420,13 @@
             if (!currentFolder) return;
 
             // Show folders first (only when not searching)
-            if (currentDirectory === '.') {
+            if (currentFolder.folders && currentFolder.folders.length > 0) {
                 currentFolder.folders.forEach(folderName => {
                     const folderItem = document.createElement('div');
-                    folderItem.onclick = () => navigateToDirectory(folderName);
+                    
+                    // Handle nested folder navigation
+                    const targetDirectory = currentDirectory === '.' ? folderName : `${currentDirectory}/${folderName}`;
+                    folderItem.onclick = () => navigateToDirectory(targetDirectory);
                     
                     if (currentViewMode === 'grid') {
                         folderItem.className = 'grid-item animate-fade-in';
@@ -1668,6 +1685,7 @@
         const gridViewBtn = document.getElementById('gridViewBtn');
         
         function setViewMode(mode) {
+            console.log('Setting view mode to:', mode);
             currentViewMode = mode;
             
             // Update button states
@@ -1677,17 +1695,22 @@
             // Save preference
             localStorage.setItem('viewMode', mode);
             
-            // Re-render files with new view mode
-            renderFiles(searchInput.value);
+            // Force re-render files with new view mode
+            const searchValue = searchInput ? searchInput.value : '';
+            console.log('Re-rendering files with search value:', searchValue);
+            renderFiles(searchValue);
         }
         
-        listViewBtn.addEventListener('click', () => setViewMode('list'));
-        gridViewBtn.addEventListener('click', () => setViewMode('grid'));
-        
-        // Load saved view mode
-        const savedViewMode = localStorage.getItem('viewMode');
-        if (savedViewMode && (savedViewMode === 'list' || savedViewMode === 'grid')) {
-            setViewMode(savedViewMode);
+        // Set up view mode event listeners (will be called after initialization)
+        function setupViewModeListeners() {
+            const listViewBtn = document.getElementById('listViewBtn');
+            const gridViewBtn = document.getElementById('gridViewBtn');
+            
+            if (listViewBtn && gridViewBtn) {
+                listViewBtn.addEventListener('click', () => setViewMode('list'));
+                gridViewBtn.addEventListener('click', () => setViewMode('grid'));
+                console.log('View mode listeners set up');
+            }
         }
 
         // Search functionality
@@ -2095,8 +2118,28 @@
                 
                 // Initialize file rendering first (most important)
                 try {
+                    // Ensure view mode buttons are properly initialized
+                    const listViewBtn = document.getElementById('listViewBtn');
+                    const gridViewBtn = document.getElementById('gridViewBtn');
+                    const searchInput = document.getElementById('searchInput');
+                    
+                    if (listViewBtn && gridViewBtn) {
+                        // Load saved view mode first
+                        const savedViewMode = localStorage.getItem('viewMode');
+                        if (savedViewMode && (savedViewMode === 'list' || savedViewMode === 'grid')) {
+                            currentViewMode = savedViewMode;
+                            listViewBtn.classList.toggle('active', savedViewMode === 'list');
+                            gridViewBtn.classList.toggle('active', savedViewMode === 'grid');
+                        }
+                        
+                        console.log('View mode initialized:', currentViewMode);
+                    }
+                    
                     renderFiles();
                     console.log('Files rendered successfully');
+                    
+                    // Set up view mode listeners after rendering
+                    setupViewModeListeners();
                 } catch (e) {
                     console.error('File rendering error:', e);
                 }
@@ -2528,7 +2571,7 @@
                     console.log('Particle cleanup error:', e);
                 }
             }
-             
+            
             // Clear timers
             if (window.initTimers) {
                 window.initTimers.forEach(timer => clearTimeout(timer));
@@ -2549,5 +2592,5 @@
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9802b7d24572cec7',t:'MTc1ODA1MDM5NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9807d62c16e0ced2',t:'MTc1ODEwNDA2Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
