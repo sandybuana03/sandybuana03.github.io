@@ -10,6 +10,47 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
 
+        document.addEventListener("DOMContentLoaded", function() {
+    // --- 1. Inisialisasi data file/folder di awal load ---
+    function initFileList() {
+        // Ganti dengan fungsi load file/folder milikmu
+        loadFilesToView(currentViewMode, currentDirectory);
+    }
+
+    // --- 2. Inisialisasi efek bubble/salju dan mouse trail ---
+    function initEffects() {
+        if (getEffectState("snow")) startSnowEffect();
+        if (getEffectState("particle")) startParticleEffect();
+    }
+
+    // --- 3. Inisialisasi view mode dari localStorage, dan load data sesuai view ---
+    let currentViewMode = localStorage.getItem("viewMode") || "list";
+    let currentDirectory = localStorage.getItem("currentDirectory") || "root";
+
+    function setViewMode(mode) {
+        currentViewMode = mode;
+        localStorage.setItem("viewMode", mode);
+        // Load ulang data sesuai view, tanpa klik root
+        loadFilesToView(currentViewMode, currentDirectory);
+        updateViewModeUI(mode);
+    }
+
+    document.getElementById("listViewBtn").addEventListener("click", function() {
+        setViewMode("list");
+    });
+    document.getElementById("gridViewBtn").addEventListener("click", function() {
+        setViewMode("grid");
+    });
+
+    // --- 4. Inisialisasi tombol "root" agar mengembalikan ke root dan load data ---
+    document.getElementById("homeBtn").addEventListener("click", function() {
+        currentDirectory = "root";
+        localStorage.setItem("currentDirectory", "root");
+        loadFilesToView(currentViewMode, currentDirectory);
+        updateBreadcrumb("root");
+    });
+
+        
         window.onload = function() {
             document.cookie.split(";").forEach(function(c) {
               document.cookie = c
