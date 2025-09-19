@@ -1406,11 +1406,97 @@
                 fileList.className = 'divide-y divide-gray-200 dark:divide-gray-700';
             }
 
-            // If there's a search term, search across all folders
+            // If there's a search term, search across all folders and files
             if (searchTerm) {
                 let hasResults = false;
+                const searchLower = searchTerm.toLowerCase();
                 
-                // Search through all folders and their files
+                // First, search for matching folders
+                Object.keys(fileStructure).forEach(folderKey => {
+                    if (folderKey === '.') return; // Skip root
+                    
+                    const folder = fileStructure[folderKey];
+                    const folderName = folderKey.toLowerCase();
+                    
+                    // Check if folder name matches search term
+                    if (folderName.includes(searchLower)) {
+                        hasResults = true;
+                        
+                        const folderItem = document.createElement('div');
+                        folderItem.onclick = () => navigateToDirectory(folderKey);
+                        
+                        if (currentViewMode === 'grid') {
+                            folderItem.className = 'grid-item animate-fade-in';
+                            folderItem.innerHTML = `
+                                <div class="text-center">
+                                    <div class="text-5xl mb-4">
+                                        <svg class="w-16 h-16 theme-text-500 mx-auto folder-icon" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="font-semibold text-gray-900 dark:text-white text-lg mb-2 file-name-float">${folderKey}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400 mb-3 secondary-text-float">
+                                        📁 ${folder.files?.length || 0} file(s)
+                                    </div>
+                                    <div class="text-xs theme-text-600 dark:theme-text-400 mb-1 floating-text">
+                                        🎓 ${folder.jurusan || 'Tidak diatur'}
+                                    </div>
+                                    <div class="text-xs text-gray-600 dark:text-gray-300 floating-text">
+                                        📚 ${folder.kelas || 'Tidak diatur'}
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            folderItem.className = 'file-item p-6 bg-white dark:bg-gray-800 rounded-xl border theme-border-100 dark:theme-border-700 mb-3 shadow-sm hover:shadow-lg transition-all duration-300 animate-fade-in cursor-pointer relative overflow-hidden';
+                            folderItem.innerHTML = `
+                                <!-- Desktop Layout -->
+                                <div class="hidden md:grid md:grid-cols-3 gap-4 items-center">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="text-3xl">
+                                            <svg class="w-8 h-8 theme-text-500 file-icon folder-icon transition-all duration-300" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900 dark:text-white text-lg file-name-float">${folderKey}</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400 mt-1 secondary-text-float">
+                                                Folder • ${folder.files?.length || 0} file(s)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="theme-text-600 dark:theme-text-400 font-medium text-base floating-text">
+                                        ${folder.jurusan || 'Tidak diatur'}
+                                    </div>
+                                    <div class="text-gray-600 dark:text-gray-300 font-medium text-base floating-text">
+                                        ${folder.kelas || 'Tidak diatur'}
+                                    </div>
+                                </div>
+                                
+                                <!-- Mobile Layout -->
+                                <div class="md:hidden flex items-center space-x-4">
+                                    <div class="text-3xl">
+                                        <svg class="w-8 h-8 theme-text-500 file-icon folder-icon transition-all duration-300" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M10 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2h-8l-2-2z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="font-semibold text-gray-900 dark:text-white text-lg">${folderKey}</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                            Folder • ${folder.files?.length || 0} file(s)
+                                        </div>
+                                        <div class="text-sm theme-text-600 dark:theme-text-400 mt-1 floating-text">
+                                            ${folder.jurusan || 'Tidak diatur'} • ${folder.kelas || 'Tidak diatur'}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        fileList.appendChild(folderItem);
+                    }
+                });
+                
+                // Then, search through all folders and their files
                 Object.keys(fileStructure).forEach(folderKey => {
                     if (folderKey === '.') return; // Skip root
                     
@@ -1418,7 +1504,6 @@
                     folder.files.forEach(file => {
                         const fileName = file.name.toLowerCase();
                         const displayName = (file.displayName || '').toLowerCase();
-                        const searchLower = searchTerm.toLowerCase();
                         
                         // Check if search term matches
                         if (fileName.includes(searchLower) || displayName.includes(searchLower)) {
@@ -2777,5 +2862,5 @@
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98094ffa518ecec2',t:'MTc1ODExOTU0MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'981d0626b3d2df8b',t:'MTc1ODMyNjIzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
