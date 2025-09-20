@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar Normalisasi Database - Fun Learning!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            margin-bottom: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.5);
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes slideDown {
+            0% { 
+                opacity: 0; 
+                transform: translateY(-10px); 
+                max-height: 0;
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateY(0); 
+                max-height: 200px;
+            }
+        }
+        
+        @keyframes slideUp {
+            0% { 
+                opacity: 1; 
+                transform: translateY(0); 
+                max-height: 200px;
+            }
+            100% { 
+                opacity: 0; 
+                transform: translateY(-10px); 
+                max-height: 0;
+            }
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .quiz-option:hover {
+            transform: scale(1.02);
+            background: #e0f2fe;
+        }
+        
+        .correct {
+            background: #c8e6c9 !important;
+            border-color: #4caf50 !important;
+        }
+        
+        .incorrect {
+            background: #ffcdd2 !important;
+            border-color: #f44336 !important;
+        }
+        
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+        
+        /* Floating Button Styles */
+        #backToTop {
+            transition: all 0.3s ease;
+        }
+        
+        #backToTop.show {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        
+        /* Section Navigation Styles */
+        .section-navigation {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            h1 { font-size: 2rem !important; }
+            h2 { font-size: 1.5rem !important; }
+            h3 { font-size: 1.25rem !important; }
+            p, li { font-size: 1.1rem !important; }
+            
+            #backToTop {
+                bottom: 20px;
+                right: 20px;
+                padding: 12px;
+            }
+            
+            .section-navigation {
+                padding: 15px;
+            }
+            
+            .section-navigation .flex {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-8">
+        <!-- Header -->
+        <div class="card p-8 text-center mb-8">
+            <div class="text-6xl mb-4 bounce">🗃️</div>
+            <h1 class="text-4xl font-bold text-purple-800 mb-4">Normalisasi Database</h1>
+            <p class="text-lg text-gray-700 mb-6">Belajar cara merapikan data seperti merapikan kamar! 🏠✨</p>
+            
+            <!-- Navigation Menu -->
+            <div class="flex flex-wrap justify-center gap-2 mb-6">
+                <button onclick="goToSection(1)" id="nav-1" class="nav-btn bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-600 transition-all duration-300 transform hover:scale-105">
+                    🚀 Intro
+                </button>
+                <button onclick="goToSection(2)" id="nav-2" class="nav-btn bg-gray-300 text-gray-600 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-400 transition-all duration-300 transform hover:scale-105">
+                    🤔 Pengenalan
+                </button>
+                <button onclick="goToSection(3)" id="nav-3" class="nav-btn bg-gray-300 text-gray-600 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-400 transition-all duration-300 transform hover:scale-105">
+                    1️⃣ 1NF
+                </button>
+                <button onclick="goToSection(4)" id="nav-4" class="nav-btn bg-gray-300 text-gray-600 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-400 transition-all duration-300 transform hover:scale-105">
+                    2️⃣ 2NF
+                </button>
+                <button onclick="goToSection(5)" id="nav-5" class="nav-btn bg-gray-300 text-gray-600 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-400 transition-all duration-300 transform hover:scale-105">
+                    3️⃣ 3NF
+                </button>
+                <button onclick="goToSection(6)" id="nav-6" class="nav-btn bg-gray-300 text-gray-600 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-400 transition-all duration-300 transform hover:scale-105">
+                    📝 Tugas
+                </button>
+                <button onclick="goToSection(7)" id="nav-7" class="nav-btn bg-gray-300 text-gray-600 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-400 transition-all duration-300 transform hover:scale-105">
+                    📚 Kesimpulan
+                </button>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="bg-gray-200 rounded-full h-4 mb-4">
+                <div id="progressBar" class="progress-bar bg-gradient-to-r from-pink-400 to-purple-500 h-4 rounded-full" style="width: 0%"></div>
+            </div>
+            <p class="text-sm text-gray-600">Progress Belajar: <span id="progressText">0%</span></p>
+        </div>
+
+        <!-- Intro -->
+        <div class="card p-8 mb-8" id="section1">
+            <div class="flex items-center mb-6">
+                <div class="text-4xl mr-4 bounce">🚀</div>
+                <h2 class="text-3xl font-bold text-indigo-800">Selamat Datang di Pembelajaran Normalisasi!</h2>
+            </div>
+            
+            <!-- Pertanyaan Pemantik -->
+            <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">🤔</div>
+                    <h3 class="text-xl font-bold text-orange-800">Pertanyaan Pemantik</h3>
+                    <p class="text-sm text-orange-600 ml-auto">Klik pertanyaan untuk melihat jawaban! 👆</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-orange-500 cursor-pointer hover:shadow-md transition-all duration-300 transform hover:scale-102" onclick="toggleAnswer('answer1')">
+                        <p class="text-lg text-gray-800 font-medium">💭 Pernahkah kamu melihat data yang berantakan dan berulang-ulang?</p>
+                        <div id="answer1" class="hidden mt-4 p-4 bg-orange-50 rounded-lg border-l-4 border-orange-300">
+                            <p class="text-gray-700"><strong>💡 Jawaban:</strong> Tentu saja! Contohnya seperti daftar kontak di HP yang ada nama yang sama berulang kali, atau data siswa di Excel yang informasi kelasnya ditulis berulang-ulang. Data seperti ini membuat bingung dan susah dikelola. Nah, normalisasi database adalah solusinya! 🎯</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-yellow-500 cursor-pointer hover:shadow-md transition-all duration-300 transform hover:scale-102" onclick="toggleAnswer('answer2')">
+                        <p class="text-lg text-gray-800 font-medium">🗂️ Bagaimana cara merapikan data agar lebih efisien dan mudah dikelola?</p>
+                        <div id="answer2" class="hidden mt-4 p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-300">
+                            <p class="text-gray-700"><strong>💡 Jawaban:</strong> Caranya dengan normalisasi! Kita pecah data besar menjadi tabel-tabel kecil yang saling terhubung. Seperti merapikan lemari: baju dipisah berdasarkan jenis, warna, dan ukuran. Hasilnya? Data jadi rapi, tidak ada duplikasi, dan mudah dicari! 🗃️✨</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-red-500 cursor-pointer hover:shadow-md transition-all duration-300 transform hover:scale-102" onclick="toggleAnswer('answer3')">
+                        <p class="text-lg text-gray-800 font-medium">⚡ Mengapa database yang tidak terorganisir bisa memperlambat sistem?</p>
+                        <div id="answer3" class="hidden mt-4 p-4 bg-red-50 rounded-lg border-l-4 border-red-300">
+                            <p class="text-gray-700"><strong>💡 Jawaban:</strong> Bayangkan mencari buku di perpustakaan yang berantakan! Database yang tidak normal membuat komputer harus "mencari-cari" data di banyak tempat, memproses data duplikat, dan menggunakan memori lebih banyak. Akibatnya aplikasi jadi lemot dan boros resource! ⏰💾</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Apa yang Dipelajari -->
+            <div class="bg-gradient-to-r from-blue-100 to-cyan-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">📖</div>
+                    <h3 class="text-xl font-bold text-blue-800">Apa yang Akan Kamu Pelajari?</h3>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg">
+                        <h5 class="font-semibold text-blue-700 mb-2">🎯 Konsep Dasar:</h5>
+                        <ul class="text-sm space-y-1">
+                            <li>• Perancangan basis data yang baik</li>
+                            <li>• Pengertian normalisasi database</li>
+                            <li>• Masalah data yang tidak normal</li>
+                            <li>• Anomali dalam database</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <h5 class="font-semibold text-green-700 mb-2">🔧 Teknik Normalisasi:</h5>
+                        <ul class="text-sm space-y-1">
+                            <li>• First Normal Form (1NF)</li>
+                            <li>• Second Normal Form (2NF)</li>
+                            <li>• Third Normal Form (3NF)</li>
+                            <li>• Praktik normalisasi dengan contoh</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tujuan Pembelajaran -->
+            <div class="bg-gradient-to-r from-green-100 to-teal-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">🎯</div>
+                    <h3 class="text-xl font-bold text-green-800">Tujuan Pembelajaran</h3>
+                </div>
+                <p class="text-gray-800 mb-4">Setelah mempelajari materi ini, kamu diharapkan mampu:</p>
+                <div class="grid md:grid-cols-1 gap-3">
+                    <div class="flex items-start bg-white p-4 rounded-lg">
+                        <span class="text-green-600 text-xl mr-3 mt-1">✅</span>
+                        <div>
+                            <h5 class="font-semibold text-green-700">Memahami Konsep Normalisasi</h5>
+                            <p class="text-sm text-gray-700">Menjelaskan pengertian dan tujuan normalisasi dalam perancangan database</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start bg-white p-4 rounded-lg">
+                        <span class="text-green-600 text-xl mr-3 mt-1">✅</span>
+                        <div>
+                            <h5 class="font-semibold text-green-700">Mengidentifikasi Masalah Data</h5>
+                            <p class="text-sm text-gray-700">Mengenali anomali dan masalah pada database yang tidak ternormalisasi</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start bg-white p-4 rounded-lg">
+                        <span class="text-green-600 text-xl mr-3 mt-1">✅</span>
+                        <div>
+                            <h5 class="font-semibold text-green-700">Menerapkan Bentuk Normal</h5>
+                            <p class="text-sm text-gray-700">Melakukan normalisasi dari 1NF hingga 3NF dengan benar</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start bg-white p-4 rounded-lg">
+                        <span class="text-green-600 text-xl mr-3 mt-1">✅</span>
+                        <div>
+                            <h5 class="font-semibold text-green-700">Merancang Database Efisien</h5>
+                            <p class="text-sm text-gray-700">Membuat struktur database yang optimal dan mudah dikelola</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pemahaman Bermakna -->
+            <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">💡</div>
+                    <h3 class="text-xl font-bold text-purple-800">Pemahaman Bermakna</h3>
+                </div>
+                <div class="bg-white p-6 rounded-lg">
+                    <p class="text-lg text-gray-800 leading-relaxed mb-4">
+                        <strong>Normalisasi bukan hanya tentang aturan teknis</strong>, tetapi tentang cara berpikir sistematis dalam mengorganisir informasi. 
+                        Seperti merapikan lemari pakaian, kita perlu mengelompokkan dan menyusun data agar mudah ditemukan dan digunakan.
+                    </p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h5 class="font-semibold text-blue-700 mb-2">🏠 Dalam Kehidupan Sehari-hari:</h5>
+                            <p class="text-sm text-gray-700">Seperti mengatur buku di perpustakaan, setiap buku punya tempat yang tepat dan mudah dicari</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg">
+                            <h5 class="font-semibold text-green-700 mb-2">💼 Dalam Dunia Kerja:</h5>
+                            <p class="text-sm text-gray-700">Database yang rapi membuat aplikasi lebih cepat dan mudah dikembangkan</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Motivasi -->
+            <div class="bg-gradient-to-r from-indigo-100 to-blue-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">🔥</div>
+                    <h3 class="text-xl font-bold text-indigo-800">Motivasi Belajar</h3>
+                </div>
+                <div class="space-y-4">
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-indigo-500">
+                        <h5 class="font-semibold text-indigo-700 mb-2">🚀 Skill yang Dicari Industri</h5>
+                        <p class="text-sm text-gray-700">Kemampuan merancang database yang baik sangat dibutuhkan di dunia IT. Perusahaan mencari programmer yang bisa membuat sistem yang efisien!</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-green-500">
+                        <h5 class="font-semibold text-green-700 mb-2">💰 Peluang Karir Cemerlang</h5>
+                        <p class="text-sm text-gray-700">Database Administrator, Backend Developer, dan Data Engineer adalah profesi dengan gaji tinggi yang membutuhkan skill normalisasi!</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-purple-500">
+                        <h5 class="font-semibold text-purple-700 mb-2">🎯 Fondasi Pembelajaran Lanjutan</h5>
+                        <p class="text-sm text-gray-700">Normalisasi adalah dasar untuk mempelajari topik advanced seperti indexing, query optimization, dan big data!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Call to Action -->
+            <div class="bg-gradient-to-r from-orange-400 to-pink-500 p-8 rounded-xl text-center text-white">
+                <div class="text-5xl mb-4">🌟</div>
+                <h3 class="text-2xl font-bold mb-4">Siap Menjadi Database Expert?</h3>
+                <p class="text-lg mb-6">Mari mulai perjalanan seru ini! Kamu akan belajar step-by-step dengan contoh yang mudah dipahami dan quiz interaktif yang menyenangkan!</p>
+                <button onclick="nextSectionWithScroll(1)" class="bg-white text-orange-500 px-8 py-3 rounded-full font-bold text-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                    Mulai Belajar Sekarang! 🚀
+                </button>
+            </div>
+            
+            <!-- Section Navigation -->
+            <div class="section-navigation">
+                <div class="flex justify-between items-center">
+                    <div class="text-white opacity-75">
+                        <span class="text-sm">Bagian 1 dari 6</span>
+                    </div>
+                    <button onclick="nextSectionWithScroll(1)" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+                        Selanjutnya: Pengenalan →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pengenalan -->
+        <div class="card p-8 mb-8 hidden" id="section2">
+            <div class="flex items-center mb-6">
+                <div class="text-4xl mr-4 pulse">🤔</div>
+                <h2 class="text-3xl font-bold text-blue-800">Perancangan Basis Data & Normalisasi</h2>
+            </div>
+            
+            <!-- Apa itu Perancangan Basis Data -->
+            <div class="bg-gradient-to-r from-cyan-100 to-blue-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">🏗️</div>
+                    <h3 class="text-xl font-bold text-cyan-800">Perancangan Basis Data</h3>
+                </div>
+                <p class="text-lg text-gray-800 leading-relaxed mb-4">
+                    <strong>Perancangan Basis Data</strong> adalah proses merancang struktur database yang efisien, konsisten, dan mudah dikelola. 
+                    Seperti arsitek yang merancang rumah, kita perlu merencanakan bagaimana data akan disimpan dan diorganisir.
+                </p>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg">
+                        <h5 class="font-semibold text-blue-700 mb-2">📋 Tahapan Perancangan:</h5>
+                        <ul class="text-sm space-y-1">
+                            <li>• Analisis kebutuhan data</li>
+                            <li>• Perancangan konseptual (ERD)</li>
+                            <li>• Perancangan logikal</li>
+                            <li>• <strong>Normalisasi Database</strong></li>
+                            <li>• Implementasi fisik</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <h5 class="font-semibold text-green-700 mb-2">🎯 Tujuan Perancangan:</h5>
+                        <ul class="text-sm space-y-1">
+                            <li>• Menghindari duplikasi data</li>
+                            <li>• Menjaga konsistensi data</li>
+                            <li>• Memudahkan maintenance</li>
+                            <li>• Meningkatkan performa</li>
+                            <li>• Menghemat storage</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Apa itu Normalisasi -->
+            <div class="bg-gradient-to-r from-blue-100 to-purple-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">🔧</div>
+                    <h3 class="text-xl font-bold text-blue-800">Apa itu Normalisasi?</h3>
+                </div>
+                <p class="text-lg text-gray-800 leading-relaxed mb-4">
+                    <strong>Normalisasi</strong> adalah teknik dalam perancangan database untuk mengorganisir data dengan cara mengurangi redundansi 
+                    dan meningkatkan integritas data. Ini adalah bagian penting dari perancangan basis data yang baik!
+                </p>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-gray-700">
+                        <strong>Definisi Formal:</strong> Normalisasi adalah proses dekomposisi tabel yang memiliki anomali untuk menghasilkan 
+                        tabel-tabel yang lebih kecil dan terdefinisi dengan baik, serta bebas dari anomali.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Masalah Tanpa Normalisasi -->
+            <div class="mb-6">
+                <h3 class="text-xl font-bold text-red-700 mb-4 flex items-center">
+                    <span class="text-3xl mr-3">⚠️</span> Masalah Tanpa Normalisasi:
+                </h3>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="bg-red-100 p-4 rounded-xl text-center">
+                        <div class="text-3xl mb-2">😵</div>
+                        <h4 class="font-semibold text-red-800 mb-2">Data Redundan</h4>
+                        <p class="text-sm text-red-700 mb-2">Data yang berulang-ulang</p>
+                        <div class="bg-white p-2 rounded text-xs">
+                            <strong>Contoh:</strong> Nama siswa "Andi" muncul di 10 baris berbeda
+                        </div>
+                    </div>
+                    <div class="bg-yellow-100 p-4 rounded-xl text-center">
+                        <div class="text-3xl mb-2">🔄</div>
+                        <h4 class="font-semibold text-yellow-800 mb-2">Update Anomaly</h4>
+                        <p class="text-sm text-yellow-700 mb-2">Susah mengubah data</p>
+                        <div class="bg-white p-2 rounded text-xs">
+                            <strong>Contoh:</strong> Ubah nama "Andi" harus di 10 tempat sekaligus
+                        </div>
+                    </div>
+                    <div class="bg-orange-100 p-4 rounded-xl text-center">
+                        <div class="text-3xl mb-2">🗑️</div>
+                        <h4 class="font-semibold text-orange-800 mb-2">Delete Anomaly</h4>
+                        <p class="text-sm text-orange-700 mb-2">Data hilang saat dihapus</p>
+                        <div class="bg-white p-2 rounded text-xs">
+                            <strong>Contoh:</strong> Hapus siswa terakhir, info jurusan ikut hilang
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bentuk-bentuk Normal -->
+            <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">📊</div>
+                    <h3 class="text-xl font-bold text-purple-800">Bentuk-bentuk Normal (Normal Forms)</h3>
+                </div>
+                <p class="text-gray-800 mb-4">
+                    Normalisasi memiliki beberapa tingkatan yang disebut "Normal Forms". Setiap tingkat memiliki aturan yang semakin ketat:
+                </p>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-green-500">
+                        <h5 class="font-bold text-green-700 mb-2">1️⃣ First Normal Form (1NF)</h5>
+                        <p class="text-sm text-gray-700">Setiap kolom berisi nilai tunggal (atomic)</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-orange-500">
+                        <h5 class="font-bold text-orange-700 mb-2">2️⃣ Second Normal Form (2NF)</h5>
+                        <p class="text-sm text-gray-700">1NF + tidak ada partial dependency</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-purple-500">
+                        <h5 class="font-bold text-purple-700 mb-2">3️⃣ Third Normal Form (3NF)</h5>
+                        <p class="text-sm text-gray-700">2NF + tidak ada transitive dependency</p>
+                    </div>
+                </div>
+                <div class="mt-4 bg-blue-50 p-4 rounded-lg">
+                    <p class="text-sm text-blue-800">
+                        <strong>💡 Tips:</strong> Sebagian besar database dalam dunia nyata menggunakan 3NF karena memberikan keseimbangan 
+                        yang baik antara efisiensi storage dan performa query.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Analogi Sederhana -->
+            <div class="bg-green-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center mb-3">
+                    <div class="text-2xl mr-3">💡</div>
+                    <h4 class="font-semibold text-green-800">Analogi Sederhana: Merapikan Perpustakaan 📚</h4>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg">
+                        <h5 class="font-semibold text-red-700 mb-2">❌ Sebelum Normalisasi:</h5>
+                        <p class="text-sm text-gray-700 mb-2">Seperti perpustakaan yang berantakan:</p>
+                        <ul class="text-xs space-y-1">
+                            <li>• Buku yang sama ada di banyak rak</li>
+                            <li>• Info penulis ditulis berulang-ulang</li>
+                            <li>• Susah cari dan update data buku</li>
+                            <li>• Boros tempat dan membingungkan</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <h5 class="font-semibold text-green-700 mb-2">✅ Setelah Normalisasi:</h5>
+                        <p class="text-sm text-gray-700 mb-2">Seperti perpustakaan yang rapi:</p>
+                        <ul class="text-xs space-y-1">
+                            <li>• Setiap buku punya tempat yang tepat</li>
+                            <li>• Info penuler disimpan terpisah</li>
+                            <li>• Mudah cari, update, dan kelola</li>
+                            <li>• Hemat tempat dan terorganisir</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Kapan Menggunakan Normalisasi -->
+            <div class="bg-gradient-to-r from-indigo-100 to-blue-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">🤷‍♂️</div>
+                    <h3 class="text-xl font-bold text-indigo-800">Kapan Menggunakan Normalisasi?</h3>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg">
+                        <h5 class="font-semibold text-green-700 mb-2">✅ Gunakan Normalisasi Ketika:</h5>
+                        <ul class="text-sm space-y-1">
+                            <li>• Database untuk aplikasi transaksional (OLTP)</li>
+                            <li>• Banyak operasi INSERT, UPDATE, DELETE</li>
+                            <li>• Konsistensi data sangat penting</li>
+                            <li>• Storage terbatas</li>
+                            <li>• Data sering berubah</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <h5 class="font-semibold text-orange-700 mb-2">⚠️ Pertimbangkan Denormalisasi Ketika:</h5>
+                        <ul class="text-sm space-y-1">
+                            <li>• Database untuk reporting (OLAP)</li>
+                            <li>• Lebih banyak operasi SELECT</li>
+                            <li>• Performa query lebih penting</li>
+                            <li>• Data jarang berubah</li>
+                            <li>• Kompleksitas query tinggi</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="nextSectionWithScroll(2)" class="mt-6 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                Mulai Belajar 1NF! 🚀
+            </button>
+            
+            <!-- Section Navigation -->
+            <div class="section-navigation">
+                <div class="flex justify-between items-center">
+                    <button onclick="goToSection(1)" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+                        ← Sebelumnya: Intro
+                    </button>
+                    <div class="text-white opacity-75">
+                        <span class="text-sm">Bagian 2 dari 6</span>
+                    </div>
+                    <button onclick="nextSectionWithScroll(2)" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+                        Selanjutnya: 1NF →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1NF -->
+        <div class="card p-8 mb-8 hidden" id="section3">
+            <div class="flex items-center mb-6">
+                <div class="text-4xl mr-4 bounce">1️⃣</div>
+                <h2 class="text-3xl font-bold text-green-800">First Normal Form (1NF)</h2>
+            </div>
+            
+            <div class="bg-gradient-to-r from-green-100 to-teal-100 p-6 rounded-xl mb-6">
+                <h3 class="text-xl font-semibold text-green-800 mb-3">Aturan 1NF:</h3>
+                <ul class="space-y-2 text-lg">
+                    <li class="flex items-center"><span class="text-green-600 mr-2">✅</span> Setiap kolom hanya boleh berisi satu nilai (atomic)</li>
+                    <li class="flex items-center"><span class="text-green-600 mr-2">✅</span> Tidak ada nilai yang berulang dalam satu kolom</li>
+                    <li class="flex items-center"><span class="text-green-600 mr-2">✅</span> Setiap baris harus unik</li>
+                </ul>
+            </div>
+            
+            <!-- Contoh Sebelum 1NF -->
+            <div class="mb-6">
+                <h4 class="text-lg font-semibold text-red-600 mb-3 flex items-center">
+                    <span class="text-2xl mr-2">❌</span> Sebelum 1NF (Tidak Normal):
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full bg-red-50 border-2 border-red-200 rounded-lg">
+                        <thead class="bg-red-200">
+                            <tr>
+                                <th class="p-3 text-left">ID_Siswa</th>
+                                <th class="p-3 text-left">Nama</th>
+                                <th class="p-3 text-left">Hobi</th>
+                                <th class="p-3 text-left">Telepon</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t border-red-200">
+                                <td class="p-3">001</td>
+                                <td class="p-3">Andi</td>
+                                <td class="p-3 bg-red-100">Baca, Musik, Game</td>
+                                <td class="p-3 bg-red-100">081234, 087654</td>
+                            </tr>
+                            <tr class="border-t border-red-200">
+                                <td class="p-3">002</td>
+                                <td class="p-3">Budi</td>
+                                <td class="p-3 bg-red-100">Olahraga, Masak</td>
+                                <td class="p-3">085555</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-sm text-red-600 mt-2">⚠️ Masalah: Satu kolom berisi banyak nilai!</p>
+            </div>
+            
+            <!-- Contoh Setelah 1NF -->
+            <div class="mb-6">
+                <h4 class="text-lg font-semibold text-green-600 mb-3 flex items-center">
+                    <span class="text-2xl mr-2">✅</span> Setelah 1NF (Normal):
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full bg-green-50 border-2 border-green-200 rounded-lg">
+                        <thead class="bg-green-200">
+                            <tr>
+                                <th class="p-3 text-left">ID_Siswa</th>
+                                <th class="p-3 text-left">Nama</th>
+                                <th class="p-3 text-left">Hobi</th>
+                                <th class="p-3 text-left">Telepon</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t border-green-200">
+                                <td class="p-3">001</td>
+                                <td class="p-3">Andi</td>
+                                <td class="p-3">Baca</td>
+                                <td class="p-3">081234</td>
+                            </tr>
+                            <tr class="border-t border-green-200">
+                                <td class="p-3">001</td>
+                                <td class="p-3">Andi</td>
+                                <td class="p-3">Musik</td>
+                                <td class="p-3">087654</td>
+                            </tr>
+                            <tr class="border-t border-green-200">
+                                <td class="p-3">001</td>
+                                <td class="p-3">Andi</td>
+                                <td class="p-3">Game</td>
+                                <td class="p-3">081234</td>
+                            </tr>
+                            <tr class="border-t border-green-200">
+                                <td class="p-3">002</td>
+                                <td class="p-3">Budi</td>
+                                <td class="p-3">Olahraga</td>
+                                <td class="p-3">085555</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-sm text-green-600 mt-2">✨ Sekarang setiap kolom hanya berisi satu nilai!</p>
+            </div>
+            
+            <!-- Interactive Quiz 1NF -->
+            <div class="bg-blue-50 p-6 rounded-xl mb-6">
+                <h4 class="text-lg font-semibold text-blue-800 mb-4 flex items-center">
+                    <span class="text-2xl mr-2">🧠</span> Quiz 1NF:
+                </h4>
+                <p class="mb-4 text-gray-800">Manakah tabel yang sudah memenuhi 1NF?</p>
+                
+                <div class="space-y-3">
+                    <div class="quiz-option p-4 border-2 border-gray-200 rounded-lg" onclick="checkAnswer(this, false, '1nf')">
+                        <strong>A.</strong> Tabel dengan kolom "Alamat" berisi "Jl. Merdeka No.1, Jakarta"
+                    </div>
+                    <div class="quiz-option p-4 border-2 border-gray-200 rounded-lg" onclick="checkAnswer(this, false, '1nf')">
+                        <strong>B.</strong> Tabel dengan kolom "Mata_Pelajaran" berisi "Matematika, Fisika, Kimia"
+                    </div>
+                    <div class="quiz-option p-4 border-2 border-gray-200 rounded-lg" onclick="checkAnswer(this, true, '1nf')">
+                        <strong>C.</strong> Tabel dengan setiap kolom berisi satu nilai saja
+                    </div>
+                </div>
+                
+                <div id="1nf-result" class="mt-4 p-4 rounded-lg hidden">
+                    <p class="font-semibold"></p>
+                </div>
+            </div>
+            
+            <button onclick="nextSectionWithScroll(3)" class="bg-gradient-to-r from-green-500 to-teal-600 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                Lanjut ke 2NF! 🎯
+            </button>
+            
+            <!-- Section Navigation -->
+            <div class="section-navigation">
+                <div class="flex justify-between items-center">
+                    <button onclick="goToSection(2)" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+                        ← Sebelumnya: Pengenalan
+                    </button>
+                    <div class="text-white opacity-75">
+                        <span class="text-sm">Bagian 3 dari 6</span>
+                    </div>
+                    <button onclick="nextSectionWithScroll(3)" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+                        Selanjutnya: 2NF →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2NF -->
+        <div class="card p-8 mb-8 hidden" id="section4">
+            <div class="flex items-center mb-6">
+                <div class="text-4xl mr-4 bounce">2️⃣</div>
+                <h2 class="text-3xl font-bold text-orange-800">Second Normal Form (2NF)</h2>
+            </div>
+            
+            <div class="bg-gradient-to-r from-orange-100 to-yellow-100 p-6 rounded-xl mb-6">
+                <h3 class="text-xl font-semibold text-orange-800 mb-3">Aturan 2NF:</h3>
+                <ul class="space-y-2 text-lg">
+                    <li class="flex items-center"><span class="text-orange-600 mr-2">✅</span> Sudah memenuhi 1NF</li>
+                    <li class="flex items-center"><span class="text-orange-600 mr-2">✅</span> Tidak ada partial dependency</li>
+                    <li class="flex items-center"><span class="text-orange-600 mr-2">✅</span> Semua atribut non-key bergantung penuh pada primary key</li>
+                </ul>
+            </div>
+            
+            <div class="bg-purple-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center mb-3">
+                    <div class="text-2xl mr-3">🔑</div>
+                    <h4 class="font-semibold text-purple-800">Apa itu Partial Dependency?</h4>
+                </div>
+                <p class="text-gray-800">
+                    Ketika ada atribut yang hanya bergantung pada <strong>sebagian</strong> dari primary key (bukan keseluruhan). 
+                    Ini terjadi kalau primary key terdiri dari beberapa kolom (composite key).
+                </p>
+            </div>
+            
+            <!-- Contoh Sebelum 2NF -->
+            <div class="mb-6">
+                <h4 class="text-lg font-semibold text-red-600 mb-3 flex items-center">
+                    <span class="text-2xl mr-2">❌</span> Sebelum 2NF:
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full bg-red-50 border-2 border-red-200 rounded-lg">
+                        <thead class="bg-red-200">
+                            <tr>
+                                <th class="p-3 text-left bg-yellow-200">ID_Siswa (PK)</th>
+                                <th class="p-3 text-left bg-yellow-200">ID_Mapel (PK)</th>
+                                <th class="p-3 text-left">Nama_Siswa</th>
+                                <th class="p-3 text-left">Nama_Mapel</th>
+                                <th class="p-3 text-left">Nilai</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t border-red-200">
+                                <td class="p-3">001</td>
+                                <td class="p-3">M01</td>
+                                <td class="p-3 bg-red-100">Andi</td>
+                                <td class="p-3 bg-red-100">Matematika</td>
+                                <td class="p-3">85</td>
+                            </tr>
+                            <tr class="border-t border-red-200">
+                                <td class="p-3">001</td>
+                                <td class="p-3">M02</td>
+                                <td class="p-3 bg-red-100">Andi</td>
+                                <td class="p-3 bg-red-100">Fisika</td>
+                                <td class="p-3">90</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-sm text-red-600 mt-2">⚠️ Masalah: Nama_Siswa hanya bergantung pada ID_Siswa, Nama_Mapel hanya bergantung pada ID_Mapel!</p>
+            </div>
+            
+            <!-- Contoh Setelah 2NF -->
+            <div class="mb-6">
+                <h4 class="text-lg font-semibold text-green-600 mb-3 flex items-center">
+                    <span class="text-2xl mr-2">✅</span> Setelah 2NF (Dipecah jadi 3 tabel):
+                </h4>
+                
+                <div class="grid md:grid-cols-1 gap-4">
+                    <!-- Tabel Siswa -->
+                    <div>
+                        <h5 class="font-semibold text-blue-700 mb-2">Tabel Siswa:</h5>
+                        <table class="w-full bg-green-50 border-2 border-green-200 rounded-lg mb-4">
+                            <thead class="bg-green-200">
+                                <tr>
+                                    <th class="p-3 text-left bg-yellow-200">ID_Siswa (PK)</th>
+                                    <th class="p-3 text-left">Nama_Siswa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-t border-green-200">
+                                    <td class="p-3">001</td>
+                                    <td class="p-3">Andi</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Tabel Mata Pelajaran -->
+                    <div>
+                        <h5 class="font-semibold text-blue-700 mb-2">Tabel Mata Pelajaran:</h5>
+                        <table class="w-full bg-green-50 border-2 border-green-200 rounded-lg mb-4">
+                            <thead class="bg-green-200">
+                                <tr>
+                                    <th class="p-3 text-left bg-yellow-200">ID_Mapel (PK)</th>
+                                    <th class="p-3 text-left">Nama_Mapel</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-t border-green-200">
+                                    <td class="p-3">M01</td>
+                                    <td class="p-3">Matematika</td>
+                                </tr>
+                                <tr class="border-t border-green-200">
+                                    <td class="p-3">M02</td>
+                                    <td class="p-3">Fisika</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Tabel Nilai -->
+                    <div>
+                        <h5 class="font-semibold text-blue-700 mb-2">Tabel Nilai:</h5>
+                        <table class="w-full bg-green-50 border-2 border-green-200 rounded-lg">
+                            <thead class="bg-green-200">
+                                <tr>
+                                    <th class="p-3 text-left bg-yellow-200">ID_Siswa (FK)</th>
+                                    <th class="p-3 text-left bg-yellow-200">ID_Mapel (FK)</th>
+                                    <th class="p-3 text-left">Nilai</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-t border-green-200">
+                                    <td class="p-3">001</td>
+                                    <td class="p-3">M01</td>
+                                    <td class="p-3">85</td>
+                                </tr>
+                                <tr class="border-t border-green-200">
+                                    <td class="p-3">001</td>
+                                    <td class="p-3">M02</td>
+                                    <td class="p-3">90</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <p class="text-sm text-green-600 mt-2">✨ Sekarang tidak ada partial dependency!</p>
+            </div>
+            
+            <!-- Interactive Quiz 2NF -->
+            <div class="bg-blue-50 p-6 rounded-xl mb-6">
+                <h4 class="text-lg font-semibold text-blue-800 mb-4 flex items-center">
+                    <span class="text-2xl mr-2">🧠</span> Quiz 2NF:
+                </h4>
+                <p class="mb-4 text-gray-800">Kapan terjadi partial dependency?</p>
+                
+                <div class="space-y-3">
+                    <div class="quiz-option p-4 border-2 border-gray-200 rounded-lg" onclick="checkAnswer(this, false, '2nf')">
+                        <strong>A.</strong> Ketika primary key hanya satu kolom
+                    </div>
+                    <div class="quiz-option p-4 border-2 border-gray-200 rounded-lg" onclick="checkAnswer(this, true, '2nf')">
+                        <strong>B.</strong> Ketika ada atribut yang hanya bergantung pada sebagian primary key
+                    </div>
+                    <div class="quiz-option p-4 border-2 border-gray-200 rounded-lg" onclick="checkAnswer(this, false, '2nf')">
+                        <strong>C.</strong> Ketika semua atribut bergantung penuh pada primary key
+                    </div>
+                </div>
+                
+                <div id="2nf-result" class="mt-4 p-4 rounded-lg hidden">
+                    <p class="font-semibold"></p>
+                </div>
+            </div>
+            
+            <button onclick="nextSectionWithScroll(4)" class="bg-gradient-to-r from-orange-500 to-yellow-600 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                Lanjut ke 3NF! 🏆
+            </button>
+            
+            <!-- Section Navigation -->
+            <div class="section-navigation">
+                <div class="flex justify-between items-center">
+                    <button onclick="goToSection(3)" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+                        ← Sebelumnya: 1NF
+                    </button>
+                    <div class="text-white opacity-75">
+                        <span class="text-sm">Bagian 4 dari 6</span>
+                    </div>
+                    <button onclick="nextSectionWithScroll(4)" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+                        Selanjutnya: 3NF →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3NF -->
+        <div class="card p-8 mb-8 hidden" id="section5">
+            <div class="flex items-center mb-6">
+                <div class="text-4xl mr-4 bounce">3️⃣</div>
+                <h2 class="text-3xl font-bold text-purple-800">Third Normal Form (3NF)</h2>
+            </div>
+            
+            <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-xl mb-6">
+                <h3 class="text-xl font-semibold text-purple-800 mb-3">Aturan 3NF:</h3>
+                <ul class="space-y-2 text-lg">
+                    <li class="flex items-center"><span class="text-purple-600 mr-2">✅</span> Sudah memenuhi 2NF</li>
+                    <li class="flex items-center"><span class="text-purple-600 mr-2">✅</span> Tidak ada transitive dependency</li>
+                    <li class="flex items-center"><span class="text-purple-600 mr-2">✅</span> Atribut non-key tidak bergantung pada atribut non-key lain</li>
+                </ul>
+            </div>
+            
+            <div class="bg-indigo-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center mb-3">
+                    <div class="text-2xl mr-3">🔄</div>
+                    <h4 class="font-semibold text-indigo-800">Apa itu Transitive Dependency?</h4>
+                </div>
+                <p class="text-gray-800 mb-3">
+                    Ketika atribut A bergantung pada B, dan B bergantung pada C, maka A secara tidak langsung bergantung pada C.
+                </p>
+                <div class="bg-white p-4 rounded-lg">
+                    <p class="text-center text-lg font-mono">A → B → C</p>
+                    <p class="text-center text-sm text-gray-600 mt-2">Contoh: ID_Siswa → Kode_Jurusan → Nama_Jurusan</p>
+                </div>
+            </div>
+            
+            <!-- Contoh Sebelum 3NF -->
+            <div class="mb-6">
+                <h4 class="text-lg font-semibold text-red-600 mb-3 flex items-center">
+                    <span class="text-2xl mr-2">❌</span> Sebelum 3NF:
+                </h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full bg-red-50 border-2 border-red-200 rounded-lg">
+                        <thead class="bg-red-200">
+                            <tr>
+                                <th class="p-3 text-left bg-yellow-200">ID_Siswa (PK)</th>
+                                <th class="p-3 text-left">Nama_Siswa</th>
+                                <th class="p-3 text-left">Kode_Jurusan</th>
+                                <th class="p-3 text-left bg-red-100">Nama_Jurusan</th>
+                                <th class="p-3 text-left bg-red-100">Kepala_Jurusan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t border-red-200">
+                                <td class="p-3">001</td>
+                                <td class="p-3">Andi</td>
+                                <td class="p-3">RPL</td>
+                                <td class="p-3 bg-red-100">Rekayasa Perangkat Lunak</td>
+                                <td class="p-3 bg-red-100">Pak Budi</td>
+                            </tr>
+                            <tr class="border-t border-red-200">
+                                <td class="p-3">002</td>
+                                <td class="p-3">Sari</td>
+                                <td class="p-3">RPL</td>
+                                <td class="p-3 bg-red-100">Rekayasa Perangkat Lunak</td>
+                                <td class="p-3 bg-red-100">Pak Budi</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-sm text-red-600 mt-2">⚠️ Masalah: Nama_Jurusan dan Kepala_Jurusan bergantung pada Kode_Jurusan, bukan ID_Siswa!</p>
+            </div>
+            
+            <!-- Contoh Setelah 3NF -->
+            <div class="mb-6">
+                <h4 class="text-lg font-semibold text-green-600 mb-3 flex items-center">
+                    <span class="text-2xl mr-2">✅</span> Setelah 3NF (Dipecah jadi 2 tabel):
+                </h4>
+                
+                <div class="grid md:grid-cols-1 gap-4">
+                    <!-- Tabel Siswa -->
+                    <div>
+                        <h5 class="font-semibold text-blue-700 mb-2">Tabel Siswa:</h5>
+                        <table class="w-full bg-green-50 border-2 border-green-200 rounded-lg mb-4">
+                            <thead class="bg-green-200">
+                                <tr>
+                                    <th class="p-3 text-left bg-yellow-200">ID_Siswa (PK)</th>
+                                    <th class="p-3 text-left">Nama_Siswa</th>
+                                    <th class="p-3 text-left">Kode_Jurusan (FK)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-t border-green-200">
+                                    <td class="p-3">001</td>
+                                    <td class="p-3">Andi</td>
+                                    <td class="p-3">RPL</td>
+                                </tr>
+                                <tr class="border-t border-green-200">
+                                    <td class="p-3">002</td>
+                                    <td class="p-3">Sari</td>
+                                    <td class="p-3">RPL</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Tabel Jurusan -->
+                    <div>
+                        <h5 class="font-semibold text-blue-700 mb-2">Tabel Jurusan:</h5>
+                        <table class="w-full bg-green-50 border-2 border-green-200 rounded-lg">
+                            <thead class="bg-green-200">
+                                <tr>
+                                    <th class="p-3 text-left bg-yellow-200">Kode_Jurusan (PK)</th>
+                                    <th class="p-3 text-left">Nama_Jurusan</th>
+                                    <th class="p-3 text-left">Kepala_Jurusan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-t border-green-200">
+                                    <td class="p-3">RPL</td>
+                                    <td class="p-3">Rekayasa Perangkat Lunak</td>
+                                    <td class="p-3">Pak Budi</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <p class="text-sm text-green-600 mt-2">✨ Sekarang tidak ada transitive dependency!</p>
+            </div>
+            
+            <!-- Interactive Quiz 3NF -->
+            <div class="bg-blue-50 p-6 rounded-xl mb-6">
+                <h4 class="text-lg font-semibold text-blue-800 mb-4 flex items-center">
+                    <span class="text-2xl mr-2">🧠</span> Quiz 3NF:
+                </h4>
+                <p class="mb-4 text-gray-800">Manakah contoh transitive dependency?</p>
+                
+                <div class="space-y-3">
+                    <div class="quiz-option p-4 border-2 border-gray-200 rounded-lg" onclick="checkAnswer(this, true, '3nf')">
+                        <strong>A.</strong> ID_Siswa → Kode_Kelas → Nama_Kelas
+                    </div>
+                    <div class="quiz-option p-4 border-2 border-gray-200 rounded-lg" onclick="checkAnswer(this, false, '3nf')">
+                        <strong>B.</strong> ID_Siswa → Nama_Siswa
+                    </div>
+                    <div class="quiz-option p-4 border-2 border-gray-200 rounded-lg" onclick="checkAnswer(this, false, '3nf')">
+                        <strong>C.</strong> ID_Siswa → Alamat_Siswa
+                    </div>
+                </div>
+                
+                <div id="3nf-result" class="mt-4 p-4 rounded-lg hidden">
+                    <p class="font-semibold"></p>
+                </div>
+            </div>
+            
+            <button onclick="nextSectionWithScroll(5)" class="bg-gradient-to-r from-purple-500 to-pink-600 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                Lihat Kesimpulan! 📚
+            </button>
+            
+            <!-- Section Navigation -->
+            <div class="section-navigation">
+                <div class="flex justify-between items-center">
+                    <button onclick="goToSection(4)" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+                        ← Sebelumnya: 2NF
+                    </button>
+                    <div class="text-white opacity-75">
+                        <span class="text-sm">Bagian 5 dari 6</span>
+                    </div>
+                    <button onclick="nextSectionWithScroll(5)" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+                        Selanjutnya: Kesimpulan →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tugas -->
+        <div class="card p-8 mb-8 hidden" id="section6">
+            <div class="flex items-center mb-6">
+                <div class="text-4xl mr-4 bounce">📝</div>
+                <h2 class="text-3xl font-bold text-indigo-800">Tugas Praktik Normalisasi</h2>
+            </div>
+            
+            <!-- Instruksi Umum -->
+            <div class="bg-gradient-to-r from-blue-100 to-indigo-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">📋</div>
+                    <h3 class="text-xl font-bold text-blue-800">Instruksi Pengerjaan</h3>
+                </div>
+                <div class="bg-white p-4 rounded-lg">
+                    <h5 class="font-semibold text-blue-700 mb-2">📚 Cara Mengerjakan:</h5>
+                    <ul class="text-sm space-y-1">
+                        <li>• Perhatikan tabel yang belum dinormalisasi di bawah</li>
+                        <li>• Buatlah struktur tabel untuk 2NF dan 3NF</li>
+                        <li>• Tuliskan nama tabel dan kolom-kolomnya</li>
+                        <li>• Tandai primary key (PK) dan foreign key (FK)</li>
+                        <li>• Klik "Periksa Jawaban" untuk mendapat feedback</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Soal Tunggal: Sistem Nilai Siswa -->
+            <div class="bg-gradient-to-r from-green-100 to-teal-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">📊</div>
+                    <h3 class="text-xl font-bold text-green-800">Soal: Sistem Nilai Siswa</h3>
+                </div>
+                
+                <p class="text-gray-800 mb-4">
+                    Sekolah SMA Nusantara memiliki tabel nilai siswa yang belum dinormalisasi. Tabel ini sudah memenuhi 1NF (setiap kolom berisi satu nilai). Tugasmu adalah membuat struktur tabel yang memenuhi 2NF dan 3NF.
+                </p>
+                
+                <!-- Tabel Soal -->
+                <div class="overflow-x-auto mb-4">
+                    <h5 class="font-semibold text-gray-700 mb-2">Tabel Nilai_Siswa (Belum Dinormalisasi):</h5>
+                    <table class="w-full bg-white border-2 border-gray-300 rounded-lg">
+                        <thead class="bg-gray-200">
+                            <tr>
+                                <th class="p-3 text-left">ID_Siswa</th>
+                                <th class="p-3 text-left bg-yellow-100">Nama_Siswa</th>
+                                <th class="p-3 text-left bg-yellow-100">Kelas</th>
+                                <th class="p-3 text-left">Kode_Mapel</th>
+                                <th class="p-3 text-left bg-red-100">Nama_Mapel</th>
+                                <th class="p-3 text-left bg-red-100">Guru_Pengajar</th>
+                                <th class="p-3 text-left">Nilai</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t border-gray-200">
+                                <td class="p-3">S001</td>
+                                <td class="p-3 bg-yellow-100">Andi Pratama</td>
+                                <td class="p-3 bg-yellow-100">XII RPL 1</td>
+                                <td class="p-3">MTK</td>
+                                <td class="p-3 bg-red-100">Matematika</td>
+                                <td class="p-3 bg-red-100">Bu Sari</td>
+                                <td class="p-3">85</td>
+                            </tr>
+                            <tr class="border-t border-gray-200">
+                                <td class="p-3">S001</td>
+                                <td class="p-3 bg-yellow-100">Andi Pratama</td>
+                                <td class="p-3 bg-yellow-100">XII RPL 1</td>
+                                <td class="p-3">FIS</td>
+                                <td class="p-3 bg-red-100">Fisika</td>
+                                <td class="p-3 bg-red-100">Pak Budi</td>
+                                <td class="p-3">90</td>
+                            </tr>
+                            <tr class="border-t border-gray-200">
+                                <td class="p-3">S002</td>
+                                <td class="p-3 bg-yellow-100">Siti Nurhaliza</td>
+                                <td class="p-3 bg-yellow-100">XII RPL 1</td>
+                                <td class="p-3">MTK</td>
+                                <td class="p-3 bg-red-100">Matematika</td>
+                                <td class="p-3 bg-red-100">Bu Sari</td>
+                                <td class="p-3">88</td>
+                            </tr>
+                            <tr class="border-t border-gray-200">
+                                <td class="p-3">S003</td>
+                                <td class="p-3 bg-yellow-100">Budi Santoso</td>
+                                <td class="p-3 bg-yellow-100">XII TKJ 1</td>
+                                <td class="p-3">KIM</td>
+                                <td class="p-3 bg-red-100">Kimia</td>
+                                <td class="p-3 bg-red-100">Bu Dewi</td>
+                                <td class="p-3">82</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Analisis Masalah -->
+                <div class="bg-orange-50 p-4 rounded-lg mb-4">
+                    <h5 class="font-semibold text-orange-700 mb-2">🔍 Analisis Masalah:</h5>
+                    <ul class="text-sm space-y-1">
+                        <li>• <strong>Primary Key:</strong> ID_Siswa + Kode_Mapel (composite key)</li>
+                        <li>• <strong>Partial Dependency:</strong> Nama_Siswa & Kelas hanya bergantung pada ID_Siswa</li>
+                        <li>• <strong>Partial Dependency:</strong> Nama_Mapel & Guru_Pengajar hanya bergantung pada Kode_Mapel</li>
+                        <li>• <strong>Masalah:</strong> Data redundan, susah update, boros storage</li>
+                    </ul>
+                </div>
+                
+                <!-- Pertanyaan -->
+                <div class="space-y-6">
+                    <!-- Langkah 1: Identifikasi Masalah -->
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-blue-500">
+                        <h5 class="font-semibold text-blue-700 mb-2">Langkah 1: Identifikasi Masalah</h5>
+                        <p class="text-sm text-gray-600 mb-3">Sebutkan masalah apa saja yang ada pada tabel di atas:</p>
+                        <textarea id="problem_analysis" class="w-full p-3 border border-gray-300 rounded-lg resize-none" rows="3" placeholder="Contoh: Data siswa berulang-ulang, jika nama siswa berubah harus update di banyak tempat, dll."></textarea>
+                    </div>
+                    
+                    <!-- Langkah 2: Buat 2NF -->
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-orange-500">
+                        <h5 class="font-semibold text-orange-700 mb-2">Langkah 2: Buat Struktur 2NF</h5>
+                        <p class="text-sm text-gray-600 mb-3">Pisahkan tabel untuk menghilangkan partial dependency. Buatlah 3 tabel:</p>
+                        <textarea id="nf2_answer" class="w-full p-3 border border-gray-300 rounded-lg resize-none" rows="8" placeholder="Format jawaban:
+
+Tabel Siswa:
+- ID_Siswa (PK)
+- Nama_Siswa
+- Kelas
+
+Tabel Mata_Pelajaran:
+- Kode_Mapel (PK)
+- Nama_Mapel
+- Guru_Pengajar
+
+Tabel Nilai:
+- ID_Siswa (FK)
+- Kode_Mapel (FK)
+- Nilai"></textarea>
+                    </div>
+                    
+                    <!-- Langkah 3: Cek 3NF -->
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-purple-500">
+                        <h5 class="font-semibold text-purple-700 mb-2">Langkah 3: Analisis untuk 3NF</h5>
+                        <p class="text-sm text-gray-600 mb-3">Periksa apakah ada transitive dependency pada struktur 2NF yang sudah dibuat:</p>
+                        <textarea id="nf3_answer" class="w-full p-3 border border-gray-300 rounded-lg resize-none" rows="4" placeholder="Analisis:
+1. Apakah ada atribut non-key yang bergantung pada atribut non-key lain?
+2. Jika ada, sebutkan dan buat tabel baru
+3. Jika tidak ada, jelaskan mengapa struktur 2NF sudah memenuhi 3NF"></textarea>
+                    </div>
+                    
+                    <!-- Langkah 4: Kesimpulan -->
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-green-500">
+                        <h5 class="font-semibold text-green-700 mb-2">Langkah 4: Kesimpulan</h5>
+                        <p class="text-sm text-gray-600 mb-3">Tuliskan manfaat dari normalisasi yang telah dilakukan:</p>
+                        <textarea id="conclusion" class="w-full p-3 border border-gray-300 rounded-lg resize-none" rows="3" placeholder="Contoh: Menghilangkan redundansi data, memudahkan update data, menghemat storage, dll."></textarea>
+                    </div>
+                </div>
+                
+                <button onclick="checkAnswerDetailed()" class="mt-4 bg-gradient-to-r from-green-500 to-teal-600 text-white px-6 py-3 rounded-full font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                    Periksa Jawaban Lengkap 📝
+                </button>
+                
+                <div id="feedback_detailed" class="mt-4 p-4 rounded-lg hidden">
+                    <p class="font-semibold"></p>
+                </div>
+            </div>
+            
+            <!-- Tips Pengerjaan -->
+            <div class="bg-gradient-to-r from-amber-100 to-orange-100 p-6 rounded-xl mb-6">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">💡</div>
+                    <h3 class="text-xl font-bold text-amber-800">Tips & Kriteria Penilaian</h3>
+                </div>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg">
+                        <h5 class="font-semibold text-amber-700 mb-2">📝 Yang Dinilai:</h5>
+                        <ul class="text-sm space-y-1">
+                            <li>• Identifikasi masalah dengan tepat</li>
+                            <li>• Pemahaman konsep 1NF, 2NF, 3NF</li>
+                            <li>• Kemampuan memecah tabel</li>
+                            <li>• Penentuan primary key dan foreign key</li>
+                            <li>• Penamaan tabel yang logis</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <h5 class="font-semibold text-green-700 mb-2">🎯 Strategi Sukses:</h5>
+                        <ul class="text-sm space-y-1">
+                            <li>• Mulai dari identifikasi masalah</li>
+                            <li>• Terapkan normalisasi step by step</li>
+                            <li>• Pastikan tidak ada data redundan</li>
+                            <li>• Periksa dependency antar kolom</li>
+                            <li>• Buat relasi yang jelas antar tabel</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <button onclick="nextSectionWithScroll(6)" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                Selesai! Lihat Kesimpulan 📚
+            </button>
+            
+            <!-- Section Navigation -->
+            <div class="section-navigation">
+                <div class="flex justify-between items-center">
+                    <button onclick="goToSection(6)" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+                        ← Sebelumnya: Tugas
+                    </button>
+                    <div class="text-white opacity-75">
+                        <span class="text-sm">Bagian 6 dari 7</span>
+                    </div>
+                    <button onclick="nextSectionWithScroll(6)" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+                        Selanjutnya: Kesimpulan →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kesimpulan -->
+        <div class="card p-8 mb-8 hidden" id="section7">
+            <div class="flex items-center mb-6">
+                <div class="text-4xl mr-4 pulse">📋</div>
+                <h2 class="text-3xl font-bold text-indigo-800">Rangkuman Normalisasi</h2>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <!-- 1NF Card -->
+                <div class="bg-gradient-to-br from-green-100 to-green-200 p-6 rounded-xl">
+                    <div class="text-3xl mb-3 text-center">1️⃣</div>
+                    <h3 class="text-xl font-bold text-green-800 mb-3 text-center">1NF</h3>
+                    <ul class="text-sm space-y-2">
+                        <li>✅ Satu kolom = satu nilai</li>
+                        <li>✅ Tidak ada nilai berulang</li>
+                        <li>✅ Setiap baris unik</li>
+                    </ul>
+                </div>
+                
+                <!-- 2NF Card -->
+                <div class="bg-gradient-to-br from-orange-100 to-orange-200 p-6 rounded-xl">
+                    <div class="text-3xl mb-3 text-center">2️⃣</div>
+                    <h3 class="text-xl font-bold text-orange-800 mb-3 text-center">2NF</h3>
+                    <ul class="text-sm space-y-2">
+                        <li>✅ Sudah 1NF</li>
+                        <li>✅ Tidak ada partial dependency</li>
+                        <li>✅ Semua atribut bergantung penuh pada PK</li>
+                    </ul>
+                </div>
+                
+                <!-- 3NF Card -->
+                <div class="bg-gradient-to-br from-purple-100 to-purple-200 p-6 rounded-xl">
+                    <div class="text-3xl mb-3 text-center">3️⃣</div>
+                    <h3 class="text-xl font-bold text-purple-800 mb-3 text-center">3NF</h3>
+                    <ul class="text-sm space-y-2">
+                        <li>✅ Sudah 2NF</li>
+                        <li>✅ Tidak ada transitive dependency</li>
+                        <li>✅ Atribut non-key tidak saling bergantung</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Manfaat Normalisasi -->
+            <div class="bg-gradient-to-r from-blue-100 to-indigo-100 p-6 rounded-xl mb-6">
+                <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                    <span class="text-2xl mr-3">🌟</span> Manfaat Normalisasi:
+                </h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">💾</span>
+                        <span>Menghemat ruang penyimpanan</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">🔄</span>
+                        <span>Mudah update data</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">🛡️</span>
+                        <span>Menghindari data inconsistent</span>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">⚡</span>
+                        <span>Performa database lebih baik</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Final Quiz -->
+            <div class="bg-yellow-50 p-6 rounded-xl mb-6">
+                <h4 class="text-lg font-semibold text-yellow-800 mb-4 flex items-center">
+                    <span class="text-2xl mr-2">🏆</span> Quiz Final:
+                </h4>
+                <p class="mb-4 text-gray-800">Urutkan langkah normalisasi yang benar:</p>
+                
+                <div class="space-y-3">
+                    <div class="quiz-option p-4 border-2 border-gray-200 rounded-lg" onclick="checkAnswer(this, false, 'final')">
+                        <strong>A.</strong> 3NF → 2NF → 1NF
+                    </div>
+                    <div class="quiz-option p-4 border-2 border-gray-200 rounded-lg" onclick="checkAnswer(this, true, 'final')">
+                        <strong>B.</strong> 1NF → 2NF → 3NF
+                    </div>
+                    <div class="quiz-option p-4 border-2 border-gray-200 rounded-lg" onclick="checkAnswer(this, false, 'final')">
+                        <strong>C.</strong> 2NF → 1NF → 3NF
+                    </div>
+                </div>
+                
+                <div id="final-result" class="mt-4 p-4 rounded-lg hidden">
+                    <p class="font-semibold"></p>
+                </div>
+            </div>
+            
+            <!-- Refleksi -->
+            <div class="bg-gradient-to-r from-teal-100 to-cyan-100 p-6 rounded-xl mb-6">
+                <h3 class="text-xl font-bold text-teal-800 mb-4 flex items-center">
+                    <span class="text-2xl mr-3">🤔</span> Refleksi Pembelajaran:
+                </h3>
+                <p class="text-gray-800 mb-4">Yuk, renungkan perjalanan belajarmu! Klik setiap pertanyaan untuk merefleksikan pemahamanmu:</p>
+                <div class="space-y-4">
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-teal-500 cursor-pointer hover:shadow-md transition-all duration-300" onclick="toggleReflection('reflection1')">
+                        <h5 class="font-semibold text-teal-700 mb-2 flex items-center justify-between">
+                            💭 Sebelum belajar ini, apa yang kamu tahu tentang database?
+                            <span class="text-sm text-teal-600">👆 Klik untuk jawab</span>
+                        </h5>
+                        <div id="reflection1" class="hidden mt-4 p-4 bg-teal-50 rounded-lg">
+                            <textarea class="w-full p-3 border border-teal-200 rounded-lg resize-none" rows="3" placeholder="Tulis refleksimu di sini... Misalnya: 'Dulu aku pikir database itu cuma tabel biasa, ternyata ada aturan khusus untuk merapikannya!'"></textarea>
+                            <p class="text-xs text-teal-600 mt-2">💡 Tips: Bandingkan pengetahuanmu sebelum dan sesudah belajar!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-cyan-500 cursor-pointer hover:shadow-md transition-all duration-300" onclick="toggleReflection('reflection2')">
+                        <h5 class="font-semibold text-cyan-700 mb-2 flex items-center justify-between">
+                            🌟 Konsep mana yang paling mudah/sulit dipahami? Mengapa?
+                            <span class="text-sm text-cyan-600">👆 Klik untuk jawab</span>
+                        </h5>
+                        <div id="reflection2" class="hidden mt-4 p-4 bg-cyan-50 rounded-lg">
+                            <textarea class="w-full p-3 border border-cyan-200 rounded-lg resize-none" rows="3" placeholder="Ceritakan pengalamanmu... Misalnya: '1NF mudah karena seperti merapikan lemari, tapi 3NF agak susah karena harus mikir hubungan antar data'"></textarea>
+                            <p class="text-xs text-cyan-600 mt-2">💡 Tips: Identifikasi bagian yang perlu dipelajari lebih dalam!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-blue-500 cursor-pointer hover:shadow-md transition-all duration-300" onclick="toggleReflection('reflection3')">
+                        <h5 class="font-semibold text-blue-700 mb-2 flex items-center justify-between">
+                            🎯 Bagaimana kamu akan menerapkan ilmu ini di masa depan?
+                            <span class="text-sm text-blue-600">👆 Klik untuk jawab</span>
+                        </h5>
+                        <div id="reflection3" class="hidden mt-4 p-4 bg-blue-50 rounded-lg">
+                            <textarea class="w-full p-3 border border-blue-200 rounded-lg resize-none" rows="3" placeholder="Bagikan rencanamu... Misalnya: 'Aku mau coba buat database untuk toko online keluarga, atau mungkin jadi programmer yang ahli database!'"></textarea>
+                            <p class="text-xs text-blue-600 mt-2">💡 Tips: Pikirkan proyek konkret yang bisa kamu kerjakan!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-purple-500 cursor-pointer hover:shadow-md transition-all duration-300" onclick="toggleReflection('reflection4')">
+                        <h5 class="font-semibold text-purple-700 mb-2 flex items-center justify-between">
+                            🚀 Apa yang ingin kamu pelajari selanjutnya tentang database?
+                            <span class="text-sm text-purple-600">👆 Klik untuk jawab</span>
+                        </h5>
+                        <div id="reflection4" class="hidden mt-4 p-4 bg-purple-50 rounded-lg">
+                            <textarea class="w-full p-3 border border-purple-200 rounded-lg resize-none" rows="3" placeholder="Tuliskan curiosity-mu... Misalnya: 'Pengen tahu cara bikin database yang bisa handle jutaan user seperti Instagram!'"></textarea>
+                            <p class="text-xs text-purple-600 mt-2">💡 Tips: Curiosity adalah kunci pembelajaran yang berkelanjutan!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg border-l-4 border-green-500 cursor-pointer hover:shadow-md transition-all duration-300" onclick="toggleReflection('reflection5')">
+                        <h5 class="font-semibold text-green-700 mb-2 flex items-center justify-between">
+                            💪 Seberapa percaya diri kamu sekarang dengan normalisasi database?
+                            <span class="text-sm text-green-600">👆 Klik untuk jawab</span>
+                        </h5>
+                        <div id="reflection5" class="hidden mt-4 p-4 bg-green-50 rounded-lg">
+                            <div class="mb-3">
+                                <p class="text-sm text-green-700 mb-2">Pilih level kepercayaan dirimu:</p>
+                                <div class="flex flex-wrap gap-2">
+                                    <button onclick="selectConfidence(1)" class="confidence-btn px-3 py-1 rounded-full border-2 border-green-300 text-sm hover:bg-green-100 transition-all">😰 Masih bingung (1)</button>
+                                    <button onclick="selectConfidence(2)" class="confidence-btn px-3 py-1 rounded-full border-2 border-green-300 text-sm hover:bg-green-100 transition-all">😐 Lumayan paham (2)</button>
+                                    <button onclick="selectConfidence(3)" class="confidence-btn px-3 py-1 rounded-full border-2 border-green-300 text-sm hover:bg-green-100 transition-all">😊 Cukup percaya diri (3)</button>
+                                    <button onclick="selectConfidence(4)" class="confidence-btn px-3 py-1 rounded-full border-2 border-green-300 text-sm hover:bg-green-100 transition-all">😎 Sangat percaya diri (4)</button>
+                                    <button onclick="selectConfidence(5)" class="confidence-btn px-3 py-1 rounded-full border-2 border-green-300 text-sm hover:bg-green-100 transition-all">🚀 Siap jadi expert! (5)</button>
+                                </div>
+                            </div>
+                            <textarea class="w-full p-3 border border-green-200 rounded-lg resize-none" rows="2" placeholder="Ceritakan alasannya... Misalnya: 'Aku pilih level 3 karena sudah paham konsepnya, tapi butuh latihan lebih banyak'"></textarea>
+                            <p class="text-xs text-green-600 mt-2">💡 Tips: Jujur pada diri sendiri untuk tahu area yang perlu diperbaiki!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Motivational Message -->
+                <div class="mt-6 bg-gradient-to-r from-pink-50 to-purple-50 p-4 rounded-lg border border-pink-200">
+                    <div class="flex items-center mb-2">
+                        <span class="text-2xl mr-2">🌟</span>
+                        <h6 class="font-semibold text-pink-700">Pesan Motivasi:</h6>
+                    </div>
+                    <p class="text-sm text-gray-700 italic">
+                        "Setiap expert pernah menjadi pemula. Yang membedakan adalah kemauan untuk terus belajar dan berlatih. 
+                        Kamu sudah mengambil langkah pertama yang hebat hari ini! Keep going! 💪✨"
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Kesimpulan Pembelajaran -->
+            <div class="bg-gradient-to-r from-indigo-100 to-purple-100 p-6 rounded-xl mb-6">
+                <h3 class="text-xl font-bold text-indigo-800 mb-4 flex items-center">
+                    <span class="text-2xl mr-3">🎓</span> Kesimpulan Pembelajaran:
+                </h3>
+                <div class="bg-white p-6 rounded-lg">
+                    <p class="text-lg text-gray-800 leading-relaxed mb-4">
+                        Selamat! Kamu telah berhasil menyelesaikan pembelajaran normalisasi database. Ini adalah pencapaian yang luar biasa! 🌟
+                    </p>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h5 class="font-semibold text-purple-700 mb-3 flex items-center">
+                                <span class="text-xl mr-2">📚</span> Apa yang Telah Kamu Kuasai:
+                            </h5>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start">
+                                    <span class="text-green-600 mr-2 mt-1">✅</span>
+                                    <span><strong>Konsep Dasar:</strong> Memahami pentingnya perancangan database yang baik</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-600 mr-2 mt-1">✅</span>
+                                    <span><strong>Identifikasi Masalah:</strong> Mengenali anomali dalam database tidak normal</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-600 mr-2 mt-1">✅</span>
+                                    <span><strong>Teknik Normalisasi:</strong> Menerapkan 1NF, 2NF, dan 3NF dengan benar</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-600 mr-2 mt-1">✅</span>
+                                    <span><strong>Pemecahan Masalah:</strong> Menganalisis dan memperbaiki struktur database</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div>
+                            <h5 class="font-semibold text-blue-700 mb-3 flex items-center">
+                                <span class="text-xl mr-2">🚀</span> Skill yang Berkembang:
+                            </h5>
+                            <ul class="space-y-2 text-sm">
+                                <li class="flex items-start">
+                                    <span class="text-blue-600 mr-2 mt-1">🎯</span>
+                                    <span><strong>Berpikir Sistematis:</strong> Mengorganisir data secara logis dan terstruktur</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-blue-600 mr-2 mt-1">🎯</span>
+                                    <span><strong>Analisis Kritis:</strong> Mengidentifikasi hubungan antar data</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-blue-600 mr-2 mt-1">🎯</span>
+                                    <span><strong>Problem Solving:</strong> Memecah masalah kompleks menjadi solusi sederhana</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-blue-600 mr-2 mt-1">🎯</span>
+                                    <span><strong>Persiapan Karir:</strong> Fondasi kuat untuk menjadi database professional</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 bg-gradient-to-r from-green-50 to-teal-50 p-4 rounded-lg border-l-4 border-green-500">
+                        <h6 class="font-semibold text-green-700 mb-2 flex items-center">
+                            <span class="text-lg mr-2">💡</span> Insight Penting:
+                        </h6>
+                        <p class="text-sm text-gray-700">
+                            Normalisasi bukan hanya tentang mengikuti aturan teknis, tetapi tentang cara berpikir yang terorganisir. 
+                            Skill ini akan berguna tidak hanya dalam database, tetapi juga dalam kehidupan sehari-hari untuk mengorganisir 
+                            informasi dengan lebih baik. Kamu sekarang memiliki mindset seorang problem solver! 🧠✨
+                        </p>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <div class="inline-flex items-center bg-gradient-to-r from-purple-100 to-pink-100 px-6 py-3 rounded-full">
+                            <span class="text-2xl mr-2">🏆</span>
+                            <span class="font-semibold text-purple-700">Kamu sudah siap untuk tantangan database yang lebih besar!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tindak Lanjut -->
+            <div class="bg-gradient-to-r from-amber-100 to-orange-100 p-6 rounded-xl mb-6">
+                <h3 class="text-xl font-bold text-amber-800 mb-4 flex items-center">
+                    <span class="text-2xl mr-3">🎯</span> Tindak Lanjut:
+                </h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg">
+                        <h5 class="font-semibold text-purple-700 mb-2">📚 Materi Lanjutan:</h5>
+                        <ul class="text-sm space-y-1">
+                            <li>• Membuat tabel dengan primary key</li>
+                            <li>• Menghubungkan tabel dengan foreign key</li>
+                            <li>• Query dasar SELECT, INSERT, UPDATE</li>
+                            <li>• Membuat diagram hubungan tabel (ERD)</li>
+                            <li>• Backup dan restore database</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <h5 class="font-semibold text-green-700 mb-2">🛠️ Praktik Langsung:</h5>
+                        <ul class="text-sm space-y-1">
+                            <li>• Buat database sistem perpustakaan</li>
+                            <li>• Rancang database toko online</li>
+                            <li>• Normalisasi data rumah sakit</li>
+                            <li>• Proyek database sekolah</li>
+                            <li>• Analisis database existing</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-4 bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg">
+                    <h5 class="font-semibold text-indigo-700 mb-2">🚀 Tips Sukses:</h5>
+                    <div class="grid md:grid-cols-3 gap-2 text-sm">
+                        <div class="flex items-center">
+                            <span class="text-indigo-600 mr-2">✓</span>
+                            <span>Latihan rutin dengan kasus nyata</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-indigo-600 mr-2">✓</span>
+                            <span>Bergabung dengan komunitas database</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-indigo-600 mr-2">✓</span>
+                            <span>Pelajari tools seperti MySQL, PostgreSQL</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Completion -->
+            <div class="bg-gradient-to-r from-green-400 to-blue-500 p-8 rounded-xl text-center text-white">
+                <div class="text-6xl mb-4">🎉</div>
+                <h3 class="text-2xl font-bold mb-4">Selamat! Kamu sudah menguasai Normalisasi Database!</h3>
+                <p class="text-lg mb-4">Sekarang kamu bisa membuat database yang rapi dan efisien seperti seorang profesional!</p>
+                <div class="flex justify-center space-x-4">
+                    <div class="bg-white bg-opacity-20 px-4 py-2 rounded-full">
+                        <span class="text-sm">✅ 1NF Dikuasai</span>
+                    </div>
+                    <div class="bg-white bg-opacity-20 px-4 py-2 rounded-full">
+                        <span class="text-sm">✅ 2NF Dikuasai</span>
+                    </div>
+                    <div class="bg-white bg-opacity-20 px-4 py-2 rounded-full">
+                        <span class="text-sm">✅ 3NF Dikuasai</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Section Navigation -->
+            <div class="section-navigation">
+                <div class="flex justify-between items-center">
+                    <button onclick="goToSection(6)" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+                        ← Sebelumnya: Tugas
+                    </button>
+                    <div class="text-white opacity-75">
+                        <span class="text-sm">Bagian 7 dari 7 - Selesai! 🎉</span>
+                    </div>
+                    <button onclick="goToSection(1)" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105">
+                        Ulangi dari Awal →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="backToTop" onclick="scrollToTop()" class="fixed bottom-6 right-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 z-50 opacity-0 invisible">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        let currentSection = 1;
+        let totalSections = 7;
+        let quizAnswered = {
+            '1nf': false,
+            '2nf': false,
+            '3nf': false,
+            'final': false
+        };
+
+        function updateProgress() {
+            const progress = (currentSection - 1) / (totalSections - 1) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressText').textContent = Math.round(progress) + '%';
+            
+            // Update navigation buttons
+            updateNavigation();
+        }
+        
+        function updateNavigation() {
+            // Reset all nav buttons
+            for (let i = 1; i <= totalSections; i++) {
+                const navBtn = document.getElementById('nav-' + i);
+                if (navBtn) {
+                    if (i === currentSection) {
+                        // Active section
+                        navBtn.className = 'nav-btn bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-600 transition-all duration-300 transform hover:scale-105';
+                    } else if (i < currentSection) {
+                        // Completed sections
+                        navBtn.className = 'nav-btn bg-green-500 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-green-600 transition-all duration-300 transform hover:scale-105';
+                    } else {
+                        // Future sections
+                        navBtn.className = 'nav-btn bg-gray-300 text-gray-600 px-4 py-2 rounded-full text-sm font-medium hover:bg-gray-400 transition-all duration-300 transform hover:scale-105';
+                    }
+                }
+            }
+        }
+
+        function checkAnswerDetailed() {
+            const problemAnalysis = document.getElementById('problem_analysis').value.toLowerCase();
+            const nf2Answer = document.getElementById('nf2_answer').value.toLowerCase();
+            const nf3Answer = document.getElementById('nf3_answer').value.toLowerCase();
+            const conclusion = document.getElementById('conclusion').value.toLowerCase();
+            
+            const feedbackDiv = document.getElementById('feedback_detailed');
+            const feedbackText = feedbackDiv.querySelector('p');
+            
+            let score = 0;
+            let feedback = [];
+            
+            // Check problem analysis (20 points)
+            if (problemAnalysis.includes('redundan') || problemAnalysis.includes('berulang') || problemAnalysis.includes('duplikasi')) {
+                score += 10;
+                feedback.push('✅ Mengidentifikasi masalah redundansi data');
+            }
+            if (problemAnalysis.includes('update') || problemAnalysis.includes('ubah') || problemAnalysis.includes('edit')) {
+                score += 10;
+                feedback.push('✅ Mengidentifikasi masalah update anomaly');
+            }
+            if (score < 10) {
+                feedback.push('💡 Langkah 1: Sebutkan masalah seperti data berulang, susah update, dll.');
+            }
+            
+            // Check 2NF structure (40 points)
+            if (nf2Answer.includes('siswa') && (nf2Answer.includes('mata_pelajaran') || nf2Answer.includes('mapel')) && nf2Answer.includes('nilai')) {
+                score += 20;
+                feedback.push('✅ Struktur 3 tabel 2NF benar (Siswa, Mata_Pelajaran, Nilai)');
+            } else {
+                feedback.push('❌ Langkah 2: Perlu 3 tabel - Siswa, Mata_Pelajaran, dan Nilai');
+            }
+            
+            // Check primary and foreign keys
+            if ((nf2Answer.includes('pk') || nf2Answer.includes('primary')) && (nf2Answer.includes('fk') || nf2Answer.includes('foreign'))) {
+                score += 20;
+                feedback.push('✅ Primary Key dan Foreign Key ditandai dengan benar');
+            } else {
+                feedback.push('💡 Langkah 2: Tandai Primary Key (PK) dan Foreign Key (FK)');
+            }
+            
+            // Check 3NF understanding (25 points)
+            if (nf3Answer.includes('tidak ada') && (nf3Answer.includes('transitive') || nf3Answer.includes('dependency'))) {
+                score += 25;
+                feedback.push('✅ Analisis 3NF benar - tidak ada transitive dependency');
+            } else if (nf3Answer.includes('sama') || nf3Answer.includes('tidak berubah')) {
+                score += 15;
+                feedback.push('✅ Memahami bahwa struktur tidak berubah dari 2NF');
+            } else {
+                feedback.push('💡 Langkah 3: Jelaskan bahwa tidak ada transitive dependency');
+            }
+            
+            // Check conclusion (15 points)
+            if (conclusion.includes('redundan') || conclusion.includes('storage') || conclusion.includes('update') || conclusion.includes('konsisten')) {
+                score += 15;
+                feedback.push('✅ Kesimpulan manfaat normalisasi tepat');
+            } else {
+                feedback.push('💡 Langkah 4: Sebutkan manfaat seperti menghilangkan redundansi, dll.');
+            }
+            
+            // Show detailed correct answer
+            const correctAnswer = `
+<div class="mt-4 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+    <h6 class="font-semibold text-blue-700 mb-2">💡 Jawaban Lengkap yang Benar:</h6>
+    <div class="text-sm text-gray-700 space-y-3">
+        <div>
+            <strong>Langkah 1 - Masalah:</strong><br>
+            • Data siswa (nama, kelas) berulang-ulang<br>
+            • Data mata pelajaran (nama mapel, guru) berulang-ulang<br>
+            • Jika nama siswa berubah, harus update di banyak tempat<br>
+            • Boros storage karena data redundan
+        </div>
+        
+        <div>
+            <strong>Langkah 2 - Struktur 2NF:</strong><br>
+            Tabel Siswa: ID_Siswa (PK), Nama_Siswa, Kelas<br>
+            Tabel Mata_Pelajaran: Kode_Mapel (PK), Nama_Mapel, Guru_Pengajar<br>
+            Tabel Nilai: ID_Siswa (FK), Kode_Mapel (FK), Nilai
+        </div>
+        
+        <div>
+            <strong>Langkah 3 - Analisis 3NF:</strong><br>
+            Tidak ada transitive dependency karena semua atribut non-key sudah bergantung langsung pada primary key masing-masing tabel. Struktur 2NF sudah memenuhi 3NF.
+        </div>
+        
+        <div>
+            <strong>Langkah 4 - Manfaat:</strong><br>
+            • Menghilangkan redundansi data<br>
+            • Memudahkan update dan maintenance<br>
+            • Menghemat storage<br>
+            • Menjaga konsistensi data
+        </div>
+    </div>
+</div>`;
+            
+            // Show feedback
+            if (score >= 85) {
+                feedbackDiv.className = 'mt-4 p-4 rounded-lg bg-green-100 border border-green-300';
+                feedbackText.textContent = `🎉 Excellent! Skor: ${score}/100 - Kamu menguasai normalisasi dengan baik!`;
+                feedbackText.className = 'font-semibold text-green-800';
+            } else if (score >= 70) {
+                feedbackDiv.className = 'mt-4 p-4 rounded-lg bg-blue-100 border border-blue-300';
+                feedbackText.textContent = `👍 Good! Skor: ${score}/100 - Pemahaman sudah bagus, tingkatkan lagi!`;
+                feedbackText.className = 'font-semibold text-blue-800';
+            } else if (score >= 50) {
+                feedbackDiv.className = 'mt-4 p-4 rounded-lg bg-yellow-100 border border-yellow-300';
+                feedbackText.textContent = `📖 Fair! Skor: ${score}/100 - Perlu belajar lebih dalam lagi`;
+                feedbackText.className = 'font-semibold text-yellow-800';
+            } else {
+                feedbackDiv.className = 'mt-4 p-4 rounded-lg bg-red-100 border border-red-300';
+                feedbackText.textContent = `📚 Keep Learning! Skor: ${score}/100 - Ulangi materi dan coba lagi`;
+                feedbackText.className = 'font-semibold text-red-800';
+            }
+            
+            // Add detailed feedback
+            const detailDiv = document.createElement('div');
+            detailDiv.className = 'mt-3 text-sm';
+            detailDiv.innerHTML = feedback.join('<br>') + correctAnswer;
+            feedbackDiv.appendChild(detailDiv);
+            
+            feedbackDiv.classList.remove('hidden');
+        }
+        
+        function goToSection(sectionNum) {
+            // First scroll to top immediately
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Small delay to ensure smooth transition
+            setTimeout(() => {
+                // Hide current section
+                document.getElementById('section' + currentSection).classList.add('hidden');
+                
+                // Show target section
+                currentSection = sectionNum;
+                document.getElementById('section' + currentSection).classList.remove('hidden');
+                
+                // Update progress and navigation
+                updateProgress();
+            }, 100);
+        }
+
+        function nextSection(from) {
+            // Hide current section
+            document.getElementById('section' + from).classList.add('hidden');
+            
+            // Show next section
+            currentSection = from + 1;
+            if (currentSection <= totalSections) {
+                document.getElementById('section' + currentSection).classList.remove('hidden');
+                updateProgress();
+                
+                // Smooth scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function nextSectionWithScroll(from) {
+            // First scroll to top immediately
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Small delay to ensure smooth transition
+            setTimeout(() => {
+                // Hide current section
+                document.getElementById('section' + from).classList.add('hidden');
+                
+                // Show next section
+                currentSection = from + 1;
+                if (currentSection <= totalSections) {
+                    document.getElementById('section' + currentSection).classList.remove('hidden');
+                    updateProgress();
+                }
+            }, 100);
+        }
+
+        function checkAnswer(element, isCorrect, quizType) {
+            // Remove previous styling
+            const options = element.parentNode.querySelectorAll('.quiz-option');
+            options.forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+            });
+            
+            // Add styling based on answer
+            if (isCorrect) {
+                element.classList.add('correct');
+                showResult(quizType, true);
+            } else {
+                element.classList.add('incorrect');
+                // Show correct answer
+                options.forEach(opt => {
+                    if (opt !== element) {
+                        // Find the correct answer and highlight it
+                        const correctAnswers = {
+                            '1nf': 'C. Tabel dengan setiap kolom berisi satu nilai saja',
+                            '2nf': 'B. Ketika ada atribut yang hanya bergantung pada sebagian primary key',
+                            '3nf': 'A. ID_Siswa → Kode_Kelas → Nama_Kelas',
+                            'final': 'B. 1NF → 2NF → 3NF'
+                        };
+                        if (opt.textContent.includes(correctAnswers[quizType].split('.')[1])) {
+                            opt.classList.add('correct');
+                        }
+                    }
+                });
+                showResult(quizType, false);
+            }
+            
+            quizAnswered[quizType] = true;
+        }
+
+        function showResult(quizType, isCorrect) {
+            const resultDiv = document.getElementById(quizType + '-result');
+            const resultText = resultDiv.querySelector('p');
+            
+            if (isCorrect) {
+                resultDiv.className = 'mt-4 p-4 rounded-lg bg-green-100 border border-green-300';
+                resultText.textContent = '🎉 Benar! Kamu hebat!';
+                resultText.className = 'font-semibold text-green-800';
+            } else {
+                resultDiv.className = 'mt-4 p-4 rounded-lg bg-red-100 border border-red-300';
+                resultText.textContent = '❌ Belum tepat, tapi tidak apa-apa! Coba baca lagi materinya ya 😊';
+                resultText.className = 'font-semibold text-red-800';
+            }
+            
+            resultDiv.classList.remove('hidden');
+        }
+
+        function toggleAnswer(answerId) {
+            const answerDiv = document.getElementById(answerId);
+            const isHidden = answerDiv.classList.contains('hidden');
+            
+            if (isHidden) {
+                answerDiv.classList.remove('hidden');
+                answerDiv.style.animation = 'slideDown 0.3s ease-out';
+            } else {
+                answerDiv.style.animation = 'slideUp 0.3s ease-out';
+                setTimeout(() => {
+                    answerDiv.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        function toggleReflection(reflectionId) {
+            const reflectionDiv = document.getElementById(reflectionId);
+            const isHidden = reflectionDiv.classList.contains('hidden');
+            
+            if (isHidden) {
+                reflectionDiv.classList.remove('hidden');
+                reflectionDiv.style.animation = 'slideDown 0.3s ease-out';
+                // Focus on textarea when opened
+                setTimeout(() => {
+                    const textarea = reflectionDiv.querySelector('textarea');
+                    if (textarea) textarea.focus();
+                }, 300);
+            } else {
+                reflectionDiv.style.animation = 'slideUp 0.3s ease-out';
+                setTimeout(() => {
+                    reflectionDiv.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        function selectConfidence(level) {
+            // Remove previous selection
+            const buttons = document.querySelectorAll('.confidence-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-green-500', 'text-white', 'border-green-500');
+                btn.classList.add('border-green-300');
+            });
+            
+            // Highlight selected button
+            const selectedBtn = event.target;
+            selectedBtn.classList.remove('border-green-300');
+            selectedBtn.classList.add('bg-green-500', 'text-white', 'border-green-500');
+            
+            // Show encouraging message based on level
+            const messages = {
+                1: "Tidak apa-apa! Semua orang pernah di tahap ini. Yang penting kamu mau belajar! 💪",
+                2: "Bagus! Kamu sudah mulai memahami. Terus berlatih ya! 📚",
+                3: "Keren! Kamu sudah cukup paham konsepnya. Saatnya praktik lebih banyak! 🚀",
+                4: "Wow! Kamu hampir jadi expert nih! Terus asah kemampuanmu! ⭐",
+                5: "Amazing! Kamu siap jadi database expert! Bagikan ilmumu ke teman-teman ya! 🏆"
+            };
+            
+            // Show message temporarily
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'mt-2 p-2 bg-green-100 border border-green-300 rounded text-sm text-green-700';
+            messageDiv.textContent = messages[level];
+            
+            // Remove existing message if any
+            const existingMessage = selectedBtn.parentNode.parentNode.querySelector('.confidence-message');
+            if (existingMessage) existingMessage.remove();
+            
+            messageDiv.classList.add('confidence-message');
+            selectedBtn.parentNode.parentNode.appendChild(messageDiv);
+            
+            // Auto-hide message after 3 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 3000);
+        }
+
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Show/hide floating button based on scroll position
+        function handleScroll() {
+            const backToTopBtn = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.add('show');
+            } else {
+                backToTopBtn.classList.remove('show');
+            }
+        }
+
+        // Initialize progress
+        updateProgress();
+
+        // Add some fun interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add scroll event listener
+            window.addEventListener('scroll', handleScroll);
+            
+            // Add hover effects to cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'981dd74b278f8249',t:'MTc1ODMzNDc5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
