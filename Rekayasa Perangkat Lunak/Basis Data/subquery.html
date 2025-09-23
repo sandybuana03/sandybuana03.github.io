@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar Sub Query SQL - Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse-slow {
+            animation: pulse 3s infinite;
+        }
+        
+        .menu-item {
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            transform: scale(1.05);
+        }
+        
+        .code-block {
+            background: linear-gradient(145deg, #fefefe, #f9fafb);
+            border-radius: 16px;
+            padding: 24px;
+            color: #2d3748;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            line-height: 1.7;
+            white-space: pre-line;
+            position: relative;
+            font-size: 15px;
+            letter-spacing: 0.3px;
+        }
+        
+        .code-block::before {
+            content: "💻 SQL Query";
+            position: absolute;
+            top: -10px;
+            left: 24px;
+            background: linear-gradient(135deg, #f0f4ff, #e6f3ff);
+            color: #4a5568;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            font-family: 'Poppins', sans-serif;
+            border: 1px solid #cbd5e0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .code-block .sql-keyword {
+            color: #5a67d8;
+            font-weight: 600;
+        }
+        
+        .code-block .sql-string {
+            color: #38a169;
+        }
+        
+        .code-block .sql-number {
+            color: #e53e3e;
+        }
+        
+        .code-block .sql-comment {
+            color: #718096;
+            font-style: italic;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .quiz-option:hover {
+            background: #e6fffa;
+            transform: translateX(5px);
+        }
+        
+        .quiz-option.selected {
+            background: #81e6d9;
+            color: #234e52;
+        }
+        
+        .quiz-option.correct {
+            background: #9ae6b4;
+            color: #22543d;
+        }
+        
+        .quiz-option.incorrect {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-screen">
+    <!-- Mobile Menu Button -->
+    <div class="fixed top-4 left-4 z-50 lg:hidden">
+        <button id="menuToggle" class="bg-white rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-300">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Navigation Menu -->
+    <nav id="navigation" class="fixed left-0 top-0 h-full w-80 bg-white shadow-2xl transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 overflow-y-auto">
+        <div class="p-6">
+            <div class="text-center mb-8">
+                <div class="text-4xl mb-2">🎓</div>
+                <h1 class="text-2xl font-bold text-purple-800">Sub Query SQL</h1>
+                <p class="text-sm text-gray-600">Pembelajaran Interaktif</p>
+            </div>
+            
+            <div class="space-y-2">
+                <div class="menu-item p-3 rounded-lg cursor-pointer bg-gradient-to-r from-pink-200 to-purple-200" onclick="showSection('intro')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">🚀</span>
+                        <span class="font-medium">Intro</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('pengenalan')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">📚</span>
+                        <span class="font-medium">Pengenalan</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('jenis-subquery')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">🔍</span>
+                        <span class="font-medium">Jenis Sub Query</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('scalar-subquery')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">📊</span>
+                        <span class="font-medium">Scalar Sub Query</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('multiple-row')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">📋</span>
+                        <span class="font-medium">Multiple Row</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('correlated')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">🔗</span>
+                        <span class="font-medium">Correlated Sub Query</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('praktik')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">💻</span>
+                        <span class="font-medium">Praktik</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('kuis')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">🎯</span>
+                        <span class="font-medium">Kuis</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('penutup')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">🎉</span>
+                        <span class="font-medium">Penutup</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="lg:ml-80 min-h-screen">
+        <div class="max-w-4xl mx-auto px-4 py-8">
+            
+            <!-- Intro Section -->
+            <section id="intro" class="section fade-in">
+                <div class="text-center mb-12">
+                    <div class="text-8xl mb-6 bounce">🎓</div>
+                    <h1 class="text-4xl lg:text-6xl font-bold text-purple-800 mb-4">Sub Query SQL</h1>
+                    <p class="text-xl lg:text-2xl text-gray-600">Pembelajaran Interaktif & Menyenangkan</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-12">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
+                        <div class="text-4xl mb-4">🤔</div>
+                        <h3 class="text-2xl font-bold text-purple-700 mb-4">Pertanyaan Pemantik</h3>
+                        <div class="space-y-4 text-lg">
+                            <p>• Bagaimana cara mengambil data dari tabel berdasarkan hasil query lain?</p>
+                            <p>• Apa itu Sub Query dan mengapa penting dalam SQL?</p>
+                            <p>• Kapan kita perlu menggunakan Sub Query?</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
+                        <div class="text-4xl mb-4">📖</div>
+                        <h3 class="text-2xl font-bold text-purple-700 mb-4">Apa yang Dipelajari</h3>
+                        <div class="space-y-2 text-lg">
+                            <p>✅ Konsep dasar Sub Query</p>
+                            <p>✅ Jenis-jenis Sub Query</p>
+                            <p>✅ Implementasi praktis</p>
+                            <p>✅ Studi kasus nyata</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6 mb-12">
+                    <div class="bg-gradient-to-br from-pink-200 to-purple-200 rounded-2xl p-6 text-center card-hover">
+                        <div class="text-3xl mb-3">🎯</div>
+                        <h4 class="text-xl font-bold text-purple-800 mb-2">Tujuan Pembelajaran</h4>
+                        <p class="text-gray-700">Menguasai konsep dan implementasi Sub Query SQL dengan baik</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-blue-200 to-cyan-200 rounded-2xl p-6 text-center card-hover">
+                        <div class="text-3xl mb-3">💡</div>
+                        <h4 class="text-xl font-bold text-blue-800 mb-2">Pemahaman Bermakna</h4>
+                        <p class="text-gray-700">Memahami kapan dan bagaimana menggunakan Sub Query secara efektif</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-green-200 to-emerald-200 rounded-2xl p-6 text-center card-hover">
+                        <div class="text-3xl mb-3">🔥</div>
+                        <h4 class="text-xl font-bold text-green-800 mb-2">Motivasi</h4>
+                        <p class="text-gray-700">Sub Query adalah kunci untuk query SQL yang lebih powerful!</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pengenalan Section -->
+            <section id="pengenalan" class="section hidden">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">📚</div>
+                    <h2 class="text-4xl font-bold text-purple-800 mb-4">Pengenalan Sub Query SQL</h2>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🔍</span>
+                        Apa itu Sub Query?
+                    </h3>
+                    <div class="text-lg space-y-4">
+                        <p>Sub Query (atau Subquery) adalah <strong>query SQL yang berada di dalam query SQL lainnya</strong>. Sub query juga dikenal sebagai <em>nested query</em> atau <em>inner query</em>.</p>
+                        
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+                            <p class="font-semibold text-yellow-800">💡 Analogi Sederhana:</p>
+                            <p>Bayangkan kamu ingin mencari "siswa terpintar di kelas". Pertama kamu harus tahu "nilai tertinggi di kelas", baru kemudian mencari "siapa yang mendapat nilai tertinggi tersebut". Itulah konsep sub query!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🏗️</span>
+                        Struktur Dasar Sub Query
+                    </h3>
+                    
+                    <div class="code-block mb-6">
+SELECT kolom1, kolom2
+FROM tabel1
+WHERE kolom3 = (
+    SELECT kolom4
+    FROM tabel2
+    WHERE kondisi
+);
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-blue-50 p-6 rounded-lg">
+                            <h4 class="font-bold text-blue-800 mb-3">🔵 Outer Query (Query Luar)</h4>
+                            <p>Query utama yang menggunakan hasil dari sub query</p>
+                        </div>
+                        <div class="bg-green-50 p-6 rounded-lg">
+                            <h4 class="font-bold text-green-800 mb-3">🟢 Inner Query (Query Dalam)</h4>
+                            <p>Sub query yang dieksekusi terlebih dahulu</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">📊</span>
+                        Contoh Sederhana
+                    </h3>
+                    
+                    <p class="text-lg mb-4">Mari lihat contoh dengan tabel <strong>siswa</strong>:</p>
+                    
+                    <div class="table-container mb-6">
+                        <table class="w-full bg-white border border-gray-200">
+                            <thead class="bg-purple-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left font-semibold">ID</th>
+                                    <th class="px-6 py-3 text-left font-semibold">Nama</th>
+                                    <th class="px-6 py-3 text-left font-semibold">Nilai</th>
+                                    <th class="px-6 py-3 text-left font-semibold">Kelas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b">
+                                    <td class="px-6 py-4">1</td>
+                                    <td class="px-6 py-4">Andi</td>
+                                    <td class="px-6 py-4">85</td>
+                                    <td class="px-6 py-4">XII RPL</td>
+                                </tr>
+                                <tr class="border-b bg-gray-50">
+                                    <td class="px-6 py-4">2</td>
+                                    <td class="px-6 py-4">Budi</td>
+                                    <td class="px-6 py-4">92</td>
+                                    <td class="px-6 py-4">XII RPL</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="px-6 py-4">3</td>
+                                    <td class="px-6 py-4">Citra</td>
+                                    <td class="px-6 py-4">78</td>
+                                    <td class="px-6 py-4">XII RPL</td>
+                                </tr>
+                                <tr class="border-b bg-gray-50">
+                                    <td class="px-6 py-4">4</td>
+                                    <td class="px-6 py-4">Dina</td>
+                                    <td class="px-6 py-4">88</td>
+                                    <td class="px-6 py-4">XII TKJ</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="text-lg mb-4"><strong>Pertanyaan:</strong> Siapa siswa yang mendapat nilai di atas rata-rata?</p>
+                    
+                    <div class="code-block mb-4">
+SELECT nama, nilai
+FROM siswa
+WHERE nilai > (
+    SELECT AVG(nilai)
+    FROM siswa
+);
+                    </div>
+
+                    <div class="bg-green-50 p-6 rounded-lg">
+                        <h4 class="font-bold text-green-800 mb-3">📋 Hasil Query:</h4>
+                        <div class="table-container">
+                            <table class="w-full bg-white border border-gray-200">
+                                <thead class="bg-green-100">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left font-semibold">Nama</th>
+                                        <th class="px-6 py-3 text-left font-semibold">Nilai</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b">
+                                        <td class="px-6 py-4">Budi</td>
+                                        <td class="px-6 py-4">92</td>
+                                    </tr>
+                                    <tr class="border-b bg-gray-50">
+                                        <td class="px-6 py-4">Dina</td>
+                                        <td class="px-6 py-4">88</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="mt-4 text-sm text-gray-600">Rata-rata nilai: (85+92+78+88)/4 = 85.75</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Jenis Sub Query Section -->
+            <section id="jenis-subquery" class="section hidden">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">🔍</div>
+                    <h2 class="text-4xl font-bold text-purple-800 mb-4">Jenis-Jenis Sub Query</h2>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-blue-200 to-blue-300 rounded-2xl p-6 text-center card-hover">
+                        <div class="text-4xl mb-3">📊</div>
+                        <h3 class="text-xl font-bold text-blue-800 mb-2">Scalar Sub Query</h3>
+                        <p class="text-blue-700">Mengembalikan satu nilai tunggal</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-green-200 to-green-300 rounded-2xl p-6 text-center card-hover">
+                        <div class="text-4xl mb-3">📋</div>
+                        <h3 class="text-xl font-bold text-green-800 mb-2">Multiple Row</h3>
+                        <p class="text-green-700">Mengembalikan beberapa baris data</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-purple-200 to-purple-300 rounded-2xl p-6 text-center card-hover">
+                        <div class="text-4xl mb-3">🔗</div>
+                        <h3 class="text-xl font-bold text-purple-800 mb-2">Correlated</h3>
+                        <p class="text-purple-700">Bergantung pada query luar</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6">📍 Berdasarkan Posisi</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-yellow-50 p-6 rounded-lg">
+                            <h4 class="font-bold text-yellow-800 mb-3">🎯 Sub Query di WHERE</h4>
+                            <p class="mb-3">Digunakan untuk filtering data</p>
+                            <div class="code-block text-sm">
+SELECT * FROM siswa
+WHERE nilai > (SELECT AVG(nilai) FROM siswa);
+                            </div>
+                        </div>
+
+                        <div class="bg-pink-50 p-6 rounded-lg">
+                            <h4 class="font-bold text-pink-800 mb-3">📝 Sub Query di SELECT</h4>
+                            <p class="mb-3">Digunakan untuk menambah kolom</p>
+                            <div class="code-block text-sm">
+SELECT nama, nilai,
+(SELECT AVG(nilai) FROM siswa) as rata_rata
+FROM siswa;
+                            </div>
+                        </div>
+
+                        <div class="bg-cyan-50 p-6 rounded-lg">
+                            <h4 class="font-bold text-cyan-800 mb-3">📊 Sub Query di FROM</h4>
+                            <p class="mb-3">Digunakan sebagai tabel virtual</p>
+                            <div class="code-block text-sm">
+SELECT * FROM (
+    SELECT nama, nilai FROM siswa
+    WHERE nilai > 80
+) AS siswa_pintar;
+                            </div>
+                        </div>
+
+                        <div class="bg-indigo-50 p-6 rounded-lg">
+                            <h4 class="font-bold text-indigo-800 mb-3">🔄 Sub Query di HAVING</h4>
+                            <p class="mb-3">Digunakan untuk filtering grup</p>
+                            <div class="code-block text-sm">
+SELECT kelas, AVG(nilai)
+FROM siswa GROUP BY kelas
+HAVING AVG(nilai) > (SELECT AVG(nilai) FROM siswa);
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scalar Sub Query Section -->
+            <section id="scalar-subquery" class="section hidden">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">📊</div>
+                    <h2 class="text-4xl font-bold text-purple-800 mb-4">Scalar Sub Query</h2>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6">🎯 Pengertian</h3>
+                    <p class="text-lg mb-4">Scalar Sub Query adalah sub query yang <strong>mengembalikan tepat satu nilai</strong> (satu baris, satu kolom). Biasanya menggunakan fungsi agregat seperti COUNT, MAX, MIN, AVG, SUM.</p>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                        <p class="font-semibold text-blue-800">💡 Karakteristik:</p>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li>Mengembalikan satu nilai saja</li>
+                            <li>Dapat digunakan di mana saja nilai tunggal diperlukan</li>
+                            <li>Sering menggunakan operator perbandingan (=, >, <, >=, <=)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6">📋 Contoh dengan Tabel Produk</h3>
+                    
+                    <div class="table-container mb-6">
+                        <table class="w-full bg-white border border-gray-200">
+                            <thead class="bg-purple-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left font-semibold">ID</th>
+                                    <th class="px-6 py-3 text-left font-semibold">Nama Produk</th>
+                                    <th class="px-6 py-3 text-left font-semibold">Harga</th>
+                                    <th class="px-6 py-3 text-left font-semibold">Kategori</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b">
+                                    <td class="px-6 py-4">1</td>
+                                    <td class="px-6 py-4">Laptop Gaming</td>
+                                    <td class="px-6 py-4">15000000</td>
+                                    <td class="px-6 py-4">Elektronik</td>
+                                </tr>
+                                <tr class="border-b bg-gray-50">
+                                    <td class="px-6 py-4">2</td>
+                                    <td class="px-6 py-4">Mouse Wireless</td>
+                                    <td class="px-6 py-4">250000</td>
+                                    <td class="px-6 py-4">Elektronik</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="px-6 py-4">3</td>
+                                    <td class="px-6 py-4">Meja Kantor</td>
+                                    <td class="px-6 py-4">1200000</td>
+                                    <td class="px-6 py-4">Furniture</td>
+                                </tr>
+                                <tr class="border-b bg-gray-50">
+                                    <td class="px-6 py-4">4</td>
+                                    <td class="px-6 py-4">Kursi Gaming</td>
+                                    <td class="px-6 py-4">2500000</td>
+                                    <td class="px-6 py-4">Furniture</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-xl font-bold text-green-700 mb-4">🔍 Contoh 1: Produk dengan Harga Tertinggi</h4>
+                            <div class="code-block mb-4">
+SELECT nama_produk, harga
+FROM produk
+WHERE harga = (
+    SELECT MAX(harga)
+    FROM produk
+);
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <p class="font-semibold text-green-800 mb-2">📋 Hasil:</p>
+                                <div class="table-container">
+                                    <table class="w-full bg-white border border-gray-200">
+                                        <thead class="bg-green-100">
+                                            <tr>
+                                                <th class="px-4 py-2 text-left">Nama Produk</th>
+                                                <th class="px-4 py-2 text-left">Harga</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="px-4 py-2">Laptop Gaming</td>
+                                                <td class="px-4 py-2">15000000</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-xl font-bold text-blue-700 mb-4">🔍 Contoh 2: Produk dengan Harga di Atas Rata-rata</h4>
+                            <div class="code-block mb-4">
+SELECT nama_produk, harga,
+       (SELECT AVG(harga) FROM produk) as rata_rata_harga
+FROM produk
+WHERE harga > (
+    SELECT AVG(harga)
+    FROM produk
+);
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <p class="font-semibold text-blue-800 mb-2">📋 Hasil:</p>
+                                <div class="table-container">
+                                    <table class="w-full bg-white border border-gray-200">
+                                        <thead class="bg-blue-100">
+                                            <tr>
+                                                <th class="px-4 py-2 text-left">Nama Produk</th>
+                                                <th class="px-4 py-2 text-left">Harga</th>
+                                                <th class="px-4 py-2 text-left">Rata-rata Harga</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="px-4 py-2">Laptop Gaming</td>
+                                                <td class="px-4 py-2">15000000</td>
+                                                <td class="px-4 py-2">4737500</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="mt-2 text-sm text-gray-600">Rata-rata: (15000000+250000+1200000+2500000)/4 = 4737500</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Multiple Row Sub Query Section -->
+            <section id="multiple-row" class="section hidden">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">📋</div>
+                    <h2 class="text-4xl font-bold text-purple-800 mb-4">Multiple Row Sub Query</h2>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6">🎯 Pengertian</h3>
+                    <p class="text-lg mb-4">Multiple Row Sub Query adalah sub query yang <strong>mengembalikan lebih dari satu baris data</strong>. Karena mengembalikan banyak nilai, tidak bisa menggunakan operator perbandingan biasa (=, >, <).</p>
+                    
+                    <div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded">
+                        <p class="font-semibold text-orange-800">⚠️ Operator Khusus yang Digunakan:</p>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li><strong>IN</strong> - nilai ada dalam daftar hasil sub query</li>
+                            <li><strong>NOT IN</strong> - nilai tidak ada dalam daftar hasil sub query</li>
+                            <li><strong>ANY/SOME</strong> - memenuhi kondisi dengan salah satu nilai</li>
+                            <li><strong>ALL</strong> - memenuhi kondisi dengan semua nilai</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6">📊 Contoh dengan Tabel Karyawan dan Departemen</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <h4 class="font-bold text-gray-800 mb-3">Tabel Karyawan</h4>
+                            <div class="table-container">
+                                <table class="w-full bg-white border border-gray-200">
+                                    <thead class="bg-blue-100">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left text-sm">ID</th>
+                                            <th class="px-4 py-2 text-left text-sm">Nama</th>
+                                            <th class="px-4 py-2 text-left text-sm">Gaji</th>
+                                            <th class="px-4 py-2 text-left text-sm">Dept_ID</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-sm">
+                                        <tr class="border-b">
+                                            <td class="px-4 py-2">1</td>
+                                            <td class="px-4 py-2">Andi</td>
+                                            <td class="px-4 py-2">8000000</td>
+                                            <td class="px-4 py-2">1</td>
+                                        </tr>
+                                        <tr class="border-b bg-gray-50">
+                                            <td class="px-4 py-2">2</td>
+                                            <td class="px-4 py-2">Budi</td>
+                                            <td class="px-4 py-2">12000000</td>
+                                            <td class="px-4 py-2">2</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="px-4 py-2">3</td>
+                                            <td class="px-4 py-2">Citra</td>
+                                            <td class="px-4 py-2">9000000</td>
+                                            <td class="px-4 py-2">1</td>
+                                        </tr>
+                                        <tr class="border-b bg-gray-50">
+                                            <td class="px-4 py-2">4</td>
+                                            <td class="px-4 py-2">Dina</td>
+                                            <td class="px-4 py-2">7000000</td>
+                                            <td class="px-4 py-2">3</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="font-bold text-gray-800 mb-3">Tabel Departemen</h4>
+                            <div class="table-container">
+                                <table class="w-full bg-white border border-gray-200">
+                                    <thead class="bg-green-100">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left text-sm">ID</th>
+                                            <th class="px-4 py-2 text-left text-sm">Nama Dept</th>
+                                            <th class="px-4 py-2 text-left text-sm">Lokasi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-sm">
+                                        <tr class="border-b">
+                                            <td class="px-4 py-2">1</td>
+                                            <td class="px-4 py-2">IT</td>
+                                            <td class="px-4 py-2">Jakarta</td>
+                                        </tr>
+                                        <tr class="border-b bg-gray-50">
+                                            <td class="px-4 py-2">2</td>
+                                            <td class="px-4 py-2">Marketing</td>
+                                            <td class="px-4 py-2">Bandung</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="px-4 py-2">3</td>
+                                            <td class="px-4 py-2">Finance</td>
+                                            <td class="px-4 py-2">Surabaya</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-xl font-bold text-green-700 mb-4">🔍 Contoh 1: Menggunakan IN</h4>
+                            <p class="mb-3">Cari karyawan yang bekerja di departemen yang berlokasi di Jakarta atau Bandung:</p>
+                            <div class="code-block mb-4">
+SELECT nama, gaji
+FROM karyawan
+WHERE dept_id IN (
+    SELECT id
+    FROM departemen
+    WHERE lokasi IN ('Jakarta', 'Bandung')
+);
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <p class="font-semibold text-green-800 mb-2">📋 Hasil:</p>
+                                <div class="table-container">
+                                    <table class="w-full bg-white border border-gray-200">
+                                        <thead class="bg-green-100">
+                                            <tr>
+                                                <th class="px-4 py-2 text-left">Nama</th>
+                                                <th class="px-4 py-2 text-left">Gaji</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="border-b">
+                                                <td class="px-4 py-2">Andi</td>
+                                                <td class="px-4 py-2">8000000</td>
+                                            </tr>
+                                            <tr class="border-b bg-gray-50">
+                                                <td class="px-4 py-2">Budi</td>
+                                                <td class="px-4 py-2">12000000</td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="px-4 py-2">Citra</td>
+                                                <td class="px-4 py-2">9000000</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-xl font-bold text-blue-700 mb-4">🔍 Contoh 2: Menggunakan ANY</h4>
+                            <p class="mb-3">Cari karyawan yang gajinya lebih besar dari gaji karyawan manapun di departemen Finance:</p>
+                            <div class="code-block mb-4">
+SELECT nama, gaji
+FROM karyawan
+WHERE gaji > ANY (
+    SELECT gaji
+    FROM karyawan
+    WHERE dept_id = (
+        SELECT id FROM departemen WHERE nama_dept = 'Finance'
+    )
+);
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <p class="font-semibold text-blue-800 mb-2">📋 Hasil:</p>
+                                <div class="table-container">
+                                    <table class="w-full bg-white border border-gray-200">
+                                        <thead class="bg-blue-100">
+                                            <tr>
+                                                <th class="px-4 py-2 text-left">Nama</th>
+                                                <th class="px-4 py-2 text-left">Gaji</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="border-b">
+                                                <td class="px-4 py-2">Andi</td>
+                                                <td class="px-4 py-2">8000000</td>
+                                            </tr>
+                                            <tr class="border-b bg-gray-50">
+                                                <td class="px-4 py-2">Budi</td>
+                                                <td class="px-4 py-2">12000000</td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td class="px-4 py-2">Citra</td>
+                                                <td class="px-4 py-2">9000000</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="mt-2 text-sm text-gray-600">Gaji di Finance: 7000000. Semua yang > 7000000 akan muncul.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Correlated Sub Query Section -->
+            <section id="correlated" class="section hidden">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">🔗</div>
+                    <h2 class="text-4xl font-bold text-purple-800 mb-4">Correlated Sub Query</h2>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6">🎯 Pengertian</h3>
+                    <p class="text-lg mb-4">Correlated Sub Query adalah sub query yang <strong>bergantung pada nilai dari query luar</strong>. Sub query ini dieksekusi berulang kali untuk setiap baris dari query luar.</p>
+                    
+                    <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded mb-6">
+                        <p class="font-semibold text-red-800">🔄 Karakteristik:</p>
+                        <ul class="list-disc list-inside mt-2 space-y-1">
+                            <li>Sub query menggunakan kolom dari tabel query luar</li>
+                            <li>Dieksekusi berulang untuk setiap baris outer query</li>
+                            <li>Tidak bisa dijalankan secara terpisah</li>
+                            <li>Biasanya lebih lambat dari non-correlated sub query</li>
+                        </ul>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-yellow-50 p-6 rounded-lg">
+                            <h4 class="font-bold text-yellow-800 mb-3">❌ Non-Correlated</h4>
+                            <p class="mb-3">Sub query independen, dieksekusi sekali</p>
+                            <div class="code-block text-sm">
+SELECT * FROM siswa
+WHERE nilai > (
+    SELECT AVG(nilai) FROM siswa
+);
+                            </div>
+                        </div>
+
+                        <div class="bg-green-50 p-6 rounded-lg">
+                            <h4 class="font-bold text-green-800 mb-3">✅ Correlated</h4>
+                            <p class="mb-3">Sub query bergantung outer query</p>
+                            <div class="code-block text-sm">
+SELECT * FROM siswa s1
+WHERE nilai > (
+    SELECT AVG(nilai) FROM siswa s2
+    WHERE s2.kelas = s1.kelas
+);
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6">📊 Contoh dengan Tabel Penjualan</h3>
+                    
+                    <div class="table-container mb-6">
+                        <table class="w-full bg-white border border-gray-200">
+                            <thead class="bg-purple-100">
+                                <tr>
+                                    <th class="px-4 py-3 text-left font-semibold">ID</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Salesperson</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Jumlah</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Bulan</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Tahun</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b">
+                                    <td class="px-4 py-3">1</td>
+                                    <td class="px-4 py-3">Andi</td>
+                                    <td class="px-4 py-3">5000000</td>
+                                    <td class="px-4 py-3">1</td>
+                                    <td class="px-4 py-3">2024</td>
+                                </tr>
+                                <tr class="border-b bg-gray-50">
+                                    <td class="px-4 py-3">2</td>
+                                    <td class="px-4 py-3">Budi</td>
+                                    <td class="px-4 py-3">7000000</td>
+                                    <td class="px-4 py-3">1</td>
+                                    <td class="px-4 py-3">2024</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="px-4 py-3">3</td>
+                                    <td class="px-4 py-3">Andi</td>
+                                    <td class="px-4 py-3">6000000</td>
+                                    <td class="px-4 py-3">2</td>
+                                    <td class="px-4 py-3">2024</td>
+                                </tr>
+                                <tr class="border-b bg-gray-50">
+                                    <td class="px-4 py-3">4</td>
+                                    <td class="px-4 py-3">Citra</td>
+                                    <td class="px-4 py-3">4000000</td>
+                                    <td class="px-4 py-3">1</td>
+                                    <td class="px-4 py-3">2024</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="px-4 py-3">5</td>
+                                    <td class="px-4 py-3">Budi</td>
+                                    <td class="px-4 py-3">8000000</td>
+                                    <td class="px-4 py-3">2</td>
+                                    <td class="px-4 py-3">2024</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="text-xl font-bold text-green-700 mb-4">🔍 Contoh 1: Penjualan di Atas Rata-rata per Salesperson</h4>
+                            <p class="mb-3">Cari transaksi yang nilainya di atas rata-rata penjualan masing-masing salesperson:</p>
+                            <div class="code-block mb-4">
+SELECT salesperson, jumlah, bulan
+FROM penjualan p1
+WHERE jumlah > (
+    SELECT AVG(jumlah)
+    FROM penjualan p2
+    WHERE p2.salesperson = p1.salesperson
+);
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <p class="font-semibold text-green-800 mb-2">📋 Hasil:</p>
+                                <div class="table-container">
+                                    <table class="w-full bg-white border border-gray-200">
+                                        <thead class="bg-green-100">
+                                            <tr>
+                                                <th class="px-4 py-2 text-left">Salesperson</th>
+                                                <th class="px-4 py-2 text-left">Jumlah</th>
+                                                <th class="px-4 py-2 text-left">Bulan</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="border-b">
+                                                <td class="px-4 py-2">Andi</td>
+                                                <td class="px-4 py-2">6000000</td>
+                                                <td class="px-4 py-2">2</td>
+                                            </tr>
+                                            <tr class="border-b bg-gray-50">
+                                                <td class="px-4 py-2">Budi</td>
+                                                <td class="px-4 py-2">8000000</td>
+                                                <td class="px-4 py-2">2</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="mt-2 text-sm text-gray-600">
+                                    Rata-rata Andi: (5000000+6000000)/2 = 5500000<br>
+                                    Rata-rata Budi: (7000000+8000000)/2 = 7500000<br>
+                                    Rata-rata Citra: 4000000
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-xl font-bold text-blue-700 mb-4">🔍 Contoh 2: Menggunakan EXISTS</h4>
+                            <p class="mb-3">Cari salesperson yang pernah melakukan penjualan di atas 6 juta:</p>
+                            <div class="code-block mb-4">
+SELECT DISTINCT salesperson
+FROM penjualan p1
+WHERE EXISTS (
+    SELECT 1
+    FROM penjualan p2
+    WHERE p2.salesperson = p1.salesperson
+    AND p2.jumlah > 6000000
+);
+                            </div>
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <p class="font-semibold text-blue-800 mb-2">📋 Hasil:</p>
+                                <div class="table-container">
+                                    <table class="w-full bg-white border border-gray-200">
+                                        <thead class="bg-blue-100">
+                                            <tr>
+                                                <th class="px-4 py-2 text-left">Salesperson</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="border-b">
+                                                <td class="px-4 py-2">Budi</td>
+                                            </tr>
+                                            <tr class="border-b bg-gray-50">
+                                                <td class="px-4 py-2">Andi</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Praktik Section -->
+            <section id="praktik" class="section hidden">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">💻</div>
+                    <h2 class="text-4xl font-bold text-purple-800 mb-4">Praktik Sub Query SQL</h2>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🏗️</span>
+                        Langkah 1: Membuat Database dan Tabel
+                    </h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-800 mb-3">1.1 Membuat Database</h4>
+                            <div class="code-block">CREATE DATABASE sekolah_db;</div>
+                            <div class="code-block mt-3">USE sekolah_db;</div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-800 mb-3">1.2 Membuat Tabel Siswa</h4>
+                            <div class="code-block">CREATE TABLE siswa (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nama VARCHAR(50) NOT NULL,
+    nilai INT NOT NULL,
+    kelas VARCHAR(10) NOT NULL,
+    umur INT NOT NULL
+);</div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-800 mb-3">1.3 Membuat Tabel Mata Pelajaran</h4>
+                            <div class="code-block">CREATE TABLE mata_pelajaran (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nama_mapel VARCHAR(50) NOT NULL,
+    guru VARCHAR(50) NOT NULL,
+    sks INT NOT NULL
+);</div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-800 mb-3">1.4 Membuat Tabel Nilai</h4>
+                            <div class="code-block">CREATE TABLE nilai (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    siswa_id INT,
+    mapel_id INT,
+    nilai INT NOT NULL,
+    semester VARCHAR(10),
+    FOREIGN KEY (siswa_id) REFERENCES siswa(id),
+    FOREIGN KEY (mapel_id) REFERENCES mata_pelajaran(id)
+);</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">📊</span>
+                        Langkah 2: Mengisi Data (INSERT)
+                    </h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-800 mb-3">2.1 Insert Data Siswa</h4>
+                            <div class="code-block">INSERT INTO siswa (nama, nilai, kelas, umur) VALUES
+('Andi Pratama', 85, 'XII RPL', 17),
+('Budi Santoso', 92, 'XII RPL', 18),
+('Citra Dewi', 78, 'XII TKJ', 17),
+('Dina Sari', 88, 'XII TKJ', 18),
+('Eko Wijaya', 95, 'XII RPL', 17),
+('Fani Lestari', 82, 'XII MM', 18),
+('Gita Permata', 90, 'XII MM', 17),
+('Hadi Kurnia', 76, 'XII TKJ', 18);</div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-800 mb-3">2.2 Insert Data Mata Pelajaran</h4>
+                            <div class="code-block">INSERT INTO mata_pelajaran (nama_mapel, guru, sks) VALUES
+('Pemrograman Web', 'Pak Budi', 4),
+('Database', 'Bu Sari', 3),
+('Jaringan Komputer', 'Pak Andi', 3),
+('Multimedia', 'Bu Dina', 2),
+('Matematika', 'Pak Eko', 2);</div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-lg font-bold text-gray-800 mb-3">2.3 Insert Data Nilai</h4>
+                            <div class="code-block">INSERT INTO nilai (siswa_id, mapel_id, nilai, semester) VALUES
+(1, 1, 88, 'Ganjil'), (1, 2, 85, 'Ganjil'), (1, 5, 82, 'Ganjil'),
+(2, 1, 95, 'Ganjil'), (2, 2, 92, 'Ganjil'), (2, 5, 89, 'Ganjil'),
+(3, 3, 78, 'Ganjil'), (3, 5, 75, 'Ganjil'),
+(4, 3, 88, 'Ganjil'), (4, 5, 85, 'Ganjil'),
+(5, 1, 98, 'Ganjil'), (5, 2, 95, 'Ganjil'), (5, 5, 92, 'Ganjil'),
+(6, 4, 85, 'Ganjil'), (6, 5, 80, 'Ganjil'),
+(7, 4, 92, 'Ganjil'), (7, 5, 88, 'Ganjil'),
+(8, 3, 76, 'Ganjil'), (8, 5, 73, 'Ganjil');</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🔍</span>
+                        Langkah 3: Praktik Scalar Sub Query
+                    </h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-lg font-bold text-green-700 mb-3">3.1 Siswa dengan Nilai Tertinggi</h4>
+                            <div class="code-block mb-3">SELECT nama, nilai
+FROM siswa
+WHERE nilai = (SELECT MAX(nilai) FROM siswa);</div>
+                            <p class="text-gray-600">Coba jalankan query ini untuk melihat siapa siswa dengan nilai tertinggi!</p>
+                        </div>
+
+                        <div>
+                            <h4 class="text-lg font-bold text-green-700 mb-3">3.2 Siswa dengan Nilai di Atas Rata-rata</h4>
+                            <div class="code-block mb-3">SELECT nama, nilai, kelas,
+       (SELECT AVG(nilai) FROM siswa) as rata_rata
+FROM siswa
+WHERE nilai > (SELECT AVG(nilai) FROM siswa)
+ORDER BY nilai DESC;</div>
+                            <p class="text-gray-600">Query ini menampilkan siswa yang nilainya di atas rata-rata beserta nilai rata-ratanya.</p>
+                        </div>
+
+                        <div>
+                            <h4 class="text-lg font-bold text-green-700 mb-3">3.3 Jumlah Siswa per Kelas vs Total Siswa</h4>
+                            <div class="code-block mb-3">SELECT kelas, 
+       COUNT(*) as jumlah_siswa,
+       (SELECT COUNT(*) FROM siswa) as total_siswa,
+       ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM siswa), 2) as persentase
+FROM siswa
+GROUP BY kelas;</div>
+                            <p class="text-gray-600">Melihat distribusi siswa per kelas dengan persentase.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">📋</span>
+                        Langkah 4: Praktik Multiple Row Sub Query
+                    </h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-lg font-bold text-blue-700 mb-3">4.1 Siswa dari Kelas Tertentu (IN)</h4>
+                            <div class="code-block mb-3">
+SELECT nama, kelas, nilai
+FROM siswa
+WHERE kelas IN (
+    SELECT kelas 
+    FROM siswa 
+    GROUP BY kelas 
+    HAVING AVG(nilai) > 85
+);
+                            </div>
+                            <p class="text-gray-600">Menampilkan siswa dari kelas yang rata-rata nilainya > 85.</p>
+                        </div>
+
+                        <div>
+                            <h4 class="text-lg font-bold text-blue-700 mb-3">4.2 Siswa yang Mengambil Mata Pelajaran Tertentu</h4>
+                            <div class="code-block mb-3">
+SELECT s.nama, s.kelas
+FROM siswa s
+WHERE s.id IN (
+    SELECT n.siswa_id
+    FROM nilai n
+    JOIN mata_pelajaran mp ON n.mapel_id = mp.id
+    WHERE mp.nama_mapel IN ('Pemrograman Web', 'Database')
+);
+                            </div>
+                            <p class="text-gray-600">Mencari siswa yang mengambil mata pelajaran Pemrograman Web atau Database.</p>
+                        </div>
+
+                        <div>
+                            <h4 class="text-lg font-bold text-blue-700 mb-3">4.3 Menggunakan ANY dan ALL</h4>
+                            <div class="code-block mb-3">
+-- Siswa yang nilainya lebih tinggi dari nilai terendah di kelas XII RPL
+SELECT nama, nilai, kelas
+FROM siswa
+WHERE nilai > ANY (
+    SELECT nilai FROM siswa WHERE kelas = 'XII RPL'
+) AND kelas != 'XII RPL';
+
+-- Siswa yang nilainya lebih tinggi dari semua siswa di kelas XII TKJ
+SELECT nama, nilai, kelas
+FROM siswa
+WHERE nilai > ALL (
+    SELECT nilai FROM siswa WHERE kelas = 'XII TKJ'
+);
+                            </div>
+                            <p class="text-gray-600">Contoh penggunaan ANY dan ALL dalam sub query.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🔗</span>
+                        Langkah 5: Praktik Correlated Sub Query
+                    </h3>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-lg font-bold text-purple-700 mb-3">5.1 Siswa Terbaik per Kelas</h4>
+                            <div class="code-block mb-3">
+SELECT nama, nilai, kelas
+FROM siswa s1
+WHERE nilai = (
+    SELECT MAX(nilai)
+    FROM siswa s2
+    WHERE s2.kelas = s1.kelas
+)
+ORDER BY kelas;
+                            </div>
+                            <p class="text-gray-600">Menampilkan siswa dengan nilai tertinggi di setiap kelas.</p>
+                        </div>
+
+                        <div>
+                            <h4 class="text-lg font-bold text-purple-700 mb-3">5.2 Siswa di Atas Rata-rata Kelasnya</h4>
+                            <div class="code-block mb-3">
+SELECT nama, nilai, kelas,
+       (SELECT AVG(nilai) FROM siswa s2 WHERE s2.kelas = s1.kelas) as rata_rata_kelas
+FROM siswa s1
+WHERE nilai > (
+    SELECT AVG(nilai)
+    FROM siswa s2
+    WHERE s2.kelas = s1.kelas
+)
+ORDER BY kelas, nilai DESC;
+                            </div>
+                            <p class="text-gray-600">Siswa yang nilainya di atas rata-rata kelas masing-masing.</p>
+                        </div>
+
+                        <div>
+                            <h4 class="text-lg font-bold text-purple-700 mb-3">5.3 Menggunakan EXISTS</h4>
+                            <div class="code-block mb-3">
+-- Siswa yang pernah mendapat nilai di atas 90
+SELECT nama, kelas
+FROM siswa s
+WHERE EXISTS (
+    SELECT 1
+    FROM nilai n
+    WHERE n.siswa_id = s.id
+    AND n.nilai > 90
+);
+
+-- Mata pelajaran yang tidak diambil siswa kelas XII MM
+SELECT nama_mapel, guru
+FROM mata_pelajaran mp
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM nilai n
+    JOIN siswa s ON n.siswa_id = s.id
+    WHERE n.mapel_id = mp.id
+    AND s.kelas = 'XII MM'
+);
+                            </div>
+                            <p class="text-gray-600">Contoh penggunaan EXISTS dan NOT EXISTS.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-100 to-blue-100 rounded-2xl p-8 shadow-lg">
+                    <h3 class="text-2xl font-bold text-green-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🎯</span>
+                        Tugas Praktik Mandiri
+                    </h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-lg">
+                            <h4 class="font-bold text-gray-800 mb-3">📝 Tugas 1-3</h4>
+                            <ol class="list-decimal list-inside space-y-2 text-sm">
+                                <li>Buat query untuk mencari siswa termuda di setiap kelas</li>
+                                <li>Tampilkan mata pelajaran dengan SKS tertinggi</li>
+                                <li>Cari siswa yang mengambil lebih dari 3 mata pelajaran</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-lg">
+                            <h4 class="font-bold text-gray-800 mb-3">📝 Tugas 4-6</h4>
+                            <ol class="list-decimal list-inside space-y-2 text-sm" start="4">
+                                <li>Tampilkan kelas dengan rata-rata nilai tertinggi</li>
+                                <li>Cari guru yang mengajar mata pelajaran dengan SKS > 2</li>
+                                <li>Buat ranking siswa berdasarkan rata-rata nilai mereka</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Kuis Section -->
+            <section id="kuis" class="section hidden">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">🎯</div>
+                    <h2 class="text-4xl font-bold text-purple-800 mb-4">Kuis Sub Query SQL</h2>
+                </div>
+
+                <div id="quiz-start" class="bg-white rounded-2xl p-8 shadow-lg text-center">
+                    <div class="text-4xl mb-6">📝</div>
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6">Siap untuk Menguji Pemahaman Anda?</h3>
+                    <p class="text-lg text-gray-600 mb-8">Kuis ini terdiri dari 10 soal tentang Sub Query SQL. Masukkan nama Anda terlebih dahulu!</p>
+                    
+                    <div class="max-w-md mx-auto mb-6">
+                        <input type="text" id="student-name" placeholder="Masukkan nama Anda..." 
+                               class="w-full px-4 py-3 border-2 border-purple-300 rounded-lg text-lg focus:border-purple-500 focus:outline-none">
+                    </div>
+                    
+                    <button onclick="startQuiz()" 
+                            class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-lg text-xl font-bold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105">
+                        🚀 Mulai Kuis
+                    </button>
+                </div>
+
+                <div id="quiz-container" class="hidden">
+                    <div class="bg-white rounded-2xl p-8 shadow-lg mb-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-purple-700">
+                                Soal <span id="current-question">1</span> dari 10
+                            </h3>
+                            <div class="text-sm text-gray-600">
+                                Nama: <span id="quiz-name" class="font-semibold"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="w-full bg-gray-200 rounded-full h-3 mb-6">
+                            <div id="progress-bar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-300" style="width: 10%"></div>
+                        </div>
+
+                        <div id="question-container">
+                            <h4 id="question-text" class="text-lg font-semibold text-gray-800 mb-6"></h4>
+                            <div id="options-container" class="space-y-3"></div>
+                        </div>
+
+                        <div class="flex justify-between mt-8">
+                            <button id="prev-btn" onclick="previousQuestion()" 
+                                    class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-400 transition-all duration-300 disabled:opacity-50" 
+                                    disabled>
+                                ← Sebelumnya
+                            </button>
+                            <button id="next-btn" onclick="nextQuestion()" 
+                                    class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300">
+                                Selanjutnya →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="quiz-result" class="hidden bg-white rounded-2xl p-8 shadow-lg text-center">
+                    <div class="text-6xl mb-6">🎉</div>
+                    <h3 class="text-3xl font-bold text-purple-700 mb-4">Selamat!</h3>
+                    <p class="text-xl text-gray-600 mb-6">Anda telah menyelesaikan kuis Sub Query SQL</p>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-6 mb-6">
+                        <h4 class="text-2xl font-bold text-purple-800 mb-2">Hasil Anda</h4>
+                        <p class="text-lg">Nama: <span id="final-name" class="font-semibold"></span></p>
+                        <p class="text-3xl font-bold text-purple-600 mt-2">
+                            Skor: <span id="final-score"></span>/10
+                        </p>
+                        <p id="grade-message" class="text-lg mt-2"></p>
+                    </div>
+
+                    <button onclick="restartQuiz()" 
+                            class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-lg text-xl font-bold hover:from-green-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105">
+                        🔄 Ulangi Kuis
+                    </button>
+                </div>
+            </section>
+
+            <!-- Penutup Section -->
+            <section id="penutup" class="section hidden">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">🎉</div>
+                    <h2 class="text-4xl font-bold text-purple-800 mb-4">Penutup</h2>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-green-200 to-emerald-200 rounded-2xl p-6 text-center card-hover">
+                        <div class="text-4xl mb-3">🤔</div>
+                        <h3 class="text-xl font-bold text-green-800 mb-2">Refleksi</h3>
+                        <p class="text-green-700">Bagaimana pemahaman Anda tentang Sub Query sekarang?</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-blue-200 to-cyan-200 rounded-2xl p-6 text-center card-hover">
+                        <div class="text-4xl mb-3">📚</div>
+                        <h3 class="text-xl font-bold text-blue-800 mb-2">Kesimpulan</h3>
+                        <p class="text-blue-700">Sub Query adalah tool powerful untuk query yang kompleks</p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-purple-200 to-pink-200 rounded-2xl p-6 text-center card-hover">
+                        <div class="text-4xl mb-3">🚀</div>
+                        <h3 class="text-xl font-bold text-purple-800 mb-2">Tindak Lanjut</h3>
+                        <p class="text-purple-700">Lanjutkan dengan mempelajari JOIN dan VIEW</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🤔</span>
+                        Refleksi Pembelajaran
+                    </h3>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-yellow-50 p-6 rounded-lg">
+                            <h4 class="font-bold text-yellow-800 mb-3">💭 Pertanyaan Refleksi:</h4>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700">
+                                <li>Bagaimana perasaan Anda setelah mempelajari Sub Query SQL hari ini?</li>
+                                <li>Materi mana yang paling mudah dipahami? Mengapa?</li>
+                                <li>Bagian mana yang masih terasa sulit atau membingungkan?</li>
+                                <li>Apakah Anda sudah bisa membedakan ketiga jenis Sub Query?</li>
+                                <li>Contoh penerapan Sub Query apa yang paling menarik bagi Anda?</li>
+                                <li>Apa yang akan Anda lakukan untuk memperdalam pemahaman tentang Sub Query?</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-green-50 p-6 rounded-lg">
+                            <h4 class="font-bold text-green-800 mb-3">✅ Checklist Pemahaman:</h4>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" class="form-checkbox text-green-500">
+                                        <span>Memahami konsep dasar Sub Query</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" class="form-checkbox text-green-500">
+                                        <span>Dapat membuat Scalar Sub Query</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" class="form-checkbox text-green-500">
+                                        <span>Menguasai Multiple Row Sub Query</span>
+                                    </label>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" class="form-checkbox text-green-500">
+                                        <span>Memahami Correlated Sub Query</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" class="form-checkbox text-green-500">
+                                        <span>Dapat menggunakan EXISTS/NOT EXISTS</span>
+                                    </label>
+                                    <label class="flex items-center space-x-2">
+                                        <input type="checkbox" class="form-checkbox text-green-500">
+                                        <span>Siap untuk materi lanjutan</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">📚</span>
+                        Kesimpulan Pembelajaran
+                    </h3>
+                    
+                    <div class="space-y-4 text-lg">
+                        <p>Selamat! Anda telah berhasil mempelajari <strong>Sub Query SQL</strong> secara komprehensif. Berikut adalah poin-poin penting yang telah dipelajari:</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-blue-50 p-6 rounded-lg">
+                                <h4 class="font-bold text-blue-800 mb-3">🎯 Konsep yang Dikuasai:</h4>
+                                <ul class="list-disc list-inside space-y-1 text-sm">
+                                    <li>Definisi dan struktur Sub Query</li>
+                                    <li>Scalar Sub Query untuk nilai tunggal</li>
+                                    <li>Multiple Row Sub Query dengan IN, ANY, ALL</li>
+                                    <li>Correlated Sub Query yang dinamis</li>
+                                    <li>Penggunaan EXISTS dan NOT EXISTS</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-green-50 p-6 rounded-lg">
+                                <h4 class="font-bold text-green-800 mb-3">💪 Keterampilan yang Diperoleh:</h4>
+                                <ul class="list-disc list-inside space-y-1 text-sm">
+                                    <li>Membuat query kompleks dengan Sub Query</li>
+                                    <li>Menganalisis data dengan pendekatan bertingkat</li>
+                                    <li>Memilih jenis Sub Query yang tepat</li>
+                                    <li>Optimasi performa query</li>
+                                    <li>Debugging Sub Query yang kompleks</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-purple-50 border-l-4 border-purple-400 p-4 rounded">
+                            <p class="font-semibold text-purple-800">💡 Ingat:</p>
+                            <p>Sub Query adalah fondasi penting untuk menjadi ahli SQL. Dengan menguasai konsep ini, Anda dapat menyelesaikan masalah data yang kompleks dengan elegant dan efisien!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-8 shadow-lg">
+                    <h3 class="text-2xl font-bold text-purple-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🚀</span>
+                        Tindak Lanjut
+                    </h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-orange-50 p-6 rounded-lg">
+                            <h4 class="font-bold text-orange-800 mb-3">📖 Materi Selanjutnya:</h4>
+                            <ul class="list-disc list-inside space-y-2 text-sm">
+                                <li><strong>JOIN Operations</strong> - Menggabungkan tabel dengan berbagai cara</li>
+                                <li><strong>Views</strong> - Membuat tabel virtual untuk kemudahan</li>
+                                <li><strong>Stored Procedures</strong> - Otomatisasi query kompleks</li>
+                                <li><strong>Triggers</strong> - Aksi otomatis pada database</li>
+                                <li><strong>Indexing</strong> - Optimasi performa database</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-cyan-50 p-6 rounded-lg">
+                            <h4 class="font-bold text-cyan-800 mb-3">💻 Latihan Lanjutan:</h4>
+                            <ul class="list-disc list-inside space-y-2 text-sm">
+                                <li>Buat project database sekolah lengkap</li>
+                                <li>Implementasi Sub Query dalam aplikasi web</li>
+                                <li>Analisis data dengan Sub Query kompleks</li>
+                                <li>Optimasi performa Sub Query</li>
+                                <li>Studi kasus database perusahaan</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-8">
+                        <div class="text-4xl mb-4">🌟</div>
+                        <h4 class="text-2xl font-bold text-purple-800 mb-4">Selamat Belajar!</h4>
+                        <p class="text-lg text-gray-600">Terus berlatih dan eksplorasi untuk menjadi master SQL!</p>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Next Button -->
+        <div id="next-section-btn" class="text-center py-8">
+            <button onclick="nextSection()" 
+                    class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-bold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                Lanjut ke Materi Berikutnya →
+            </button>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" 
+            class="fixed bottom-6 right-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 transform hover:scale-110 z-50 hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Global variables
+        let currentSection = 'intro';
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let studentName = '';
+        
+        const sections = ['intro', 'pengenalan', 'jenis-subquery', 'scalar-subquery', 'multiple-row', 'correlated', 'praktik', 'kuis', 'penutup'];
+        
+        const quizQuestions = [
+            {
+                question: "Apa yang dimaksud dengan Sub Query dalam SQL?",
+                options: [
+                    "Query yang dijalankan setelah query utama",
+                    "Query yang berada di dalam query lainnya",
+                    "Query yang menggunakan JOIN",
+                    "Query yang menggunakan GROUP BY"
+                ],
+                correct: 1
+            },
+            {
+                question: "Jenis Sub Query yang mengembalikan tepat satu nilai disebut:",
+                options: [
+                    "Multiple Row Sub Query",
+                    "Correlated Sub Query", 
+                    "Scalar Sub Query",
+                    "Nested Sub Query"
+                ],
+                correct: 2
+            },
+            {
+                question: "Operator mana yang TIDAK bisa digunakan dengan Multiple Row Sub Query?",
+                options: [
+                    "IN",
+                    "ANY",
+                    "=",
+                    "ALL"
+                ],
+                correct: 2
+            },
+            {
+                question: "Dalam Correlated Sub Query, sub query bergantung pada:",
+                options: [
+                    "Database yang sama",
+                    "Tabel yang sama",
+                    "Query luar (outer query)",
+                    "Fungsi agregat"
+                ],
+                correct: 2
+            },
+            {
+                question: "Query berikut menggunakan jenis Sub Query apa?\nSELECT * FROM siswa WHERE nilai > (SELECT AVG(nilai) FROM siswa);",
+                options: [
+                    "Correlated Sub Query",
+                    "Multiple Row Sub Query",
+                    "Scalar Sub Query",
+                    "Nested Join"
+                ],
+                correct: 2
+            },
+            {
+                question: "Operator EXISTS dalam Sub Query digunakan untuk:",
+                options: [
+                    "Memeriksa apakah sub query mengembalikan hasil",
+                    "Menghitung jumlah baris",
+                    "Membandingkan nilai",
+                    "Mengurutkan data"
+                ],
+                correct: 0
+            },
+            {
+                question: "Sub Query dapat ditempatkan di bagian mana saja dari SQL statement?",
+                options: [
+                    "Hanya di WHERE",
+                    "Hanya di SELECT dan WHERE",
+                    "Di SELECT, WHERE, FROM, dan HAVING",
+                    "Hanya di FROM"
+                ],
+                correct: 2
+            },
+            {
+                question: "Apa perbedaan utama antara IN dan EXISTS?",
+                options: [
+                    "IN lebih cepat dari EXISTS",
+                    "EXISTS memeriksa keberadaan, IN membandingkan nilai",
+                    "EXISTS hanya untuk Correlated Sub Query",
+                    "Tidak ada perbedaan"
+                ],
+                correct: 1
+            },
+            {
+                question: "Query mana yang merupakan contoh Correlated Sub Query?",
+                options: [
+                    "SELECT * FROM siswa WHERE nilai > (SELECT MAX(nilai) FROM siswa)",
+                    "SELECT * FROM siswa s1 WHERE nilai > (SELECT AVG(nilai) FROM siswa s2 WHERE s2.kelas = s1.kelas)",
+                    "SELECT * FROM siswa WHERE kelas IN (SELECT kelas FROM kelas)",
+                    "SELECT * FROM siswa WHERE nilai = ANY (SELECT nilai FROM nilai_tinggi)"
+                ],
+                correct: 1
+            },
+            {
+                question: "Kapan sebaiknya menggunakan Sub Query dibandingkan JOIN?",
+                options: [
+                    "Selalu gunakan Sub Query",
+                    "Ketika perlu hasil dari query lain untuk filtering atau perhitungan",
+                    "Selalu gunakan JOIN",
+                    "Tidak ada perbedaan"
+                ],
+                correct: 1
+            }
+        ];
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.getElementById(sectionId).classList.add('fade-in');
+            
+            // Update current section
+            currentSection = sectionId;
+            
+            // Update menu active state
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('bg-gradient-to-r', 'from-pink-200', 'to-purple-200');
+            });
+            
+            // Close mobile menu
+            if (window.innerWidth < 1024) {
+                document.getElementById('navigation').classList.add('-translate-x-full');
+            }
+            
+            // Force scroll to top immediately
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+            
+            // Also use smooth scroll as backup
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 50);
+            
+            // Update next button visibility
+            updateNextButton();
+        }
+
+        function nextSection() {
+            const currentIndex = sections.indexOf(currentSection);
+            if (currentIndex < sections.length - 1) {
+                const nextSectionId = sections[currentIndex + 1];
+                showSection(nextSectionId);
+                // Ensure scroll to top
+                setTimeout(() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 100);
+            }
+        }
+
+        function updateNextButton() {
+            const nextBtn = document.getElementById('next-section-btn');
+            const currentIndex = sections.indexOf(currentSection);
+            
+            if (currentIndex === sections.length - 1) {
+                nextBtn.style.display = 'none';
+            } else {
+                nextBtn.style.display = 'block';
+            }
+        }
+
+        // Mobile menu toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            const nav = document.getElementById('navigation');
+            nav.classList.toggle('-translate-x-full');
+        });
+
+        // Back to top functionality
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.remove('hidden');
+            } else {
+                backToTop.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('backToTop').addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Quiz functions
+        function startQuiz() {
+            const nameInput = document.getElementById('student-name');
+            if (!nameInput.value.trim()) {
+                alert('Silakan masukkan nama Anda terlebih dahulu!');
+                return;
+            }
+            
+            studentName = nameInput.value.trim();
+            document.getElementById('quiz-name').textContent = studentName;
+            
+            document.getElementById('quiz-start').classList.add('hidden');
+            document.getElementById('quiz-container').classList.remove('hidden');
+            
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizQuestions[currentQuestionIndex];
+            document.getElementById('current-question').textContent = currentQuestionIndex + 1;
+            document.getElementById('question-text').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'quiz-option p-4 border-2 border-gray-200 rounded-lg';
+                optionDiv.innerHTML = `
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="radio" name="answer" value="${index}" class="form-radio text-purple-500">
+                        <span class="text-lg">${option}</span>
+                    </label>
+                `;
+                
+                optionDiv.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    
+                    // Remove selected class from all options
+                    document.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                });
+                
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            // Update progress bar
+            const progress = ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+            
+            // Update navigation buttons
+            document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+            
+            const nextBtn = document.getElementById('next-btn');
+            if (currentQuestionIndex === quizQuestions.length - 1) {
+                nextBtn.textContent = 'Selesai';
+            } else {
+                nextBtn.textContent = 'Selanjutnya →';
+            }
+            
+            // Restore previous answer if exists
+            if (userAnswers[currentQuestionIndex] !== undefined) {
+                const savedAnswer = userAnswers[currentQuestionIndex];
+                const radio = document.querySelector(`input[value="${savedAnswer}"]`);
+                if (radio) {
+                    radio.checked = true;
+                    radio.closest('.quiz-option').classList.add('selected');
+                }
+            }
+        }
+
+        function nextQuestion() {
+            const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+            if (!selectedAnswer) {
+                alert('Silakan pilih jawaban terlebih dahulu!');
+                return;
+            }
+            
+            userAnswers[currentQuestionIndex] = parseInt(selectedAnswer.value);
+            
+            if (currentQuestionIndex < quizQuestions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+            }
+        }
+
+        function showResult() {
+            let score = 0;
+            userAnswers.forEach((answer, index) => {
+                if (answer === quizQuestions[index].correct) {
+                    score++;
+                }
+            });
+            
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('quiz-result').classList.remove('hidden');
+            
+            document.getElementById('final-name').textContent = studentName;
+            document.getElementById('final-score').textContent = score;
+            
+            const gradeMessage = document.getElementById('grade-message');
+            if (score >= 9) {
+                gradeMessage.textContent = '🌟 Luar Biasa! Anda menguasai Sub Query dengan sangat baik!';
+                gradeMessage.className = 'text-lg mt-2 text-green-600 font-semibold';
+            } else if (score >= 7) {
+                gradeMessage.textContent = '👍 Bagus! Pemahaman Anda tentang Sub Query sudah baik!';
+                gradeMessage.className = 'text-lg mt-2 text-blue-600 font-semibold';
+            } else if (score >= 5) {
+                gradeMessage.textContent = '📚 Cukup baik, tapi masih perlu belajar lebih giat!';
+                gradeMessage.className = 'text-lg mt-2 text-yellow-600 font-semibold';
+            } else {
+                gradeMessage.textContent = '💪 Jangan menyerah! Ulangi materi dan coba lagi!';
+                gradeMessage.className = 'text-lg mt-2 text-red-600 font-semibold';
+            }
+        }
+
+        function restartQuiz() {
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-start').classList.remove('hidden');
+            document.getElementById('student-name').value = '';
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            studentName = '';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('intro');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'983973d6c1abced2',t:'MTc1ODYyNDMyNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
