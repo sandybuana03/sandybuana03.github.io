@@ -1,0 +1,2252 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar Fungsi Agregasi SQL 🎯</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            font-family: 'Courier New', monospace;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px 15px 0 0;
+        }
+        
+        .table-container {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .nav-active {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: white;
+        }
+        
+        .mobile-nav-btn.nav-active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white !important;
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .mobile-nav-btn.nav-active span {
+            color: white !important;
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            transform: scale(1.02);
+        }
+        
+        .quiz-correct {
+            background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+        }
+        
+        .quiz-wrong {
+            background: linear-gradient(135deg, #fc9ce7 0%, #ffb3ba 100%);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-lg border-b border-purple-100">
+        <div class="max-w-6xl mx-auto px-4">
+            <!-- Desktop Header -->
+            <div class="flex items-center justify-between py-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl md:text-3xl">🎯</span>
+                    <h1 class="text-lg md:text-xl font-bold text-purple-800">SQL Agregasi Fun!</h1>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileNav()" class="lg:hidden p-2 rounded-lg bg-purple-100 hover:bg-purple-200 transition-all">
+                    <svg id="menuIcon" class="w-6 h-6 text-purple-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                    <svg id="closeIcon" class="w-6 h-6 text-purple-800 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden lg:flex space-x-1 text-xs xl:text-sm">
+                    <button onclick="showSection('intro')" class="nav-btn px-2 xl:px-3 py-2 rounded-full transition-all">📚 Intro</button>
+                    <button onclick="showSection('pengenalan')" class="nav-btn px-2 xl:px-3 py-2 rounded-full transition-all">🌟 Pengenalan</button>
+                    <button onclick="showSection('count')" class="nav-btn px-2 xl:px-3 py-2 rounded-full transition-all">🔢 COUNT</button>
+                    <button onclick="showSection('sum')" class="nav-btn px-2 xl:px-3 py-2 rounded-full transition-all">➕ SUM</button>
+                    <button onclick="showSection('avg')" class="nav-btn px-2 xl:px-3 py-2 rounded-full transition-all">📊 AVG</button>
+                    <button onclick="showSection('min')" class="nav-btn px-2 xl:px-3 py-2 rounded-full transition-all">⬇️ MIN</button>
+                    <button onclick="showSection('max')" class="nav-btn px-2 xl:px-3 py-2 rounded-full transition-all">⬆️ MAX</button>
+                    <button onclick="showSection('praktik')" class="nav-btn px-2 xl:px-3 py-2 rounded-full transition-all">💻 Praktik</button>
+                    <button onclick="showSection('kuis')" class="nav-btn px-2 xl:px-3 py-2 rounded-full transition-all">🏆 Kuis</button>
+                    <button onclick="showSection('penutup')" class="nav-btn px-2 xl:px-3 py-2 rounded-full transition-all">🎉 Penutup</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation Menu (Hidden by default) -->
+    <div id="mobileNav" class="lg:hidden fixed top-16 left-0 right-0 z-40 bg-white/95 backdrop-blur-md shadow-lg border-b border-purple-100 transform -translate-y-full transition-transform duration-300">
+        <div class="max-w-6xl mx-auto px-3 py-3">
+            <!-- Progress Indicator -->
+            <div class="mb-3">
+                <div class="text-xs text-purple-600 font-medium mb-2">Progress Pembelajaran</div>
+                <div class="bg-purple-100 rounded-full h-2">
+                    <div id="mobileProgress" class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300" style="width: 10%"></div>
+                </div>
+            </div>
+            
+            <!-- Navigation Grid: 1-3-3-3 Layout -->
+            <div class="space-y-2">
+                <!-- Row 1: Intro (1 item) -->
+                <div class="grid grid-cols-1 gap-2">
+                    <button onclick="showSection('intro'); toggleMobileNav()" class="mobile-nav-btn nav-btn flex items-center justify-center p-3 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 transition-all shadow-sm">
+                        <span class="text-lg mr-2">📚</span>
+                        <span class="text-sm font-medium text-blue-800">Intro</span>
+                    </button>
+                </div>
+                
+                <!-- Row 2: Pengenalan, COUNT, SUM (3 items) -->
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="showSection('pengenalan'); toggleMobileNav()" class="mobile-nav-btn nav-btn flex flex-col items-center p-2 rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 transition-all shadow-sm">
+                        <span class="text-lg mb-1">🌟</span>
+                        <span class="text-xs font-medium text-purple-800">Pengenalan</span>
+                    </button>
+                    
+                    <button onclick="showSection('count'); toggleMobileNav()" class="mobile-nav-btn nav-btn flex flex-col items-center p-2 rounded-2xl bg-gradient-to-br from-cyan-50 to-cyan-100 hover:from-cyan-100 hover:to-cyan-200 transition-all shadow-sm">
+                        <span class="text-lg mb-1">🔢</span>
+                        <span class="text-xs font-medium text-cyan-800">COUNT</span>
+                    </button>
+                    
+                    <button onclick="showSection('sum'); toggleMobileNav()" class="mobile-nav-btn nav-btn flex flex-col items-center p-2 rounded-2xl bg-gradient-to-br from-yellow-50 to-yellow-100 hover:from-yellow-100 hover:to-yellow-200 transition-all shadow-sm">
+                        <span class="text-lg mb-1">➕</span>
+                        <span class="text-xs font-medium text-yellow-800">SUM</span>
+                    </button>
+                </div>
+                
+                <!-- Row 3: AVG, MIN, MAX (3 items) -->
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="showSection('avg'); toggleMobileNav()" class="mobile-nav-btn nav-btn flex flex-col items-center p-2 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 transition-all shadow-sm">
+                        <span class="text-lg mb-1">📊</span>
+                        <span class="text-xs font-medium text-green-800">AVG</span>
+                    </button>
+                    
+                    <button onclick="showSection('min'); toggleMobileNav()" class="mobile-nav-btn nav-btn flex flex-col items-center p-2 rounded-2xl bg-gradient-to-br from-red-50 to-red-100 hover:from-red-100 hover:to-red-200 transition-all shadow-sm">
+                        <span class="text-lg mb-1">⬇️</span>
+                        <span class="text-xs font-medium text-red-800">MIN</span>
+                    </button>
+                    
+                    <button onclick="showSection('max'); toggleMobileNav()" class="mobile-nav-btn nav-btn flex flex-col items-center p-2 rounded-2xl bg-gradient-to-br from-emerald-50 to-emerald-100 hover:from-emerald-100 hover:to-emerald-200 transition-all shadow-sm">
+                        <span class="text-lg mb-1">⬆️</span>
+                        <span class="text-xs font-medium text-emerald-800">MAX</span>
+                    </button>
+                </div>
+                
+                <!-- Row 4: Praktik, Kuis, Penutup (3 items) -->
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="showSection('praktik'); toggleMobileNav()" class="mobile-nav-btn nav-btn flex flex-col items-center p-2 rounded-2xl bg-gradient-to-br from-indigo-50 to-indigo-100 hover:from-indigo-100 hover:to-indigo-200 transition-all shadow-sm">
+                        <span class="text-lg mb-1">💻</span>
+                        <span class="text-xs font-medium text-indigo-800">Praktik</span>
+                    </button>
+                    
+                    <button onclick="showSection('kuis'); toggleMobileNav()" class="mobile-nav-btn nav-btn flex flex-col items-center p-2 rounded-2xl bg-gradient-to-br from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-200 transition-all shadow-sm">
+                        <span class="text-lg mb-1">🏆</span>
+                        <span class="text-xs font-medium text-orange-800">Kuis</span>
+                    </button>
+                    
+                    <button onclick="showSection('penutup'); toggleMobileNav()" class="mobile-nav-btn nav-btn flex flex-col items-center p-2 rounded-2xl bg-gradient-to-br from-pink-50 to-pink-100 hover:from-pink-100 hover:to-pink-200 transition-all shadow-sm">
+                        <span class="text-lg mb-1">🎉</span>
+                        <span class="text-xs font-medium text-pink-800">Penutup</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        
+        <!-- Intro Section -->
+        <div id="intro" class="section">
+            <div class="text-center mb-12">
+                <div class="text-8xl mb-4 bounce">🎯</div>
+                <h1 class="text-4xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+                    Fungsi Agregasi SQL
+                </h1>
+                <p class="text-xl md:text-2xl text-gray-600">Belajar dengan cara yang menyenangkan! 🚀</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6 card-hover">
+                    <div class="text-4xl mb-4">🤔</div>
+                    <h3 class="text-xl font-bold text-purple-800 mb-3">Pertanyaan Pemantik</h3>
+                    <ul class="text-gray-700 space-y-2 text-lg">
+                        <li>• Bagaimana cara menghitung total data dalam database?</li>
+                        <li>• Bagaimana mencari nilai tertinggi dan terendah?</li>
+                        <li>• Bagaimana menghitung rata-rata dari sekumpulan data?</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6 card-hover">
+                    <div class="text-4xl mb-4">📖</div>
+                    <h3 class="text-xl font-bold text-purple-800 mb-3">Apa yang Dipelajari</h3>
+                    <ul class="text-gray-700 space-y-2 text-lg">
+                        <li>• Fungsi COUNT untuk menghitung data</li>
+                        <li>• Fungsi SUM untuk menjumlahkan</li>
+                        <li>• Fungsi AVG untuk rata-rata</li>
+                        <li>• Fungsi MIN dan MAX untuk nilai ekstrem</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6 card-hover">
+                    <div class="text-4xl mb-4">🎯</div>
+                    <h3 class="text-xl font-bold text-purple-800 mb-3">Tujuan Pembelajaran</h3>
+                    <ul class="text-gray-700 space-y-2 text-lg">
+                        <li>• Memahami konsep fungsi agregasi</li>
+                        <li>• Mampu menggunakan 5 fungsi agregasi utama</li>
+                        <li>• Dapat membuat query untuk analisis data</li>
+                        <li>• Menerapkan dalam kasus nyata</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6 card-hover">
+                    <div class="text-4xl mb-4">💡</div>
+                    <h3 class="text-xl font-bold text-purple-800 mb-3">Pemahaman Bermakna</h3>
+                    <p class="text-gray-700 text-lg">
+                        Fungsi agregasi adalah kunci untuk menganalisis data dalam database. 
+                        Seperti kalkulator pintar yang bisa menghitung ribuan data sekaligus! 🧮✨
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-yellow-200 to-orange-200 rounded-3xl p-8 text-center">
+                <div class="text-5xl mb-4">🚀</div>
+                <h3 class="text-2xl font-bold text-orange-800 mb-4">Motivasi</h3>
+                <p class="text-lg text-orange-700">
+                    "Data adalah emas di era digital! Dengan menguasai fungsi agregasi, 
+                    kamu bisa mengubah data mentah menjadi informasi berharga. 
+                    Mari mulai petualangan seru ini! 💎"
+                </p>
+            </div>
+
+            <!-- Next Section Button -->
+            <div class="text-center mt-8">
+                <button onclick="goToNextSection('pengenalan')" 
+                        class="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-8 rounded-2xl hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg pulse">
+                    Lanjut ke Pengenalan 🌟 →
+                </button>
+            </div>
+        </div>
+
+        <!-- Pengenalan Section -->
+        <div id="pengenalan" class="section hidden">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">🌟</div>
+                <h2 class="text-3xl md:text-4xl font-bold text-purple-800 mb-4">Pengenalan Fungsi Agregasi</h2>
+            </div>
+
+            <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">🔍</div>
+                    <h3 class="text-2xl font-bold text-purple-800">Apa itu Fungsi Agregasi?</h3>
+                </div>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">
+                    Fungsi agregasi adalah fungsi khusus dalam SQL yang memungkinkan kita untuk melakukan 
+                    perhitungan pada sekumpulan data dan menghasilkan satu nilai hasil. 
+                    Bayangkan seperti mesin ajaib yang bisa menghitung ribuan data dalam sekejap! ⚡
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl p-6">
+                        <div class="text-3xl mb-3">🎯</div>
+                        <h4 class="text-xl font-bold text-blue-800 mb-3">Kegunaan Utama</h4>
+                        <ul class="text-blue-700 space-y-2">
+                            <li>• Analisis data bisnis</li>
+                            <li>• Pembuatan laporan</li>
+                            <li>• Statistik dan metrik</li>
+                            <li>• Pengambilan keputusan</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-green-100 to-green-200 rounded-2xl p-6">
+                        <div class="text-3xl mb-3">⭐</div>
+                        <h4 class="text-xl font-bold text-green-800 mb-3">5 Fungsi Utama</h4>
+                        <ul class="text-green-700 space-y-2">
+                            <li>• COUNT - Menghitung jumlah</li>
+                            <li>• SUM - Menjumlahkan nilai</li>
+                            <li>• AVG - Menghitung rata-rata</li>
+                            <li>• MIN - Mencari nilai minimum</li>
+                            <li>• MAX - Mencari nilai maksimum</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-purple-200 to-pink-200 rounded-3xl p-8">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">💭</div>
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">Analogi Sederhana</h3>
+                    <p class="text-lg text-purple-700">
+                        Bayangkan kamu punya kotak berisi 1000 kelereng dengan berbagai warna dan ukuran. 
+                        Fungsi agregasi seperti asisten pintar yang bisa:
+                    </p>
+                    <div class="grid md:grid-cols-3 gap-4 mt-6">
+                        <div class="bg-white/50 rounded-2xl p-4">
+                            <div class="text-2xl mb-2">🔢</div>
+                            <p class="text-purple-700">Menghitung berapa total kelereng</p>
+                        </div>
+                        <div class="bg-white/50 rounded-2xl p-4">
+                            <div class="text-2xl mb-2">📏</div>
+                            <p class="text-purple-700">Mencari kelereng terbesar & terkecil</p>
+                        </div>
+                        <div class="bg-white/50 rounded-2xl p-4">
+                            <div class="text-2xl mb-2">📊</div>
+                            <p class="text-purple-700">Menghitung rata-rata ukuran</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Section Button -->
+            <div class="text-center mt-8">
+                <button onclick="goToNextSection('count')" 
+                        class="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-8 rounded-2xl hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg pulse">
+                    Lanjut ke Fungsi COUNT 🔢 →
+                </button>
+            </div>
+        </div>
+
+        <!-- COUNT Section -->
+        <div id="count" class="section hidden">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">🔢</div>
+                <h2 class="text-3xl md:text-4xl font-bold text-purple-800 mb-4">Fungsi COUNT</h2>
+                <p class="text-xl text-gray-600">Menghitung jumlah baris data</p>
+            </div>
+
+            <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">📝</div>
+                    <h3 class="text-2xl font-bold text-purple-800">Penjelasan COUNT</h3>
+                </div>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">
+                    Fungsi COUNT digunakan untuk menghitung jumlah baris dalam tabel atau jumlah nilai 
+                    yang tidak NULL dalam kolom tertentu. Seperti menghitung berapa banyak siswa di kelas! 👥
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-2xl p-6">
+                        <h4 class="text-xl font-bold text-cyan-800 mb-3">Sintaks Dasar</h4>
+                        <div class="code-block">
+                            <div class="text-sm opacity-75 mb-2">SQL Query:</div>
+                            <div class="text-lg">COUNT(*)</div>
+                            <div class="text-lg">COUNT(nama_kolom)</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-teal-100 to-teal-200 rounded-2xl p-6">
+                        <h4 class="text-xl font-bold text-teal-800 mb-3">Perbedaan</h4>
+                        <ul class="text-teal-700 space-y-2">
+                            <li>• COUNT(*) - Menghitung semua baris</li>
+                            <li>• COUNT(kolom) - Menghitung nilai non-NULL</li>
+                            <li>• COUNT(DISTINCT kolom) - Menghitung nilai unik</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container mb-8">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">📊</div>
+                    <h3 class="text-xl font-bold text-orange-800">Contoh Tabel: siswa</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full bg-white rounded-xl overflow-hidden shadow-lg">
+                        <thead class="bg-orange-500 text-white">
+                            <tr>
+                                <th class="px-4 py-3 text-left">id</th>
+                                <th class="px-4 py-3 text-left">nama</th>
+                                <th class="px-4 py-3 text-left">kelas</th>
+                                <th class="px-4 py-3 text-left">umur</th>
+                                <th class="px-4 py-3 text-left">email</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            <tr class="border-b">
+                                <td class="px-4 py-3">1</td>
+                                <td class="px-4 py-3">Andi</td>
+                                <td class="px-4 py-3">XII RPL</td>
+                                <td class="px-4 py-3">17</td>
+                                <td class="px-4 py-3">andi@email.com</td>
+                            </tr>
+                            <tr class="border-b bg-gray-50">
+                                <td class="px-4 py-3">2</td>
+                                <td class="px-4 py-3">Budi</td>
+                                <td class="px-4 py-3">XII TKJ</td>
+                                <td class="px-4 py-3">18</td>
+                                <td class="px-4 py-3">NULL</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="px-4 py-3">3</td>
+                                <td class="px-4 py-3">Citra</td>
+                                <td class="px-4 py-3">XII RPL</td>
+                                <td class="px-4 py-3">17</td>
+                                <td class="px-4 py-3">citra@email.com</td>
+                            </tr>
+                            <tr class="border-b bg-gray-50">
+                                <td class="px-4 py-3">4</td>
+                                <td class="px-4 py-3">Dina</td>
+                                <td class="px-4 py-3">XII MM</td>
+                                <td class="px-4 py-3">16</td>
+                                <td class="px-4 py-3">dina@email.com</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">🔍 Query 1: Hitung Semua Siswa</h4>
+                    <div class="code-block mb-4">
+                        <div class="text-sm opacity-75 mb-2">SQL Query:</div>
+                        <div>SELECT COUNT(*) AS total_siswa<br>FROM siswa;</div>
+                    </div>
+                    <div class="bg-green-100 rounded-xl p-4">
+                        <div class="text-green-800 font-bold mb-2">📋 Hasil:</div>
+                        <div class="bg-white rounded-lg p-3">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-green-500 text-white">
+                                        <th class="px-3 py-2 rounded">total_siswa</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="px-3 py-2 text-center font-bold text-2xl">4</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">📧 Query 2: Hitung Email Valid</h4>
+                    <div class="code-block mb-4">
+                        <div class="text-sm opacity-75 mb-2">SQL Query:</div>
+                        <div>SELECT COUNT(email) AS email_valid<br>FROM siswa;</div>
+                    </div>
+                    <div class="bg-blue-100 rounded-xl p-4">
+                        <div class="text-blue-800 font-bold mb-2">📋 Hasil:</div>
+                        <div class="bg-white rounded-lg p-3">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-blue-500 text-white">
+                                        <th class="px-3 py-2 rounded">email_valid</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="px-3 py-2 text-center font-bold text-2xl">3</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm text-blue-600 mt-2">💡 NULL tidak dihitung!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Section Button -->
+            <div class="text-center mt-8">
+                <button onclick="goToNextSection('sum')" 
+                        class="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-8 rounded-2xl hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg pulse">
+                    Lanjut ke Fungsi SUM ➕ →
+                </button>
+            </div>
+        </div>
+
+        <!-- SUM Section -->
+        <div id="sum" class="section hidden">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">➕</div>
+                <h2 class="text-3xl md:text-4xl font-bold text-purple-800 mb-4">Fungsi SUM</h2>
+                <p class="text-xl text-gray-600">Menjumlahkan nilai numerik</p>
+            </div>
+
+            <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">🧮</div>
+                    <h3 class="text-2xl font-bold text-purple-800">Penjelasan SUM</h3>
+                </div>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">
+                    Fungsi SUM digunakan untuk menjumlahkan semua nilai numerik dalam kolom tertentu. 
+                    Seperti kalkulator raksasa yang bisa menjumlahkan ribuan angka sekaligus! 🔢✨
+                </p>
+
+                <div class="bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-2xl p-6">
+                    <h4 class="text-xl font-bold text-yellow-800 mb-3">📌 Penting Diingat</h4>
+                    <ul class="text-yellow-700 space-y-2">
+                        <li>• Hanya bisa digunakan pada kolom numerik</li>
+                        <li>• Nilai NULL diabaikan dalam perhitungan</li>
+                        <li>• Hasil berupa satu nilai total</li>
+                        <li>• Sangat berguna untuk laporan keuangan</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="table-container mb-8">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">🛒</div>
+                    <h3 class="text-xl font-bold text-orange-800">Contoh Tabel: penjualan</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full bg-white rounded-xl overflow-hidden shadow-lg">
+                        <thead class="bg-orange-500 text-white">
+                            <tr>
+                                <th class="px-4 py-3 text-left">id</th>
+                                <th class="px-4 py-3 text-left">produk</th>
+                                <th class="px-4 py-3 text-left">harga</th>
+                                <th class="px-4 py-3 text-left">jumlah</th>
+                                <th class="px-4 py-3 text-left">total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            <tr class="border-b">
+                                <td class="px-4 py-3">1</td>
+                                <td class="px-4 py-3">Laptop</td>
+                                <td class="px-4 py-3">8000000</td>
+                                <td class="px-4 py-3">2</td>
+                                <td class="px-4 py-3">16000000</td>
+                            </tr>
+                            <tr class="border-b bg-gray-50">
+                                <td class="px-4 py-3">2</td>
+                                <td class="px-4 py-3">Mouse</td>
+                                <td class="px-4 py-3">150000</td>
+                                <td class="px-4 py-3">5</td>
+                                <td class="px-4 py-3">750000</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="px-4 py-3">3</td>
+                                <td class="px-4 py-3">Keyboard</td>
+                                <td class="px-4 py-3">300000</td>
+                                <td class="px-4 py-3">3</td>
+                                <td class="px-4 py-3">900000</td>
+                            </tr>
+                            <tr class="border-b bg-gray-50">
+                                <td class="px-4 py-3">4</td>
+                                <td class="px-4 py-3">Monitor</td>
+                                <td class="px-4 py-3">2500000</td>
+                                <td class="px-4 py-3">1</td>
+                                <td class="px-4 py-3">2500000</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">💰 Query 1: Total Penjualan</h4>
+                    <div class="code-block mb-4">
+                        <div class="text-sm opacity-75 mb-2">SQL Query:</div>
+                        <div>SELECT SUM(total) AS total_penjualan<br>FROM penjualan;</div>
+                    </div>
+                    <div class="bg-green-100 rounded-xl p-4">
+                        <div class="text-green-800 font-bold mb-2">💵 Hasil:</div>
+                        <div class="bg-white rounded-lg p-3">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-green-500 text-white">
+                                        <th class="px-3 py-2 rounded">total_penjualan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="px-3 py-2 text-center font-bold text-xl">20,150,000</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">📦 Query 2: Total Barang Terjual</h4>
+                    <div class="code-block mb-4">
+                        <div class="text-sm opacity-75 mb-2">SQL Query:</div>
+                        <div>SELECT SUM(jumlah) AS total_barang<br>FROM penjualan;</div>
+                    </div>
+                    <div class="bg-blue-100 rounded-xl p-4">
+                        <div class="text-blue-800 font-bold mb-2">📊 Hasil:</div>
+                        <div class="bg-white rounded-lg p-3">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-blue-500 text-white">
+                                        <th class="px-3 py-2 rounded">total_barang</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="px-3 py-2 text-center font-bold text-2xl">11</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm text-blue-600 mt-2">📈 Total unit terjual!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Section Button -->
+            <div class="text-center mt-8">
+                <button onclick="goToNextSection('avg')" 
+                        class="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-8 rounded-2xl hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg pulse">
+                    Lanjut ke Fungsi AVG 📊 →
+                </button>
+            </div>
+        </div>
+
+        <!-- AVG Section -->
+        <div id="avg" class="section hidden">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">📊</div>
+                <h2 class="text-3xl md:text-4xl font-bold text-purple-800 mb-4">Fungsi AVG</h2>
+                <p class="text-xl text-gray-600">Menghitung nilai rata-rata</p>
+            </div>
+
+            <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">📈</div>
+                    <h3 class="text-2xl font-bold text-purple-800">Penjelasan AVG</h3>
+                </div>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">
+                    Fungsi AVG (Average) digunakan untuk menghitung nilai rata-rata dari kolom numerik. 
+                    Seperti menghitung rata-rata nilai ujian di kelas! 🎓
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-2xl p-6">
+                        <h4 class="text-xl font-bold text-indigo-800 mb-3">🔢 Cara Kerja</h4>
+                        <p class="text-indigo-700 mb-3">AVG = SUM(nilai) / COUNT(nilai)</p>
+                        <ul class="text-indigo-700 space-y-1 text-sm">
+                            <li>• Menjumlahkan semua nilai</li>
+                            <li>• Membagi dengan jumlah data</li>
+                            <li>• Mengabaikan nilai NULL</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl p-6">
+                        <h4 class="text-xl font-bold text-purple-800 mb-3">💡 Kegunaan</h4>
+                        <ul class="text-purple-700 space-y-2">
+                            <li>• Analisis performa</li>
+                            <li>• Benchmarking</li>
+                            <li>• Perencanaan budget</li>
+                            <li>• Evaluasi kualitas</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container mb-8">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">🎯</div>
+                    <h3 class="text-xl font-bold text-orange-800">Contoh Tabel: nilai_siswa</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full bg-white rounded-xl overflow-hidden shadow-lg">
+                        <thead class="bg-orange-500 text-white">
+                            <tr>
+                                <th class="px-4 py-3 text-left">id</th>
+                                <th class="px-4 py-3 text-left">nama</th>
+                                <th class="px-4 py-3 text-left">matematika</th>
+                                <th class="px-4 py-3 text-left">bahasa_inggris</th>
+                                <th class="px-4 py-3 text-left">pemrograman</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            <tr class="border-b">
+                                <td class="px-4 py-3">1</td>
+                                <td class="px-4 py-3">Andi</td>
+                                <td class="px-4 py-3">85</td>
+                                <td class="px-4 py-3">78</td>
+                                <td class="px-4 py-3">92</td>
+                            </tr>
+                            <tr class="border-b bg-gray-50">
+                                <td class="px-4 py-3">2</td>
+                                <td class="px-4 py-3">Budi</td>
+                                <td class="px-4 py-3">90</td>
+                                <td class="px-4 py-3">82</td>
+                                <td class="px-4 py-3">88</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="px-4 py-3">3</td>
+                                <td class="px-4 py-3">Citra</td>
+                                <td class="px-4 py-3">75</td>
+                                <td class="px-4 py-3">85</td>
+                                <td class="px-4 py-3">95</td>
+                            </tr>
+                            <tr class="border-b bg-gray-50">
+                                <td class="px-4 py-3">4</td>
+                                <td class="px-4 py-3">Dina</td>
+                                <td class="px-4 py-3">88</td>
+                                <td class="px-4 py-3">90</td>
+                                <td class="px-4 py-3">85</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">📚 Query 1: Rata-rata Matematika</h4>
+                    <div class="code-block mb-4">
+                        <div class="text-sm opacity-75 mb-2">SQL Query:</div>
+                        <div>SELECT AVG(matematika) AS rata_matematika<br>FROM nilai_siswa;</div>
+                    </div>
+                    <div class="bg-green-100 rounded-xl p-4">
+                        <div class="text-green-800 font-bold mb-2">📊 Hasil:</div>
+                        <div class="bg-white rounded-lg p-3">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-green-500 text-white">
+                                        <th class="px-3 py-2 rounded">rata_matematika</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="px-3 py-2 text-center font-bold text-xl">84.5</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm text-green-600 mt-2">🎯 (85+90+75+88)/4 = 84.5</p>
+                    </div>
+                </div>
+
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">💻 Query 2: Rata-rata Pemrograman</h4>
+                    <div class="code-block mb-4">
+                        <div class="text-sm opacity-75 mb-2">SQL Query:</div>
+                        <div>SELECT AVG(pemrograman) AS rata_pemrograman<br>FROM nilai_siswa;</div>
+                    </div>
+                    <div class="bg-blue-100 rounded-xl p-4">
+                        <div class="text-blue-800 font-bold mb-2">📈 Hasil:</div>
+                        <div class="bg-white rounded-lg p-3">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-blue-500 text-white">
+                                        <th class="px-3 py-2 rounded">rata_pemrograman</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="px-3 py-2 text-center font-bold text-xl">90.0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm text-blue-600 mt-2">🚀 Nilai pemrograman paling tinggi!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Section Button -->
+            <div class="text-center mt-8">
+                <button onclick="goToNextSection('min')" 
+                        class="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-8 rounded-2xl hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg pulse">
+                    Lanjut ke Fungsi MIN ⬇️ →
+                </button>
+            </div>
+        </div>
+
+        <!-- MIN Section -->
+        <div id="min" class="section hidden">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">⬇️</div>
+                <h2 class="text-3xl md:text-4xl font-bold text-purple-800 mb-4">Fungsi MIN</h2>
+                <p class="text-xl text-gray-600">Mencari nilai terkecil</p>
+            </div>
+
+            <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">🔍</div>
+                    <h3 class="text-2xl font-bold text-purple-800">Penjelasan MIN</h3>
+                </div>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">
+                    Fungsi MIN digunakan untuk mencari nilai terkecil (minimum) dalam kolom tertentu. 
+                    Seperti mencari siswa termuda di kelas atau harga produk termurah! 🏆
+                </p>
+
+                <div class="bg-gradient-to-br from-red-100 to-red-200 rounded-2xl p-6">
+                    <h4 class="text-xl font-bold text-red-800 mb-3">🎯 Kegunaan MIN</h4>
+                    <ul class="text-red-700 space-y-2">
+                        <li>• Mencari harga termurah</li>
+                        <li>• Menemukan nilai terendah</li>
+                        <li>• Analisis performa minimum</li>
+                        <li>• Quality control</li>
+                        <li>• Benchmark batas bawah</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="table-container mb-8">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">🏪</div>
+                    <h3 class="text-xl font-bold text-orange-800">Contoh Tabel: produk</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full bg-white rounded-xl overflow-hidden shadow-lg">
+                        <thead class="bg-orange-500 text-white">
+                            <tr>
+                                <th class="px-4 py-3 text-left">id</th>
+                                <th class="px-4 py-3 text-left">nama_produk</th>
+                                <th class="px-4 py-3 text-left">harga</th>
+                                <th class="px-4 py-3 text-left">stok</th>
+                                <th class="px-4 py-3 text-left">rating</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            <tr class="border-b">
+                                <td class="px-4 py-3">1</td>
+                                <td class="px-4 py-3">Smartphone A</td>
+                                <td class="px-4 py-3">3500000</td>
+                                <td class="px-4 py-3">15</td>
+                                <td class="px-4 py-3">4.5</td>
+                            </tr>
+                            <tr class="border-b bg-gray-50">
+                                <td class="px-4 py-3">2</td>
+                                <td class="px-4 py-3">Smartphone B</td>
+                                <td class="px-4 py-3">2800000</td>
+                                <td class="px-4 py-3">8</td>
+                                <td class="px-4 py-3">4.2</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="px-4 py-3">3</td>
+                                <td class="px-4 py-3">Smartphone C</td>
+                                <td class="px-4 py-3">4200000</td>
+                                <td class="px-4 py-3">12</td>
+                                <td class="px-4 py-3">4.8</td>
+                            </tr>
+                            <tr class="border-b bg-gray-50">
+                                <td class="px-4 py-3">4</td>
+                                <td class="px-4 py-3">Smartphone D</td>
+                                <td class="px-4 py-3">1950000</td>
+                                <td class="px-4 py-3">20</td>
+                                <td class="px-4 py-3">3.9</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">💰 Query 1: Harga Termurah</h4>
+                    <div class="code-block mb-4">
+                        <div class="text-sm opacity-75 mb-2">SQL Query:</div>
+                        <div>SELECT MIN(harga) AS harga_termurah<br>FROM produk;</div>
+                    </div>
+                    <div class="bg-green-100 rounded-xl p-4">
+                        <div class="text-green-800 font-bold mb-2">💵 Hasil:</div>
+                        <div class="bg-white rounded-lg p-3">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-green-500 text-white">
+                                        <th class="px-3 py-2 rounded">harga_termurah</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="px-3 py-2 text-center font-bold text-xl">1,950,000</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm text-green-600 mt-2">🏷️ Smartphone D paling murah!</p>
+                    </div>
+                </div>
+
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">⭐ Query 2: Rating Terendah</h4>
+                    <div class="code-block mb-4">
+                        <div class="text-sm opacity-75 mb-2">SQL Query:</div>
+                        <div>SELECT MIN(rating) AS rating_terendah<br>FROM produk;</div>
+                    </div>
+                    <div class="bg-yellow-100 rounded-xl p-4">
+                        <div class="text-yellow-800 font-bold mb-2">📊 Hasil:</div>
+                        <div class="bg-white rounded-lg p-3">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-yellow-500 text-white">
+                                        <th class="px-3 py-2 rounded">rating_terendah</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="px-3 py-2 text-center font-bold text-2xl">3.9</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm text-yellow-600 mt-2">⚠️ Perlu perbaikan kualitas!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Section Button -->
+            <div class="text-center mt-8">
+                <button onclick="goToNextSection('max')" 
+                        class="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-8 rounded-2xl hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg pulse">
+                    Lanjut ke Fungsi MAX ⬆️ →
+                </button>
+            </div>
+        </div>
+
+        <!-- MAX Section -->
+        <div id="max" class="section hidden">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">⬆️</div>
+                <h2 class="text-3xl md:text-4xl font-bold text-purple-800 mb-4">Fungsi MAX</h2>
+                <p class="text-xl text-gray-600">Mencari nilai terbesar</p>
+            </div>
+
+            <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">🏆</div>
+                    <h3 class="text-2xl font-bold text-purple-800">Penjelasan MAX</h3>
+                </div>
+                <p class="text-lg text-gray-700 mb-6 leading-relaxed">
+                    Fungsi MAX digunakan untuk mencari nilai terbesar (maksimum) dalam kolom tertentu. 
+                    Seperti mencari siswa tertua di kelas atau produk termahal di toko! 🥇
+                </p>
+
+                <div class="bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-2xl p-6">
+                    <h4 class="text-xl font-bold text-emerald-800 mb-3">🎯 Kegunaan MAX</h4>
+                    <ul class="text-emerald-700 space-y-2">
+                        <li>• Mencari harga tertinggi</li>
+                        <li>• Menemukan nilai terbaik</li>
+                        <li>• Analisis performa maksimum</li>
+                        <li>• Benchmark target</li>
+                        <li>• Identifikasi outlier</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="table-container mb-8">
+                <div class="flex items-center mb-4">
+                    <div class="text-3xl mr-3">👨‍💼</div>
+                    <h3 class="text-xl font-bold text-orange-800">Contoh Tabel: karyawan</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full bg-white rounded-xl overflow-hidden shadow-lg">
+                        <thead class="bg-orange-500 text-white">
+                            <tr>
+                                <th class="px-4 py-3 text-left">id</th>
+                                <th class="px-4 py-3 text-left">nama</th>
+                                <th class="px-4 py-3 text-left">departemen</th>
+                                <th class="px-4 py-3 text-left">gaji</th>
+                                <th class="px-4 py-3 text-left">pengalaman</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            <tr class="border-b">
+                                <td class="px-4 py-3">1</td>
+                                <td class="px-4 py-3">Ahmad</td>
+                                <td class="px-4 py-3">IT</td>
+                                <td class="px-4 py-3">8500000</td>
+                                <td class="px-4 py-3">5</td>
+                            </tr>
+                            <tr class="border-b bg-gray-50">
+                                <td class="px-4 py-3">2</td>
+                                <td class="px-4 py-3">Sari</td>
+                                <td class="px-4 py-3">Marketing</td>
+                                <td class="px-4 py-3">7200000</td>
+                                <td class="px-4 py-3">3</td>
+                            </tr>
+                            <tr class="border-b">
+                                <td class="px-4 py-3">3</td>
+                                <td class="px-4 py-3">Budi</td>
+                                <td class="px-4 py-3">Finance</td>
+                                <td class="px-4 py-3">9800000</td>
+                                <td class="px-4 py-3">8</td>
+                            </tr>
+                            <tr class="border-b bg-gray-50">
+                                <td class="px-4 py-3">4</td>
+                                <td class="px-4 py-3">Dewi</td>
+                                <td class="px-4 py-3">HR</td>
+                                <td class="px-4 py-3">6800000</td>
+                                <td class="px-4 py-3">2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">💰 Query 1: Gaji Tertinggi</h4>
+                    <div class="code-block mb-4">
+                        <div class="text-sm opacity-75 mb-2">SQL Query:</div>
+                        <div>SELECT MAX(gaji) AS gaji_tertinggi<br>FROM karyawan;</div>
+                    </div>
+                    <div class="bg-green-100 rounded-xl p-4">
+                        <div class="text-green-800 font-bold mb-2">💵 Hasil:</div>
+                        <div class="bg-white rounded-lg p-3">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-green-500 text-white">
+                                        <th class="px-3 py-2 rounded">gaji_tertinggi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="px-3 py-2 text-center font-bold text-xl">9,800,000</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm text-green-600 mt-2">🏆 Budi mendapat gaji tertinggi!</p>
+                    </div>
+                </div>
+
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">📅 Query 2: Pengalaman Terlama</h4>
+                    <div class="code-block mb-4">
+                        <div class="text-sm opacity-75 mb-2">SQL Query:</div>
+                        <div>SELECT MAX(pengalaman) AS pengalaman_terlama<br>FROM karyawan;</div>
+                    </div>
+                    <div class="bg-blue-100 rounded-xl p-4">
+                        <div class="text-blue-800 font-bold mb-2">📊 Hasil:</div>
+                        <div class="bg-white rounded-lg p-3">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="bg-blue-500 text-white">
+                                        <th class="px-3 py-2 rounded">pengalaman_terlama</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="px-3 py-2 text-center font-bold text-2xl">8</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm text-blue-600 mt-2">🎖️ 8 tahun pengalaman!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Section Button -->
+            <div class="text-center mt-8">
+                <button onclick="goToNextSection('praktik')" 
+                        class="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-8 rounded-2xl hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg pulse">
+                    Lanjut ke Praktik 💻 →
+                </button>
+            </div>
+        </div>
+
+        <!-- Praktik Section -->
+        <div id="praktik" class="section hidden">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">💻</div>
+                <h2 class="text-3xl md:text-4xl font-bold text-purple-800 mb-4">Praktik Lengkap</h2>
+                <p class="text-xl text-gray-600">Latihan hands-on dengan database nyata!</p>
+            </div>
+
+            <!-- Step 1: Membuat Database -->
+            <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">🏗️</div>
+                    <h3 class="text-2xl font-bold text-purple-800">Step 1: Membuat Database</h3>
+                </div>
+                
+                <p class="text-lg text-gray-700 mb-6">
+                    Langkah pertama adalah membuat database baru untuk menyimpan semua data kita. 
+                    Database seperti rumah besar yang akan menampung berbagai tabel! 🏠
+                </p>
+
+                <div class="code-block mb-6">
+                    <div class="text-sm opacity-75 mb-2">SQL Command - Membuat Database:</div>
+                    <div class="text-lg leading-relaxed">
+                        -- Membuat database baru<br>
+                        CREATE DATABASE sekolah_smk;<br><br>
+                        
+                        -- Menggunakan database yang sudah dibuat<br>
+                        USE sekolah_smk;
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-blue-100 to-blue-200 rounded-2xl p-6">
+                    <div class="flex items-center mb-3">
+                        <div class="text-3xl mr-3">💡</div>
+                        <h4 class="text-xl font-bold text-blue-800">Penjelasan:</h4>
+                    </div>
+                    <ul class="text-blue-700 space-y-2">
+                        <li>• <strong>CREATE DATABASE</strong> - Membuat database baru bernama "sekolah_smk"</li>
+                        <li>• <strong>USE</strong> - Memilih database yang akan digunakan untuk operasi selanjutnya</li>
+                        <li>• Nama database sebaiknya deskriptif dan mudah diingat</li>
+                        <li>• Setelah USE, semua tabel akan dibuat di database ini</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 2: Membuat Tabel -->
+            <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">🗄️</div>
+                    <h3 class="text-2xl font-bold text-purple-800">Step 2: Membuat Struktur Tabel</h3>
+                </div>
+                
+                <p class="text-lg text-gray-700 mb-6">
+                    Sekarang kita buat 2 tabel: siswa dan penjualan. Tabel seperti lemari dengan laci-laci 
+                    yang terorganisir untuk menyimpan data! 📋
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-2xl p-6">
+                        <h4 class="text-xl font-bold text-cyan-800 mb-4">📚 Tabel Siswa</h4>
+                        <div class="code-block mb-4">
+                            <div class="text-sm opacity-75 mb-2">CREATE TABLE siswa:</div>
+                            <div class="text-sm leading-relaxed">
+                                CREATE TABLE siswa (<br>
+                                &nbsp;&nbsp;id INT PRIMARY KEY AUTO_INCREMENT,<br>
+                                &nbsp;&nbsp;nama VARCHAR(50) NOT NULL,<br>
+                                &nbsp;&nbsp;kelas VARCHAR(20) NOT NULL,<br>
+                                &nbsp;&nbsp;umur INT NOT NULL,<br>
+                                &nbsp;&nbsp;nilai_rata DECIMAL(5,2),<br>
+                                &nbsp;&nbsp;email VARCHAR(100),<br>
+                                &nbsp;&nbsp;tanggal_daftar DATE DEFAULT CURRENT_DATE<br>
+                                );
+                            </div>
+                        </div>
+                        <div class="bg-cyan-50 rounded-lg p-3 text-sm">
+                            <strong>Penjelasan Kolom:</strong><br>
+                            • <strong>id:</strong> Nomor unik siswa (auto increment)<br>
+                            • <strong>nama:</strong> Nama lengkap siswa<br>
+                            • <strong>kelas:</strong> Kelas siswa (XII RPL, XII TKJ, dll)<br>
+                            • <strong>umur:</strong> Umur siswa dalam tahun<br>
+                            • <strong>nilai_rata:</strong> Nilai rata-rata (0.00-100.00)<br>
+                            • <strong>email:</strong> Email siswa (boleh kosong)<br>
+                            • <strong>tanggal_daftar:</strong> Tanggal pendaftaran
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-green-100 to-green-200 rounded-2xl p-6">
+                        <h4 class="text-xl font-bold text-green-800 mb-4">🛒 Tabel Penjualan</h4>
+                        <div class="code-block mb-4">
+                            <div class="text-sm opacity-75 mb-2">CREATE TABLE penjualan:</div>
+                            <div class="text-sm leading-relaxed">
+                                CREATE TABLE penjualan (<br>
+                                &nbsp;&nbsp;id INT PRIMARY KEY AUTO_INCREMENT,<br>
+                                &nbsp;&nbsp;produk VARCHAR(100) NOT NULL,<br>
+                                &nbsp;&nbsp;kategori VARCHAR(50),<br>
+                                &nbsp;&nbsp;harga DECIMAL(12,2) NOT NULL,<br>
+                                &nbsp;&nbsp;jumlah INT NOT NULL,<br>
+                                &nbsp;&nbsp;total DECIMAL(15,2) AS (harga * jumlah),<br>
+                                &nbsp;&nbsp;tanggal_jual DATE NOT NULL,<br>
+                                &nbsp;&nbsp;sales VARCHAR(50)<br>
+                                );
+                            </div>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-3 text-sm">
+                            <strong>Penjelasan Kolom:</strong><br>
+                            • <strong>id:</strong> ID transaksi unik<br>
+                            • <strong>produk:</strong> Nama produk yang dijual<br>
+                            • <strong>kategori:</strong> Kategori produk<br>
+                            • <strong>harga:</strong> Harga per unit<br>
+                            • <strong>jumlah:</strong> Quantity yang dibeli<br>
+                            • <strong>total:</strong> Otomatis hitung (harga × jumlah)<br>
+                            • <strong>tanggal_jual:</strong> Tanggal transaksi<br>
+                            • <strong>sales:</strong> Nama sales yang melayani
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Insert Data Siswa -->
+            <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">👥</div>
+                    <h3 class="text-2xl font-bold text-purple-800">Step 3: Memasukkan Data Siswa (12 Records)</h3>
+                </div>
+                
+                <p class="text-lg text-gray-700 mb-6">
+                    Sekarang kita isi tabel siswa dengan data lengkap menggunakan query INSERT. 
+                    Seperti mengisi formulir pendaftaran siswa baru! ✏️
+                </p>
+
+                <div class="code-block mb-6">
+                    <div class="text-sm opacity-75 mb-2">INSERT Data Siswa:</div>
+                    <div class="text-sm leading-relaxed">
+                        -- Memasukkan data siswa satu per satu<br>
+                        INSERT INTO siswa (nama, kelas, umur, nilai_rata, email, tanggal_daftar) VALUES<br>
+                        ('Andi Pratama', 'XII RPL 1', 17, 85.50, 'andi.pratama@email.com', '2024-07-15'),<br>
+                        ('Budi Santoso', 'XII TKJ 1', 18, 78.25, 'budi.santoso@email.com', '2024-07-15'),<br>
+                        ('Citra Dewi', 'XII MM 1', 17, 92.10, 'citra.dewi@email.com', '2024-07-16'),<br>
+                        ('Dina Marlina', 'XII RPL 1', 16, 88.75, 'dina.marlina@email.com', '2024-07-16'),<br>
+                        ('Eko Prasetyo', 'XII TKJ 2', 18, 75.30, NULL, '2024-07-17'),<br>
+                        ('Fani Sari', 'XII MM 1', 17, 90.80, 'fani.sari@email.com', '2024-07-17'),<br>
+                        ('Gita Permata', 'XII RPL 2', 17, 83.40, 'gita.permata@email.com', '2024-07-18'),<br>
+                        ('Hadi Wijaya', 'XII TKJ 1', 18, 79.60, 'hadi.wijaya@email.com', '2024-07-18'),<br>
+                        ('Ina Sartika', 'XII MM 2', 16, 94.20, 'ina.sartika@email.com', '2024-07-19'),<br>
+                        ('Joko Susilo', 'XII RPL 2', 17, 86.90, NULL, '2024-07-19'),<br>
+                        ('Kiki Amelia', 'XII TKJ 2', 17, 81.15, 'kiki.amelia@email.com', '2024-07-20'),<br>
+                        ('Lina Hartati', 'XII MM 2', 16, 89.45, 'lina.hartati@email.com', '2024-07-20');
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-100 to-purple-200 rounded-2xl p-6">
+                    <div class="flex items-center mb-3">
+                        <div class="text-3xl mr-3">📊</div>
+                        <h4 class="text-xl font-bold text-purple-800">Ringkasan Data Siswa:</h4>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-4 text-sm">
+                        <div class="bg-white/50 rounded-lg p-3">
+                            <strong>XII RPL:</strong> 4 siswa<br>
+                            <span class="text-purple-600">Andi, Dina, Gita, Joko</span>
+                        </div>
+                        <div class="bg-white/50 rounded-lg p-3">
+                            <strong>XII TKJ:</strong> 4 siswa<br>
+                            <span class="text-purple-600">Budi, Eko, Hadi, Kiki</span>
+                        </div>
+                        <div class="bg-white/50 rounded-lg p-3">
+                            <strong>XII MM:</strong> 4 siswa<br>
+                            <span class="text-purple-600">Citra, Fani, Ina, Lina</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Insert Data Penjualan -->
+            <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">🛍️</div>
+                    <h3 class="text-2xl font-bold text-purple-800">Step 4: Memasukkan Data Penjualan (15 Records)</h3>
+                </div>
+                
+                <p class="text-lg text-gray-700 mb-6">
+                    Sekarang kita isi tabel penjualan dengan berbagai transaksi elektronik. 
+                    Data ini akan kita gunakan untuk latihan fungsi agregasi! 💰
+                </p>
+
+                <div class="code-block mb-6">
+                    <div class="text-sm opacity-75 mb-2">INSERT Data Penjualan:</div>
+                    <div class="text-sm leading-relaxed">
+                        -- Memasukkan data penjualan<br>
+                        INSERT INTO penjualan (produk, kategori, harga, jumlah, tanggal_jual, sales) VALUES<br>
+                        ('Laptop ASUS VivoBook', 'Komputer', 8500000, 2, '2024-01-15', 'Ahmad'),<br>
+                        ('Mouse Logitech', 'Aksesoris', 150000, 15, '2024-01-16', 'Sari'),<br>
+                        ('Keyboard Mechanical', 'Aksesoris', 300000, 8, '2024-01-17', 'Ahmad'),<br>
+                        ('Monitor LG 24 inch', 'Komputer', 2500000, 3, '2024-01-18', 'Budi'),<br>
+                        ('Printer Canon', 'Periferal', 1200000, 4, '2024-01-19', 'Sari'),<br>
+                        ('Speaker Bluetooth', 'Audio', 450000, 10, '2024-01-20', 'Citra'),<br>
+                        ('Webcam HD', 'Periferal', 800000, 6, '2024-01-21', 'Ahmad'),<br>
+                        ('Headset Gaming', 'Audio', 250000, 12, '2024-01-22', 'Budi'),<br>
+                        ('Flash Drive 32GB', 'Storage', 75000, 25, '2024-01-23', 'Sari'),<br>
+                        ('Power Bank 10000mAh', 'Aksesoris', 180000, 18, '2024-01-24', 'Citra'),<br>
+                        ('SSD 500GB', 'Storage', 850000, 7, '2024-01-25', 'Ahmad'),<br>
+                        ('Router WiFi', 'Networking', 350000, 5, '2024-01-26', 'Budi'),<br>
+                        ('Tablet Samsung', 'Mobile', 3200000, 3, '2024-01-27', 'Sari'),<br>
+                        ('Smartphone Xiaomi', 'Mobile', 2800000, 4, '2024-01-28', 'Citra'),<br>
+                        ('Smartwatch', 'Wearable', 1500000, 6, '2024-01-29', 'Ahmad');
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl p-6">
+                        <h4 class="text-xl font-bold text-orange-800 mb-3">📈 Statistik Penjualan</h4>
+                        <div class="text-sm text-orange-700 space-y-2">
+                            <div><strong>Total Transaksi:</strong> 15 transaksi</div>
+                            <div><strong>Kategori Terbanyak:</strong> Aksesoris (3 jenis)</div>
+                            <div><strong>Range Harga:</strong> Rp 75,000 - Rp 8,500,000</div>
+                            <div><strong>Total Unit:</strong> 128 unit terjual</div>
+                            <div><strong>Periode:</strong> Januari 2024</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-teal-100 to-teal-200 rounded-2xl p-6">
+                        <h4 class="text-xl font-bold text-teal-800 mb-3">👨‍💼 Performa Sales</h4>
+                        <div class="text-sm text-teal-700 space-y-2">
+                            <div><strong>Ahmad:</strong> 5 transaksi</div>
+                            <div><strong>Sari:</strong> 4 transaksi</div>
+                            <div><strong>Budi:</strong> 3 transaksi</div>
+                            <div><strong>Citra:</strong> 3 transaksi</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Verifikasi Data -->
+            <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">✅</div>
+                    <h3 class="text-2xl font-bold text-purple-800">Step 5: Verifikasi Data</h3>
+                </div>
+                
+                <p class="text-lg text-gray-700 mb-6">
+                    Sebelum mulai latihan agregasi, mari kita cek apakah data sudah masuk dengan benar! 🔍
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl p-6">
+                        <h4 class="text-xl font-bold text-blue-800 mb-4">📋 Cek Data Siswa</h4>
+                        <div class="code-block mb-4">
+                            <div class="text-sm opacity-75 mb-2">Query Verifikasi:</div>
+                            <div class="text-sm">
+                                -- Lihat semua data siswa<br>
+                                SELECT * FROM siswa;<br><br>
+                                
+                                -- Hitung total siswa<br>
+                                SELECT COUNT(*) AS total_siswa FROM siswa;
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 rounded-lg p-3 text-sm">
+                            <strong>Expected Result:</strong> 12 siswa terdaftar
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-green-100 to-green-200 rounded-2xl p-6">
+                        <h4 class="text-xl font-bold text-green-800 mb-4">🛒 Cek Data Penjualan</h4>
+                        <div class="code-block mb-4">
+                            <div class="text-sm opacity-75 mb-2">Query Verifikasi:</div>
+                            <div class="text-sm">
+                                -- Lihat semua data penjualan<br>
+                                SELECT * FROM penjualan;<br><br>
+                                
+                                -- Hitung total transaksi<br>
+                                SELECT COUNT(*) AS total_transaksi FROM penjualan;
+                            </div>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-3 text-sm">
+                            <strong>Expected Result:</strong> 15 transaksi tercatat
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Latihan COUNT -->
+            <div class="bg-gradient-to-r from-cyan-100 to-cyan-200 rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">🔢</div>
+                    <h3 class="text-2xl font-bold text-cyan-800">Latihan COUNT - 4 Variasi</h3>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-cyan-800 mb-3">1️⃣ Hitung Total Siswa</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT COUNT(*) AS total_siswa FROM siswa;</div>
+                        </div>
+                        <div class="bg-cyan-50 rounded-lg p-3 text-sm">
+                            <strong>Hasil:</strong> 10 siswa
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-cyan-800 mb-3">2️⃣ Hitung Siswa RPL</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT COUNT(*) FROM siswa WHERE kelas = 'XII RPL';</div>
+                        </div>
+                        <div class="bg-cyan-50 rounded-lg p-3 text-sm">
+                            <strong>Hasil:</strong> 4 siswa RPL
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-cyan-800 mb-3">3️⃣ Hitung Produk Berbeda</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT COUNT(DISTINCT produk) FROM penjualan;</div>
+                        </div>
+                        <div class="bg-cyan-50 rounded-lg p-3 text-sm">
+                            <strong>Hasil:</strong> 10 jenis produk
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-cyan-800 mb-3">4️⃣ Hitung Transaksi > 1 Juta</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT COUNT(*) FROM penjualan WHERE harga > 1000000;</div>
+                        </div>
+                        <div class="bg-cyan-50 rounded-lg p-3 text-sm">
+                            <strong>Hasil:</strong> 5 transaksi
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Latihan SUM -->
+            <div class="bg-gradient-to-r from-yellow-100 to-yellow-200 rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">➕</div>
+                    <h3 class="text-2xl font-bold text-yellow-800">Latihan SUM - 4 Contoh Berbeda</h3>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-yellow-800 mb-3">1️⃣ Total Pendapatan</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT SUM(harga * jumlah) AS total_pendapatan FROM penjualan;</div>
+                        </div>
+                        <div class="bg-yellow-50 rounded-lg p-3 text-sm">
+                            <strong>Hasil:</strong> Rp 45,875,000
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-yellow-800 mb-3">2️⃣ Total Barang Terjual</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT SUM(jumlah) AS total_barang FROM penjualan;</div>
+                        </div>
+                        <div class="bg-yellow-50 rounded-lg p-3 text-sm">
+                            <strong>Hasil:</strong> 103 unit
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-yellow-800 mb-3">3️⃣ Total Nilai Siswa RPL</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT SUM(nilai_rata) FROM siswa WHERE kelas = 'XII RPL';</div>
+                        </div>
+                        <div class="bg-yellow-50 rounded-lg p-3 text-sm">
+                            <strong>Hasil:</strong> 344.5 poin
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-yellow-800 mb-3">4️⃣ Pendapatan Elektronik</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT SUM(harga * jumlah) FROM penjualan WHERE produk LIKE '%top%';</div>
+                        </div>
+                        <div class="bg-yellow-50 rounded-lg p-3 text-sm">
+                            <strong>Hasil:</strong> Rp 17,000,000
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Latihan AVG -->
+            <div class="bg-gradient-to-r from-purple-100 to-purple-200 rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">📈</div>
+                    <h3 class="text-2xl font-bold text-purple-800">Latihan AVG - Analisis Rata-rata</h3>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-purple-800 mb-3">📊 Rata-rata Nilai Siswa</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT AVG(nilai_rata) AS rata_nilai FROM siswa;</div>
+                        </div>
+                        <div class="bg-purple-50 rounded-lg p-3 text-sm">
+                            <strong>Hasil:</strong> 85.47 (Baik!)
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-purple-800 mb-3">💰 Rata-rata Harga Produk</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT AVG(harga) AS rata_harga FROM penjualan;</div>
+                        </div>
+                        <div class="bg-purple-50 rounded-lg p-3 text-sm">
+                            <strong>Hasil:</strong> Rp 1,440,500
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-purple-800 mb-3">👥 Rata-rata Umur per Kelas</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT kelas, AVG(umur) FROM siswa GROUP BY kelas;</div>
+                        </div>
+                        <div class="bg-purple-50 rounded-lg p-3 text-sm">
+                            <strong>RPL:</strong> 16.75 th, <strong>TKJ:</strong> 18 th, <strong>MM:</strong> 16.67 th
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-purple-800 mb-3">📦 Rata-rata Quantity</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT AVG(jumlah) AS rata_qty FROM penjualan;</div>
+                        </div>
+                        <div class="bg-purple-50 rounded-lg p-3 text-sm">
+                            <strong>Hasil:</strong> 10.3 unit per transaksi
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Latihan MIN & MAX -->
+            <div class="bg-gradient-to-r from-pink-100 to-pink-200 rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">⬆️⬇️</div>
+                    <h3 class="text-2xl font-bold text-pink-800">Latihan MIN & MAX - Nilai Ekstrem</h3>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-pink-800 mb-3">🏆 Nilai Tertinggi & Terendah</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT MAX(nilai_rata) AS tertinggi, MIN(nilai_rata) AS terendah FROM siswa;</div>
+                        </div>
+                        <div class="bg-pink-50 rounded-lg p-3 text-sm">
+                            <strong>Tertinggi:</strong> 94.2 | <strong>Terendah:</strong> 75.3
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-pink-800 mb-3">💎 Produk Termahal & Termurah</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT MAX(harga) AS termahal, MIN(harga) AS termurah FROM penjualan;</div>
+                        </div>
+                        <div class="bg-pink-50 rounded-lg p-3 text-sm">
+                            <strong>Termahal:</strong> Rp 8,500,000 | <strong>Termurah:</strong> Rp 75,000
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-pink-800 mb-3">👶👴 Umur Termuda & Tertua</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT MIN(umur) AS termuda, MAX(umur) AS tertua FROM siswa;</div>
+                        </div>
+                        <div class="bg-pink-50 rounded-lg p-3 text-sm">
+                            <strong>Termuda:</strong> 16 tahun | <strong>Tertua:</strong> 18 tahun
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-pink-800 mb-3">📊 Range Penjualan</h4>
+                        <div class="code-block mb-3">
+                            <div>SELECT MAX(jumlah) AS terbanyak, MIN(jumlah) AS tersedikit FROM penjualan;</div>
+                        </div>
+                        <div class="bg-pink-50 rounded-lg p-3 text-sm">
+                            <strong>Terbanyak:</strong> 25 unit | <strong>Tersedikit:</strong> 2 unit
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Query Advanced -->
+            <div class="bg-gradient-to-r from-indigo-100 to-indigo-200 rounded-3xl p-8 mb-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">🚀</div>
+                    <h3 class="text-2xl font-bold text-indigo-800">Query Advanced - Kombinasi Semua Fungsi</h3>
+                </div>
+
+                <div class="bg-white/70 rounded-2xl p-6 mb-6">
+                    <h4 class="font-bold text-indigo-800 mb-3">📈 Analisis Komprehensif Penjualan</h4>
+                    <div class="code-block mb-4">
+                        <div class="text-sm opacity-75 mb-2">Advanced Query:</div>
+                        <div class="text-sm leading-relaxed">
+                            SELECT <br>
+                            &nbsp;&nbsp;COUNT(*) AS total_transaksi,<br>
+                            &nbsp;&nbsp;SUM(harga * jumlah) AS total_pendapatan,<br>
+                            &nbsp;&nbsp;AVG(harga * jumlah) AS rata_per_transaksi,<br>
+                            &nbsp;&nbsp;MIN(harga * jumlah) AS transaksi_terkecil,<br>
+                            &nbsp;&nbsp;MAX(harga * jumlah) AS transaksi_terbesar<br>
+                            FROM penjualan;
+                        </div>
+                    </div>
+                    <div class="bg-indigo-50 rounded-lg p-4">
+                        <div class="grid md:grid-cols-2 gap-4 text-sm">
+                            <div><strong>Total Transaksi:</strong> 10</div>
+                            <div><strong>Total Pendapatan:</strong> Rp 45,875,000</div>
+                            <div><strong>Rata-rata per Transaksi:</strong> Rp 4,587,500</div>
+                            <div><strong>Transaksi Terkecil:</strong> Rp 1,875,000</div>
+                            <div><strong>Transaksi Terbesar:</strong> Rp 17,000,000</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/70 rounded-2xl p-6">
+                    <h4 class="font-bold text-indigo-800 mb-3">🎓 Statistik Siswa per Kelas</h4>
+                    <div class="code-block mb-4">
+                        <div class="text-sm opacity-75 mb-2">Group Analysis:</div>
+                        <div class="text-sm leading-relaxed">
+                            SELECT <br>
+                            &nbsp;&nbsp;kelas,<br>
+                            &nbsp;&nbsp;COUNT(*) AS jumlah_siswa,<br>
+                            &nbsp;&nbsp;AVG(nilai_rata) AS rata_nilai,<br>
+                            &nbsp;&nbsp;MIN(nilai_rata) AS nilai_terendah,<br>
+                            &nbsp;&nbsp;MAX(nilai_rata) AS nilai_tertinggi<br>
+                            FROM siswa<br>
+                            GROUP BY kelas;
+                        </div>
+                    </div>
+                    <div class="bg-indigo-50 rounded-lg p-4">
+                        <div class="text-sm space-y-2">
+                            <div><strong>XII RPL:</strong> 4 siswa, rata-rata 86.13, range 83.4-92.1</div>
+                            <div><strong>XII TKJ:</strong> 3 siswa, rata-rata 77.7, range 75.3-79.6</div>
+                            <div><strong>XII MM:</strong> 3 siswa, rata-rata 92.37, range 90.8-94.2</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Challenge Section -->
+            <div class="bg-gradient-to-r from-red-100 to-red-200 rounded-3xl p-8">
+                <div class="flex items-center mb-6">
+                    <div class="text-4xl mr-4">🏆</div>
+                    <h3 class="text-2xl font-bold text-red-800">Challenge Section - Latihan Mandiri</h3>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-red-800 mb-3">🎯 Challenge 1</h4>
+                        <p class="text-red-700 mb-3">Buat query untuk mencari kelas dengan nilai rata-rata tertinggi!</p>
+                        <div class="bg-red-50 rounded-lg p-3 text-sm">
+                            <strong>Hint:</strong> Gunakan GROUP BY dan ORDER BY dengan AVG()
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-red-800 mb-3">🎯 Challenge 2</h4>
+                        <p class="text-red-700 mb-3">Hitung berapa persen kontribusi setiap produk terhadap total penjualan!</p>
+                        <div class="bg-red-50 rounded-lg p-3 text-sm">
+                            <strong>Hint:</strong> Gunakan SUM() dan operasi matematika
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-red-800 mb-3">🎯 Challenge 3</h4>
+                        <p class="text-red-700 mb-3">Temukan produk dengan penjualan di atas rata-rata!</p>
+                        <div class="bg-red-50 rounded-lg p-3 text-sm">
+                            <strong>Hint:</strong> Gunakan subquery dengan AVG()
+                        </div>
+                    </div>
+
+                    <div class="bg-white/70 rounded-2xl p-6">
+                        <h4 class="font-bold text-red-800 mb-3">🎯 Challenge 4</h4>
+                        <p class="text-red-700 mb-3">Buat laporan lengkap dengan semua statistik dalam satu query!</p>
+                        <div class="bg-red-50 rounded-lg p-3 text-sm">
+                            <strong>Hint:</strong> Kombinasikan semua fungsi agregasi
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Section Button -->
+            <div class="text-center mt-8">
+                <button onclick="goToNextSection('kuis')" 
+                        class="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-8 rounded-2xl hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg pulse">
+                    Lanjut ke Kuis 🏆 →
+                </button>
+            </div>
+        </div>
+
+        <!-- Kuis Section -->
+        <div id="kuis" class="section hidden">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">🏆</div>
+                <h2 class="text-3xl md:text-4xl font-bold text-purple-800 mb-4">Kuis Interaktif</h2>
+                <p class="text-xl text-gray-600">Uji pemahamanmu tentang fungsi agregasi!</p>
+            </div>
+
+            <!-- Input Nama -->
+            <div id="nameInput" class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 mb-8">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">👋</div>
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">Selamat Datang di Kuis!</h3>
+                    <p class="text-lg text-gray-700 mb-6">Masukkan nama kamu untuk memulai kuis</p>
+                    <div class="max-w-md mx-auto">
+                        <input type="text" id="studentName" placeholder="Nama lengkap kamu..." 
+                               class="w-full px-6 py-4 text-lg rounded-2xl border-2 border-purple-300 focus:border-purple-500 focus:outline-none mb-4">
+                        <button onclick="startQuiz()" 
+                                class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-4 px-6 rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all text-lg">
+                            🚀 Mulai Kuis
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Container -->
+            <div id="quizContainer" class="hidden">
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 mb-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="text-lg font-bold text-purple-800">
+                            Soal <span id="currentQuestion">1</span> dari 10
+                        </div>
+                        <div class="text-lg font-bold text-purple-800">
+                            Skor: <span id="currentScore">0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="bg-purple-200 rounded-full h-3 mb-4">
+                            <div id="progressBar" class="bg-purple-500 h-3 rounded-full transition-all duration-300" style="width: 10%"></div>
+                        </div>
+                    </div>
+
+                    <div id="questionContainer" class="mb-8">
+                        <!-- Questions will be loaded here -->
+                    </div>
+
+                    <div class="text-center">
+                        <button id="nextButton" onclick="nextQuestion()" 
+                                class="bg-gradient-to-r from-green-500 to-blue-500 text-white font-bold py-3 px-8 rounded-2xl hover:from-green-600 hover:to-blue-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled>
+                            Lanjut ➡️
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div id="resultsContainer" class="hidden">
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 text-center">
+                    <div class="text-6xl mb-4">🎉</div>
+                    <h3 class="text-3xl font-bold text-purple-800 mb-4">Kuis Selesai!</h3>
+                    <div class="text-2xl font-bold text-gray-700 mb-2">
+                        Halo, <span id="finalName" class="text-purple-600"></span>!
+                    </div>
+                    <div class="text-4xl font-bold mb-6">
+                        Skor Akhir: <span id="finalScore" class="text-green-600"></span>/100
+                    </div>
+                    <div id="scoreMessage" class="text-xl text-gray-600 mb-6"></div>
+                    <button onclick="restartQuiz()" 
+                            class="bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 px-8 rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all">
+                        🔄 Ulangi Kuis
+                    </button>
+                </div>
+            </div>
+
+            <!-- Next Section Button -->
+            <div class="text-center mt-8">
+                <button onclick="goToNextSection('penutup')" 
+                        class="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-4 px-8 rounded-2xl hover:from-blue-600 hover:to-purple-600 transition-all shadow-lg pulse">
+                    Lanjut ke Penutup 🎉 →
+                </button>
+            </div>
+        </div>
+
+        <!-- Penutup Section -->
+        <div id="penutup" class="section hidden">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">🎉</div>
+                <h2 class="text-3xl md:text-4xl font-bold text-purple-800 mb-4">Penutup</h2>
+                <p class="text-xl text-gray-600">Selamat! Kamu telah menyelesaikan pembelajaran!</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 card-hover">
+                    <div class="text-4xl mb-4">🤔</div>
+                    <h3 class="text-xl font-bold text-purple-800 mb-4">Refleksi</h3>
+                    <div class="space-y-3 text-gray-700">
+                        <p><strong>Apa yang sudah kamu pelajari?</strong></p>
+                        <ul class="text-sm space-y-1">
+                            <li>• 5 fungsi agregasi utama SQL</li>
+                            <li>• Cara menganalisis data dengan query</li>
+                            <li>• Penerapan dalam kasus nyata</li>
+                            <li>• Kombinasi fungsi untuk insight mendalam</li>
+                        </ul>
+                        
+                        <p class="mt-4"><strong>Bagaimana perasaanmu?</strong></p>
+                        <p class="text-sm">Semoga pembelajaran ini menyenangkan dan mudah dipahami! 😊</p>
+                    </div>
+                </div>
+
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 card-hover">
+                    <div class="text-4xl mb-4">📚</div>
+                    <h3 class="text-xl font-bold text-purple-800 mb-4">Kesimpulan Pembelajaran</h3>
+                    <div class="text-gray-700 space-y-3">
+                        <div class="bg-gradient-to-r from-blue-100 to-blue-200 rounded-2xl p-4">
+                            <h4 class="font-bold text-blue-800 mb-2">Fungsi Agregasi adalah:</h4>
+                            <p class="text-sm text-blue-700">Alat powerful untuk menganalisis dan merangkum data dalam database dengan cepat dan akurat.</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-100 to-green-200 rounded-2xl p-4">
+                            <h4 class="font-bold text-green-800 mb-2">Manfaat Utama:</h4>
+                            <ul class="text-sm text-green-700 space-y-1">
+                                <li>• Efisiensi analisis data</li>
+                                <li>• Pembuatan laporan otomatis</li>
+                                <li>• Pengambilan keputusan berbasis data</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white/70 backdrop-blur-sm rounded-3xl p-8 card-hover">
+                    <div class="text-4xl mb-4">🚀</div>
+                    <h3 class="text-xl font-bold text-purple-800 mb-4">Tindak Lanjut</h3>
+                    <div class="text-gray-700 space-y-3">
+                        <h4 class="font-bold">Langkah Selanjutnya:</h4>
+                        <ul class="text-sm space-y-2">
+                            <li class="flex items-center">
+                                <span class="text-lg mr-2">📖</span>
+                                Pelajari JOIN untuk menggabungkan tabel
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-lg mr-2">🔍</span>
+                                Eksplorasi GROUP BY dan HAVING
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-lg mr-2">💡</span>
+                                Praktik dengan dataset real
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-lg mr-2">🏗️</span>
+                                Buat project database sendiri
+                            </li>
+                        </ul>
+                        
+                        <div class="bg-yellow-100 rounded-2xl p-4 mt-4">
+                            <p class="text-sm text-yellow-800">
+                                <strong>💡 Tips:</strong> Terus berlatih dengan data yang berbeda untuk mengasah kemampuan analisis!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-purple-200 via-pink-200 to-red-200 rounded-3xl p-8 text-center">
+                <div class="text-5xl mb-4">🌟</div>
+                <h3 class="text-2xl font-bold text-purple-800 mb-4">Selamat!</h3>
+                <p class="text-lg text-purple-700 mb-6">
+                    Kamu telah berhasil menguasai dasar-dasar fungsi agregasi SQL! 
+                    Kemampuan ini akan sangat berguna dalam karir di bidang teknologi dan data analytics.
+                </p>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="showSection('intro')" 
+                            class="bg-gradient-to-r from-blue-500 to-purple-500 text-white font-bold py-3 px-6 rounded-2xl hover:from-blue-600 hover:to-purple-600 transition-all">
+                        🔄 Ulangi Pembelajaran
+                    </button>
+                    <button onclick="showSection('kuis')" 
+                            class="bg-gradient-to-r from-green-500 to-blue-500 text-white font-bold py-3 px-6 rounded-2xl hover:from-green-600 hover:to-blue-600 transition-all">
+                        🏆 Ulangi Kuis
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="backToTop" 
+            onclick="scrollToTop()" 
+            class="fixed bottom-6 right-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all opacity-0 invisible z-50">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Quiz data
+        const quizData = [
+            {
+                question: "Fungsi SQL manakah yang digunakan untuk menghitung jumlah baris dalam tabel?",
+                options: ["SUM()", "COUNT()", "AVG()", "TOTAL()"],
+                correct: 1,
+                explanation: "COUNT() digunakan untuk menghitung jumlah baris atau nilai non-NULL dalam kolom."
+            },
+            {
+                question: "Apa perbedaan antara COUNT(*) dan COUNT(nama_kolom)?",
+                options: [
+                    "Tidak ada perbedaan",
+                    "COUNT(*) lebih cepat",
+                    "COUNT(*) menghitung semua baris, COUNT(kolom) mengabaikan NULL",
+                    "COUNT(kolom) lebih akurat"
+                ],
+                correct: 2,
+                explanation: "COUNT(*) menghitung semua baris termasuk yang memiliki NULL, sedangkan COUNT(kolom) hanya menghitung nilai non-NULL."
+            },
+            {
+                question: "Fungsi SUM() dapat digunakan pada tipe data apa?",
+                options: ["Semua tipe data", "Hanya numerik", "Hanya integer", "Text dan numerik"],
+                correct: 1,
+                explanation: "SUM() hanya dapat digunakan pada kolom dengan tipe data numerik seperti INT, DECIMAL, FLOAT."
+            },
+            {
+                question: "Jika tabel memiliki nilai: 10, 20, 30, NULL, 40. Berapa hasil AVG()?",
+                options: ["20", "25", "24", "Error"],
+                correct: 1,
+                explanation: "AVG() mengabaikan NULL, jadi (10+20+30+40)/4 = 25."
+            },
+            {
+                question: "Query mana yang benar untuk mencari harga tertinggi?",
+                options: [
+                    "SELECT TOP(harga) FROM produk;",
+                    "SELECT MAX(harga) FROM produk;",
+                    "SELECT HIGHEST(harga) FROM produk;",
+                    "SELECT MAXIMUM(harga) FROM produk;"
+                ],
+                correct: 1,
+                explanation: "MAX() adalah fungsi yang tepat untuk mencari nilai tertinggi dalam kolom."
+            },
+            {
+                question: "Apa yang terjadi jika menggunakan MIN() pada kolom yang berisi NULL?",
+                options: [
+                    "Error akan muncul",
+                    "NULL diabaikan dalam perhitungan",
+                    "Hasil akan selalu NULL",
+                    "NULL dianggap sebagai 0"
+                ],
+                correct: 1,
+                explanation: "Semua fungsi agregasi mengabaikan nilai NULL dalam perhitungan."
+            },
+            {
+                question: "Untuk menghitung total penjualan dari kolom 'harga' dan 'jumlah', query yang benar adalah:",
+                options: [
+                    "SELECT SUM(harga, jumlah) FROM penjualan;",
+                    "SELECT SUM(harga + jumlah) FROM penjualan;",
+                    "SELECT SUM(harga * jumlah) FROM penjualan;",
+                    "SELECT SUM(harga) * SUM(jumlah) FROM penjualan;"
+                ],
+                correct: 2,
+                explanation: "Total penjualan = harga × jumlah, jadi gunakan SUM(harga * jumlah)."
+            },
+            {
+                question: "Fungsi agregasi mana yang menghasilkan nilai desimal meskipun input berupa integer?",
+                options: ["COUNT()", "SUM()", "AVG()", "MIN()"],
+                correct: 2,
+                explanation: "AVG() dapat menghasilkan nilai desimal karena pembagian, meskipun input berupa integer."
+            },
+            {
+                question: "Untuk menghitung berapa jenis produk berbeda dalam tabel, gunakan:",
+                options: [
+                    "COUNT(produk)",
+                    "COUNT(DISTINCT produk)",
+                    "SUM(DISTINCT produk)",
+                    "UNIQUE(produk)"
+                ],
+                correct: 1,
+                explanation: "COUNT(DISTINCT kolom) menghitung jumlah nilai unik dalam kolom."
+            },
+            {
+                question: "Jika ingin menampilkan COUNT, SUM, AVG, MIN, MAX dalam satu query, sintaks yang benar adalah:",
+                options: [
+                    "Tidak bisa dalam satu query",
+                    "SELECT COUNT(*), SUM(harga), AVG(harga), MIN(harga), MAX(harga) FROM produk;",
+                    "Harus menggunakan GROUP BY",
+                    "Perlu subquery untuk setiap fungsi"
+                ],
+                correct: 1,
+                explanation: "Semua fungsi agregasi dapat dikombinasikan dalam satu SELECT statement."
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let studentName = '';
+        let selectedAnswer = null;
+
+        // Mobile navigation toggle
+        function toggleMobileNav() {
+            const mobileNav = document.getElementById('mobileNav');
+            const menuIcon = document.getElementById('menuIcon');
+            const closeIcon = document.getElementById('closeIcon');
+            
+            if (mobileNav.classList.contains('-translate-y-full')) {
+                // Show menu
+                mobileNav.classList.remove('-translate-y-full');
+                mobileNav.classList.add('translate-y-0');
+                menuIcon.classList.add('hidden');
+                closeIcon.classList.remove('hidden');
+            } else {
+                // Hide menu
+                mobileNav.classList.add('-translate-y-full');
+                mobileNav.classList.remove('translate-y-0');
+                menuIcon.classList.remove('hidden');
+                closeIcon.classList.add('hidden');
+            }
+        }
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update navigation buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('nav-active');
+            });
+            
+            // Find and activate current nav button
+            const activeBtn = Array.from(document.querySelectorAll('.nav-btn')).find(btn => 
+                btn.textContent.toLowerCase().includes(sectionId.toLowerCase()) ||
+                (sectionId === 'intro' && btn.textContent.includes('Intro')) ||
+                (sectionId === 'pengenalan' && btn.textContent.includes('Pengenalan')) ||
+                (sectionId === 'count' && btn.textContent.includes('COUNT')) ||
+                (sectionId === 'sum' && btn.textContent.includes('SUM')) ||
+                (sectionId === 'avg' && btn.textContent.includes('AVG')) ||
+                (sectionId === 'min' && btn.textContent.includes('MIN')) ||
+                (sectionId === 'max' && btn.textContent.includes('MAX')) ||
+                (sectionId === 'praktik' && btn.textContent.includes('Praktik')) ||
+                (sectionId === 'kuis' && btn.textContent.includes('Kuis')) ||
+                (sectionId === 'penutup' && btn.textContent.includes('Penutup'))
+            );
+            
+            if (activeBtn) {
+                activeBtn.classList.add('nav-active');
+            }
+            
+            // Update mobile progress bar
+            updateMobileProgress(sectionId);
+            
+
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        function updateMobileProgress(sectionId) {
+            const sections = ['intro', 'pengenalan', 'count', 'sum', 'avg', 'min', 'max', 'praktik', 'kuis', 'penutup'];
+            const currentIndex = sections.indexOf(sectionId);
+            const progress = ((currentIndex + 1) / sections.length) * 100;
+            
+            const mobileProgressBar = document.getElementById('mobileProgress');
+            if (mobileProgressBar) {
+                mobileProgressBar.style.width = `${progress}%`;
+            }
+        }
+
+
+
+        // Quiz functions
+        function startQuiz() {
+            const nameInput = document.getElementById('studentName').value.trim();
+            if (!nameInput) {
+                alert('Silakan masukkan nama kamu terlebih dahulu! 😊');
+                return;
+            }
+            
+            studentName = nameInput;
+            document.getElementById('nameInput').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = quizData[currentQuestionIndex];
+            const questionContainer = document.getElementById('questionContainer');
+            
+            questionContainer.innerHTML = `
+                <div class="mb-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">${question.question}</h4>
+                    <div class="space-y-3">
+                        ${question.options.map((option, index) => `
+                            <div class="quiz-option bg-white rounded-2xl p-4 cursor-pointer border-2 border-gray-200 hover:border-purple-300" 
+                                 onclick="selectAnswer(${index})">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 rounded-full border-2 border-gray-300 mr-3 flex items-center justify-center">
+                                        <div class="w-3 h-3 rounded-full bg-purple-500 hidden answer-dot"></div>
+                                    </div>
+                                    <span class="text-lg">${option}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            // Update progress
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('currentScore').textContent = score;
+            document.getElementById('progressBar').style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+            
+            // Reset next button
+            document.getElementById('nextButton').disabled = true;
+            selectedAnswer = null;
+        }
+
+        function selectAnswer(answerIndex) {
+            // Remove previous selection
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('quiz-correct', 'quiz-wrong');
+                option.querySelector('.answer-dot').classList.add('hidden');
+            });
+            
+            selectedAnswer = answerIndex;
+            const question = quizData[currentQuestionIndex];
+            const options = document.querySelectorAll('.quiz-option');
+            
+            // Show selected answer
+            options[answerIndex].querySelector('.answer-dot').classList.remove('hidden');
+            
+            // Show correct/wrong styling
+            if (answerIndex === question.correct) {
+                options[answerIndex].classList.add('quiz-correct');
+                score += 10;
+            } else {
+                options[answerIndex].classList.add('quiz-wrong');
+                options[question.correct].classList.add('quiz-correct');
+            }
+            
+            // Show explanation
+            const explanationDiv = document.createElement('div');
+            explanationDiv.className = 'mt-4 p-4 bg-blue-100 rounded-2xl';
+            explanationDiv.innerHTML = `
+                <div class="flex items-start">
+                    <div class="text-2xl mr-3">💡</div>
+                    <div>
+                        <div class="font-bold text-blue-800 mb-2">Penjelasan:</div>
+                        <div class="text-blue-700">${question.explanation}</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('questionContainer').appendChild(explanationDiv);
+            
+            // Enable next button
+            document.getElementById('nextButton').disabled = false;
+            
+            // Update score display
+            document.getElementById('currentScore').textContent = score;
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultsContainer').classList.remove('hidden');
+            
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = score;
+            
+            let message = '';
+            if (score >= 90) {
+                message = '🌟 Luar biasa! Kamu menguasai materi dengan sempurna!';
+            } else if (score >= 80) {
+                message = '🎉 Bagus sekali! Pemahaman kamu sangat baik!';
+            } else if (score >= 70) {
+                message = '👍 Baik! Kamu sudah memahami sebagian besar materi!';
+            } else if (score >= 60) {
+                message = '📚 Cukup baik! Yuk belajar lagi untuk hasil yang lebih baik!';
+            } else {
+                message = '💪 Jangan menyerah! Coba baca materi lagi dan ulangi kuis!';
+            }
+            
+            document.getElementById('scoreMessage').textContent = message;
+        }
+
+        function restartQuiz() {
+            document.getElementById('resultsContainer').classList.add('hidden');
+            document.getElementById('nameInput').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+        }
+
+        // Back to top functionality
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Show/hide back to top button based on scroll position
+        window.addEventListener('scroll', function() {
+            const backToTopButton = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.remove('opacity-0', 'invisible');
+                backToTopButton.classList.add('opacity-100', 'visible');
+            } else {
+                backToTopButton.classList.add('opacity-0', 'invisible');
+                backToTopButton.classList.remove('opacity-100', 'visible');
+            }
+        });
+
+        // Go to next section function
+        function goToNextSection(nextSectionId) {
+            showSection(nextSectionId);
+            // Scroll to top smoothly
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('intro');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98374dede29d1ff3',t:'MTc1ODYwMTgwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
