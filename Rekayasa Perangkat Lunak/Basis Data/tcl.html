@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar TCL - Transaction Control Language</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .menu-item {
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            transform: scale(1.05);
+        }
+        
+        .active-menu {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-left: 4px solid #ff6b6b;
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            background: #e3f2fd;
+            transform: translateX(5px);
+        }
+        
+        .quiz-option.selected {
+            background: linear-gradient(135deg, #81c784 0%, #aed581 100%);
+            color: white;
+        }
+        
+        .quiz-option.correct {
+            background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+            color: white;
+        }
+        
+        .quiz-option.incorrect {
+            background: linear-gradient(135deg, #f44336 0%, #ff7043 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-screen">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-white rounded-full p-3 shadow-lg">
+        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-2xl transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 overflow-y-auto">
+        <div class="p-6">
+            <div class="text-center mb-8">
+                <div class="text-4xl mb-2">🎓</div>
+                <h1 class="text-2xl font-bold text-purple-800">Belajar TCL</h1>
+                <p class="text-sm text-gray-600">Transaction Control Language</p>
+            </div>
+            
+            <div class="space-y-2">
+                <div class="menu-item p-3 rounded-lg cursor-pointer active-menu" onclick="showSection('intro')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">🚀</span>
+                        <span class="font-medium">Intro</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('pengenalan')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">📚</span>
+                        <span class="font-medium">Pengenalan TCL</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('commit')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">✅</span>
+                        <span class="font-medium">COMMIT</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('rollback')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">↩️</span>
+                        <span class="font-medium">ROLLBACK</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('savepoint')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">📍</span>
+                        <span class="font-medium">SAVEPOINT</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('praktik')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">💻</span>
+                        <span class="font-medium">Praktik</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('kuis')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">🧠</span>
+                        <span class="font-medium">Kuis</span>
+                    </div>
+                </div>
+                
+                <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('penutup')">
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl">🎯</span>
+                        <span class="font-medium">Penutup</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="lg:ml-80 min-h-screen">
+        <div class="max-w-4xl mx-auto p-4 lg:p-8">
+            
+            <!-- Intro Section -->
+            <section id="intro" class="section-content slide-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4 bounce">🎓</div>
+                        <h1 class="text-4xl lg:text-5xl font-bold text-purple-800 mb-4">Selamat Datang!</h1>
+                        <p class="text-xl text-gray-600">Mari Belajar Transaction Control Language (TCL)</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl p-6 card-hover">
+                            <div class="text-3xl mb-4">🤔</div>
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4">Pertanyaan Pemantik</h3>
+                            <ul class="space-y-3 text-lg">
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-pink-500">•</span>
+                                    <span>Apa yang terjadi jika transaksi database gagal di tengah jalan?</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-pink-500">•</span>
+                                    <span>Bagaimana cara memastikan data tetap konsisten?</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-pink-500">•</span>
+                                    <span>Mengapa kita perlu mengontrol transaksi?</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6 card-hover">
+                            <div class="text-3xl mb-4">📖</div>
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4">Apa yang Dipelajari</h3>
+                            <ul class="space-y-3 text-lg">
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-blue-500">•</span>
+                                    <span>Konsep Transaction Control Language</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-blue-500">•</span>
+                                    <span>Perintah COMMIT, ROLLBACK, SAVEPOINT</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-blue-500">•</span>
+                                    <span>Praktik langsung dengan contoh kasus</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-gradient-to-r from-green-100 to-teal-100 rounded-2xl p-6 card-hover">
+                        <div class="text-3xl mb-4 float">🎯</div>
+                        <h3 class="text-2xl font-bold text-green-800 mb-4">Tujuan Pembelajaran</h3>
+                        <div class="grid md:grid-cols-2 gap-6 text-lg">
+                            <div>
+                                <p class="mb-2"><strong>Setelah mempelajari materi ini, kalian dapat:</strong></p>
+                                <ul class="space-y-2">
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500">✓</span>
+                                        <span>Memahami konsep transaksi database</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500">✓</span>
+                                        <span>Menggunakan perintah COMMIT dengan tepat</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <ul class="space-y-2 mt-8 md:mt-0">
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500">✓</span>
+                                        <span>Menerapkan ROLLBACK untuk membatalkan transaksi</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500">✓</span>
+                                        <span>Memanfaatkan SAVEPOINT untuk kontrol yang lebih baik</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mt-8">
+                        <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 card-hover">
+                            <div class="text-3xl mb-4">💡</div>
+                            <h3 class="text-2xl font-bold text-orange-800 mb-4">Pemahaman Bermakna</h3>
+                            <p class="text-lg leading-relaxed">
+                                TCL adalah kunci untuk menjaga integritas data dalam sistem database. 
+                                Seperti tombol "Save" dan "Undo" dalam aplikasi, TCL membantu kita 
+                                mengontrol kapan perubahan disimpan atau dibatalkan.
+                            </p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-red-100 to-pink-100 rounded-2xl p-6 card-hover">
+                            <div class="text-3xl mb-4">🔥</div>
+                            <h3 class="text-2xl font-bold text-red-800 mb-4">Motivasi</h3>
+                            <p class="text-lg leading-relaxed">
+                                Bayangkan kalian adalah seorang developer yang mengelola sistem perbankan. 
+                                Setiap transaksi harus akurat dan aman. TCL adalah superhero yang akan 
+                                melindungi data kalian! 🦸‍♂️
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pengenalan Section -->
+            <section id="pengenalan" class="section-content hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📚</div>
+                        <h1 class="text-4xl font-bold text-purple-800 mb-4">Pengenalan TCL</h1>
+                        <p class="text-xl text-gray-600">Transaction Control Language</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-indigo-800 mb-4">🤖 Apa itu TCL?</h3>
+                        <p class="text-lg leading-relaxed mb-4">
+                            <strong>Transaction Control Language (TCL)</strong> adalah bagian dari SQL yang digunakan untuk 
+                            mengontrol transaksi dalam database. TCL memungkinkan kita untuk mengelola perubahan 
+                            data dengan aman dan terkontrol.
+                        </p>
+                        <div class="bg-white rounded-xl p-4 border-l-4 border-indigo-500">
+                            <p class="text-lg">
+                                <strong>Analogi:</strong> Bayangkan TCL seperti sistem kontrol dalam video game. 
+                                Kamu bisa menyimpan progress (COMMIT), kembali ke checkpoint terakhir (ROLLBACK), 
+                                atau membuat checkpoint baru (SAVEPOINT)! 🎮
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-6 card-hover">
+                            <div class="text-4xl mb-4">✅</div>
+                            <h4 class="text-xl font-bold text-green-800 mb-3">COMMIT</h4>
+                            <p class="text-lg">Menyimpan semua perubahan secara permanen ke database</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-red-100 to-rose-100 rounded-2xl p-6 card-hover">
+                            <div class="text-4xl mb-4">↩️</div>
+                            <h4 class="text-xl font-bold text-red-800 mb-3">ROLLBACK</h4>
+                            <p class="text-lg">Membatalkan semua perubahan yang belum di-commit</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-100 to-sky-100 rounded-2xl p-6 card-hover">
+                            <div class="text-4xl mb-4">📍</div>
+                            <h4 class="text-xl font-bold text-blue-800 mb-3">SAVEPOINT</h4>
+                            <p class="text-lg">Membuat titik checkpoint dalam transaksi</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-100 to-amber-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-yellow-800 mb-4">🏦 Contoh Kasus Nyata</h3>
+                        <p class="text-lg leading-relaxed mb-4">
+                            Misalkan kamu sedang transfer uang dari rekening A ke rekening B:
+                        </p>
+                        <div class="bg-white rounded-xl p-4 space-y-3">
+                            <div class="flex items-center space-x-3">
+                                <span class="bg-red-500 text-white px-3 py-1 rounded-full text-sm">1</span>
+                                <span class="text-lg">Kurangi saldo rekening A sebesar Rp 100.000</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <span class="bg-blue-500 text-white px-3 py-1 rounded-full text-sm">2</span>
+                                <span class="text-lg">Tambah saldo rekening B sebesar Rp 100.000</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <span class="bg-green-500 text-white px-3 py-1 rounded-full text-sm">3</span>
+                                <span class="text-lg">COMMIT - Simpan perubahan jika semua berhasil</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <span class="bg-gray-500 text-white px-3 py-1 rounded-full text-sm">?</span>
+                                <span class="text-lg">ROLLBACK - Batalkan semua jika ada yang gagal</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6 card-hover">
+                        <h3 class="text-2xl font-bold text-purple-800 mb-4">🎯 Mengapa TCL Penting?</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="text-xl font-semibold text-purple-700 mb-3">Keuntungan:</h4>
+                                <ul class="space-y-2 text-lg">
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500">✓</span>
+                                        <span>Menjaga konsistensi data</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500">✓</span>
+                                        <span>Memungkinkan recovery dari error</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500">✓</span>
+                                        <span>Kontrol yang lebih baik</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-semibold text-purple-700 mb-3">Tanpa TCL:</h4>
+                                <ul class="space-y-2 text-lg">
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-red-500">✗</span>
+                                        <span>Data bisa tidak konsisten</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-red-500">✗</span>
+                                        <span>Sulit recovery dari error</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-red-500">✗</span>
+                                        <span>Risiko kehilangan data</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- COMMIT Section -->
+            <section id="commit" class="section-content hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">✅</div>
+                        <h1 class="text-4xl font-bold text-green-800 mb-4">COMMIT</h1>
+                        <p class="text-xl text-gray-600">Menyimpan Perubahan Secara Permanen</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-green-800 mb-4">🎯 Apa itu COMMIT?</h3>
+                        <p class="text-lg leading-relaxed mb-4">
+                            <strong>COMMIT</strong> adalah perintah yang digunakan untuk menyimpan semua perubahan 
+                            yang telah dilakukan dalam transaksi secara permanen ke database. Setelah COMMIT 
+                            dijalankan, perubahan tidak dapat dibatalkan lagi.
+                        </p>
+                        <div class="bg-white rounded-xl p-4 border-l-4 border-green-500">
+                            <p class="text-lg">
+                                <strong>Analogi:</strong> COMMIT seperti menekan tombol "Save" pada dokumen. 
+                                Setelah di-save, perubahan tersimpan permanen! 💾
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-blue-800 mb-4">📝 Sintaks COMMIT</h3>
+                        <div class="bg-gray-900 rounded-xl p-4 mb-4">
+                            <code class="text-green-400 text-lg font-mono">COMMIT;</code>
+                        </div>
+                        <p class="text-lg">
+                            Sintaksnya sangat sederhana! Cukup tulis <code class="bg-gray-200 px-2 py-1 rounded">COMMIT;</code> 
+                            dan semua perubahan dalam transaksi akan disimpan permanen.
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-purple-800 mb-4">🔄 Cara Kerja COMMIT</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-4 bg-white rounded-xl p-4">
+                                <div class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">1</div>
+                                <div>
+                                    <h4 class="font-semibold text-lg">Mulai Transaksi</h4>
+                                    <p class="text-gray-600">Database mulai mencatat semua perubahan</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4 bg-white rounded-xl p-4">
+                                <div class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">2</div>
+                                <div>
+                                    <h4 class="font-semibold text-lg">Eksekusi Perintah SQL</h4>
+                                    <p class="text-gray-600">INSERT, UPDATE, DELETE dijalankan</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4 bg-white rounded-xl p-4">
+                                <div class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">3</div>
+                                <div>
+                                    <h4 class="font-semibold text-lg">COMMIT Dijalankan</h4>
+                                    <p class="text-gray-600">Semua perubahan disimpan permanen</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-orange-800 mb-4">💡 Contoh Penggunaan</h3>
+                        <div class="bg-gray-900 rounded-xl p-6 mb-4">
+                            <pre class="text-green-400 text-lg font-mono leading-relaxed">
+<span class="text-yellow-400">-- Mulai transaksi</span>
+<span class="text-blue-400">BEGIN TRANSACTION;</span>
+
+<span class="text-yellow-400">-- Insert data mahasiswa baru</span>
+<span class="text-pink-400">INSERT INTO</span> mahasiswa (nama, jurusan, angkatan) 
+<span class="text-pink-400">VALUES</span> ('Budi', 'Teknik Informatika', 2024);
+
+<span class="text-yellow-400">-- Update nilai mahasiswa</span>
+<span class="text-pink-400">UPDATE</span> nilai 
+<span class="text-pink-400">SET</span> score = 85 
+<span class="text-pink-400">WHERE</span> mahasiswa_id = 123;
+
+<span class="text-yellow-400">-- Simpan semua perubahan</span>
+<span class="text-green-400">COMMIT;</span>
+            </pre>
+                        </div>
+                        <p class="text-lg">
+                            Dalam contoh di atas, setelah COMMIT dijalankan, data mahasiswa baru dan 
+                            update nilai akan tersimpan permanen di database.
+                        </p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-gradient-to-r from-green-100 to-teal-100 rounded-2xl p-6 card-hover">
+                            <h3 class="text-xl font-bold text-green-800 mb-4">✅ Kapan Menggunakan COMMIT</h3>
+                            <ul class="space-y-3 text-lg">
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-green-500">•</span>
+                                    <span>Setelah serangkaian operasi berhasil</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-green-500">•</span>
+                                    <span>Ketika yakin data sudah benar</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-green-500">•</span>
+                                    <span>Di akhir transaksi yang sukses</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-red-100 to-pink-100 rounded-2xl p-6 card-hover">
+                            <h3 class="text-xl font-bold text-red-800 mb-4">⚠️ Hal yang Perlu Diperhatikan</h3>
+                            <ul class="space-y-3 text-lg">
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-red-500">•</span>
+                                    <span>COMMIT tidak bisa dibatalkan</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-red-500">•</span>
+                                    <span>Pastikan data sudah benar sebelum COMMIT</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-red-500">•</span>
+                                    <span>Cek kembali sebelum menyimpan</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ROLLBACK Section -->
+            <section id="rollback" class="section-content hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">↩️</div>
+                        <h1 class="text-4xl font-bold text-red-800 mb-4">ROLLBACK</h1>
+                        <p class="text-xl text-gray-600">Membatalkan Perubahan Transaksi</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-red-100 to-rose-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-red-800 mb-4">🔄 Apa itu ROLLBACK?</h3>
+                        <p class="text-lg leading-relaxed mb-4">
+                            <strong>ROLLBACK</strong> adalah perintah yang digunakan untuk membatalkan semua 
+                            perubahan yang telah dilakukan dalam transaksi yang belum di-commit. Ini seperti 
+                            tombol "Undo" yang membatalkan semua perubahan.
+                        </p>
+                        <div class="bg-white rounded-xl p-4 border-l-4 border-red-500">
+                            <p class="text-lg">
+                                <strong>Analogi:</strong> ROLLBACK seperti menekan Ctrl+Z berkali-kali sampai 
+                                kembali ke kondisi awal sebelum ada perubahan! ↶
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-blue-800 mb-4">📝 Sintaks ROLLBACK</h3>
+                        <div class="bg-gray-900 rounded-xl p-4 mb-4">
+                            <code class="text-red-400 text-lg font-mono">ROLLBACK;</code>
+                        </div>
+                        <p class="text-lg mb-4">
+                            Untuk membatalkan ke savepoint tertentu:
+                        </p>
+                        <div class="bg-gray-900 rounded-xl p-4">
+                            <code class="text-red-400 text-lg font-mono">ROLLBACK TO nama_savepoint;</code>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-purple-800 mb-4">🔄 Cara Kerja ROLLBACK</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-4 bg-white rounded-xl p-4">
+                                <div class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">1</div>
+                                <div>
+                                    <h4 class="font-semibold text-lg">Transaksi Berjalan</h4>
+                                    <p class="text-gray-600">Beberapa operasi SQL telah dijalankan</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4 bg-white rounded-xl p-4">
+                                <div class="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">2</div>
+                                <div>
+                                    <h4 class="font-semibold text-lg">Terjadi Error/Masalah</h4>
+                                    <p class="text-gray-600">Ada kesalahan atau perubahan yang tidak diinginkan</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4 bg-white rounded-xl p-4">
+                                <div class="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">3</div>
+                                <div>
+                                    <h4 class="font-semibold text-lg">ROLLBACK Dijalankan</h4>
+                                    <p class="text-gray-600">Semua perubahan dibatalkan, kembali ke kondisi awal</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-orange-800 mb-4">💡 Contoh Penggunaan</h3>
+                        <div class="bg-gray-900 rounded-xl p-6 mb-4">
+                            <pre class="text-green-400 text-lg font-mono leading-relaxed">
+<span class="text-yellow-400">-- Mulai transaksi</span>
+<span class="text-blue-400">BEGIN TRANSACTION;</span>
+
+<span class="text-yellow-400">-- Hapus data mahasiswa</span>
+<span class="text-pink-400">DELETE FROM</span> mahasiswa 
+<span class="text-pink-400">WHERE</span> angkatan = 2020;
+
+<span class="text-yellow-400">-- Ups! Salah hapus data!</span>
+<span class="text-yellow-400">-- Batalkan semua perubahan</span>
+<span class="text-red-400">ROLLBACK;</span>
+
+<span class="text-yellow-400">-- Data mahasiswa kembali seperti semula</span>
+            </pre>
+                        </div>
+                        <p class="text-lg">
+                            Dalam contoh di atas, setelah ROLLBACK dijalankan, data mahasiswa yang terhapus 
+                            akan kembali seperti semula karena perubahan dibatalkan.
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-indigo-800 mb-4">🎯 Contoh Kasus Transfer Uang</h3>
+                        <div class="bg-gray-900 rounded-xl p-6 mb-4">
+                            <pre class="text-green-400 text-lg font-mono leading-relaxed">
+<span class="text-blue-400">BEGIN TRANSACTION;</span>
+
+<span class="text-yellow-400">-- Kurangi saldo rekening A</span>
+<span class="text-pink-400">UPDATE</span> rekening 
+<span class="text-pink-400">SET</span> saldo = saldo - 1000000 
+<span class="text-pink-400">WHERE</span> no_rekening = 'A123';
+
+<span class="text-yellow-400">-- Cek apakah saldo mencukupi</span>
+<span class="text-pink-400">SELECT</span> saldo <span class="text-pink-400">FROM</span> rekening 
+<span class="text-pink-400">WHERE</span> no_rekening = 'A123';
+
+<span class="text-yellow-400">-- Jika saldo negatif, batalkan transaksi</span>
+<span class="text-red-400">ROLLBACK;</span>
+
+<span class="text-yellow-400">-- Atau jika berhasil, lanjutkan...</span>
+            </pre>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-gradient-to-r from-green-100 to-teal-100 rounded-2xl p-6 card-hover">
+                            <h3 class="text-xl font-bold text-green-800 mb-4">✅ Kapan Menggunakan ROLLBACK</h3>
+                            <ul class="space-y-3 text-lg">
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-green-500">•</span>
+                                    <span>Ketika terjadi error dalam transaksi</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-green-500">•</span>
+                                    <span>Saat kondisi bisnis tidak terpenuhi</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-green-500">•</span>
+                                    <span>Untuk membatalkan perubahan yang salah</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-100 to-sky-100 rounded-2xl p-6 card-hover">
+                            <h3 class="text-xl font-bold text-blue-800 mb-4">🎯 Keuntungan ROLLBACK</h3>
+                            <ul class="space-y-3 text-lg">
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-blue-500">•</span>
+                                    <span>Melindungi integritas data</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-blue-500">•</span>
+                                    <span>Recovery dari kesalahan</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-blue-500">•</span>
+                                    <span>Kontrol yang lebih baik</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SAVEPOINT Section -->
+            <section id="savepoint" class="section-content hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📍</div>
+                        <h1 class="text-4xl font-bold text-blue-800 mb-4">SAVEPOINT</h1>
+                        <p class="text-xl text-gray-600">Membuat Checkpoint dalam Transaksi</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-blue-100 to-sky-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-blue-800 mb-4">📍 Apa itu SAVEPOINT?</h3>
+                        <p class="text-lg leading-relaxed mb-4">
+                            <strong>SAVEPOINT</strong> adalah fitur yang memungkinkan kita membuat titik checkpoint 
+                            dalam transaksi. Dengan savepoint, kita bisa melakukan rollback hanya ke titik 
+                            tertentu, bukan ke awal transaksi.
+                        </p>
+                        <div class="bg-white rounded-xl p-4 border-l-4 border-blue-500">
+                            <p class="text-lg">
+                                <strong>Analogi:</strong> SAVEPOINT seperti checkpoint dalam video game. 
+                                Kamu bisa kembali ke checkpoint tertentu tanpa harus mulai dari awal! 🎮
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-purple-800 mb-4">📝 Sintaks SAVEPOINT</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-lg mb-2">Membuat savepoint:</p>
+                                <div class="bg-gray-900 rounded-xl p-4">
+                                    <code class="text-blue-400 text-lg font-mono">SAVEPOINT nama_savepoint;</code>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-lg mb-2">Rollback ke savepoint:</p>
+                                <div class="bg-gray-900 rounded-xl p-4">
+                                    <code class="text-red-400 text-lg font-mono">ROLLBACK TO nama_savepoint;</code>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-lg mb-2">Menghapus savepoint:</p>
+                                <div class="bg-gray-900 rounded-xl p-4">
+                                    <code class="text-yellow-400 text-lg font-mono">RELEASE SAVEPOINT nama_savepoint;</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-green-800 mb-4">🔄 Cara Kerja SAVEPOINT</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-4 bg-white rounded-xl p-4">
+                                <div class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">1</div>
+                                <div>
+                                    <h4 class="font-semibold text-lg">Mulai Transaksi</h4>
+                                    <p class="text-gray-600">BEGIN TRANSACTION dijalankan</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4 bg-white rounded-xl p-4">
+                                <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">2</div>
+                                <div>
+                                    <h4 class="font-semibold text-lg">Buat Savepoint</h4>
+                                    <p class="text-gray-600">SAVEPOINT checkpoint1 dibuat</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4 bg-white rounded-xl p-4">
+                                <div class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">3</div>
+                                <div>
+                                    <h4 class="font-semibold text-lg">Eksekusi Operasi</h4>
+                                    <p class="text-gray-600">Jalankan beberapa SQL commands</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4 bg-white rounded-xl p-4">
+                                <div class="bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">4</div>
+                                <div>
+                                    <h4 class="font-semibold text-lg">Rollback ke Savepoint</h4>
+                                    <p class="text-gray-600">Kembali ke checkpoint1 jika diperlukan</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-orange-800 mb-4">💡 Contoh Penggunaan Lengkap</h3>
+                        <div class="bg-gray-900 rounded-xl p-6 mb-4">
+                            <pre class="text-green-400 text-lg font-mono leading-relaxed">
+<span class="text-blue-400">BEGIN TRANSACTION;</span>
+
+<span class="text-yellow-400">-- Insert data mahasiswa</span>
+<span class="text-pink-400">INSERT INTO</span> mahasiswa (nama, jurusan) 
+<span class="text-pink-400">VALUES</span> ('Andi', 'Teknik Informatika');
+
+<span class="text-yellow-400">-- Buat savepoint setelah insert</span>
+<span class="text-blue-400">SAVEPOINT</span> after_insert;
+
+<span class="text-yellow-400">-- Update data mahasiswa</span>
+<span class="text-pink-400">UPDATE</span> mahasiswa 
+<span class="text-pink-400">SET</span> jurusan = 'Sistem Informasi' 
+<span class="text-pink-400">WHERE</span> nama = 'Andi';
+
+<span class="text-yellow-400">-- Buat savepoint lagi</span>
+<span class="text-blue-400">SAVEPOINT</span> after_update;
+
+<span class="text-yellow-400">-- Delete data (misalnya salah)</span>
+<span class="text-pink-400">DELETE FROM</span> mahasiswa 
+<span class="text-pink-400">WHERE</span> nama = 'Andi';
+
+<span class="text-yellow-400">-- Ups! Rollback ke setelah update</span>
+<span class="text-red-400">ROLLBACK TO</span> after_update;
+
+<span class="text-yellow-400">-- Sekarang data Andi masih ada dengan jurusan terupdate</span>
+<span class="text-green-400">COMMIT;</span>
+            </pre>
+                        </div>
+                        <p class="text-lg">
+                            Dalam contoh ini, kita bisa kembali ke titik setelah update tanpa kehilangan 
+                            data insert dan update yang sudah benar.
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-indigo-800 mb-4">🏦 Contoh Kasus Kompleks: Sistem Perbankan</h3>
+                        <div class="bg-gray-900 rounded-xl p-6 mb-4">
+                            <pre class="text-green-400 text-lg font-mono leading-relaxed">
+<span class="text-blue-400">BEGIN TRANSACTION;</span>
+
+<span class="text-yellow-400">-- Validasi rekening sumber</span>
+<span class="text-pink-400">SELECT</span> saldo <span class="text-pink-400">FROM</span> rekening <span class="text-pink-400">WHERE</span> no_rek = 'A123';
+
+<span class="text-blue-400">SAVEPOINT</span> validasi_sumber;
+
+<span class="text-yellow-400">-- Kurangi saldo rekening sumber</span>
+<span class="text-pink-400">UPDATE</span> rekening 
+<span class="text-pink-400">SET</span> saldo = saldo - 500000 
+<span class="text-pink-400">WHERE</span> no_rek = 'A123';
+
+<span class="text-blue-400">SAVEPOINT</span> debit_sumber;
+
+<span class="text-yellow-400">-- Validasi rekening tujuan</span>
+<span class="text-pink-400">SELECT</span> * <span class="text-pink-400">FROM</span> rekening <span class="text-pink-400">WHERE</span> no_rek = 'B456';
+
+<span class="text-yellow-400">-- Jika rekening tujuan tidak ada</span>
+<span class="text-red-400">ROLLBACK TO</span> debit_sumber;
+
+<span class="text-yellow-400">-- Atau jika ada, lanjutkan</span>
+<span class="text-pink-400">UPDATE</span> rekening 
+<span class="text-pink-400">SET</span> saldo = saldo + 500000 
+<span class="text-pink-400">WHERE</span> no_rek = 'B456';
+
+<span class="text-green-400">COMMIT;</span>
+            </pre>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-gradient-to-r from-green-100 to-teal-100 rounded-2xl p-6 card-hover">
+                            <h3 class="text-xl font-bold text-green-800 mb-4">✅ Keuntungan SAVEPOINT</h3>
+                            <ul class="space-y-3 text-lg">
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-green-500">•</span>
+                                    <span>Kontrol yang lebih granular</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-green-500">•</span>
+                                    <span>Tidak perlu rollback semua</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-green-500">•</span>
+                                    <span>Efisiensi dalam error handling</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-green-500">•</span>
+                                    <span>Fleksibilitas tinggi</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-orange-100 to-red-100 rounded-2xl p-6 card-hover">
+                            <h3 class="text-xl font-bold text-orange-800 mb-4">💡 Tips Penggunaan</h3>
+                            <ul class="space-y-3 text-lg">
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-orange-500">•</span>
+                                    <span>Beri nama savepoint yang jelas</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-orange-500">•</span>
+                                    <span>Jangan terlalu banyak savepoint</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-orange-500">•</span>
+                                    <span>Release savepoint yang tidak perlu</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="text-orange-500">•</span>
+                                    <span>Dokumentasikan logika savepoint</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Praktik Section -->
+            <section id="praktik" class="section-content hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">💻</div>
+                        <h1 class="text-4xl font-bold text-purple-800 mb-4">Praktik TCL</h1>
+                        <p class="text-xl text-gray-600">Langkah-langkah Praktik Lengkap</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-purple-800 mb-4">🎯 Tujuan Praktik</h3>
+                        <p class="text-lg leading-relaxed mb-4">
+                            Dalam praktik ini, kalian akan belajar menggunakan COMMIT, ROLLBACK, dan SAVEPOINT 
+                            melalui simulasi sistem manajemen mahasiswa. Setiap langkah akan dipraktikkan 
+                            secara bertahap.
+                        </p>
+                    </div>
+                    
+                    <!-- Langkah 1 -->
+                    <div class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-blue-800 mb-4">📋 Langkah 1: Persiapan Database</h3>
+                        <p class="text-lg mb-4">Pertama, kita akan membuat database baru, kemudian membuat tabel dan data awal untuk praktik.</p>
+                        
+                        <div class="bg-white rounded-xl p-4 mb-4 border-l-4 border-blue-500">
+                            <h4 class="text-xl font-semibold text-blue-700 mb-2">🎯 Sub Langkah 1A: Membuat Database</h4>
+                            <p class="text-lg mb-3">Langkah pertama adalah membuat database baru untuk praktik TCL kita.</p>
+                        </div>
+                        
+                        <div class="bg-gray-900 rounded-xl p-6 mb-4">
+                            <pre class="text-green-400 text-lg font-mono leading-relaxed">
+<span class="text-yellow-400">-- Buat database baru untuk praktik TCL</span>
+<span class="text-pink-400">CREATE DATABASE</span> praktik_tcl;
+
+<span class="text-yellow-400">-- Gunakan database yang baru dibuat</span>
+<span class="text-pink-400">USE</span> praktik_tcl;
+
+<span class="text-yellow-400">-- Cek database yang sedang aktif</span>
+<span class="text-pink-400">SELECT</span> <span class="text-blue-400">DATABASE</span>() <span class="text-pink-400">AS</span> database_aktif;
+            </pre>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-4 mb-4 border-l-4 border-green-500">
+                            <h4 class="text-xl font-semibold text-green-700 mb-2">🎯 Sub Langkah 1B: Membuat Tabel</h4>
+                            <p class="text-lg mb-3">Setelah database siap, kita buat tabel-tabel yang diperlukan.</p>
+                        </div>
+                        
+                        <div class="bg-gray-900 rounded-xl p-6 mb-4">
+                            <pre class="text-green-400 text-lg font-mono leading-relaxed">
+<span class="text-yellow-400">-- Buat tabel mahasiswa</span>
+<span class="text-pink-400">CREATE TABLE</span> mahasiswa (
+    id <span class="text-blue-400">INT</span> <span class="text-pink-400">PRIMARY KEY</span> <span class="text-blue-400">AUTO_INCREMENT</span>,
+    nama <span class="text-blue-400">VARCHAR</span>(50) <span class="text-pink-400">NOT NULL</span>,
+    jurusan <span class="text-blue-400">VARCHAR</span>(50),
+    angkatan <span class="text-blue-400">INT</span>,
+    ipk <span class="text-blue-400">DECIMAL</span>(3,2)
+);
+
+<span class="text-yellow-400">-- Buat tabel nilai</span>
+<span class="text-pink-400">CREATE TABLE</span> nilai (
+    id <span class="text-blue-400">INT</span> <span class="text-pink-400">PRIMARY KEY</span> <span class="text-blue-400">AUTO_INCREMENT</span>,
+    mahasiswa_id <span class="text-blue-400">INT</span>,
+    mata_kuliah <span class="text-blue-400">VARCHAR</span>(50),
+    nilai <span class="text-blue-400">INT</span>,
+    <span class="text-pink-400">FOREIGN KEY</span> (mahasiswa_id) <span class="text-pink-400">REFERENCES</span> mahasiswa(id)
+);
+
+<span class="text-yellow-400">-- Cek tabel yang sudah dibuat</span>
+<span class="text-pink-400">SHOW TABLES;</span>
+
+<span class="text-yellow-400">-- Lihat struktur tabel mahasiswa</span>
+<span class="text-pink-400">DESCRIBE</span> mahasiswa;
+
+<span class="text-yellow-400">-- Lihat struktur tabel nilai</span>
+<span class="text-pink-400">DESCRIBE</span> nilai;
+            </pre>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-4 mb-4 border-l-4 border-purple-500">
+                            <h4 class="text-xl font-semibold text-purple-700 mb-2">🎯 Sub Langkah 1C: Insert Data Awal</h4>
+                            <p class="text-lg mb-3">Terakhir, kita masukkan data awal untuk keperluan praktik.</p>
+                        </div>
+                        
+                        <div class="bg-gray-900 rounded-xl p-6 mb-4">
+                            <pre class="text-green-400 text-lg font-mono leading-relaxed">
+<span class="text-yellow-400">-- Insert data awal mahasiswa</span>
+<span class="text-pink-400">INSERT INTO</span> mahasiswa (nama, jurusan, angkatan, ipk) 
+<span class="text-pink-400">VALUES</span> 
+('Budi Santoso', 'Teknik Informatika', 2023, 3.50),
+('Sari Dewi', 'Sistem Informasi', 2023, 3.75),
+('Ahmad Rizki', 'Teknik Komputer', 2022, 3.25);
+
+<span class="text-yellow-400">-- Insert data awal nilai</span>
+<span class="text-pink-400">INSERT INTO</span> nilai (mahasiswa_id, mata_kuliah, nilai) 
+<span class="text-pink-400">VALUES</span> 
+(1, 'Pemrograman Web', 85),
+(1, 'Database', 90),
+(2, 'Sistem Operasi', 88),
+(2, 'Jaringan Komputer', 92),
+(3, 'Algoritma', 78),
+(3, 'Struktur Data', 82);
+
+<span class="text-yellow-400">-- Verifikasi data yang sudah dimasukkan</span>
+<span class="text-pink-400">SELECT</span> * <span class="text-pink-400">FROM</span> mahasiswa;
+<span class="text-pink-400">SELECT</span> * <span class="text-pink-400">FROM</span> nilai;
+
+<span class="text-yellow-400">-- Lihat data gabungan</span>
+<span class="text-pink-400">SELECT</span> m.nama, m.jurusan, n.mata_kuliah, n.nilai
+<span class="text-pink-400">FROM</span> mahasiswa m
+<span class="text-pink-400">LEFT JOIN</span> nilai n <span class="text-pink-400">ON</span> m.id = n.mahasiswa_id
+<span class="text-pink-400">ORDER BY</span> m.nama, n.mata_kuliah;
+            </pre>
+                        </div>
+                        
+                        <div class="bg-green-100 rounded-xl p-4">
+                            <p class="text-lg"><strong>✅ Tugas:</strong> Jalankan semua script di atas secara berurutan untuk membuat database, tabel, dan data awal. Pastikan setiap langkah berhasil sebelum melanjutkan ke langkah berikutnya!</p>
+                            <div class="mt-3 p-3 bg-white rounded-lg">
+                                <p class="text-base"><strong>💡 Tips:</strong> Jika menggunakan MySQL Workbench atau phpMyAdmin, pastikan kalian sudah terhubung ke server database sebelum menjalankan script ini.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Langkah 2 -->
+                    <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-green-800 mb-4">✅ Langkah 2: Praktik COMMIT</h3>
+                        <p class="text-lg mb-4">Sekarang kita akan mempraktikkan penggunaan COMMIT.</p>
+                        <div class="bg-gray-900 rounded-xl p-6 mb-4">
+                            <pre class="text-green-400 text-lg font-mono leading-relaxed">
+<span class="text-yellow-400">-- Mulai transaksi</span>
+<span class="text-blue-400">BEGIN TRANSACTION;</span>
+
+<span class="text-yellow-400">-- Tambah mahasiswa baru</span>
+<span class="text-pink-400">INSERT INTO</span> mahasiswa (nama, jurusan, angkatan, ipk) 
+<span class="text-pink-400">VALUES</span> ('Lisa Permata', 'Teknik Informatika', 2024, 0.00);
+
+<span class="text-yellow-400">-- Cek data yang baru ditambah</span>
+<span class="text-pink-400">SELECT</span> * <span class="text-pink-400">FROM</span> mahasiswa <span class="text-pink-400">WHERE</span> nama = 'Lisa Permata';
+
+<span class="text-yellow-400">-- Tambah nilai untuk mahasiswa baru</span>
+<span class="text-pink-400">INSERT INTO</span> nilai (mahasiswa_id, mata_kuliah, nilai) 
+<span class="text-pink-400">VALUES</span> (4, 'Pemrograman Web', 85);
+
+<span class="text-yellow-400">-- Simpan semua perubahan</span>
+<span class="text-green-400">COMMIT;</span>
+
+<span class="text-yellow-400">-- Verifikasi data tersimpan</span>
+<span class="text-pink-400">SELECT</span> m.nama, m.jurusan, n.mata_kuliah, n.nilai
+<span class="text-pink-400">FROM</span> mahasiswa m
+<span class="text-pink-400">JOIN</span> nilai n <span class="text-pink-400">ON</span> m.id = n.mahasiswa_id
+<span class="text-pink-400">WHERE</span> m.nama = 'Lisa Permata';
+            </pre>
+                        </div>
+                        <div class="bg-green-100 rounded-xl p-4">
+                            <p class="text-lg"><strong>✅ Tugas:</strong> Jalankan script di atas dan amati bahwa data tersimpan permanen setelah COMMIT.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Langkah 3 -->
+                    <div class="bg-gradient-to-r from-red-100 to-rose-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-red-800 mb-4">↩️ Langkah 3: Praktik ROLLBACK</h3>
+                        <p class="text-lg mb-4">Mari praktikkan ROLLBACK untuk membatalkan perubahan.</p>
+                        <div class="bg-gray-900 rounded-xl p-6 mb-4">
+                            <pre class="text-green-400 text-lg font-mono leading-relaxed">
+<span class="text-yellow-400">-- Mulai transaksi baru</span>
+<span class="text-blue-400">BEGIN TRANSACTION;</span>
+
+<span class="text-yellow-400">-- Cek data sebelum perubahan</span>
+<span class="text-pink-400">SELECT</span> * <span class="text-pink-400">FROM</span> mahasiswa;
+
+<span class="text-yellow-400">-- Update IPK semua mahasiswa (simulasi kesalahan)</span>
+<span class="text-pink-400">UPDATE</span> mahasiswa 
+<span class="text-pink-400">SET</span> ipk = 4.00;
+
+<span class="text-yellow-400">-- Cek hasil update</span>
+<span class="text-pink-400">SELECT</span> nama, ipk <span class="text-pink-400">FROM</span> mahasiswa;
+
+<span class="text-yellow-400">-- Ups! Ini salah! Batalkan perubahan</span>
+<span class="text-red-400">ROLLBACK;</span>
+
+<span class="text-yellow-400">-- Cek data kembali normal</span>
+<span class="text-pink-400">SELECT</span> nama, ipk <span class="text-pink-400">FROM</span> mahasiswa;
+            </pre>
+                        </div>
+                        <div class="bg-red-100 rounded-xl p-4">
+                            <p class="text-lg"><strong>✅ Tugas:</strong> Jalankan script dan amati bahwa setelah ROLLBACK, data IPK kembali ke nilai semula.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Langkah 4 -->
+                    <div class="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-indigo-800 mb-4">📍 Langkah 4: Praktik SAVEPOINT</h3>
+                        <p class="text-lg mb-4">Sekarang praktik SAVEPOINT untuk kontrol yang lebih detail.</p>
+                        <div class="bg-gray-900 rounded-xl p-6 mb-4">
+                            <pre class="text-green-400 text-lg font-mono leading-relaxed">
+<span class="text-blue-400">BEGIN TRANSACTION;</span>
+
+<span class="text-yellow-400">-- Tambah mahasiswa baru</span>
+<span class="text-pink-400">INSERT INTO</span> mahasiswa (nama, jurusan, angkatan, ipk) 
+<span class="text-pink-400">VALUES</span> ('Rina Sari', 'Sistem Informasi', 2024, 0.00);
+
+<span class="text-yellow-400">-- Buat savepoint setelah insert</span>
+<span class="text-blue-400">SAVEPOINT</span> after_insert_mahasiswa;
+
+<span class="text-yellow-400">-- Update jurusan mahasiswa yang baru ditambah</span>
+<span class="text-pink-400">UPDATE</span> mahasiswa 
+<span class="text-pink-400">SET</span> jurusan = 'Teknik Informatika' 
+<span class="text-pink-400">WHERE</span> nama = 'Rina Sari';
+
+<span class="text-yellow-400">-- Buat savepoint setelah update</span>
+<span class="text-blue-400">SAVEPOINT</span> after_update_jurusan;
+
+<span class="text-yellow-400">-- Tambah nilai (simulasi kesalahan)</span>
+<span class="text-pink-400">INSERT INTO</span> nilai (mahasiswa_id, mata_kuliah, nilai) 
+<span class="text-pink-400">VALUES</span> (999, 'Database', 90); <span class="text-yellow-400">-- ID salah!</span>
+
+<span class="text-yellow-400">-- Rollback ke setelah update jurusan</span>
+<span class="text-red-400">ROLLBACK TO</span> after_update_jurusan;
+
+<span class="text-yellow-400">-- Tambah nilai dengan ID yang benar</span>
+<span class="text-pink-400">INSERT INTO</span> nilai (mahasiswa_id, mata_kuliah, nilai) 
+<span class="text-pink-400">VALUES</span> (
+    (<span class="text-pink-400">SELECT</span> id <span class="text-pink-400">FROM</span> mahasiswa <span class="text-pink-400">WHERE</span> nama = 'Rina Sari'), 
+    'Database', 90
+);
+
+<span class="text-yellow-400">-- Commit semua perubahan</span>
+<span class="text-green-400">COMMIT;</span>
+            </pre>
+                        </div>
+                        <div class="bg-indigo-100 rounded-xl p-4">
+                            <p class="text-lg"><strong>✅ Tugas:</strong> Jalankan script dan amati bagaimana SAVEPOINT memungkinkan rollback parsial.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Langkah 5 -->
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-orange-800 mb-4">🏦 Langkah 5: Studi Kasus Kompleks</h3>
+                        <p class="text-lg mb-4">Praktik kasus kompleks: Update IPK berdasarkan nilai dengan validasi.</p>
+                        <div class="bg-gray-900 rounded-xl p-6 mb-4">
+                            <pre class="text-green-400 text-lg font-mono leading-relaxed">
+<span class="text-blue-400">BEGIN TRANSACTION;</span>
+
+<span class="text-yellow-400">-- Savepoint awal</span>
+<span class="text-blue-400">SAVEPOINT</span> start_update_ipk;
+
+<span class="text-yellow-400">-- Update IPK Budi berdasarkan nilai</span>
+<span class="text-pink-400">UPDATE</span> mahasiswa 
+<span class="text-pink-400">SET</span> ipk = (
+    <span class="text-pink-400">SELECT</span> <span class="text-blue-400">AVG</span>(nilai)/25.0 
+    <span class="text-pink-400">FROM</span> nilai 
+    <span class="text-pink-400">WHERE</span> mahasiswa_id = mahasiswa.id
+) 
+<span class="text-pink-400">WHERE</span> nama = 'Budi Santoso';
+
+<span class="text-blue-400">SAVEPOINT</span> after_budi_update;
+
+<span class="text-yellow-400">-- Cek hasil update</span>
+<span class="text-pink-400">SELECT</span> nama, ipk <span class="text-pink-400">FROM</span> mahasiswa <span class="text-pink-400">WHERE</span> nama = 'Budi Santoso';
+
+<span class="text-yellow-400">-- Jika IPK > 4.0, rollback</span>
+<span class="text-pink-400">SELECT</span> 
+    <span class="text-pink-400">CASE</span> 
+        <span class="text-pink-400">WHEN</span> ipk > 4.0 <span class="text-pink-400">THEN</span> 'ROLLBACK NEEDED'
+        <span class="text-pink-400">ELSE</span> 'OK'
+    <span class="text-pink-400">END</span> <span class="text-pink-400">AS</span> status
+<span class="text-pink-400">FROM</span> mahasiswa 
+<span class="text-pink-400">WHERE</span> nama = 'Budi Santoso';
+
+<span class="text-yellow-400">-- Jika perlu, rollback ke savepoint</span>
+<span class="text-yellow-400">-- ROLLBACK TO after_budi_update;</span>
+
+<span class="text-yellow-400">-- Atau commit jika valid</span>
+<span class="text-green-400">COMMIT;</span>
+            </pre>
+                        </div>
+                        <div class="bg-orange-100 rounded-xl p-4">
+                            <p class="text-lg"><strong>✅ Tugas:</strong> Jalankan script dan modifikasi sesuai hasil validasi IPK.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Langkah 6 -->
+                    <div class="bg-gradient-to-r from-teal-100 to-cyan-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-teal-800 mb-4">🧪 Langkah 6: Eksperimen Mandiri</h3>
+                        <p class="text-lg mb-4">Sekarang coba buat skenario sendiri!</p>
+                        <div class="bg-white rounded-xl p-6 border-l-4 border-teal-500">
+                            <h4 class="text-xl font-semibold mb-4">Tugas Eksperimen:</h4>
+                            <ol class="space-y-3 text-lg">
+                                <li class="flex items-start space-x-2">
+                                    <span class="bg-teal-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">1</span>
+                                    <span>Buat transaksi untuk menambah 3 mahasiswa sekaligus</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="bg-teal-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">2</span>
+                                    <span>Gunakan SAVEPOINT setelah setiap insert</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="bg-teal-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</span>
+                                    <span>Simulasikan error pada mahasiswa ke-3</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="bg-teal-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">4</span>
+                                    <span>Rollback hanya mahasiswa ke-3, simpan yang lain</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <span class="bg-teal-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">5</span>
+                                    <span>COMMIT hasil akhir</span>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6 card-hover">
+                        <h3 class="text-2xl font-bold text-purple-800 mb-4">🎯 Kesimpulan Praktik</h3>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div class="bg-white rounded-xl p-4 text-center">
+                                <div class="text-3xl mb-2">✅</div>
+                                <h4 class="font-semibold text-lg">COMMIT</h4>
+                                <p class="text-sm text-gray-600">Menyimpan perubahan permanen</p>
+                            </div>
+                            <div class="bg-white rounded-xl p-4 text-center">
+                                <div class="text-3xl mb-2">↩️</div>
+                                <h4 class="font-semibold text-lg">ROLLBACK</h4>
+                                <p class="text-sm text-gray-600">Membatalkan semua perubahan</p>
+                            </div>
+                            <div class="bg-white rounded-xl p-4 text-center">
+                                <div class="text-3xl mb-2">📍</div>
+                                <h4 class="font-semibold text-lg">SAVEPOINT</h4>
+                                <p class="text-sm text-gray-600">Checkpoint untuk rollback parsial</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Kuis Section -->
+            <section id="kuis" class="section-content hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🧠</div>
+                        <h1 class="text-4xl font-bold text-purple-800 mb-4">Kuis TCL</h1>
+                        <p class="text-xl text-gray-600">Uji Pemahaman Kalian!</p>
+                    </div>
+                    
+                    <!-- Input Nama -->
+                    <div id="nameInput" class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-6 mb-8">
+                        <h3 class="text-2xl font-bold text-purple-800 mb-4">👋 Sebelum Mulai...</h3>
+                        <div class="flex flex-col md:flex-row gap-4 items-end">
+                            <div class="flex-1">
+                                <label class="block text-lg font-medium text-gray-700 mb-2">Masukkan Nama Kalian:</label>
+                                <input type="text" id="studentName" class="w-full px-4 py-3 text-lg border-2 border-purple-300 rounded-xl focus:border-purple-500 focus:outline-none" placeholder="Nama lengkap...">
+                            </div>
+                            <button onclick="startQuiz()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl text-lg font-semibold transition-colors">
+                                Mulai Kuis! 🚀
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quiz Container -->
+                    <div id="quizContainer" class="hidden">
+                        <div class="bg-gradient-to-r from-green-100 to-teal-100 rounded-2xl p-6 mb-6">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-xl font-bold text-green-800">Halo, <span id="displayName"></span>! 👋</h3>
+                                <div class="text-lg font-semibold text-green-700">
+                                    Soal <span id="currentQuestion">1</span> dari <span id="totalQuestions">10</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="questionContainer" class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 mb-6">
+                            <h4 class="text-2xl font-bold text-orange-800 mb-6" id="questionText"></h4>
+                            <div id="optionsContainer" class="space-y-4"></div>
+                        </div>
+                        
+                        <div class="flex justify-between">
+                            <button id="prevBtn" onclick="previousQuestion()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors" disabled>
+                                ← Sebelumnya
+                            </button>
+                            <button id="nextBtn" onclick="nextQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors" disabled>
+                                Selanjutnya →
+                            </button>
+                            <button id="finishBtn" onclick="finishQuiz()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold transition-colors hidden">
+                                Selesai! ✅
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Results -->
+                    <div id="resultsContainer" class="hidden">
+                        <div class="text-center mb-8">
+                            <div class="text-6xl mb-4" id="resultEmoji">🎉</div>
+                            <h2 class="text-4xl font-bold text-purple-800 mb-4">Hasil Kuis</h2>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-8 mb-6">
+                            <div class="text-center">
+                                <h3 class="text-2xl font-bold text-purple-800 mb-4">Selamat, <span id="finalName"></span>! 🎊</h3>
+                                <div class="text-6xl font-bold text-purple-600 mb-4" id="finalScore"></div>
+                                <p class="text-xl text-gray-700 mb-6" id="scoreMessage"></p>
+                                
+                                <div class="grid md:grid-cols-3 gap-4 mb-6">
+                                    <div class="bg-white rounded-xl p-4">
+                                        <div class="text-2xl mb-2">✅</div>
+                                        <div class="text-2xl font-bold text-green-600" id="correctCount">0</div>
+                                        <div class="text-sm text-gray-600">Benar</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4">
+                                        <div class="text-2xl mb-2">❌</div>
+                                        <div class="text-2xl font-bold text-red-600" id="wrongCount">0</div>
+                                        <div class="text-sm text-gray-600">Salah</div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4">
+                                        <div class="text-2xl mb-2">📊</div>
+                                        <div class="text-2xl font-bold text-blue-600" id="percentage">0%</div>
+                                        <div class="text-sm text-gray-600">Persentase</div>
+                                    </div>
+                                </div>
+                                
+                                <button onclick="restartQuiz()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl text-lg font-semibold transition-colors">
+                                    Ulangi Kuis 🔄
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Penutup Section -->
+            <section id="penutup" class="section-content hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎯</div>
+                        <h1 class="text-4xl font-bold text-purple-800 mb-4">Penutup</h1>
+                        <p class="text-xl text-gray-600">Refleksi dan Tindak Lanjut</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-purple-800 mb-4">🤔 Refleksi</h3>
+                        <p class="text-lg leading-relaxed mb-4">
+                            Setelah mempelajari Transaction Control Language (TCL), mari kita refleksikan 
+                            apa yang telah dipelajari dan bagaimana penerapannya dalam dunia nyata.
+                        </p>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mt-6">
+                            <div class="bg-white rounded-xl p-6">
+                                <h4 class="text-xl font-bold text-purple-700 mb-3">💭 Pertanyaan Refleksi:</h4>
+                                <ul class="space-y-3 text-lg">
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-purple-500">•</span>
+                                        <span>Bagaimana perasaan kalian setelah belajar TCL?</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-purple-500">•</span>
+                                        <span>Bagian mana yang paling menyenangkan untuk dipelajari?</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-purple-500">•</span>
+                                        <span>Apa yang membuat kalian tertarik dengan TCL?</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl p-6">
+                                <h4 class="text-xl font-bold text-pink-700 mb-3">🎯 Manfaat yang Diperoleh:</h4>
+                                <ul class="space-y-3 text-lg">
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-pink-500">✓</span>
+                                        <span>Memahami konsep transaksi database</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-pink-500">✓</span>
+                                        <span>Dapat menggunakan COMMIT, ROLLBACK, SAVEPOINT</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-pink-500">✓</span>
+                                        <span>Mampu menangani error dalam transaksi</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-green-800 mb-4">📚 Kesimpulan Pembelajaran</h3>
+                        
+                        <div class="grid md:grid-cols-3 gap-6 mb-6">
+                            <div class="bg-white rounded-xl p-6 text-center card-hover">
+                                <div class="text-4xl mb-4">✅</div>
+                                <h4 class="text-xl font-bold text-green-700 mb-3">COMMIT</h4>
+                                <p class="text-lg">Menyimpan semua perubahan secara permanen ke database</p>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl p-6 text-center card-hover">
+                                <div class="text-4xl mb-4">↩️</div>
+                                <h4 class="text-xl font-bold text-red-700 mb-3">ROLLBACK</h4>
+                                <p class="text-lg">Membatalkan perubahan yang belum di-commit</p>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl p-6 text-center card-hover">
+                                <div class="text-4xl mb-4">📍</div>
+                                <h4 class="text-xl font-bold text-blue-700 mb-3">SAVEPOINT</h4>
+                                <p class="text-lg">Membuat checkpoint untuk rollback parsial</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-xl p-6">
+                            <h4 class="text-xl font-bold text-green-700 mb-4">🎯 Poin Penting yang Harus Diingat:</h4>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <ul class="space-y-3 text-lg">
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500">1.</span>
+                                        <span>TCL adalah bagian penting dari SQL untuk kontrol transaksi</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500">2.</span>
+                                        <span>COMMIT membuat perubahan permanen dan tidak bisa dibatalkan</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500">3.</span>
+                                        <span>ROLLBACK mengembalikan database ke kondisi awal transaksi</span>
+                                    </li>
+                                </ul>
+                                <ul class="space-y-3 text-lg">
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500">4.</span>
+                                        <span>SAVEPOINT memberikan kontrol yang lebih granular</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500">5.</span>
+                                        <span>TCL sangat penting untuk menjaga konsistensi data</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500">6.</span>
+                                        <span>Selalu pertimbangkan error handling dalam transaksi</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6 mb-8 card-hover">
+                        <h3 class="text-2xl font-bold text-blue-800 mb-4">🚀 Tindak Lanjut</h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-white rounded-xl p-6">
+                                <h4 class="text-xl font-bold text-blue-700 mb-4">📖 Materi Lanjutan:</h4>
+                                <ul class="space-y-3 text-lg">
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-blue-500">•</span>
+                                        <span>Stored Procedures dan Functions</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-blue-500">•</span>
+                                        <span>Triggers dalam Database</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-blue-500">•</span>
+                                        <span>Indexing dan Optimization</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-blue-500">•</span>
+                                        <span>Database Security</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl p-6">
+                                <h4 class="text-xl font-bold text-cyan-700 mb-4">💻 Praktik Lanjutan:</h4>
+                                <ul class="space-y-3 text-lg">
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-cyan-500">•</span>
+                                        <span>Buat aplikasi web dengan database</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-cyan-500">•</span>
+                                        <span>Implementasi TCL dalam project nyata</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-cyan-500">•</span>
+                                        <span>Studi kasus sistem perbankan</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-cyan-500">•</span>
+                                        <span>Optimasi performa database</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 bg-white rounded-xl p-6">
+                            <h4 class="text-xl font-bold text-indigo-700 mb-4">🎯 Saran untuk Pengembangan:</h4>
+                            <div class="text-lg leading-relaxed">
+                                <p class="mb-4">
+                                    <strong>1. Praktik Rutin:</strong> Terus berlatih dengan berbagai skenario database 
+                                    untuk memperkuat pemahaman TCL.
+                                </p>
+                                <p class="mb-4">
+                                    <strong>2. Eksplorasi Database:</strong> Coba berbagai sistem database seperti 
+                                    MySQL, PostgreSQL, SQL Server untuk memahami perbedaan implementasi TCL.
+                                </p>
+                                <p class="mb-4">
+                                    <strong>3. Project Based Learning:</strong> Buat project aplikasi yang menggunakan 
+                                    database dengan transaksi kompleks.
+                                </p>
+                                <p>
+                                    <strong>4. Bergabung dengan Komunitas:</strong> Ikuti forum dan komunitas developer 
+                                    database untuk terus belajar dan berbagi pengalaman.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 text-center card-hover">
+                        <div class="text-6xl mb-4">🎉</div>
+                        <h3 class="text-3xl font-bold text-orange-800 mb-4">Selamat!</h3>
+                        <p class="text-xl leading-relaxed mb-6">
+                            Kalian telah berhasil menyelesaikan pembelajaran Transaction Control Language (TCL). 
+                            Dengan pemahaman ini, kalian siap untuk menghadapi tantangan database yang lebih kompleks!
+                        </p>
+                        <div class="text-2xl font-bold text-orange-700">
+                            Keep Learning, Keep Growing! 🚀📚
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Navigation Button -->
+            <div id="nextButton" class="text-center mt-8">
+                <button onclick="goToNextSection()" class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-4 rounded-2xl text-xl font-bold shadow-lg transform hover:scale-105 transition-all duration-300">
+                    Lanjut ke <span id="nextSectionName">Pengenalan</span> →
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-full shadow-lg transform hover:scale-110 transition-all duration-300 opacity-0 pointer-events-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Quiz Data
+        const quizData = [
+            {
+                question: "Apa kepanjangan dari TCL dalam konteks database?",
+                options: [
+                    "Transaction Control Language",
+                    "Table Control Language", 
+                    "Trigger Control Language",
+                    "Template Control Language"
+                ],
+                correct: 0
+            },
+            {
+                question: "Perintah mana yang digunakan untuk menyimpan perubahan secara permanen?",
+                options: [
+                    "SAVE",
+                    "COMMIT",
+                    "STORE", 
+                    "PERMANENT"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa yang terjadi setelah perintah COMMIT dijalankan?",
+                options: [
+                    "Perubahan dapat dibatalkan dengan ROLLBACK",
+                    "Perubahan tersimpan sementara",
+                    "Perubahan tersimpan permanen dan tidak dapat dibatalkan",
+                    "Database akan restart"
+                ],
+                correct: 2
+            },
+            {
+                question: "Perintah ROLLBACK digunakan untuk:",
+                options: [
+                    "Menyimpan data",
+                    "Membatalkan perubahan yang belum di-commit",
+                    "Menghapus tabel",
+                    "Membuat backup database"
+                ],
+                correct: 1
+            },
+            {
+                question: "Sintaks yang benar untuk membuat savepoint adalah:",
+                options: [
+                    "CREATE SAVEPOINT nama;",
+                    "SAVEPOINT nama;",
+                    "MAKE SAVEPOINT nama;",
+                    "NEW SAVEPOINT nama;"
+                ],
+                correct: 1
+            },
+            {
+                question: "Bagaimana cara rollback ke savepoint tertentu?",
+                options: [
+                    "ROLLBACK nama_savepoint;",
+                    "ROLLBACK TO nama_savepoint;",
+                    "RETURN TO nama_savepoint;",
+                    "BACK TO nama_savepoint;"
+                ],
+                correct: 1
+            },
+            {
+                question: "Dalam skenario transfer uang, kapan sebaiknya menggunakan ROLLBACK?",
+                options: [
+                    "Setelah transfer berhasil",
+                    "Ketika saldo tidak mencukupi atau terjadi error",
+                    "Sebelum memulai transfer",
+                    "Setiap hari pada jam tertentu"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa keuntungan utama menggunakan SAVEPOINT?",
+                options: [
+                    "Membuat database lebih cepat",
+                    "Menghemat storage",
+                    "Memungkinkan rollback parsial dalam transaksi",
+                    "Mengurangi penggunaan memory"
+                ],
+                correct: 2
+            },
+            {
+                question: "Perintah untuk menghapus savepoint yang tidak diperlukan adalah:",
+                options: [
+                    "DELETE SAVEPOINT nama;",
+                    "REMOVE SAVEPOINT nama;",
+                    "RELEASE SAVEPOINT nama;",
+                    "DROP SAVEPOINT nama;"
+                ],
+                correct: 2
+            },
+            {
+                question: "Mengapa TCL penting dalam sistem database?",
+                options: [
+                    "Untuk membuat tabel lebih cepat",
+                    "Untuk menjaga konsistensi dan integritas data",
+                    "Untuk menghemat ruang disk",
+                    "Untuk mempercantik tampilan data"
+                ],
+                correct: 1
+            }
+        ];
+
+        // Quiz Variables
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let studentName = '';
+
+        // Navigation Variables
+        const sections = ['intro', 'pengenalan', 'commit', 'rollback', 'savepoint', 'praktik', 'kuis', 'penutup'];
+        let currentSectionIndex = 0;
+
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // Show section function
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.section-content').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionName).classList.remove('hidden');
+            
+            // Update active menu
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active-menu');
+            });
+            
+            // Find and update active menu item
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach((item, index) => {
+                const itemText = item.textContent.toLowerCase();
+                if ((sectionName === 'intro' && itemText.includes('intro')) ||
+                    (sectionName === 'pengenalan' && itemText.includes('pengenalan')) ||
+                    (sectionName === 'commit' && itemText.includes('commit')) ||
+                    (sectionName === 'rollback' && itemText.includes('rollback')) ||
+                    (sectionName === 'savepoint' && itemText.includes('savepoint')) ||
+                    (sectionName === 'praktik' && itemText.includes('praktik')) ||
+                    (sectionName === 'kuis' && itemText.includes('kuis')) ||
+                    (sectionName === 'penutup' && itemText.includes('penutup'))) {
+                    item.classList.add('active-menu');
+                }
+            });
+            
+            // Update current section index
+            currentSectionIndex = sections.indexOf(sectionName);
+            
+            // Update next button
+            updateNextButton();
+            
+            // Close mobile menu
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Update next button
+        function updateNextButton() {
+            const nextButton = document.getElementById('nextButton');
+            const nextSectionName = document.getElementById('nextSectionName');
+            
+            if (currentSectionIndex < sections.length - 1) {
+                const nextSection = sections[currentSectionIndex + 1];
+                const sectionNames = {
+                    'intro': 'Intro',
+                    'pengenalan': 'Pengenalan',
+                    'commit': 'COMMIT',
+                    'rollback': 'ROLLBACK', 
+                    'savepoint': 'SAVEPOINT',
+                    'praktik': 'Praktik',
+                    'kuis': 'Kuis',
+                    'penutup': 'Penutup'
+                };
+                nextSectionName.textContent = sectionNames[nextSection];
+                nextButton.style.display = 'block';
+            } else {
+                nextButton.style.display = 'none';
+            }
+        }
+
+        // Go to next section
+        function goToNextSection() {
+            if (currentSectionIndex < sections.length - 1) {
+                currentSectionIndex++;
+                const nextSection = sections[currentSectionIndex];
+                
+                // Hide all sections
+                document.querySelectorAll('.section-content').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                
+                // Show next section
+                document.getElementById(nextSection).classList.remove('hidden');
+                
+                // Update menu active state
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.classList.remove('active-menu');
+                });
+                
+                // Find and update active menu item
+                const menuItems = document.querySelectorAll('.menu-item');
+                menuItems.forEach((item, index) => {
+                    const itemText = item.textContent.toLowerCase();
+                    if ((nextSection === 'intro' && itemText.includes('intro')) ||
+                        (nextSection === 'pengenalan' && itemText.includes('pengenalan')) ||
+                        (nextSection === 'commit' && itemText.includes('commit')) ||
+                        (nextSection === 'rollback' && itemText.includes('rollback')) ||
+                        (nextSection === 'savepoint' && itemText.includes('savepoint')) ||
+                        (nextSection === 'praktik' && itemText.includes('praktik')) ||
+                        (nextSection === 'kuis' && itemText.includes('kuis')) ||
+                        (nextSection === 'penutup' && itemText.includes('penutup'))) {
+                        item.classList.add('active-menu');
+                    }
+                });
+                
+                // Update next button
+                updateNextButton();
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Back to top functionality
+        const backToTopBtn = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
+                backToTopBtn.classList.add('opacity-100');
+            } else {
+                backToTopBtn.classList.add('opacity-0', 'pointer-events-none');
+                backToTopBtn.classList.remove('opacity-100');
+            }
+        });
+        
+        backToTopBtn.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Quiz Functions
+        function startQuiz() {
+            const name = document.getElementById('studentName').value.trim();
+            if (!name) {
+                alert('Silakan masukkan nama terlebih dahulu! 😊');
+                return;
+            }
+            
+            studentName = name;
+            document.getElementById('nameInput').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            document.getElementById('displayName').textContent = name;
+            
+            // Reset quiz state
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizData[currentQuestionIndex];
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('totalQuestions').textContent = quizData.length;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'quiz-option p-4 rounded-xl border-2 border-gray-200 cursor-pointer';
+                optionDiv.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-6 h-6 rounded-full border-2 border-gray-400 flex items-center justify-center text-sm font-bold">
+                            ${String.fromCharCode(65 + index)}
+                        </div>
+                        <span class="text-lg">${option}</span>
+                    </div>
+                `;
+                
+                optionDiv.addEventListener('click', () => selectOption(index, optionDiv));
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            // Update buttons
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            document.getElementById('nextBtn').style.display = currentQuestionIndex === quizData.length - 1 ? 'none' : 'block';
+            document.getElementById('finishBtn').style.display = currentQuestionIndex === quizData.length - 1 ? 'block' : 'none';
+            
+            // Show previous answer if exists
+            if (userAnswers[currentQuestionIndex] !== undefined) {
+                const selectedOption = optionsContainer.children[userAnswers[currentQuestionIndex]];
+                selectedOption.classList.add('selected');
+                document.getElementById('nextBtn').disabled = false;
+                document.getElementById('finishBtn').disabled = false;
+            } else {
+                document.getElementById('nextBtn').disabled = true;
+                document.getElementById('finishBtn').disabled = true;
+            }
+        }
+
+        function selectOption(optionIndex, optionElement) {
+            // Remove previous selection
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            optionElement.classList.add('selected');
+            
+            // Store answer
+            userAnswers[currentQuestionIndex] = optionIndex;
+            
+            // Enable next/finish button
+            document.getElementById('nextBtn').disabled = false;
+            document.getElementById('finishBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                showQuestion();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+            }
+        }
+
+        function finishQuiz() {
+            // Calculate score
+            let correctAnswers = 0;
+            userAnswers.forEach((answer, index) => {
+                if (answer === quizData[index].correct) {
+                    correctAnswers++;
+                }
+            });
+            
+            const score = Math.round((correctAnswers / quizData.length) * 100);
+            const wrongAnswers = quizData.length - correctAnswers;
+            
+            // Hide quiz container
+            document.getElementById('quizContainer').classList.add('hidden');
+            
+            // Show results
+            document.getElementById('resultsContainer').classList.remove('hidden');
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('correctCount').textContent = correctAnswers;
+            document.getElementById('wrongCount').textContent = wrongAnswers;
+            document.getElementById('percentage').textContent = score + '%';
+            
+            // Set result message and emoji
+            let message, emoji;
+            if (score >= 90) {
+                message = 'Luar biasa! Kalian sangat menguasai materi TCL! 🌟';
+                emoji = '🏆';
+            } else if (score >= 80) {
+                message = 'Bagus sekali! Pemahaman kalian tentang TCL sudah baik! 👏';
+                emoji = '🎉';
+            } else if (score >= 70) {
+                message = 'Cukup baik! Terus belajar untuk hasil yang lebih baik! 💪';
+                emoji = '👍';
+            } else if (score >= 60) {
+                message = 'Lumayan! Masih perlu belajar lebih giat lagi! 📚';
+                emoji = '😊';
+            } else {
+                message = 'Jangan menyerah! Ulangi materi dan coba lagi! 🔥';
+                emoji = '💪';
+            }
+            
+            document.getElementById('scoreMessage').textContent = message;
+            document.getElementById('resultEmoji').textContent = emoji;
+        }
+
+        function restartQuiz() {
+            // Reset quiz state
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            
+            // Show name input again
+            document.getElementById('resultsContainer').classList.add('hidden');
+            document.getElementById('nameInput').classList.remove('hidden');
+            document.getElementById('studentName').value = studentName;
+        }
+
+        // Initialize
+        updateNextButton();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98425b397101ceca',t:'MTc1ODcxNzY5MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
