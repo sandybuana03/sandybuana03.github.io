@@ -1,0 +1,1638 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar DCL - Data Control Language</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .content-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .menu-item {
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            transform: translateY(-2px);
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            transform: translateX(5px);
+        }
+        
+        .quiz-option.selected {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .quiz-option.correct {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+        }
+        
+        .quiz-option.incorrect {
+            background: linear-gradient(135deg, #f87171, #ef4444);
+            color: white;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .bounce-animation {
+            animation: bounce 2s infinite;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .mobile-menu {
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu.open {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <div class="fixed top-4 right-4 z-50 md:hidden">
+        <button id="menuToggle" class="bg-white rounded-full p-3 shadow-lg">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div id="mobileMenu" class="mobile-menu fixed top-0 left-0 right-0 bg-white shadow-lg z-40 md:hidden">
+        <div class="p-4 pt-16 max-h-screen overflow-y-auto">
+            <div class="grid grid-cols-1 gap-3 text-base">
+                <button onclick="showSection('intro')" class="menu-item bg-gradient-to-r from-pink-200 to-purple-200 p-4 rounded-xl text-purple-800 font-medium text-left">
+                    🌟 Intro
+                </button>
+                <button onclick="showSection('pengenalan')" class="menu-item bg-gradient-to-r from-blue-200 to-cyan-200 p-4 rounded-xl text-blue-800 font-medium text-left">
+                    📚 Pengenalan
+                </button>
+                <button onclick="showSection('konsep-dasar')" class="menu-item bg-gradient-to-r from-green-200 to-emerald-200 p-4 rounded-xl text-green-800 font-medium text-left">
+                    🎯 Konsep Dasar
+                </button>
+                <button onclick="showSection('grant')" class="menu-item bg-gradient-to-r from-yellow-200 to-orange-200 p-4 rounded-xl text-orange-800 font-medium text-left">
+                    🔑 GRANT
+                </button>
+                <button onclick="showSection('revoke')" class="menu-item bg-gradient-to-r from-red-200 to-pink-200 p-4 rounded-xl text-red-800 font-medium text-left">
+                    🚫 REVOKE
+                </button>
+                <button onclick="showSection('praktik')" class="menu-item bg-gradient-to-r from-indigo-200 to-purple-200 p-4 rounded-xl text-indigo-800 font-medium text-left">
+                    💻 Praktik
+                </button>
+                <button onclick="showSection('kuis')" class="menu-item bg-gradient-to-r from-teal-200 to-cyan-200 p-4 rounded-xl text-teal-800 font-medium text-left">
+                    🧠 Kuis
+                </button>
+                <button onclick="showSection('penutup')" class="menu-item bg-gradient-to-r from-purple-200 to-pink-200 p-4 rounded-xl text-purple-800 font-medium text-left">
+                    🎉 Penutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desktop Navigation - Right Side -->
+    <div class="hidden md:block fixed top-4 right-4 z-30">
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg p-3">
+            <div class="flex flex-col space-y-2 text-sm">
+                <button onclick="showSection('intro')" class="menu-item bg-gradient-to-r from-pink-200 to-purple-200 px-4 py-2 rounded-full text-purple-800 font-medium text-center whitespace-nowrap">
+                    🌟 Intro
+                </button>
+                <button onclick="showSection('pengenalan')" class="menu-item bg-gradient-to-r from-blue-200 to-cyan-200 px-4 py-2 rounded-full text-blue-800 font-medium text-center whitespace-nowrap">
+                    📚 Pengenalan
+                </button>
+                <button onclick="showSection('konsep-dasar')" class="menu-item bg-gradient-to-r from-green-200 to-emerald-200 px-4 py-2 rounded-full text-green-800 font-medium text-center whitespace-nowrap">
+                    🎯 Konsep Dasar
+                </button>
+                <button onclick="showSection('grant')" class="menu-item bg-gradient-to-r from-yellow-200 to-orange-200 px-4 py-2 rounded-full text-orange-800 font-medium text-center whitespace-nowrap">
+                    🔑 GRANT
+                </button>
+                <button onclick="showSection('revoke')" class="menu-item bg-gradient-to-r from-red-200 to-pink-200 px-4 py-2 rounded-full text-red-800 font-medium text-center whitespace-nowrap">
+                    🚫 REVOKE
+                </button>
+                <button onclick="showSection('praktik')" class="menu-item bg-gradient-to-r from-indigo-200 to-purple-200 px-4 py-2 rounded-full text-indigo-800 font-medium text-center whitespace-nowrap">
+                    💻 Praktik
+                </button>
+                <button onclick="showSection('kuis')" class="menu-item bg-gradient-to-r from-teal-200 to-cyan-200 px-4 py-2 rounded-full text-teal-800 font-medium text-center whitespace-nowrap">
+                    🧠 Kuis
+                </button>
+                <button onclick="showSection('penutup')" class="menu-item bg-gradient-to-r from-purple-200 to-pink-200 px-4 py-2 rounded-full text-purple-800 font-medium text-center whitespace-nowrap">
+                    🎉 Penutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-container pt-8 md:pt-8 pb-20 md:pr-48">
+        
+        <!-- Intro Section -->
+        <div id="intro" class="section active">
+            <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-xl">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4 bounce-animation">🎓</div>
+                    <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+                        Selamat Datang di Pembelajaran DCL!
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-600">Data Control Language - Menguasai Kontrol Akses Database</p>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🤔</span>
+                            Pertanyaan Pemantik
+                        </h3>
+                        <div class="space-y-3 text-base md:text-lg text-gray-700">
+                            <p>• Pernahkah kalian bertanya-tanya bagaimana database bisa mengatur siapa saja yang boleh mengakses data?</p>
+                            <p>• Mengapa tidak semua orang bisa mengubah atau menghapus data penting di sistem?</p>
+                            <p>• Bagaimana cara database menjaga keamanan informasi sensitif?</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">📖</span>
+                            Apa yang Akan Dipelajari
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4 text-base md:text-lg">
+                            <div class="space-y-2">
+                                <p>✨ Konsep DCL dan fungsinya</p>
+                                <p>🔑 Perintah GRANT untuk memberikan hak akses</p>
+                                <p>🚫 Perintah REVOKE untuk mencabut hak akses</p>
+                            </div>
+                            <div class="space-y-2">
+                                <p>👥 Manajemen user dan role</p>
+                                <p>🛡️ Keamanan database</p>
+                                <p>💻 Praktik langsung dengan contoh nyata</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🎯</span>
+                            Tujuan Pembelajaran
+                        </h3>
+                        <div class="space-y-3 text-base md:text-lg text-gray-700">
+                            <p>Setelah mempelajari materi ini, kalian akan mampu:</p>
+                            <div class="grid md:grid-cols-2 gap-3">
+                                <div>
+                                    <p>• Memahami konsep DCL</p>
+                                    <p>• Menggunakan perintah GRANT</p>
+                                    <p>• Menggunakan perintah REVOKE</p>
+                                </div>
+                                <div>
+                                    <p>• Mengelola hak akses user</p>
+                                    <p>• Menerapkan keamanan database</p>
+                                    <p>• Membuat sistem akses yang aman</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">💡</span>
+                            Pemahaman Bermakna
+                        </h3>
+                        <p class="text-base md:text-lg text-gray-700 leading-relaxed">
+                            DCL adalah seperti sistem keamanan di gedung perkantoran. Ada kartu akses yang menentukan siapa boleh masuk ke ruangan mana, kapan boleh masuk, dan apa yang boleh dilakukan di dalam ruangan tersebut. Begitu juga dengan database - DCL mengatur siapa yang boleh melihat, mengubah, atau menghapus data tertentu.
+                        </p>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🚀</span>
+                            Motivasi
+                        </h3>
+                        <p class="text-base md:text-lg text-gray-700 leading-relaxed">
+                            Dengan menguasai DCL, kalian akan menjadi database administrator yang handal! Skill ini sangat dibutuhkan di dunia kerja, terutama di era digital ini dimana keamanan data menjadi prioritas utama setiap perusahaan. Mari kita mulai perjalanan menarik ini! 🌟
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pengenalan Section -->
+        <div id="pengenalan" class="section">
+            <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-xl">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">📚</div>
+                    <h2 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                        Pengenalan DCL
+                    </h2>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🔍</span>
+                            Apa itu DCL?
+                        </h3>
+                        <p class="text-base md:text-lg text-gray-700 leading-relaxed mb-4">
+                            <strong>Data Control Language (DCL)</strong> adalah bagian dari SQL yang digunakan untuk mengontrol akses dan hak istimewa (privileges) terhadap data dalam database. DCL memungkinkan administrator database untuk menentukan siapa yang dapat mengakses data dan operasi apa yang dapat mereka lakukan.
+                        </p>
+                        <div class="bg-white/50 rounded-xl p-4">
+                            <p class="text-gray-600 italic">
+                                💡 Bayangkan DCL seperti sistem keamanan di bank - ada yang boleh melihat saldo, ada yang boleh transfer, dan ada yang boleh mengakses vault!
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🎯</span>
+                            Fungsi Utama DCL
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="space-y-3">
+                                <div class="bg-white/50 rounded-xl p-4">
+                                    <h4 class="font-semibold text-green-700 mb-2">🔐 Keamanan Data</h4>
+                                    <p class="text-gray-700">Melindungi data sensitif dari akses yang tidak sah</p>
+                                </div>
+                                <div class="bg-white/50 rounded-xl p-4">
+                                    <h4 class="font-semibold text-green-700 mb-2">👥 Manajemen User</h4>
+                                    <p class="text-gray-700">Mengatur hak akses setiap pengguna database</p>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="bg-white/50 rounded-xl p-4">
+                                    <h4 class="font-semibold text-green-700 mb-2">🛡️ Kontrol Akses</h4>
+                                    <p class="text-gray-700">Menentukan operasi yang boleh dilakukan user</p>
+                                </div>
+                                <div class="bg-white/50 rounded-xl p-4">
+                                    <h4 class="font-semibold text-green-700 mb-2">📊 Audit Trail</h4>
+                                    <p class="text-gray-700">Melacak siapa yang mengakses data kapan</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">⚡</span>
+                            Perintah Utama DCL
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-purple-700 mb-2 text-lg">🔑 GRANT</h4>
+                                <p class="text-gray-700 mb-2">Memberikan hak akses kepada user atau role</p>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                    GRANT SELECT ON table_name TO user_name;
+                                </div>
+                            </div>
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-purple-700 mb-2 text-lg">🚫 REVOKE</h4>
+                                <p class="text-gray-700 mb-2">Mencabut hak akses dari user atau role</p>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                    REVOKE SELECT ON table_name FROM user_name;
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🌟</span>
+                            Mengapa DCL Penting?
+                        </h3>
+                        <div class="space-y-3 text-base md:text-lg text-gray-700">
+                            <p>• <strong>Keamanan:</strong> Melindungi data dari akses yang tidak sah</p>
+                            <p>• <strong>Privasi:</strong> Menjaga kerahasiaan informasi sensitif</p>
+                            <p>• <strong>Integritas:</strong> Mencegah perubahan data yang tidak diinginkan</p>
+                            <p>• <strong>Compliance:</strong> Memenuhi standar keamanan industri</p>
+                            <p>• <strong>Efisiensi:</strong> Mengatur akses sesuai kebutuhan kerja</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Konsep Dasar Section -->
+        <div id="konsep-dasar" class="section">
+            <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-xl">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">🎯</div>
+                    <h2 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                        Konsep Dasar DCL
+                    </h2>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">👤</span>
+                            User dan Role
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-green-700 mb-3">👤 User (Pengguna)</h4>
+                                <p class="text-gray-700 mb-3">User adalah akun individual yang dapat mengakses database</p>
+                                <div class="space-y-2 text-sm">
+                                    <p>• Setiap user memiliki username unik</p>
+                                    <p>• Dapat memiliki password untuk autentikasi</p>
+                                    <p>• Memiliki hak akses spesifik</p>
+                                </div>
+                            </div>
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-green-700 mb-3">👥 Role (Peran)</h4>
+                                <p class="text-gray-700 mb-3">Role adalah kumpulan hak akses yang dapat diberikan ke user</p>
+                                <div class="space-y-2 text-sm">
+                                    <p>• Memudahkan manajemen hak akses</p>
+                                    <p>• Dapat diberikan ke banyak user</p>
+                                    <p>• Contoh: admin, editor, viewer</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🔐</span>
+                            Jenis-jenis Privileges (Hak Akses)
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="space-y-3">
+                                <div class="bg-white/50 rounded-xl p-4">
+                                    <h4 class="font-semibold text-blue-700 mb-2">📖 SELECT</h4>
+                                    <p class="text-gray-700 text-sm">Hak untuk membaca/melihat data</p>
+                                </div>
+                                <div class="bg-white/50 rounded-xl p-4">
+                                    <h4 class="font-semibold text-blue-700 mb-2">➕ INSERT</h4>
+                                    <p class="text-gray-700 text-sm">Hak untuk menambah data baru</p>
+                                </div>
+                                <div class="bg-white/50 rounded-xl p-4">
+                                    <h4 class="font-semibold text-blue-700 mb-2">✏️ UPDATE</h4>
+                                    <p class="text-gray-700 text-sm">Hak untuk mengubah data yang ada</p>
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="bg-white/50 rounded-xl p-4">
+                                    <h4 class="font-semibold text-blue-700 mb-2">🗑️ DELETE</h4>
+                                    <p class="text-gray-700 text-sm">Hak untuk menghapus data</p>
+                                </div>
+                                <div class="bg-white/50 rounded-xl p-4">
+                                    <h4 class="font-semibold text-blue-700 mb-2">🏗️ CREATE</h4>
+                                    <p class="text-gray-700 text-sm">Hak untuk membuat objek database</p>
+                                </div>
+                                <div class="bg-white/50 rounded-xl p-4">
+                                    <h4 class="font-semibold text-blue-700 mb-2">🔧 ALTER</h4>
+                                    <p class="text-gray-700 text-sm">Hak untuk mengubah struktur objek</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🎭</span>
+                            Level Akses Database
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-purple-700 mb-2">🏢 System Level</h4>
+                                <p class="text-gray-700">Hak akses pada level sistem database secara keseluruhan</p>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    Contoh: CREATE USER, DROP DATABASE, SHUTDOWN
+                                </div>
+                            </div>
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-purple-700 mb-2">🗄️ Database Level</h4>
+                                <p class="text-gray-700">Hak akses pada level database tertentu</p>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    Contoh: CREATE TABLE, DROP TABLE pada database tertentu
+                                </div>
+                            </div>
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-purple-700 mb-2">📋 Table Level</h4>
+                                <p class="text-gray-700">Hak akses pada tabel tertentu</p>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    Contoh: SELECT, INSERT, UPDATE, DELETE pada tabel tertentu
+                                </div>
+                            </div>
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-purple-700 mb-2">📝 Column Level</h4>
+                                <p class="text-gray-700">Hak akses pada kolom tertentu dalam tabel</p>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    Contoh: SELECT pada kolom nama, UPDATE pada kolom alamat
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🔄</span>
+                            Prinsip Least Privilege
+                        </h3>
+                        <p class="text-base md:text-lg text-gray-700 leading-relaxed mb-4">
+                            Prinsip ini menyatakan bahwa setiap user hanya diberikan hak akses minimum yang diperlukan untuk menjalankan tugasnya. Ini adalah praktik keamanan terbaik dalam manajemen database.
+                        </p>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-orange-700 mb-2">✅ Yang Benar</h4>
+                                <div class="space-y-1 text-sm text-gray-700">
+                                    <p>• Staff admin: hanya SELECT pada tabel yang dibutuhkan</p>
+                                    <p>• Kasir: INSERT, UPDATE pada tabel transaksi</p>
+                                    <p>• Manager: SELECT pada semua tabel laporan</p>
+                                </div>
+                            </div>
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-red-700 mb-2">❌ Yang Salah</h4>
+                                <div class="space-y-1 text-sm text-gray-700">
+                                    <p>• Memberikan ALL PRIVILEGES ke semua user</p>
+                                    <p>• Staff biasa memiliki hak DELETE</p>
+                                    <p>• Akses tanpa password atau autentikasi</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRANT Section -->
+        <div id="grant" class="section">
+            <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-xl">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">🔑</div>
+                    <h2 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+                        Perintah GRANT
+                    </h2>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">📖</span>
+                            Apa itu GRANT?
+                        </h3>
+                        <p class="text-base md:text-lg text-gray-700 leading-relaxed mb-4">
+                            <strong>GRANT</strong> adalah perintah DCL yang digunakan untuk memberikan hak akses (privileges) kepada user atau role terhadap objek database tertentu. Seperti memberikan kunci akses kepada seseorang untuk masuk ke ruangan tertentu.
+                        </p>
+                        <div class="bg-white/50 rounded-xl p-4">
+                            <h4 class="font-semibold text-orange-700 mb-2">Sintaks Dasar:</h4>
+                            <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                GRANT privilege_name ON object_name TO user_name;
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🎯</span>
+                            Jenis-jenis GRANT
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-green-700 mb-3">1. GRANT pada Tabel</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-gray-700 mb-2">Memberikan hak SELECT (baca data):</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            GRANT SELECT ON mahasiswa TO user_admin;
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">Memberikan hak INSERT (tambah data):</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            GRANT INSERT ON mahasiswa TO user_operator;
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">Memberikan beberapa hak sekaligus:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            GRANT SELECT, INSERT, UPDATE ON mahasiswa TO user_editor;
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-green-700 mb-3">2. GRANT pada Kolom Tertentu</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-gray-700 mb-2">Hanya boleh melihat kolom tertentu:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            GRANT SELECT (nama, jurusan) ON mahasiswa TO user_viewer;
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">Hanya boleh mengubah kolom tertentu:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            GRANT UPDATE (alamat, telepon) ON mahasiswa TO user_admin;
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-green-700 mb-3">3. GRANT ALL PRIVILEGES</h4>
+                                <div>
+                                    <p class="text-gray-700 mb-2">Memberikan semua hak akses:</p>
+                                    <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                        GRANT ALL PRIVILEGES ON mahasiswa TO user_superadmin;
+                                    </div>
+                                    <p class="text-red-600 text-sm mt-2">⚠️ Hati-hati! Gunakan hanya untuk administrator</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🔄</span>
+                            GRANT dengan WITH GRANT OPTION
+                        </h3>
+                        <p class="text-gray-700 mb-4">
+                            Opsi ini memungkinkan user yang menerima hak akses untuk memberikan hak akses yang sama kepada user lain.
+                        </p>
+                        <div class="space-y-3">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <p class="text-gray-700 mb-2">Contoh penggunaan:</p>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                    GRANT SELECT ON mahasiswa TO user_manager WITH GRANT OPTION;
+                                </div>
+                                <p class="text-sm text-gray-600 mt-2">
+                                    Sekarang user_manager bisa memberikan hak SELECT pada tabel mahasiswa ke user lain
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">👥</span>
+                            GRANT pada Role
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-purple-700 mb-3">Membuat Role:</h4>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm mb-2">
+                                    CREATE ROLE role_admin;
+                                </div>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                    CREATE ROLE role_operator;
+                                </div>
+                            </div>
+
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-purple-700 mb-3">Memberikan hak akses ke Role:</h4>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm mb-2">
+                                    GRANT SELECT, INSERT, UPDATE ON mahasiswa TO role_admin;
+                                </div>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                    GRANT SELECT ON mahasiswa TO role_operator;
+                                </div>
+                            </div>
+
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-purple-700 mb-3">Memberikan Role ke User:</h4>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm mb-2">
+                                    GRANT role_admin TO user_budi;
+                                </div>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                    GRANT role_operator TO user_siti;
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-red-100 to-pink-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-red-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">💡</span>
+                            Tips dan Best Practices
+                        </h3>
+                        <div class="space-y-3 text-base md:text-lg text-gray-700">
+                            <p>• <strong>Prinsip Least Privilege:</strong> Berikan hak akses minimum yang diperlukan</p>
+                            <p>• <strong>Gunakan Role:</strong> Lebih mudah mengelola hak akses dengan role</p>
+                            <p>• <strong>Dokumentasi:</strong> Catat siapa mendapat hak akses apa dan mengapa</p>
+                            <p>• <strong>Review Berkala:</strong> Periksa dan audit hak akses secara rutin</p>
+                            <p>• <strong>Hati-hati WITH GRANT OPTION:</strong> Bisa menyebabkan penyebaran hak akses yang tidak terkontrol</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- REVOKE Section -->
+        <div id="revoke" class="section">
+            <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-xl">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">🚫</div>
+                    <h2 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
+                        Perintah REVOKE
+                    </h2>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-gradient-to-r from-red-100 to-pink-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-red-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">📖</span>
+                            Apa itu REVOKE?
+                        </h3>
+                        <p class="text-base md:text-lg text-gray-700 leading-relaxed mb-4">
+                            <strong>REVOKE</strong> adalah perintah DCL yang digunakan untuk mencabut atau menghapus hak akses (privileges) yang sebelumnya telah diberikan kepada user atau role. Seperti mengambil kembali kunci akses dari seseorang.
+                        </p>
+                        <div class="bg-white/50 rounded-xl p-4">
+                            <h4 class="font-semibold text-red-700 mb-2">Sintaks Dasar:</h4>
+                            <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                REVOKE privilege_name ON object_name FROM user_name;
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🎯</span>
+                            Jenis-jenis REVOKE
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-blue-700 mb-3">1. REVOKE Hak Akses Spesifik</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-gray-700 mb-2">Mencabut hak SELECT:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            REVOKE SELECT ON mahasiswa FROM user_admin;
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">Mencabut hak INSERT:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            REVOKE INSERT ON mahasiswa FROM user_operator;
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">Mencabut beberapa hak sekaligus:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            REVOKE SELECT, INSERT, UPDATE ON mahasiswa FROM user_editor;
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-blue-700 mb-3">2. REVOKE pada Kolom Tertentu</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-gray-700 mb-2">Mencabut hak SELECT pada kolom tertentu:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            REVOKE SELECT (nama, jurusan) ON mahasiswa FROM user_viewer;
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">Mencabut hak UPDATE pada kolom tertentu:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            REVOKE UPDATE (alamat, telepon) ON mahasiswa FROM user_admin;
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-blue-700 mb-3">3. REVOKE ALL PRIVILEGES</h4>
+                                <div>
+                                    <p class="text-gray-700 mb-2">Mencabut semua hak akses:</p>
+                                    <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                        REVOKE ALL PRIVILEGES ON mahasiswa FROM user_superadmin;
+                                    </div>
+                                    <p class="text-blue-600 text-sm mt-2">💡 Berguna saat user pindah divisi atau keluar</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🔄</span>
+                            REVOKE dengan CASCADE dan RESTRICT
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-green-700 mb-3">CASCADE</h4>
+                                <p class="text-gray-700 mb-2">
+                                    Mencabut hak akses dan juga mencabut hak akses yang diberikan oleh user tersebut ke user lain.
+                                </p>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                    REVOKE SELECT ON mahasiswa FROM user_manager CASCADE;
+                                </div>
+                                <p class="text-sm text-gray-600 mt-2">
+                                    Jika user_manager pernah memberikan hak SELECT ke user lain, hak tersebut juga akan dicabut
+                                </p>
+                            </div>
+
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-green-700 mb-3">RESTRICT</h4>
+                                <p class="text-gray-700 mb-2">
+                                    Mencegah pencabutan jika user tersebut telah memberikan hak akses ke user lain.
+                                </p>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                    REVOKE SELECT ON mahasiswa FROM user_manager RESTRICT;
+                                </div>
+                                <p class="text-sm text-gray-600 mt-2">
+                                    Perintah akan gagal jika user_manager pernah memberikan hak SELECT ke user lain
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">👥</span>
+                            REVOKE pada Role
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-purple-700 mb-3">Mencabut hak akses dari Role:</h4>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm mb-2">
+                                    REVOKE SELECT ON mahasiswa FROM role_operator;
+                                </div>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                    REVOKE INSERT, UPDATE ON mahasiswa FROM role_admin;
+                                </div>
+                            </div>
+
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-purple-700 mb-3">Mencabut Role dari User:</h4>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm mb-2">
+                                    REVOKE role_admin FROM user_budi;
+                                </div>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                    REVOKE role_operator FROM user_siti;
+                                </div>
+                            </div>
+
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-purple-700 mb-3">Menghapus Role:</h4>
+                                <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                    DROP ROLE role_admin;
+                                </div>
+                                <p class="text-sm text-red-600 mt-2">⚠️ Hati-hati! Ini akan menghapus role dan semua hak aksesnya</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">⚖️</span>
+                            Perbedaan GRANT vs REVOKE
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-green-700 mb-3">🔑 GRANT</h4>
+                                <div class="space-y-2 text-sm text-gray-700">
+                                    <p>• Memberikan hak akses</p>
+                                    <p>• Menambah privilege</p>
+                                    <p>• Membuka akses</p>
+                                    <p>• Sintaks: GRANT ... TO ...</p>
+                                    <p>• Contoh: Memberikan kunci</p>
+                                </div>
+                            </div>
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-red-700 mb-3">🚫 REVOKE</h4>
+                                <div class="space-y-2 text-sm text-gray-700">
+                                    <p>• Mencabut hak akses</p>
+                                    <p>• Menghapus privilege</p>
+                                    <p>• Menutup akses</p>
+                                    <p>• Sintaks: REVOKE ... FROM ...</p>
+                                    <p>• Contoh: Mengambil kunci</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-indigo-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">💡</span>
+                            Kapan Menggunakan REVOKE?
+                        </h3>
+                        <div class="space-y-3 text-base md:text-lg text-gray-700">
+                            <p>• <strong>Karyawan Pindah Divisi:</strong> Cabut hak akses lama, berikan yang baru</p>
+                            <p>• <strong>Karyawan Keluar:</strong> Cabut semua hak akses untuk keamanan</p>
+                            <p>• <strong>Perubahan Kebijakan:</strong> Sesuaikan hak akses dengan aturan baru</p>
+                            <p>• <strong>Insiden Keamanan:</strong> Cabut akses sementara untuk investigasi</p>
+                            <p>• <strong>Audit Rutin:</strong> Bersihkan hak akses yang tidak diperlukan</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Praktik Section -->
+        <div id="praktik" class="section">
+            <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-xl">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">💻</div>
+                    <h2 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                        Praktik DCL
+                    </h2>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-indigo-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🎯</span>
+                            Skenario Praktik
+                        </h3>
+                        <p class="text-base md:text-lg text-gray-700 leading-relaxed mb-4">
+                            Kita akan membuat sistem manajemen sekolah dengan berbagai tingkat akses untuk administrator, guru, dan siswa. Mari ikuti langkah-langkah berikut!
+                        </p>
+                        <div class="bg-white/50 rounded-xl p-4">
+                            <h4 class="font-semibold text-indigo-700 mb-2">Database yang akan digunakan:</h4>
+                            <div class="space-y-1 text-sm text-gray-700">
+                                <p>• Tabel: siswa, guru, mata_pelajaran, nilai</p>
+                                <p>• User: admin_sekolah, guru_matematika, siswa_budi</p>
+                                <p>• Role: role_admin, role_guru, role_siswa</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">1️⃣</span>
+                            Langkah 1: Persiapan Database
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-green-700 mb-3">Membuat Database dan Tabel:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-gray-700 mb-2">1. Buat database sekolah:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            CREATE DATABASE sekolah;
+                                            <br>USE sekolah;
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">2. Buat tabel siswa:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            CREATE TABLE siswa (<br>
+                                            &nbsp;&nbsp;id INT PRIMARY KEY,<br>
+                                            &nbsp;&nbsp;nama VARCHAR(50),<br>
+                                            &nbsp;&nbsp;kelas VARCHAR(10),<br>
+                                            &nbsp;&nbsp;alamat VARCHAR(100)<br>
+                                            );
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">3. Buat tabel nilai:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            CREATE TABLE nilai (<br>
+                                            &nbsp;&nbsp;id INT PRIMARY KEY,<br>
+                                            &nbsp;&nbsp;siswa_id INT,<br>
+                                            &nbsp;&nbsp;mata_pelajaran VARCHAR(30),<br>
+                                            &nbsp;&nbsp;nilai DECIMAL(4,2)<br>
+                                            );
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">2️⃣</span>
+                            Langkah 2: Membuat User
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-blue-700 mb-3">Membuat User dengan Password:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-gray-700 mb-2">1. User Administrator:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            CREATE USER 'admin_sekolah'@'localhost' IDENTIFIED BY 'admin123';
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">2. User Guru:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            CREATE USER 'guru_matematika'@'localhost' IDENTIFIED BY 'guru123';
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">3. User Siswa:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            CREATE USER 'siswa_budi'@'localhost' IDENTIFIED BY 'siswa123';
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">3️⃣</span>
+                            Langkah 3: Membuat Role
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-purple-700 mb-3">Membuat Role untuk Setiap Tingkat Akses:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-gray-700 mb-2">1. Role Administrator (akses penuh):</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            CREATE ROLE 'role_admin';
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">2. Role Guru (bisa lihat dan input nilai):</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            CREATE ROLE 'role_guru';
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">3. Role Siswa (hanya lihat data sendiri):</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            CREATE ROLE 'role_siswa';
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">4️⃣</span>
+                            Langkah 4: Memberikan Hak Akses ke Role
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-orange-700 mb-3">GRANT Privileges ke Role:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-gray-700 mb-2">1. Role Admin - Akses penuh:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            GRANT ALL PRIVILEGES ON sekolah.* TO 'role_admin';
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">2. Role Guru - Lihat siswa, kelola nilai:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            GRANT SELECT ON sekolah.siswa TO 'role_guru';<br>
+                                            GRANT SELECT, INSERT, UPDATE ON sekolah.nilai TO 'role_guru';
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">3. Role Siswa - Hanya lihat nilai sendiri:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            GRANT SELECT (nama, kelas) ON sekolah.siswa TO 'role_siswa';<br>
+                                            GRANT SELECT ON sekolah.nilai TO 'role_siswa';
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-red-100 to-pink-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-red-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">5️⃣</span>
+                            Langkah 5: Memberikan Role ke User
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-red-700 mb-3">GRANT Role ke User:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-gray-700 mb-2">1. Berikan role_admin ke admin_sekolah:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            GRANT 'role_admin' TO 'admin_sekolah'@'localhost';
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">2. Berikan role_guru ke guru_matematika:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            GRANT 'role_guru' TO 'guru_matematika'@'localhost';
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">3. Berikan role_siswa ke siswa_budi:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            GRANT 'role_siswa' TO 'siswa_budi'@'localhost';
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-teal-100 to-cyan-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-teal-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">6️⃣</span>
+                            Langkah 6: Testing Akses
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-teal-700 mb-3">Menguji Hak Akses:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-gray-700 mb-2">1. Cek hak akses user:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            SHOW GRANTS FOR 'admin_sekolah'@'localhost';<br>
+                                            SHOW GRANTS FOR 'guru_matematika'@'localhost';<br>
+                                            SHOW GRANTS FOR 'siswa_budi'@'localhost';
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">2. Login sebagai user dan test akses:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            -- Login sebagai guru_matematika<br>
+                                            SELECT * FROM sekolah.siswa; -- Harus berhasil<br>
+                                            INSERT INTO sekolah.nilai VALUES (1, 1, 'Matematika', 85.5); -- Harus berhasil<br>
+                                            DELETE FROM sekolah.siswa WHERE id = 1; -- Harus gagal
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-indigo-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">7️⃣</span>
+                            Langkah 7: Mengelola Perubahan Akses
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-indigo-700 mb-3">Skenario Perubahan:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <p class="text-gray-700 mb-2">1. Guru pindah jadi admin, tambah hak akses:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            GRANT 'role_admin' TO 'guru_matematika'@'localhost';<br>
+                                            REVOKE 'role_guru' FROM 'guru_matematika'@'localhost';
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">2. Siswa lulus, cabut semua akses:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            REVOKE 'role_siswa' FROM 'siswa_budi'@'localhost';<br>
+                                            DROP USER 'siswa_budi'@'localhost';
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-gray-700 mb-2">3. Tambah hak khusus untuk guru tertentu:</p>
+                                        <div class="bg-gray-100 rounded-lg p-3 font-mono text-sm">
+                                            GRANT DELETE ON sekolah.nilai TO 'guru_matematika'@'localhost';
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">✅</span>
+                            Tugas Praktik Mandiri
+                        </h3>
+                        <div class="space-y-3 text-base md:text-lg text-gray-700">
+                            <p><strong>Sekarang giliran kalian!</strong> Coba buat skenario berikut:</p>
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <div class="space-y-2">
+                                    <p>1. Buat user 'kepala_sekolah' dengan akses SELECT ke semua tabel</p>
+                                    <p>2. Buat role 'role_wali_kelas' yang bisa UPDATE data siswa di kelasnya</p>
+                                    <p>3. Berikan hak khusus ke guru untuk melihat alamat siswa</p>
+                                    <p>4. Cabut hak DELETE dari semua user kecuali admin</p>
+                                    <p>5. Test semua akses yang telah dibuat</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kuis Section -->
+        <div id="kuis" class="section">
+            <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-xl">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">🧠</div>
+                    <h2 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                        Kuis DCL
+                    </h2>
+                </div>
+
+                <!-- Input Nama -->
+                <div id="nameInput" class="bg-gradient-to-r from-teal-100 to-cyan-100 rounded-2xl p-6 mb-6">
+                    <h3 class="text-xl font-bold text-teal-800 mb-4 text-center">Masukkan Nama Anda</h3>
+                    <div class="max-w-md mx-auto">
+                        <input type="text" id="studentName" placeholder="Nama lengkap..." 
+                               class="w-full p-4 rounded-xl border-2 border-teal-300 focus:border-teal-500 focus:outline-none text-lg">
+                        <button onclick="startQuiz()" 
+                                class="w-full mt-4 bg-gradient-to-r from-teal-500 to-cyan-500 text-white p-4 rounded-xl font-bold text-lg hover:from-teal-600 hover:to-cyan-600 transition-all">
+                            Mulai Kuis 🚀
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Container -->
+                <div id="quizContainer" style="display: none;">
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-lg font-semibold text-gray-700">Soal <span id="currentQuestion">1</span> dari 10</span>
+                            <span class="text-lg font-semibold text-teal-600">Skor: <span id="currentScore">0</span></span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div id="progressBar" class="bg-gradient-to-r from-teal-500 to-cyan-500 h-3 rounded-full transition-all duration-300" style="width: 10%"></div>
+                        </div>
+                    </div>
+
+                    <div id="questionContainer" class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6 mb-6">
+                        <h3 id="questionText" class="text-xl font-bold text-blue-800 mb-6"></h3>
+                        <div id="optionsContainer" class="space-y-3"></div>
+                    </div>
+
+                    <div class="text-center">
+                        <button id="nextButton" onclick="nextQuestion()" style="display: none;"
+                                class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-3 rounded-xl font-bold text-lg hover:from-green-600 hover:to-emerald-600 transition-all">
+                            Soal Selanjutnya →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Result Container -->
+                <div id="resultContainer" style="display: none;" class="text-center">
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-8">
+                        <div class="text-6xl mb-4" id="resultEmoji">🎉</div>
+                        <h3 class="text-2xl font-bold text-purple-800 mb-4">Kuis Selesai!</h3>
+                        <div class="text-xl mb-6">
+                            <p class="mb-2">Nama: <span id="finalName" class="font-bold text-purple-600"></span></p>
+                            <p class="mb-2">Skor Akhir: <span id="finalScore" class="font-bold text-purple-600"></span>/10</p>
+                            <p id="finalGrade" class="text-lg font-semibold"></p>
+                        </div>
+                        <button onclick="restartQuiz()" 
+                                class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-xl font-bold text-lg hover:from-purple-600 hover:to-pink-600 transition-all">
+                            Ulangi Kuis 🔄
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Penutup Section -->
+        <div id="penutup" class="section">
+            <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-xl">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4">🎉</div>
+                    <h2 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        Penutup
+                    </h2>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🤔</span>
+                            Refleksi
+                        </h3>
+                        <div class="space-y-4">
+                            <p class="text-base md:text-lg text-gray-700 leading-relaxed">
+                                Setelah mempelajari DCL (Data Control Language), mari kita refleksikan apa yang telah dipelajari:
+                            </p>
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-purple-700 mb-3">Pertanyaan Refleksi:</h4>
+                                <div class="space-y-2 text-gray-700">
+                                    <p>• Bagaimana perasaan kamu setelah belajar DCL?</p>
+                                    <p>• Bagian mana yang paling menyenangkan buat kamu?</p>
+                                    <p>• Apa yang paling sulit dipahami tadi?</p>
+                                    <p>• Kamu lebih suka praktik atau teori? Kenapa?</p>
+                                    <p>• Seberapa percaya diri kamu sekarang dengan DCL?</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">📝</span>
+                            Kesimpulan Pembelajaran
+                        </h3>
+                        <div class="space-y-4">
+                            <p class="text-base md:text-lg text-gray-700 leading-relaxed">
+                                Dari pembelajaran DCL ini, kita telah memahami:
+                            </p>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white/50 rounded-xl p-4">
+                                    <h4 class="font-semibold text-green-700 mb-3">Konsep Utama:</h4>
+                                    <div class="space-y-2 text-sm text-gray-700">
+                                        <p>✅ DCL mengontrol akses database</p>
+                                        <p>✅ GRANT memberikan hak akses</p>
+                                        <p>✅ REVOKE mencabut hak akses</p>
+                                        <p>✅ Role memudahkan manajemen</p>
+                                    </div>
+                                </div>
+                                <div class="bg-white/50 rounded-xl p-4">
+                                    <h4 class="font-semibold text-green-700 mb-3">Keterampilan:</h4>
+                                    <div class="space-y-2 text-sm text-gray-700">
+                                        <p>✅ Membuat user dan role</p>
+                                        <p>✅ Mengelola hak akses</p>
+                                        <p>✅ Menerapkan keamanan database</p>
+                                        <p>✅ Troubleshooting akses</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-green-700 mb-3">Nilai-nilai Penting:</h4>
+                                <div class="space-y-2 text-gray-700">
+                                    <p>🛡️ <strong>Keamanan:</strong> Selalu prioritaskan keamanan data</p>
+                                    <p>🎯 <strong>Presisi:</strong> Berikan akses sesuai kebutuhan</p>
+                                    <p>📊 <strong>Dokumentasi:</strong> Catat semua perubahan akses</p>
+                                    <p>🔄 <strong>Monitoring:</strong> Audit akses secara berkala</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6">
+                        <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🚀</span>
+                            Tindak Lanjut
+                        </h3>
+                        <div class="space-y-4">
+                            <p class="text-base md:text-lg text-gray-700 leading-relaxed">
+                                Untuk mengembangkan kemampuan DCL lebih lanjut, kalian bisa:
+                            </p>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white/50 rounded-xl p-4">
+                                    <h4 class="font-semibold text-blue-700 mb-3">Praktik Lanjutan:</h4>
+                                    <div class="space-y-2 text-sm text-gray-700">
+                                        <p>• Buat sistem akses multi-level</p>
+                                        <p>• Implementasi row-level security</p>
+                                        <p>• Integrasi dengan aplikasi web</p>
+                                        <p>• Audit trail dan logging</p>
+                                    </div>
+                                </div>
+                                <div class="bg-white/50 rounded-xl p-4">
+                                    <h4 class="font-semibold text-blue-700 mb-3">Pembelajaran Selanjutnya:</h4>
+                                    <div class="space-y-2 text-sm text-gray-700">
+                                        <p>• Database Administration</p>
+                                        <p>• Database Security</p>
+                                        <p>• Backup dan Recovery</p>
+                                        <p>• Performance Tuning</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white/50 rounded-xl p-4">
+                                <h4 class="font-semibold text-blue-700 mb-3">Sumber Belajar:</h4>
+                                <div class="space-y-2 text-gray-700">
+                                    <p>📚 Dokumentasi resmi MySQL/PostgreSQL</p>
+                                    <p>💻 Platform online: W3Schools, SQLBolt, HackerRank</p>
+                                    <p>🎥 Video tutorial YouTube tentang database security</p>
+                                    <p>📖 Buku: "Database Security" dan "SQL Security"</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 text-center">
+                        <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center justify-center">
+                            <span class="text-2xl mr-3">🌟</span>
+                            Selamat!
+                        </h3>
+                        <p class="text-base md:text-lg text-gray-700 leading-relaxed mb-4">
+                            Kalian telah berhasil menyelesaikan pembelajaran DCL (Data Control Language)! 
+                            Skill yang kalian pelajari hari ini sangat berharga untuk karir di bidang IT, 
+                            terutama sebagai Database Administrator atau Backend Developer.
+                        </p>
+                        <div class="text-4xl mb-4">🎓✨🚀</div>
+                        <p class="text-lg font-semibold text-orange-700">
+                            Terus berlatih dan jangan lupa terapkan prinsip keamanan database dalam setiap project kalian!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="backToTop" class="floating-btn bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg" onclick="scrollToTop()">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <!-- Next Section Button -->
+    <div id="nextSectionBtn" class="text-center mt-8 mb-8">
+        <button onclick="nextSection()" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-indigo-600 hover:to-purple-600 transition-all shadow-lg">
+            Lanjut ke Bagian Selanjutnya →
+        </button>
+    </div>
+
+    <script>
+        // Navigation variables
+        const sections = ['intro', 'pengenalan', 'konsep-dasar', 'grant', 'revoke', 'praktik', 'kuis', 'penutup'];
+        let currentSectionIndex = 0;
+
+        // Quiz variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let studentName = '';
+        let selectedAnswer = null;
+
+        const quizQuestions = [
+            {
+                question: "Apa kepanjangan dari DCL?",
+                options: ["Data Control Language", "Database Control Language", "Data Command Language", "Database Command Language"],
+                correct: 0
+            },
+            {
+                question: "Perintah DCL yang digunakan untuk memberikan hak akses adalah:",
+                options: ["GIVE", "GRANT", "ALLOW", "PERMIT"],
+                correct: 1
+            },
+            {
+                question: "Perintah untuk mencabut hak akses adalah:",
+                options: ["REMOVE", "DELETE", "REVOKE", "CANCEL"],
+                correct: 2
+            },
+            {
+                question: "Sintaks yang benar untuk memberikan hak SELECT adalah:",
+                options: ["GRANT SELECT TO user ON table", "GRANT SELECT ON table TO user", "GRANT user SELECT ON table", "SELECT GRANT ON table TO user"],
+                correct: 1
+            },
+            {
+                question: "Apa fungsi dari WITH GRANT OPTION?",
+                options: ["Memberikan password ke user", "Memungkinkan user memberikan hak akses ke user lain", "Membuat user menjadi admin", "Menghapus user otomatis"],
+                correct: 1
+            },
+            {
+                question: "Perintah untuk mencabut semua hak akses adalah:",
+                options: ["REVOKE ALL ON table FROM user", "REVOKE ALL PRIVILEGES ON table FROM user", "DELETE ALL FROM user", "REMOVE ALL PRIVILEGES FROM user"],
+                correct: 1
+            },
+            {
+                question: "Apa keuntungan menggunakan ROLE dalam DCL?",
+                options: ["Membuat database lebih cepat", "Memudahkan manajemen hak akses", "Mengurangi ukuran database", "Meningkatkan performa query"],
+                correct: 1
+            },
+            {
+                question: "Prinsip Least Privilege berarti:",
+                options: ["Memberikan hak akses maksimal", "Memberikan hak akses minimum yang diperlukan", "Tidak memberikan hak akses sama sekali", "Memberikan hak akses secara acak"],
+                correct: 1
+            },
+            {
+                question: "Perintah untuk melihat hak akses user adalah:",
+                options: ["VIEW GRANTS FOR user", "SHOW GRANTS FOR user", "DISPLAY GRANTS FOR user", "LIST GRANTS FOR user"],
+                correct: 1
+            },
+            {
+                question: "Kapan sebaiknya menggunakan CASCADE dalam REVOKE?",
+                options: ["Saat ingin mencabut hak akses dan semua hak akses turunannya", "Saat ingin memberikan hak akses", "Saat membuat user baru", "Saat menghapus tabel"],
+                correct: 0
+            }
+        ];
+
+        // Mobile menu toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('open');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const menuToggle = document.getElementById('menuToggle');
+            
+            if (!mobileMenu.contains(event.target) && !menuToggle.contains(event.target)) {
+                mobileMenu.classList.remove('open');
+            }
+        });
+
+        // Show section function
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update current section index
+            currentSectionIndex = sections.indexOf(sectionId);
+            
+            // Close mobile menu
+            document.getElementById('mobileMenu').classList.remove('open');
+            
+            // Scroll to top
+            scrollToTop();
+            
+            // Update next button visibility
+            updateNextButton();
+        }
+
+        // Next section function
+        function nextSection() {
+            if (currentSectionIndex < sections.length - 1) {
+                currentSectionIndex++;
+                showSection(sections[currentSectionIndex]);
+            }
+        }
+
+        // Update next button
+        function updateNextButton() {
+            const nextBtn = document.getElementById('nextSectionBtn');
+            if (currentSectionIndex >= sections.length - 1) {
+                nextBtn.style.display = 'none';
+            } else {
+                nextBtn.style.display = 'block';
+            }
+        }
+
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Show/hide back to top button
+        window.addEventListener('scroll', function() {
+            const backToTopBtn = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTopBtn.style.display = 'block';
+            } else {
+                backToTopBtn.style.display = 'none';
+            }
+        });
+
+        // Quiz functions
+        function startQuiz() {
+            const nameInput = document.getElementById('studentName').value.trim();
+            if (nameInput === '') {
+                alert('Silakan masukkan nama Anda terlebih dahulu!');
+                return;
+            }
+            
+            studentName = nameInput;
+            document.getElementById('nameInput').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizQuestions[currentQuestionIndex];
+            
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('currentScore').textContent = score;
+            document.getElementById('questionText').textContent = question.question;
+            
+            // Update progress bar
+            const progress = ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Create options
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'quiz-option bg-white p-4 rounded-xl cursor-pointer border-2 border-gray-200 hover:border-blue-300';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => selectAnswer(index, optionDiv);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            document.getElementById('nextButton').style.display = 'none';
+            selectedAnswer = null;
+        }
+
+        function selectAnswer(answerIndex, optionElement) {
+            // Remove previous selections
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            selectedAnswer = answerIndex;
+            const question = quizQuestions[currentQuestionIndex];
+            
+            // Show correct answer
+            const options = document.querySelectorAll('.quiz-option');
+            options[question.correct].classList.add('correct');
+            
+            if (answerIndex === question.correct) {
+                score++;
+                optionElement.classList.add('correct');
+            } else {
+                optionElement.classList.add('incorrect');
+            }
+            
+            // Disable all options
+            options.forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            document.getElementById('nextButton').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < quizQuestions.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('resultContainer').style.display = 'block';
+            
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = score;
+            
+            let grade, emoji;
+            const percentage = (score / quizQuestions.length) * 100;
+            
+            if (percentage >= 90) {
+                grade = "Excellent! 🌟";
+                emoji = "🏆";
+            } else if (percentage >= 80) {
+                grade = "Very Good! 👏";
+                emoji = "🎉";
+            } else if (percentage >= 70) {
+                grade = "Good! 👍";
+                emoji = "😊";
+            } else if (percentage >= 60) {
+                grade = "Fair 📚";
+                emoji = "😐";
+            } else {
+                grade = "Need More Practice 💪";
+                emoji = "😅";
+            }
+            
+            document.getElementById('finalGrade').textContent = grade;
+            document.getElementById('resultEmoji').textContent = emoji;
+        }
+
+        function restartQuiz() {
+            document.getElementById('resultContainer').style.display = 'none';
+            document.getElementById('nameInput').style.display = 'block';
+            document.getElementById('studentName').value = '';
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+        }
+
+        // Initialize
+        updateNextButton();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'983f707630cadf9b',t:'MTc1ODY4NzEwMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
