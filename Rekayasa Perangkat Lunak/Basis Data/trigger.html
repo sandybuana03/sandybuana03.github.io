@@ -1,0 +1,2065 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar Database Triggers - Pembelajaran Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .menu-item {
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            transform: scale(1.05);
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .quiz-option:hover {
+            background-color: #e0f2fe;
+            transform: translateX(5px);
+        }
+        
+        .quiz-option.selected {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-color: #06b6d4;
+        }
+        
+        .quiz-option.correct {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-color: #28a745;
+        }
+        
+        .quiz-option.incorrect {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border-color: #dc3545;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-screen">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-white rounded-full p-3 shadow-lg">
+        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
+    <!-- Desktop Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-xl transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 overflow-y-auto">
+        <div class="p-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+            <h1 class="text-xl font-bold">🎯 Database Triggers</h1>
+            <p class="text-sm opacity-90 mt-1">Pembelajaran Interaktif</p>
+        </div>
+        
+        <nav class="p-4 space-y-2">
+            <div class="menu-item p-3 rounded-lg cursor-pointer bg-gradient-to-r from-yellow-200 to-yellow-300" onclick="showSection('intro')">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">🚀</span>
+                    <span class="font-medium text-gray-700">Intro</span>
+                </div>
+            </div>
+            
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('pengenalan')">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">👋</span>
+                    <span class="font-medium text-gray-700">Pengenalan</span>
+                </div>
+            </div>
+            
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('konsep-dasar')">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">📚</span>
+                    <span class="font-medium text-gray-700">Konsep Dasar</span>
+                </div>
+            </div>
+            
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('jenis-trigger')">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">🔧</span>
+                    <span class="font-medium text-gray-700">Jenis Trigger</span>
+                </div>
+            </div>
+            
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('sintaks')">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">💻</span>
+                    <span class="font-medium text-gray-700">Sintaks & Struktur</span>
+                </div>
+            </div>
+            
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('implementasi')">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">⚡</span>
+                    <span class="font-medium text-gray-700">Implementasi</span>
+                </div>
+            </div>
+            
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('praktik')">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">🛠️</span>
+                    <span class="font-medium text-gray-700">Praktik</span>
+                </div>
+            </div>
+            
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('kuis')">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">🧠</span>
+                    <span class="font-medium text-gray-700">Kuis</span>
+                </div>
+            </div>
+            
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('penutup')">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">🎉</span>
+                    <span class="font-medium text-gray-700">Penutup</span>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileOverlay" class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30 hidden" onclick="closeMobileMenu()"></div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-screen">
+        <div class="max-w-4xl mx-auto p-4 lg:p-8">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4 bounce">🎯</div>
+                        <h1 class="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+                            Database Triggers
+                        </h1>
+                        <p class="text-xl text-gray-600">Pembelajaran Interaktif untuk SMK</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🤔</span>
+                                Pertanyaan Pemantik
+                            </h3>
+                            <ul class="space-y-2 text-gray-700 text-lg">
+                                <li>• Apa yang terjadi jika data berubah secara otomatis?</li>
+                                <li>• Bagaimana database bisa "bereaksi" terhadap perubahan?</li>
+                                <li>• Mengapa kita perlu automasi dalam database?</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">📖</span>
+                                Apa yang Dipelajari
+                            </h3>
+                            <ul class="space-y-2 text-gray-700 text-lg">
+                                <li>• Konsep dasar triggers</li>
+                                <li>• Jenis-jenis triggers</li>
+                                <li>• Implementasi praktis</li>
+                                <li>• Best practices</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🎯</span>
+                                Tujuan Pembelajaran
+                            </h3>
+                            <ul class="space-y-2 text-gray-700 text-lg">
+                                <li>• Memahami konsep triggers</li>
+                                <li>• Mampu membuat triggers</li>
+                                <li>• Mengimplementasikan dalam proyek</li>
+                                <li>• Mengatasi masalah dengan triggers</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">💡</span>
+                                Pemahaman Bermakna
+                            </h3>
+                            <p class="text-gray-700 text-lg">
+                                Triggers adalah "penjaga otomatis" yang bekerja di belakang layar untuk menjaga konsistensi dan integritas data dalam database.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-gradient-to-r from-pink-50 to-yellow-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-pink-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-2">🔥</span>
+                            Motivasi
+                        </h3>
+                        <p class="text-gray-700 text-lg leading-relaxed">
+                            Bayangkan kamu memiliki asisten pribadi yang selalu siaga 24/7 untuk menjaga rumahmu. 
+                            Itulah triggers dalam database! Mereka bekerja tanpa lelah untuk memastikan data selalu aman, 
+                            konsisten, dan terupdate. Dengan menguasai triggers, kamu akan menjadi database developer yang handal! 🚀
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">👋</div>
+                        <h2 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent">
+                            Pengenalan Database Triggers
+                        </h2>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🤖</span>
+                                Apa itu Database Trigger?
+                            </h3>
+                            <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                                Database Trigger adalah sebuah program khusus yang berjalan secara otomatis (triggered) 
+                                ketika terjadi event tertentu dalam database. Seperti alarm yang berbunyi ketika ada yang 
+                                masuk ke rumah, trigger akan "bereaksi" ketika ada perubahan data.
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-xl mt-4">
+                                <h4 class="font-bold text-blue-700 mb-2">🎯 Analogi Sederhana:</h4>
+                                <p class="text-gray-600 text-lg">
+                                    Trigger seperti <strong>penjaga otomatis</strong> yang selalu mengawasi database. 
+                                    Ketika ada yang INSERT, UPDATE, atau DELETE data, penjaga ini langsung bertindak 
+                                    sesuai instruksi yang sudah diberikan.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">⚡</span>
+                                Karakteristik Trigger
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-2">✅ Otomatis</h4>
+                                    <p class="text-gray-600">Berjalan sendiri tanpa dipanggil manual</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-2">⚡ Cepat</h4>
+                                    <p class="text-gray-600">Eksekusi langsung saat event terjadi</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-2">🔒 Transparan</h4>
+                                    <p class="text-gray-600">User tidak perlu tahu trigger berjalan</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-2">🎯 Spesifik</h4>
+                                    <p class="text-gray-600">Terikat pada tabel dan event tertentu</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎪</span>
+                                Kapan Trigger Digunakan?
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-purple-500">
+                                    <h4 class="font-bold text-purple-700 mb-2">📊 Audit Trail</h4>
+                                    <p class="text-gray-600 text-lg">Mencatat siapa, kapan, dan apa yang diubah dalam database</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-blue-500">
+                                    <h4 class="font-bold text-blue-700 mb-2">🔄 Sinkronisasi Data</h4>
+                                    <p class="text-gray-600 text-lg">Update otomatis tabel lain ketika data berubah</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-green-500">
+                                    <h4 class="font-bold text-green-700 mb-2">✅ Validasi Kompleks</h4>
+                                    <p class="text-gray-600 text-lg">Cek aturan bisnis yang rumit sebelum data disimpan</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-orange-500">
+                                    <h4 class="font-bold text-orange-700 mb-2">📈 Kalkulasi Otomatis</h4>
+                                    <p class="text-gray-600 text-lg">Hitung total, rata-rata, atau statistik lainnya</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Konsep Dasar Section -->
+            <div id="konsep-dasar" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📚</div>
+                        <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                            Konsep Dasar Triggers
+                        </h2>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-br from-indigo-50 to-blue-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-indigo-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">🏗️</span>
+                                Komponen Utama Trigger
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-3 gap-6">
+                                <div class="bg-white p-6 rounded-xl text-center card-hover">
+                                    <div class="text-4xl mb-3">⚡</div>
+                                    <h4 class="font-bold text-indigo-700 mb-2 text-xl">EVENT</h4>
+                                    <p class="text-gray-600 text-lg">Pemicu yang mengaktifkan trigger</p>
+                                    <div class="mt-3 text-sm text-gray-500">
+                                        INSERT, UPDATE, DELETE
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-xl text-center card-hover">
+                                    <div class="text-4xl mb-3">⏰</div>
+                                    <h4 class="font-bold text-indigo-700 mb-2 text-xl">TIMING</h4>
+                                    <p class="text-gray-600 text-lg">Kapan trigger dijalankan</p>
+                                    <div class="mt-3 text-sm text-gray-500">
+                                        BEFORE, AFTER, INSTEAD OF
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-xl text-center card-hover">
+                                    <div class="text-4xl mb-3">🎯</div>
+                                    <h4 class="font-bold text-indigo-700 mb-2 text-xl">ACTION</h4>
+                                    <p class="text-gray-600 text-lg">Aksi yang dilakukan trigger</p>
+                                    <div class="mt-3 text-sm text-gray-500">
+                                        SQL statements, procedures
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-50 to-teal-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">🔄</span>
+                                Alur Kerja Trigger
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center space-x-4 bg-white p-4 rounded-xl">
+                                    <div class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">1</div>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 text-lg">User melakukan operasi SQL</h4>
+                                        <p class="text-gray-600">INSERT, UPDATE, atau DELETE pada tabel</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center space-x-4 bg-white p-4 rounded-xl">
+                                    <div class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">2</div>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 text-lg">Database mendeteksi event</h4>
+                                        <p class="text-gray-600">Sistem mengecek apakah ada trigger untuk event ini</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center space-x-4 bg-white p-4 rounded-xl">
+                                    <div class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">3</div>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 text-lg">Trigger dieksekusi</h4>
+                                        <p class="text-gray-600">Kode dalam trigger body dijalankan otomatis</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center space-x-4 bg-white p-4 rounded-xl">
+                                    <div class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">4</div>
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 text-lg">Operasi selesai</h4>
+                                        <p class="text-gray-600">Operasi SQL asli dilanjutkan atau dibatalkan</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-yellow-50 to-orange-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-orange-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">⚠️</span>
+                                Hal Penting yang Perlu Diingat
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-red-400">
+                                    <h4 class="font-bold text-red-700 mb-2">🚫 Jangan Berlebihan</h4>
+                                    <p class="text-gray-600 text-lg">Trigger yang terlalu banyak bisa memperlambat database</p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-blue-400">
+                                    <h4 class="font-bold text-blue-700 mb-2">🔍 Mudah Debug</h4>
+                                    <p class="text-gray-600 text-lg">Buat trigger yang mudah dipahami dan di-debug</p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-green-400">
+                                    <h4 class="font-bold text-green-700 mb-2">📝 Dokumentasi</h4>
+                                    <p class="text-gray-600 text-lg">Selalu dokumentasikan tujuan dan cara kerja trigger</p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-purple-400">
+                                    <h4 class="font-bold text-purple-700 mb-2">🧪 Testing</h4>
+                                    <p class="text-gray-600 text-lg">Test trigger dengan berbagai skenario sebelum deploy</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jenis Trigger Section -->
+            <div id="jenis-trigger" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🔧</div>
+                        <h2 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                            Jenis-Jenis Trigger
+                        </h2>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <!-- Berdasarkan Timing -->
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">⏰</span>
+                                Berdasarkan Timing (Waktu Eksekusi)
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-3 gap-6">
+                                <div class="bg-white p-6 rounded-xl card-hover">
+                                    <div class="text-center mb-4">
+                                        <div class="text-4xl mb-2">⏪</div>
+                                        <h4 class="font-bold text-blue-700 text-xl">BEFORE</h4>
+                                    </div>
+                                    <p class="text-gray-600 text-lg mb-4">Dijalankan SEBELUM operasi SQL dilakukan</p>
+                                    <div class="bg-blue-50 p-3 rounded-lg">
+                                        <h5 class="font-bold text-blue-700 mb-2">Kegunaan:</h5>
+                                        <ul class="text-sm text-gray-600 space-y-1">
+                                            <li>• Validasi data</li>
+                                            <li>• Modifikasi nilai</li>
+                                            <li>• Cek constraint</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-xl card-hover">
+                                    <div class="text-center mb-4">
+                                        <div class="text-4xl mb-2">⏩</div>
+                                        <h4 class="font-bold text-green-700 text-xl">AFTER</h4>
+                                    </div>
+                                    <p class="text-gray-600 text-lg mb-4">Dijalankan SETELAH operasi SQL berhasil</p>
+                                    <div class="bg-green-50 p-3 rounded-lg">
+                                        <h5 class="font-bold text-green-700 mb-2">Kegunaan:</h5>
+                                        <ul class="text-sm text-gray-600 space-y-1">
+                                            <li>• Audit logging</li>
+                                            <li>• Update tabel lain</li>
+                                            <li>• Notifikasi</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-xl card-hover">
+                                    <div class="text-center mb-4">
+                                        <div class="text-4xl mb-2">🔄</div>
+                                        <h4 class="font-bold text-purple-700 text-xl">INSTEAD OF</h4>
+                                    </div>
+                                    <p class="text-gray-600 text-lg mb-4">MENGGANTIKAN operasi SQL asli</p>
+                                    <div class="bg-purple-50 p-3 rounded-lg">
+                                        <h5 class="font-bold text-purple-700 mb-2">Kegunaan:</h5>
+                                        <ul class="text-sm text-gray-600 space-y-1">
+                                            <li>• Update view</li>
+                                            <li>• Custom logic</li>
+                                            <li>• Complex operations</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Berdasarkan Event -->
+                        <div class="bg-gradient-to-br from-green-50 to-teal-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">⚡</span>
+                                Berdasarkan Event (Pemicu)
+                            </h3>
+                            
+                            <div class="space-y-6">
+                                <div class="bg-white p-6 rounded-xl">
+                                    <div class="flex items-center mb-4">
+                                        <div class="text-3xl mr-3">➕</div>
+                                        <h4 class="font-bold text-green-700 text-xl">INSERT Trigger</h4>
+                                    </div>
+                                    <p class="text-gray-600 text-lg mb-4">Dipicu ketika ada data baru yang ditambahkan ke tabel</p>
+                                    <div class="bg-green-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-green-700 mb-2">Contoh Penggunaan:</h5>
+                                        <ul class="text-gray-600 space-y-1 text-lg">
+                                            <li>• Auto-generate ID atau timestamp</li>
+                                            <li>• Validasi data sebelum insert</li>
+                                            <li>• Update counter atau statistik</li>
+                                            <li>• Log aktivitas penambahan data</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-xl">
+                                    <div class="flex items-center mb-4">
+                                        <div class="text-3xl mr-3">✏️</div>
+                                        <h4 class="font-bold text-blue-700 text-xl">UPDATE Trigger</h4>
+                                    </div>
+                                    <p class="text-gray-600 text-lg mb-4">Dipicu ketika ada data yang dimodifikasi dalam tabel</p>
+                                    <div class="bg-blue-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-blue-700 mb-2">Contoh Penggunaan:</h5>
+                                        <ul class="text-gray-600 space-y-1 text-lg">
+                                            <li>• Track perubahan data (audit trail)</li>
+                                            <li>• Update timestamp last_modified</li>
+                                            <li>• Sinkronisasi dengan tabel lain</li>
+                                            <li>• Validasi perubahan data</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-xl">
+                                    <div class="flex items-center mb-4">
+                                        <div class="text-3xl mr-3">🗑️</div>
+                                        <h4 class="font-bold text-red-700 text-xl">DELETE Trigger</h4>
+                                    </div>
+                                    <p class="text-gray-600 text-lg mb-4">Dipicu ketika ada data yang dihapus dari tabel</p>
+                                    <div class="bg-red-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-red-700 mb-2">Contoh Penggunaan:</h5>
+                                        <ul class="text-gray-600 space-y-1 text-lg">
+                                            <li>• Backup data sebelum dihapus</li>
+                                            <li>• Cascade delete ke tabel terkait</li>
+                                            <li>• Log aktivitas penghapusan</li>
+                                            <li>• Prevent delete dengan kondisi tertentu</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Berdasarkan Level -->
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">📊</span>
+                                Berdasarkan Level Eksekusi
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white p-6 rounded-xl card-hover">
+                                    <div class="text-center mb-4">
+                                        <div class="text-4xl mb-2">📝</div>
+                                        <h4 class="font-bold text-purple-700 text-xl">ROW-LEVEL</h4>
+                                    </div>
+                                    <p class="text-gray-600 text-lg mb-4">Dieksekusi untuk SETIAP baris yang terpengaruh</p>
+                                    <div class="bg-purple-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-purple-700 mb-2">Karakteristik:</h5>
+                                        <ul class="text-gray-600 space-y-1 text-lg">
+                                            <li>• Akses ke OLD dan NEW values</li>
+                                            <li>• Lebih detail dan spesifik</li>
+                                            <li>• Cocok untuk validasi per record</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-xl card-hover">
+                                    <div class="text-center mb-4">
+                                        <div class="text-4xl mb-2">📋</div>
+                                        <h4 class="font-bold text-orange-700 text-xl">STATEMENT-LEVEL</h4>
+                                    </div>
+                                    <p class="text-gray-600 text-lg mb-4">Dieksekusi SEKALI per statement SQL</p>
+                                    <div class="bg-orange-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-orange-700 mb-2">Karakteristik:</h5>
+                                        <ul class="text-gray-600 space-y-1 text-lg">
+                                            <li>• Lebih efisien untuk bulk operations</li>
+                                            <li>• Tidak akses individual row data</li>
+                                            <li>• Cocok untuk logging dan statistik</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sintaks Section -->
+            <div id="sintaks" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">💻</div>
+                        <h2 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                            Sintaks & Struktur Trigger
+                        </h2>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <!-- Sintaks Dasar -->
+                        <div class="bg-gradient-to-br from-indigo-50 to-purple-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-indigo-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">📝</span>
+                                Sintaks Dasar Trigger
+                            </h3>
+                            
+                            <div class="bg-gray-900 text-green-400 p-6 rounded-xl font-mono text-lg overflow-x-auto">
+                                <pre><code>CREATE TRIGGER nama_trigger
+    {BEFORE | AFTER | INSTEAD OF} {INSERT | UPDATE | DELETE}
+    ON nama_tabel
+    [FOR EACH ROW | FOR EACH STATEMENT]
+BEGIN
+    -- Kode trigger di sini
+    -- Logika yang akan dieksekusi
+END;</code></pre>
+                            </div>
+                            
+                            <div class="mt-6 grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-indigo-700 mb-2 text-lg">🏷️ nama_trigger</h4>
+                                    <p class="text-gray-600">Nama unik untuk trigger (gunakan nama yang deskriptif)</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-indigo-700 mb-2 text-lg">⏰ TIMING</h4>
+                                    <p class="text-gray-600">Kapan trigger dijalankan (BEFORE/AFTER/INSTEAD OF)</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-indigo-700 mb-2 text-lg">⚡ EVENT</h4>
+                                    <p class="text-gray-600">Operasi yang memicu trigger (INSERT/UPDATE/DELETE)</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-indigo-700 mb-2 text-lg">📊 LEVEL</h4>
+                                    <p class="text-gray-600">Level eksekusi (FOR EACH ROW/STATEMENT)</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Contoh Praktis -->
+                        <div class="bg-gradient-to-br from-green-50 to-teal-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">🎯</span>
+                                Contoh Trigger Sederhana
+                            </h3>
+                            
+                            <div class="space-y-6">
+                                <!-- BEFORE INSERT -->
+                                <div class="bg-white p-6 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-4 text-xl flex items-center">
+                                        <span class="text-2xl mr-2">⏪</span>
+                                        BEFORE INSERT Trigger
+                                    </h4>
+                                    <p class="text-gray-600 text-lg mb-4">Trigger untuk auto-generate timestamp sebelum data diinsert:</p>
+                                    
+                                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-base overflow-x-auto">
+                                        <pre><code>CREATE TRIGGER tr_before_insert_user
+    BEFORE INSERT ON users
+    FOR EACH ROW
+BEGIN
+    -- Set created_at dengan timestamp saat ini
+    SET NEW.created_at = NOW();
+    
+    -- Set default status jika kosong
+    IF NEW.status IS NULL THEN
+        SET NEW.status = 'active';
+    END IF;
+END;</code></pre>
+                                    </div>
+                                </div>
+                                
+                                <!-- AFTER UPDATE -->
+                                <div class="bg-white p-6 rounded-xl">
+                                    <h4 class="font-bold text-blue-700 mb-4 text-xl flex items-center">
+                                        <span class="text-2xl mr-2">⏩</span>
+                                        AFTER UPDATE Trigger
+                                    </h4>
+                                    <p class="text-gray-600 text-lg mb-4">Trigger untuk audit trail setelah data diupdate:</p>
+                                    
+                                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-base overflow-x-auto">
+                                        <pre><code>CREATE TRIGGER tr_after_update_user
+    AFTER UPDATE ON users
+    FOR EACH ROW
+BEGIN
+    -- Insert ke tabel audit
+    INSERT INTO user_audit (
+        user_id, 
+        old_email, 
+        new_email, 
+        changed_at, 
+        changed_by
+    ) VALUES (
+        NEW.id, 
+        OLD.email, 
+        NEW.email, 
+        NOW(), 
+        USER()
+    );
+END;</code></pre>
+                                    </div>
+                                </div>
+                                
+                                <!-- BEFORE DELETE -->
+                                <div class="bg-white p-6 rounded-xl">
+                                    <h4 class="font-bold text-red-700 mb-4 text-xl flex items-center">
+                                        <span class="text-2xl mr-2">🗑️</span>
+                                        BEFORE DELETE Trigger
+                                    </h4>
+                                    <p class="text-gray-600 text-lg mb-4">Trigger untuk backup data sebelum dihapus:</p>
+                                    
+                                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-base overflow-x-auto">
+                                        <pre><code>CREATE TRIGGER tr_before_delete_user
+    BEFORE DELETE ON users
+    FOR EACH ROW
+BEGIN
+    -- Backup ke tabel deleted_users
+    INSERT INTO deleted_users (
+        original_id, 
+        username, 
+        email, 
+        deleted_at
+    ) VALUES (
+        OLD.id, 
+        OLD.username, 
+        OLD.email, 
+        NOW()
+    );
+END;</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- OLD dan NEW -->
+                        <div class="bg-gradient-to-br from-yellow-50 to-orange-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-orange-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">🔄</span>
+                                Menggunakan OLD dan NEW
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white p-6 rounded-xl">
+                                    <h4 class="font-bold text-orange-700 mb-4 text-xl flex items-center">
+                                        <span class="text-2xl mr-2">📜</span>
+                                        OLD Values
+                                    </h4>
+                                    <p class="text-gray-600 text-lg mb-4">Nilai data SEBELUM operasi dilakukan</p>
+                                    <div class="bg-orange-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-orange-700 mb-2">Tersedia pada:</h5>
+                                        <ul class="text-gray-600 space-y-1 text-lg">
+                                            <li>• UPDATE triggers</li>
+                                            <li>• DELETE triggers</li>
+                                        </ul>
+                                        <div class="mt-3 bg-gray-800 text-green-400 p-2 rounded font-mono text-sm">
+                                            OLD.column_name
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-xl">
+                                    <h4 class="font-bold text-blue-700 mb-4 text-xl flex items-center">
+                                        <span class="text-2xl mr-2">✨</span>
+                                        NEW Values
+                                    </h4>
+                                    <p class="text-gray-600 text-lg mb-4">Nilai data SETELAH operasi dilakukan</p>
+                                    <div class="bg-blue-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-blue-700 mb-2">Tersedia pada:</h5>
+                                        <ul class="text-gray-600 space-y-1 text-lg">
+                                            <li>• INSERT triggers</li>
+                                            <li>• UPDATE triggers</li>
+                                        </ul>
+                                        <div class="mt-3 bg-gray-800 text-green-400 p-2 rounded font-mono text-sm">
+                                            NEW.column_name
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 bg-white p-6 rounded-xl">
+                                <h4 class="font-bold text-purple-700 mb-4 text-xl">💡 Contoh Penggunaan OLD dan NEW</h4>
+                                <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-base overflow-x-auto">
+                                    <pre><code>CREATE TRIGGER tr_salary_change
+    AFTER UPDATE ON employees
+    FOR EACH ROW
+BEGIN
+    -- Cek apakah salary berubah
+    IF OLD.salary != NEW.salary THEN
+        INSERT INTO salary_history (
+            employee_id,
+            old_salary,
+            new_salary,
+            change_date,
+            change_amount
+        ) VALUES (
+            NEW.id,
+            OLD.salary,
+            NEW.salary,
+            NOW(),
+            NEW.salary - OLD.salary
+        );
+    END IF;
+END;</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementasi Section -->
+            <div id="implementasi" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">⚡</div>
+                        <h2 class="text-4xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                            Implementasi Trigger
+                        </h2>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <!-- Studi Kasus 1: E-commerce -->
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">🛒</span>
+                                Studi Kasus: Sistem E-commerce
+                            </h3>
+                            
+                            <div class="space-y-6">
+                                <div class="bg-white p-6 rounded-xl">
+                                    <h4 class="font-bold text-blue-700 mb-4 text-xl">📦 Auto Update Stock</h4>
+                                    <p class="text-gray-600 text-lg mb-4">Ketika ada order baru, stok produk otomatis berkurang:</p>
+                                    
+                                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-base overflow-x-auto mb-4">
+                                        <pre><code>CREATE TRIGGER tr_update_stock
+    AFTER INSERT ON order_items
+    FOR EACH ROW
+BEGIN
+    -- Kurangi stok produk
+    UPDATE products 
+    SET stock = stock - NEW.quantity
+    WHERE id = NEW.product_id;
+    
+    -- Cek jika stok habis
+    IF (SELECT stock FROM products WHERE id = NEW.product_id) <= 0 THEN
+        UPDATE products 
+        SET status = 'out_of_stock'
+        WHERE id = NEW.product_id;
+    END IF;
+END;</code></pre>
+                                    </div>
+                                    
+                                    <div class="bg-blue-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-blue-700 mb-2">✅ Manfaat:</h5>
+                                        <ul class="text-gray-600 space-y-1 text-lg">
+                                            <li>• Stok selalu akurat real-time</li>
+                                            <li>• Mencegah overselling</li>
+                                            <li>• Otomatis update status produk</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-4 text-xl">💰 Calculate Order Total</h4>
+                                    <p class="text-gray-600 text-lg mb-4">Otomatis hitung total order ketika item ditambah/diubah:</p>
+                                    
+                                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-base overflow-x-auto mb-4">
+                                        <pre><code>CREATE TRIGGER tr_calculate_order_total
+    AFTER INSERT ON order_items
+    FOR EACH ROW
+BEGIN
+    -- Update total order
+    UPDATE orders 
+    SET total_amount = (
+        SELECT SUM(price * quantity) 
+        FROM order_items 
+        WHERE order_id = NEW.order_id
+    )
+    WHERE id = NEW.order_id;
+END;</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Studi Kasus 2: Sistem Perpustakaan -->
+                        <div class="bg-gradient-to-br from-green-50 to-teal-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">📚</span>
+                                Studi Kasus: Sistem Perpustakaan
+                            </h3>
+                            
+                            <div class="space-y-6">
+                                <div class="bg-white p-6 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-4 text-xl">📖 Auto Due Date</h4>
+                                    <p class="text-gray-600 text-lg mb-4">Set tanggal kembali otomatis saat buku dipinjam:</p>
+                                    
+                                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-base overflow-x-auto mb-4">
+                                        <pre><code>CREATE TRIGGER tr_set_due_date
+    BEFORE INSERT ON borrowings
+    FOR EACH ROW
+BEGIN
+    -- Set tanggal pinjam hari ini
+    SET NEW.borrow_date = CURDATE();
+    
+    -- Set tanggal kembali 14 hari dari sekarang
+    SET NEW.due_date = DATE_ADD(CURDATE(), INTERVAL 14 DAY);
+    
+    -- Set status awal
+    SET NEW.status = 'borrowed';
+END;</code></pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-xl">
+                                    <h4 class="font-bold text-blue-700 mb-4 text-xl">📋 Update Book Status</h4>
+                                    <p class="text-gray-600 text-lg mb-4">Update status buku ketika dipinjam atau dikembalikan:</p>
+                                    
+                                    <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-base overflow-x-auto mb-4">
+                                        <pre><code>CREATE TRIGGER tr_update_book_status
+    AFTER INSERT ON borrowings
+    FOR EACH ROW
+BEGIN
+    -- Update status buku menjadi 'borrowed'
+    UPDATE books 
+    SET status = 'borrowed', 
+        available_copies = available_copies - 1
+    WHERE id = NEW.book_id;
+END;
+
+CREATE TRIGGER tr_return_book
+    AFTER UPDATE ON borrowings
+    FOR EACH ROW
+BEGIN
+    -- Jika status berubah menjadi 'returned'
+    IF OLD.status = 'borrowed' AND NEW.status = 'returned' THEN
+        UPDATE books 
+        SET status = 'available', 
+            available_copies = available_copies + 1
+        WHERE id = NEW.book_id;
+    END IF;
+END;</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Best Practices -->
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">⭐</span>
+                                Best Practices
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="bg-white p-4 rounded-xl border-l-4 border-green-500">
+                                        <h4 class="font-bold text-green-700 mb-2 text-lg">✅ DO (Lakukan)</h4>
+                                        <ul class="text-gray-600 space-y-2 text-lg">
+                                            <li>• Gunakan nama trigger yang deskriptif</li>
+                                            <li>• Tambahkan komentar untuk logika kompleks</li>
+                                            <li>• Test trigger dengan berbagai skenario</li>
+                                            <li>• Dokumentasikan tujuan trigger</li>
+                                            <li>• Gunakan error handling yang baik</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="bg-white p-4 rounded-xl border-l-4 border-red-500">
+                                        <h4 class="font-bold text-red-700 mb-2 text-lg">❌ DON'T (Jangan)</h4>
+                                        <ul class="text-gray-600 space-y-2 text-lg">
+                                            <li>• Jangan buat trigger yang terlalu kompleks</li>
+                                            <li>• Hindari recursive triggers</li>
+                                            <li>• Jangan lakukan operasi yang lama</li>
+                                            <li>• Hindari trigger yang saling bergantung</li>
+                                            <li>• Jangan abaikan error handling</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 bg-white p-6 rounded-xl">
+                                <h4 class="font-bold text-purple-700 mb-4 text-xl">🔧 Tips Debugging Trigger</h4>
+                                <div class="grid md:grid-cols-3 gap-4">
+                                    <div class="bg-purple-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-purple-700 mb-2">📝 Logging</h5>
+                                        <p class="text-gray-600 text-lg">Buat tabel log untuk track eksekusi trigger</p>
+                                    </div>
+                                    <div class="bg-purple-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-purple-700 mb-2">🧪 Testing</h5>
+                                        <p class="text-gray-600 text-lg">Test di environment terpisah dulu</p>
+                                    </div>
+                                    <div class="bg-purple-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-purple-700 mb-2">📊 Monitoring</h5>
+                                        <p class="text-gray-600 text-lg">Monitor performa dan error trigger</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Praktik Section -->
+            <div id="praktik" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🛠️</div>
+                        <h2 class="text-4xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
+                            Praktik Hands-On
+                        </h2>
+                        <p class="text-xl text-gray-600 mt-4">Mari praktik membuat trigger step by step!</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <!-- Setup Database -->
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">🏗️</span>
+                                Step 1: Setup Database
+                            </h3>
+                            
+                            <div class="bg-white p-6 rounded-xl">
+                                <h4 class="font-bold text-blue-700 mb-4 text-xl">📊 Buat Database dan Tabel</h4>
+                                <p class="text-gray-600 text-lg mb-4">Pertama, kita buat database untuk sistem toko online sederhana:</p>
+                                
+                                <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-base overflow-x-auto mb-4">
+                                    <pre><code>-- Buat database
+CREATE DATABASE toko_online;
+USE toko_online;
+
+-- Tabel products
+CREATE TABLE products (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    stock INT NOT NULL DEFAULT 0,
+    status ENUM('available', 'out_of_stock') DEFAULT 'available',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabel orders
+CREATE TABLE orders (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_name VARCHAR(100) NOT NULL,
+    total_amount DECIMAL(10,2) DEFAULT 0,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('pending', 'completed', 'cancelled') DEFAULT 'pending'
+);
+
+-- Tabel order_items
+CREATE TABLE order_items (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT,
+    product_id INT,
+    quantity INT NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+-- Tabel audit_log
+CREATE TABLE audit_log (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    table_name VARCHAR(50),
+    operation VARCHAR(10),
+    old_values JSON,
+    new_values JSON,
+    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    changed_by VARCHAR(100)
+);</code></pre>
+                                </div>
+                                
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <h5 class="font-bold text-blue-700 mb-2">📝 Penjelasan Struktur:</h5>
+                                    <ul class="text-gray-600 space-y-1 text-lg">
+                                        <li>• <strong>products</strong>: Menyimpan data produk dan stok</li>
+                                        <li>• <strong>orders</strong>: Menyimpan data pesanan</li>
+                                        <li>• <strong>order_items</strong>: Detail item dalam pesanan</li>
+                                        <li>• <strong>audit_log</strong>: Log untuk tracking perubahan</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Insert Sample Data -->
+                        <div class="bg-gradient-to-br from-green-50 to-teal-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">📦</span>
+                                Step 2: Insert Sample Data
+                            </h3>
+                            
+                            <div class="bg-white p-6 rounded-xl">
+                                <h4 class="font-bold text-green-700 mb-4 text-xl">🛍️ Tambah Data Produk</h4>
+                                
+                                <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-base overflow-x-auto mb-4">
+                                    <pre><code>-- Insert sample products
+INSERT INTO products (name, price, stock) VALUES
+('Laptop Gaming', 15000000, 10),
+('Mouse Wireless', 250000, 50),
+('Keyboard Mechanical', 800000, 25),
+('Monitor 24 inch', 3500000, 15),
+('Headset Gaming', 600000, 30);</code></pre>
+                                </div>
+                                
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <h5 class="font-bold text-green-700 mb-2">✅ Verifikasi Data:</h5>
+                                    <div class="bg-gray-900 text-green-400 p-2 rounded font-mono text-sm">
+                                        SELECT * FROM products;
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Trigger 1: Auto Update Stock -->
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">⚡</span>
+                                Step 3: Buat Trigger Auto Update Stock
+                            </h3>
+                            
+                            <div class="bg-white p-6 rounded-xl">
+                                <h4 class="font-bold text-purple-700 mb-4 text-xl">📉 Trigger Kurangi Stok</h4>
+                                <p class="text-gray-600 text-lg mb-4">Ketika ada item baru di order, stok produk otomatis berkurang:</p>
+                                
+                                <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-base overflow-x-auto mb-4">
+                                    <pre><code>DELIMITER //
+
+CREATE TRIGGER tr_update_stock_after_order
+    AFTER INSERT ON order_items
+    FOR EACH ROW
+BEGIN
+    -- Kurangi stok produk
+    UPDATE products 
+    SET stock = stock - NEW.quantity
+    WHERE id = NEW.product_id;
+    
+    -- Update status jika stok habis
+    UPDATE products 
+    SET status = CASE 
+        WHEN stock <= 0 THEN 'out_of_stock'
+        ELSE 'available'
+    END
+    WHERE id = NEW.product_id;
+    
+    -- Log ke audit
+    INSERT INTO audit_log (table_name, operation, new_values, changed_by)
+    VALUES ('products', 'STOCK_UPDATE', 
+            JSON_OBJECT('product_id', NEW.product_id, 'quantity_sold', NEW.quantity),
+            USER());
+END//
+
+DELIMITER ;</code></pre>
+                                </div>
+                                
+                                <div class="bg-purple-50 p-4 rounded-lg">
+                                    <h5 class="font-bold text-purple-700 mb-2">🧪 Test Trigger:</h5>
+                                    <div class="bg-gray-900 text-green-400 p-2 rounded font-mono text-sm mb-2">
+                                        <pre><code>-- Buat order baru
+INSERT INTO orders (customer_name) VALUES ('John Doe');
+
+-- Tambah item ke order (ini akan trigger update stock)
+INSERT INTO order_items (order_id, product_id, quantity, price) 
+VALUES (1, 1, 2, 15000000);
+
+-- Cek perubahan stock
+SELECT name, stock, status FROM products WHERE id = 1;</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Trigger 2: Calculate Order Total -->
+                        <div class="bg-gradient-to-br from-orange-50 to-red-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-orange-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">💰</span>
+                                Step 4: Trigger Hitung Total Order
+                            </h3>
+                            
+                            <div class="bg-white p-6 rounded-xl">
+                                <h4 class="font-bold text-orange-700 mb-4 text-xl">🧮 Auto Calculate Total</h4>
+                                <p class="text-gray-600 text-lg mb-4">Otomatis hitung total order setiap kali ada item baru:</p>
+                                
+                                <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-base overflow-x-auto mb-4">
+                                    <pre><code>DELIMITER //
+
+CREATE TRIGGER tr_calculate_order_total
+    AFTER INSERT ON order_items
+    FOR EACH ROW
+BEGIN
+    -- Hitung total order
+    UPDATE orders 
+    SET total_amount = (
+        SELECT COALESCE(SUM(quantity * price), 0)
+        FROM order_items 
+        WHERE order_id = NEW.order_id
+    )
+    WHERE id = NEW.order_id;
+END//
+
+-- Trigger untuk UPDATE order_items
+CREATE TRIGGER tr_recalculate_on_update
+    AFTER UPDATE ON order_items
+    FOR EACH ROW
+BEGIN
+    UPDATE orders 
+    SET total_amount = (
+        SELECT COALESCE(SUM(quantity * price), 0)
+        FROM order_items 
+        WHERE order_id = NEW.order_id
+    )
+    WHERE id = NEW.order_id;
+END//
+
+-- Trigger untuk DELETE order_items
+CREATE TRIGGER tr_recalculate_on_delete
+    AFTER DELETE ON order_items
+    FOR EACH ROW
+BEGIN
+    UPDATE orders 
+    SET total_amount = (
+        SELECT COALESCE(SUM(quantity * price), 0)
+        FROM order_items 
+        WHERE order_id = OLD.order_id
+    )
+    WHERE id = OLD.order_id;
+END//
+
+DELIMITER ;</code></pre>
+                                </div>
+                                
+                                <div class="bg-orange-50 p-4 rounded-lg">
+                                    <h5 class="font-bold text-orange-700 mb-2">🧪 Test Trigger:</h5>
+                                    <div class="bg-gray-900 text-green-400 p-2 rounded font-mono text-sm">
+                                        <pre><code>-- Tambah item lagi ke order yang sama
+INSERT INTO order_items (order_id, product_id, quantity, price) 
+VALUES (1, 2, 3, 250000);
+
+-- Cek total order
+SELECT customer_name, total_amount FROM orders WHERE id = 1;</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Trigger 3: Audit Trail -->
+                        <div class="bg-gradient-to-br from-teal-50 to-cyan-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-teal-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">📋</span>
+                                Step 5: Trigger Audit Trail
+                            </h3>
+                            
+                            <div class="bg-white p-6 rounded-xl">
+                                <h4 class="font-bold text-teal-700 mb-4 text-xl">🔍 Track Semua Perubahan</h4>
+                                <p class="text-gray-600 text-lg mb-4">Catat semua perubahan pada tabel products:</p>
+                                
+                                <div class="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-base overflow-x-auto mb-4">
+                                    <pre><code>DELIMITER //
+
+-- Audit untuk INSERT
+CREATE TRIGGER tr_audit_products_insert
+    AFTER INSERT ON products
+    FOR EACH ROW
+BEGIN
+    INSERT INTO audit_log (table_name, operation, new_values, changed_by)
+    VALUES ('products', 'INSERT', 
+            JSON_OBJECT('id', NEW.id, 'name', NEW.name, 'price', NEW.price, 'stock', NEW.stock),
+            USER());
+END//
+
+-- Audit untuk UPDATE
+CREATE TRIGGER tr_audit_products_update
+    AFTER UPDATE ON products
+    FOR EACH ROW
+BEGIN
+    INSERT INTO audit_log (table_name, operation, old_values, new_values, changed_by)
+    VALUES ('products', 'UPDATE',
+            JSON_OBJECT('id', OLD.id, 'name', OLD.name, 'price', OLD.price, 'stock', OLD.stock, 'status', OLD.status),
+            JSON_OBJECT('id', NEW.id, 'name', NEW.name, 'price', NEW.price, 'stock', NEW.stock, 'status', NEW.status),
+            USER());
+END//
+
+-- Audit untuk DELETE
+CREATE TRIGGER tr_audit_products_delete
+    BEFORE DELETE ON products
+    FOR EACH ROW
+BEGIN
+    INSERT INTO audit_log (table_name, operation, old_values, changed_by)
+    VALUES ('products', 'DELETE',
+            JSON_OBJECT('id', OLD.id, 'name', OLD.name, 'price', OLD.price, 'stock', OLD.stock),
+            USER());
+END//
+
+DELIMITER ;</code></pre>
+                                </div>
+                                
+                                <div class="bg-teal-50 p-4 rounded-lg">
+                                    <h5 class="font-bold text-teal-700 mb-2">🧪 Test Audit:</h5>
+                                    <div class="bg-gray-900 text-green-400 p-2 rounded font-mono text-sm">
+                                        <pre><code>-- Update harga produk
+UPDATE products SET price = 16000000 WHERE id = 1;
+
+-- Lihat log audit
+SELECT * FROM audit_log ORDER BY changed_at DESC LIMIT 5;</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Testing Comprehensive -->
+                        <div class="bg-gradient-to-br from-indigo-50 to-purple-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-indigo-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">🧪</span>
+                                Step 6: Testing Komprehensif
+                            </h3>
+                            
+                            <div class="bg-white p-6 rounded-xl">
+                                <h4 class="font-bold text-indigo-700 mb-4 text-xl">🎯 Skenario Testing Lengkap</h4>
+                                
+                                <div class="space-y-4">
+                                    <div class="bg-indigo-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-indigo-700 mb-2">Test 1: Order Baru Lengkap</h5>
+                                        <div class="bg-gray-900 text-green-400 p-2 rounded font-mono text-sm">
+                                            <pre><code>-- Buat order baru
+INSERT INTO orders (customer_name) VALUES ('Jane Smith');
+
+-- Tambah beberapa item
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(2, 3, 2, 800000),
+(2, 4, 1, 3500000),
+(2, 5, 1, 600000);
+
+-- Cek hasil
+SELECT o.customer_name, o.total_amount, 
+       p.name, p.stock, p.status
+FROM orders o, products p 
+WHERE o.id = 2;</code></pre>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-green-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-green-700 mb-2">Test 2: Update Quantity</h5>
+                                        <div class="bg-gray-900 text-green-400 p-2 rounded font-mono text-sm">
+                                            <pre><code>-- Update quantity item
+UPDATE order_items SET quantity = 5 WHERE id = 1;
+
+-- Cek perubahan total dan stock
+SELECT * FROM orders WHERE id = 1;
+SELECT name, stock FROM products WHERE id = 1;</code></pre>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-yellow-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-yellow-700 mb-2">Test 3: Hapus Item</h5>
+                                        <div class="bg-gray-900 text-green-400 p-2 rounded font-mono text-sm">
+                                            <pre><code>-- Hapus item dari order
+DELETE FROM order_items WHERE id = 2;
+
+-- Cek total order berubah
+SELECT * FROM orders WHERE id = 2;</code></pre>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-purple-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-purple-700 mb-2">Test 4: Lihat Audit Trail</h5>
+                                        <div class="bg-gray-900 text-green-400 p-2 rounded font-mono text-sm">
+                                            <pre><code>-- Lihat semua aktivitas
+SELECT table_name, operation, changed_at, changed_by 
+FROM audit_log 
+ORDER BY changed_at DESC;</code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Management Triggers -->
+                        <div class="bg-gradient-to-br from-red-50 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-red-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">🔧</span>
+                                Step 7: Management Triggers
+                            </h3>
+                            
+                            <div class="bg-white p-6 rounded-xl">
+                                <h4 class="font-bold text-red-700 mb-4 text-xl">📋 Perintah Management</h4>
+                                
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="bg-red-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-red-700 mb-2">📝 Lihat Semua Trigger</h5>
+                                        <div class="bg-gray-900 text-green-400 p-2 rounded font-mono text-sm">
+                                            SHOW TRIGGERS;
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-blue-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-blue-700 mb-2">🔍 Detail Trigger</h5>
+                                        <div class="bg-gray-900 text-green-400 p-2 rounded font-mono text-sm">
+                                            SHOW CREATE TRIGGER nama_trigger;
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-yellow-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-yellow-700 mb-2">🗑️ Hapus Trigger</h5>
+                                        <div class="bg-gray-900 text-green-400 p-2 rounded font-mono text-sm">
+                                            DROP TRIGGER nama_trigger;
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-green-50 p-4 rounded-lg">
+                                        <h5 class="font-bold text-green-700 mb-2">✏️ Modify Trigger</h5>
+                                        <div class="bg-gray-900 text-green-400 p-2 rounded font-mono text-sm">
+                                            DROP TRIGGER old_trigger;<br>
+                                            CREATE TRIGGER new_trigger...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🧠</div>
+                        <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                            Kuis Database Triggers
+                        </h2>
+                        <p class="text-xl text-gray-600 mt-4">Uji pemahaman kamu tentang triggers!</p>
+                    </div>
+                    
+                    <!-- Input Nama -->
+                    <div id="nameInput" class="bg-gradient-to-br from-blue-50 to-indigo-100 p-6 rounded-2xl mb-8">
+                        <h3 class="text-2xl font-bold text-blue-800 mb-4 text-center">Masukkan Nama Kamu</h3>
+                        <div class="max-w-md mx-auto">
+                            <input type="text" id="studentName" placeholder="Nama lengkap..." 
+                                   class="w-full p-4 text-xl border-2 border-blue-300 rounded-xl focus:border-blue-500 focus:outline-none">
+                            <button onclick="startQuiz()" 
+                                    class="w-full mt-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white p-4 rounded-xl text-xl font-bold hover:from-blue-600 hover:to-purple-600 transition-all">
+                                Mulai Kuis 🚀
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quiz Container -->
+                    <div id="quizContainer" class="hidden">
+                        <div id="questionContainer" class="mb-8">
+                            <!-- Questions will be inserted here -->
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <div class="text-lg font-bold text-gray-600">
+                                Soal <span id="currentQuestion">1</span> dari <span id="totalQuestions">10</span>
+                            </div>
+                            <button id="nextBtn" onclick="nextQuestion()" 
+                                    class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-3 rounded-xl font-bold hover:from-green-600 hover:to-blue-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
+                                    disabled>
+                                Selanjutnya →
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Results -->
+                    <div id="resultsContainer" class="hidden">
+                        <div class="text-center">
+                            <div class="text-6xl mb-4">🎉</div>
+                            <h3 class="text-3xl font-bold text-purple-800 mb-4">Kuis Selesai!</h3>
+                            <div class="bg-gradient-to-br from-purple-50 to-pink-100 p-8 rounded-2xl">
+                                <div class="text-2xl font-bold text-purple-700 mb-2">
+                                    Nama: <span id="finalName"></span>
+                                </div>
+                                <div class="text-4xl font-bold text-purple-800 mb-4">
+                                    Skor: <span id="finalScore"></span>/10
+                                </div>
+                                <div class="text-xl text-gray-600 mb-6">
+                                    <span id="scoreMessage"></span>
+                                </div>
+                                <button onclick="restartQuiz()" 
+                                        class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-xl font-bold hover:from-purple-600 hover:to-pink-600 transition-all">
+                                    Ulangi Kuis 🔄
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎉</div>
+                        <h2 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                            Penutup
+                        </h2>
+                        <p class="text-xl text-gray-600 mt-4">Selamat! Kamu telah menyelesaikan pembelajaran Database Triggers</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <!-- Refleksi -->
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">🤔</span>
+                                Refleksi
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-6 rounded-xl">
+                                    <h4 class="font-bold text-blue-700 mb-4 text-xl">💭 Renungkan Pembelajaran Ini</h4>
+                                    <div class="space-y-3 text-lg text-gray-700">
+                                        <p><strong>1. Apa yang paling menarik dari triggers?</strong></p>
+                                        <p class="ml-4 text-gray-600">Kemampuan database untuk "bereaksi" secara otomatis terhadap perubahan data</p>
+                                        
+                                        <p><strong>2. Bagaimana triggers bisa membantu dalam proyek nyata?</strong></p>
+                                        <p class="ml-4 text-gray-600">Automasi, audit trail, validasi data, dan menjaga konsistensi</p>
+                                        
+                                        <p><strong>3. Tantangan apa yang kamu hadapi?</strong></p>
+                                        <p class="ml-4 text-gray-600">Memahami timing eksekusi dan debugging trigger yang kompleks</p>
+                                        
+                                        <p><strong>4. Skill apa yang sudah kamu kuasai?</strong></p>
+                                        <p class="ml-4 text-gray-600">Membuat trigger, menggunakan OLD/NEW, implementasi audit trail</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Kesimpulan -->
+                        <div class="bg-gradient-to-br from-green-50 to-teal-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">📝</span>
+                                Kesimpulan Pembelajaran
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white p-6 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-4 text-xl flex items-center">
+                                        <span class="text-2xl mr-2">🎯</span>
+                                        Apa yang Telah Dipelajari
+                                    </h4>
+                                    <ul class="space-y-2 text-gray-700 text-lg">
+                                        <li>✅ Konsep dasar database triggers</li>
+                                        <li>✅ Jenis-jenis triggers (BEFORE, AFTER, INSTEAD OF)</li>
+                                        <li>✅ Event triggers (INSERT, UPDATE, DELETE)</li>
+                                        <li>✅ Sintaks dan struktur trigger</li>
+                                        <li>✅ Implementasi dalam kasus nyata</li>
+                                        <li>✅ Best practices dan debugging</li>
+                                        <li>✅ Hands-on practice dengan MySQL</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-xl">
+                                    <h4 class="font-bold text-blue-700 mb-4 text-xl flex items-center">
+                                        <span class="text-2xl mr-2">💪</span>
+                                        Skill yang Dikuasai
+                                    </h4>
+                                    <ul class="space-y-2 text-gray-700 text-lg">
+                                        <li>🔧 Membuat trigger untuk berbagai kebutuhan</li>
+                                        <li>📊 Menggunakan OLD dan NEW values</li>
+                                        <li>🔍 Implementasi audit trail</li>
+                                        <li>⚡ Auto-update data terkait</li>
+                                        <li>✅ Validasi data dengan trigger</li>
+                                        <li>🛠️ Debugging dan troubleshooting</li>
+                                        <li>📈 Optimasi performa trigger</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 bg-white p-6 rounded-xl">
+                                <h4 class="font-bold text-purple-700 mb-4 text-xl text-center">🌟 Key Takeaways</h4>
+                                <div class="text-center text-lg text-gray-700 space-y-2">
+                                    <p><strong>Triggers adalah "penjaga otomatis"</strong> yang bekerja 24/7 untuk menjaga integritas database</p>
+                                    <p><strong>Gunakan dengan bijak</strong> - trigger yang terlalu kompleks bisa memperlambat sistem</p>
+                                    <p><strong>Selalu test dan dokumentasi</strong> - trigger yang baik mudah dipahami dan di-maintain</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tindak Lanjut -->
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">🚀</span>
+                                Tindak Lanjut
+                            </h3>
+                            
+                            <div class="space-y-6">
+                                <div class="bg-white p-6 rounded-xl">
+                                    <h4 class="font-bold text-purple-700 mb-4 text-xl">📚 Pembelajaran Selanjutnya</h4>
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        <div class="bg-purple-50 p-4 rounded-lg">
+                                            <h5 class="font-bold text-purple-700 mb-2">🔧 Stored Procedures</h5>
+                                            <p class="text-gray-600 text-lg">Pelajari cara membuat fungsi kompleks dalam database</p>
+                                        </div>
+                                        <div class="bg-blue-50 p-4 rounded-lg">
+                                            <h5 class="font-bold text-blue-700 mb-2">🔍 Database Views</h5>
+                                            <p class="text-gray-600 text-lg">Buat "tabel virtual" untuk menyederhanakan query</p>
+                                        </div>
+                                        <div class="bg-green-50 p-4 rounded-lg">
+                                            <h5 class="font-bold text-green-700 mb-2">📊 Database Indexing</h5>
+                                            <p class="text-gray-600 text-lg">Optimasi performa query dengan indexing</p>
+                                        </div>
+                                        <div class="bg-orange-50 p-4 rounded-lg">
+                                            <h5 class="font-bold text-orange-700 mb-2">🔐 Database Security</h5>
+                                            <p class="text-gray-600 text-lg">Pelajari keamanan dan user management</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-4 text-xl">💼 Proyek Praktis</h4>
+                                    <div class="space-y-3 text-lg text-gray-700">
+                                        <p><strong>1. Sistem Inventory Management</strong></p>
+                                        <p class="ml-4 text-gray-600">Buat sistem dengan triggers untuk auto-reorder, stock alerts, dan audit</p>
+                                        
+                                        <p><strong>2. E-learning Platform</strong></p>
+                                        <p class="ml-4 text-gray-600">Implementasi triggers untuk progress tracking dan certificate generation</p>
+                                        
+                                        <p><strong>3. Banking System</strong></p>
+                                        <p class="ml-4 text-gray-600">Triggers untuk transaction logging, balance validation, dan fraud detection</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-6 rounded-xl">
+                                    <h4 class="font-bold text-blue-700 mb-4 text-xl">🎯 Tips Pengembangan</h4>
+                                    <div class="grid md:grid-cols-3 gap-4">
+                                        <div class="bg-blue-50 p-4 rounded-lg text-center">
+                                            <div class="text-3xl mb-2">📖</div>
+                                            <h5 class="font-bold text-blue-700 mb-2">Keep Learning</h5>
+                                            <p class="text-gray-600">Terus pelajari teknologi database terbaru</p>
+                                        </div>
+                                        <div class="bg-green-50 p-4 rounded-lg text-center">
+                                            <div class="text-3xl mb-2">🛠️</div>
+                                            <h5 class="font-bold text-green-700 mb-2">Practice More</h5>
+                                            <p class="text-gray-600">Latihan dengan proyek-proyek nyata</p>
+                                        </div>
+                                        <div class="bg-purple-50 p-4 rounded-lg text-center">
+                                            <div class="text-3xl mb-2">👥</div>
+                                            <h5 class="font-bold text-purple-700 mb-2">Join Community</h5>
+                                            <p class="text-gray-600">Bergabung dengan komunitas developer</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Final Message -->
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-8 rounded-2xl text-center">
+                            <div class="text-6xl mb-4">🏆</div>
+                            <h3 class="text-3xl font-bold text-orange-800 mb-4">Selamat!</h3>
+                            <p class="text-xl text-gray-700 mb-6">
+                                Kamu telah berhasil menguasai Database Triggers! 
+                                Sekarang kamu memiliki skill yang powerful untuk membuat database yang cerdas dan otomatis.
+                            </p>
+                            <div class="bg-white p-6 rounded-xl inline-block">
+                                <p class="text-lg text-gray-600 font-medium">
+                                    "Database yang baik bukan hanya menyimpan data, tapi juga menjaganya dengan cerdas" 
+                                </p>
+                                <p class="text-sm text-gray-500 mt-2">- Database Developer Wisdom</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Button -->
+            <div id="nextButton" class="mt-8 text-center">
+                <button onclick="nextSection()" 
+                        class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-2xl text-xl font-bold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Materi Berikutnya →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-110 hidden z-50">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Global variables
+        let currentSectionIndex = 0;
+        const sections = ['intro', 'pengenalan', 'konsep-dasar', 'jenis-trigger', 'sintaks', 'implementasi', 'praktik', 'kuis', 'penutup'];
+        
+        // Quiz variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let studentName = '';
+        let selectedAnswer = null;
+        
+        const quizQuestions = [
+            {
+                question: "Apa yang dimaksud dengan Database Trigger?",
+                options: [
+                    "Program yang berjalan secara manual ketika dipanggil",
+                    "Program yang berjalan otomatis ketika terjadi event tertentu",
+                    "Tabel khusus untuk menyimpan data",
+                    "Query untuk mengambil data dari database"
+                ],
+                correct: 1
+            },
+            {
+                question: "Kapan BEFORE trigger dieksekusi?",
+                options: [
+                    "Setelah operasi SQL selesai",
+                    "Sebelum operasi SQL dilakukan",
+                    "Bersamaan dengan operasi SQL",
+                    "Ketika ada error dalam operasi SQL"
+                ],
+                correct: 1
+            },
+            {
+                question: "Manakah yang BUKAN merupakan event trigger?",
+                options: [
+                    "INSERT",
+                    "UPDATE", 
+                    "DELETE",
+                    "SELECT"
+                ],
+                correct: 3
+            },
+            {
+                question: "Apa fungsi dari OLD values dalam trigger?",
+                options: [
+                    "Menyimpan nilai baru setelah operasi",
+                    "Menyimpan nilai lama sebelum operasi",
+                    "Menyimpan nama tabel",
+                    "Menyimpan waktu eksekusi"
+                ],
+                correct: 1
+            },
+            {
+                question: "Trigger level ROW-LEVEL dieksekusi:",
+                options: [
+                    "Sekali per statement SQL",
+                    "Untuk setiap baris yang terpengaruh",
+                    "Hanya untuk tabel utama",
+                    "Ketika ada error"
+                ],
+                correct: 1
+            },
+            {
+                question: "Manakah sintaks yang benar untuk membuat trigger?",
+                options: [
+                    "CREATE TRIGGER nama BEFORE INSERT",
+                    "MAKE TRIGGER nama AFTER UPDATE ON tabel",
+                    "CREATE TRIGGER nama BEFORE INSERT ON tabel",
+                    "NEW TRIGGER nama FOR INSERT"
+                ],
+                correct: 2
+            },
+            {
+                question: "NEW values tersedia pada trigger:",
+                options: [
+                    "Hanya INSERT",
+                    "Hanya UPDATE",
+                    "INSERT dan UPDATE",
+                    "Semua jenis trigger"
+                ],
+                correct: 2
+            },
+            {
+                question: "Apa kegunaan utama audit trail trigger?",
+                options: [
+                    "Mempercepat query",
+                    "Mencatat perubahan data",
+                    "Menghapus data lama",
+                    "Membuat backup otomatis"
+                ],
+                correct: 1
+            },
+            {
+                question: "Perintah untuk melihat semua trigger adalah:",
+                options: [
+                    "LIST TRIGGERS;",
+                    "SHOW TRIGGERS;",
+                    "VIEW TRIGGERS;",
+                    "GET TRIGGERS;"
+                ],
+                correct: 1
+            },
+            {
+                question: "Hal yang harus dihindari dalam trigger adalah:",
+                options: [
+                    "Menggunakan OLD dan NEW",
+                    "Membuat trigger yang terlalu kompleks",
+                    "Menambahkan komentar",
+                    "Testing sebelum deploy"
+                ],
+                correct: 1
+            }
+        ];
+
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        }
+
+        // Section navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                targetSection.classList.add('fade-in');
+            }
+            
+            // Update current section index
+            currentSectionIndex = sections.indexOf(sectionId);
+            
+            // Update menu active state
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('bg-gradient-to-r', 'from-yellow-200', 'to-yellow-300');
+            });
+            
+            // Highlight current menu item
+            const menuItems = document.querySelectorAll('.menu-item');
+            if (menuItems[currentSectionIndex]) {
+                menuItems[currentSectionIndex].classList.add('bg-gradient-to-r', 'from-yellow-200', 'to-yellow-300');
+            }
+            
+            // Scroll to top immediately
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            
+            // Close mobile menu
+            closeMobileMenu();
+            
+            // Update next button visibility
+            updateNextButton();
+        }
+
+        function nextSection() {
+            if (currentSectionIndex < sections.length - 1) {
+                currentSectionIndex++;
+                showSection(sections[currentSectionIndex]);
+            }
+        }
+
+        function updateNextButton() {
+            const nextButton = document.getElementById('nextButton');
+            if (currentSectionIndex >= sections.length - 1) {
+                nextButton.style.display = 'none';
+            } else {
+                nextButton.style.display = 'block';
+            }
+        }
+
+        // Quiz functions
+        function startQuiz() {
+            studentName = document.getElementById('studentName').value.trim();
+            if (!studentName) {
+                alert('Silakan masukkan nama terlebih dahulu!');
+                return;
+            }
+            
+            document.getElementById('nameInput').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizQuestions[currentQuestionIndex];
+            const container = document.getElementById('questionContainer');
+            
+            container.innerHTML = `
+                <div class="bg-gradient-to-br from-indigo-50 to-purple-100 p-6 rounded-2xl">
+                    <h3 class="text-2xl font-bold text-indigo-800 mb-6">
+                        ${question.question}
+                    </h3>
+                    <div class="space-y-3">
+                        ${question.options.map((option, index) => `
+                            <div class="quiz-option bg-white p-4 rounded-xl border-2 border-gray-200" 
+                                 onclick="selectAnswer(${index})">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
+                                        <div class="w-3 h-3 rounded-full bg-indigo-500 hidden option-dot"></div>
+                                    </div>
+                                    <span class="text-lg text-gray-700">${option}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('totalQuestions').textContent = quizQuestions.length;
+            document.getElementById('nextBtn').disabled = true;
+            selectedAnswer = null;
+        }
+
+        function selectAnswer(answerIndex) {
+            // Remove previous selection
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('selected');
+                option.querySelector('.option-dot').classList.add('hidden');
+            });
+            
+            // Add selection to clicked option
+            const selectedOption = document.querySelectorAll('.quiz-option')[answerIndex];
+            selectedOption.classList.add('selected');
+            selectedOption.querySelector('.option-dot').classList.remove('hidden');
+            
+            selectedAnswer = answerIndex;
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            if (selectedAnswer === null) return;
+            
+            // Check if answer is correct
+            const question = quizQuestions[currentQuestionIndex];
+            const options = document.querySelectorAll('.quiz-option');
+            
+            // Show correct/incorrect
+            options.forEach((option, index) => {
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedAnswer && index !== question.correct) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            if (selectedAnswer === question.correct) {
+                score++;
+            }
+            
+            // Wait a bit then move to next question
+            setTimeout(() => {
+                currentQuestionIndex++;
+                
+                if (currentQuestionIndex < quizQuestions.length) {
+                    showQuestion();
+                } else {
+                    showResults();
+                }
+            }, 1500);
+        }
+
+        function showResults() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultsContainer').classList.remove('hidden');
+            
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = score;
+            
+            let message = '';
+            if (score >= 9) {
+                message = '🌟 Luar biasa! Kamu menguasai triggers dengan sempurna!';
+            } else if (score >= 7) {
+                message = '👏 Bagus sekali! Pemahaman kamu tentang triggers sudah baik!';
+            } else if (score >= 5) {
+                message = '👍 Cukup baik! Terus belajar untuk meningkatkan pemahaman!';
+            } else {
+                message = '💪 Jangan menyerah! Ulangi materi dan coba lagi!';
+            }
+            
+            document.getElementById('scoreMessage').textContent = message;
+        }
+
+        function restartQuiz() {
+            document.getElementById('resultsContainer').classList.add('hidden');
+            document.getElementById('nameInput').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+        }
+
+        // Back to top functionality
+        function setupBackToTop() {
+            const backToTopBtn = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('hidden');
+                } else {
+                    backToTopBtn.classList.add('hidden');
+                }
+            });
+            
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // Mobile menu button event
+        document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupBackToTop();
+            showSection('intro'); // Show intro section by default
+            
+            // Ensure page starts at top
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+            }, 100);
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9842faac165dced2',t:'MTc1ODcyNDIyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
