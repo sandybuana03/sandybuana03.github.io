@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar Views Database - Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .menu-item {
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            transform: scale(1.02);
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .shape:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .shape:nth-child(2) { top: 20%; right: 10%; animation-delay: 2s; }
+        .shape:nth-child(3) { bottom: 10%; left: 20%; animation-delay: 4s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .quiz-option:hover {
+            background: #e0f2fe;
+            transform: translateX(5px);
+        }
+        
+        .quiz-option.selected {
+            background: #81c784;
+            color: white;
+        }
+        
+        .quiz-option.correct {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .quiz-option.incorrect {
+            background: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-screen">
+    <!-- Floating Shapes -->
+    <div class="floating-shapes">
+        <div class="shape w-20 h-20 bg-yellow-300 rounded-full"></div>
+        <div class="shape w-16 h-16 bg-pink-300 rounded-lg transform rotate-45"></div>
+        <div class="shape w-12 h-12 bg-blue-300 rounded-full"></div>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-white p-3 rounded-full shadow-lg">
+        <i class="fas fa-bars text-purple-600"></i>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <nav id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-2xl transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 overflow-y-auto">
+        <div class="p-6 gradient-bg text-white">
+            <h2 class="text-xl font-bold flex items-center">
+                <i class="fas fa-database mr-3"></i>
+                Views Database
+            </h2>
+            <p class="text-sm opacity-90 mt-2">Pembelajaran Interaktif SMK</p>
+        </div>
+        
+        <div class="p-4 space-y-2">
+            <div class="menu-item p-3 rounded-lg cursor-pointer bg-gradient-to-r from-pink-200 to-purple-200" onclick="showSection('intro')">
+                <i class="fas fa-play-circle text-purple-600 mr-3"></i>
+                <span class="font-medium">Intro</span>
+            </div>
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('pengenalan')">
+                <i class="fas fa-lightbulb text-yellow-500 mr-3"></i>
+                <span class="font-medium">Pengenalan Views</span>
+            </div>
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('konsep-dasar')">
+                <i class="fas fa-cube text-blue-500 mr-3"></i>
+                <span class="font-medium">Konsep Dasar</span>
+            </div>
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('jenis-views')">
+                <i class="fas fa-layer-group text-green-500 mr-3"></i>
+                <span class="font-medium">Jenis-Jenis Views</span>
+            </div>
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('sintaks')">
+                <i class="fas fa-code text-indigo-500 mr-3"></i>
+                <span class="font-medium">Sintaks Views</span>
+            </div>
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('keuntungan')">
+                <i class="fas fa-star text-orange-500 mr-3"></i>
+                <span class="font-medium">Keuntungan Views</span>
+            </div>
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('praktik')">
+                <i class="fas fa-laptop-code text-red-500 mr-3"></i>
+                <span class="font-medium">Praktik</span>
+            </div>
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('kuis')">
+                <i class="fas fa-question-circle text-teal-500 mr-3"></i>
+                <span class="font-medium">Kuis</span>
+            </div>
+            <div class="menu-item p-3 rounded-lg cursor-pointer" onclick="showSection('penutup')">
+                <i class="fas fa-flag-checkered text-purple-500 mr-3"></i>
+                <span class="font-medium">Penutup</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="lg:ml-80 min-h-screen">
+        <div class="max-w-4xl mx-auto p-4 lg:p-8">
+            
+            <!-- Intro Section -->
+            <section id="intro" class="section active">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎯</div>
+                        <h1 class="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+                            Selamat Datang!
+                        </h1>
+                        <p class="text-xl text-gray-600">Mari belajar Views pada Database dengan cara yang menyenangkan!</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-yellow-100 to-orange-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center">
+                                <i class="fas fa-question-circle mr-3"></i>
+                                Pertanyaan Pemantik
+                            </h3>
+                            <div class="space-y-3 text-gray-700">
+                                <p>🤔 Pernahkah kalian berpikir bagaimana cara menyederhanakan query database yang kompleks?</p>
+                                <p>💭 Bagaimana jika kita bisa membuat "jendela" untuk melihat data tertentu saja?</p>
+                                <p>🔍 Apa yang terjadi jika kita ingin membatasi akses data untuk keamanan?</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-blue-100 to-purple-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                                <i class="fas fa-book-open mr-3"></i>
+                                Apa yang Dipelajari
+                            </h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Konsep Views Database</li>
+                                <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Jenis-jenis Views</li>
+                                <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Sintaks dan Implementasi</li>
+                                <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Praktik Langsung</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-gradient-to-br from-green-100 to-teal-100 p-6 rounded-2xl text-center">
+                            <div class="text-3xl mb-3">🎯</div>
+                            <h4 class="font-bold text-teal-800 mb-2">Tujuan Pembelajaran</h4>
+                            <p class="text-sm text-gray-600">Memahami dan menerapkan Views dalam database dengan percaya diri</p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-pink-100 to-red-100 p-6 rounded-2xl text-center">
+                            <div class="text-3xl mb-3">💡</div>
+                            <h4 class="font-bold text-red-800 mb-2">Pemahaman Bermakna</h4>
+                            <p class="text-sm text-gray-600">Views membantu menyederhanakan dan mengamankan akses data</p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-indigo-100 to-blue-100 p-6 rounded-2xl text-center">
+                            <div class="text-3xl mb-3">🚀</div>
+                            <h4 class="font-bold text-blue-800 mb-2">Motivasi</h4>
+                            <p class="text-sm text-gray-600">Skill ini sangat dibutuhkan di dunia kerja IT!</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pengenalan Section -->
+            <section id="pengenalan" class="section">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">👀</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Pengenalan Views</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl border-l-4 border-blue-500">
+                            <h3 class="text-xl font-bold text-blue-800 mb-3">Apa itu Views? 🤔</h3>
+                            <p class="text-gray-700 text-lg leading-relaxed">
+                                Views adalah sebuah <strong>"jendela virtual"</strong> yang memungkinkan kita melihat data dari satu atau lebih tabel dalam database. 
+                                Bayangkan Views seperti kacamata khusus yang hanya menampilkan informasi tertentu yang kita butuhkan!
+                            </p>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-2xl">
+                                <h4 class="text-lg font-bold text-orange-800 mb-3 flex items-center">
+                                    <i class="fas fa-lightbulb mr-2"></i>
+                                    Analogi Sederhana
+                                </h4>
+                                <p class="text-gray-700">
+                                    Views seperti <strong>jendela rumah</strong> - kamu bisa melihat pemandangan di luar, 
+                                    tapi tidak bisa mengubah apa yang ada di luar. Views menampilkan data, 
+                                    tapi data asli tetap tersimpan di tabel utama.
+                                </p>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-green-50 to-teal-50 p-6 rounded-2xl">
+                                <h4 class="text-lg font-bold text-teal-800 mb-3 flex items-center">
+                                    <i class="fas fa-shield-alt mr-2"></i>
+                                    Keamanan Data
+                                </h4>
+                                <p class="text-gray-700">
+                                    Views membantu <strong>melindungi data sensitif</strong>. Misalnya, karyawan HR 
+                                    hanya bisa melihat data gaji, sedangkan karyawan IT hanya melihat data teknis.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+                            <h4 class="text-lg font-bold text-purple-800 mb-4 flex items-center">
+                                <i class="fas fa-example mr-2"></i>
+                                Contoh Nyata dalam Kehidupan
+                            </h4>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="text-center p-4 bg-white rounded-xl">
+                                    <div class="text-2xl mb-2">🏪</div>
+                                    <p class="font-medium">Toko Online</p>
+                                    <p class="text-sm text-gray-600">Views untuk produk yang sedang diskon</p>
+                                </div>
+                                <div class="text-center p-4 bg-white rounded-xl">
+                                    <div class="text-2xl mb-2">🏥</div>
+                                    <p class="font-medium">Rumah Sakit</p>
+                                    <p class="text-sm text-gray-600">Views untuk jadwal dokter hari ini</p>
+                                </div>
+                                <div class="text-center p-4 bg-white rounded-xl">
+                                    <div class="text-2xl mb-2">🎓</div>
+                                    <p class="font-medium">Sekolah</p>
+                                    <p class="text-sm text-gray-600">Views untuk nilai siswa per mata pelajaran</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Konsep Dasar Section -->
+            <section id="konsep-dasar" class="section">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🧠</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-indigo-800 mb-4">Konsep Dasar Views</h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-indigo-800 mb-4 flex items-center">
+                                <i class="fas fa-cogs mr-3"></i>
+                                Cara Kerja Views
+                            </h3>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="text-center p-4 bg-white rounded-xl">
+                                    <div class="text-3xl mb-2">1️⃣</div>
+                                    <h4 class="font-bold text-blue-800">Query Tersimpan</h4>
+                                    <p class="text-sm text-gray-600 mt-2">Views menyimpan perintah SQL, bukan data</p>
+                                </div>
+                                <div class="text-center p-4 bg-white rounded-xl">
+                                    <div class="text-3xl mb-2">2️⃣</div>
+                                    <h4 class="font-bold text-blue-800">Eksekusi Real-time</h4>
+                                    <p class="text-sm text-gray-600 mt-2">Data diambil saat Views dipanggil</p>
+                                </div>
+                                <div class="text-center p-4 bg-white rounded-xl">
+                                    <div class="text-3xl mb-2">3️⃣</div>
+                                    <h4 class="font-bold text-blue-800">Hasil Virtual</h4>
+                                    <p class="text-sm text-gray-600 mt-2">Menampilkan hasil tanpa menyimpan data</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-2xl">
+                                <h4 class="text-lg font-bold text-green-800 mb-3 flex items-center">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    Karakteristik Views
+                                </h4>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>Tidak menyimpan data fisik</li>
+                                    <li class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>Selalu menampilkan data terbaru</li>
+                                    <li class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>Dapat digunakan seperti tabel</li>
+                                    <li class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-3"></span>Menghemat ruang penyimpanan</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-2xl">
+                                <h4 class="text-lg font-bold text-red-800 mb-3 flex items-center">
+                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                    Perbedaan dengan Tabel
+                                </h4>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center p-2 bg-white rounded">
+                                        <span class="font-medium">Penyimpanan:</span>
+                                        <span class="text-sm text-gray-600">Virtual vs Fisik</span>
+                                    </div>
+                                    <div class="flex justify-between items-center p-2 bg-white rounded">
+                                        <span class="font-medium">Update:</span>
+                                        <span class="text-sm text-gray-600">Otomatis vs Manual</span>
+                                    </div>
+                                    <div class="flex justify-between items-center p-2 bg-white rounded">
+                                        <span class="font-medium">Ruang:</span>
+                                        <span class="text-sm text-gray-600">Minimal vs Besar</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+                            <h4 class="text-lg font-bold text-purple-800 mb-4 flex items-center">
+                                <i class="fas fa-diagram-project mr-2"></i>
+                                Diagram Konsep Views
+                            </h4>
+                            <div class="bg-white p-6 rounded-xl">
+                                <div class="text-center">
+                                    <div class="inline-block p-4 bg-blue-100 rounded-lg mb-4">
+                                        <i class="fas fa-table text-2xl text-blue-600"></i>
+                                        <p class="font-bold text-blue-800">Tabel Asli</p>
+                                        <p class="text-sm">Data Fisik</p>
+                                    </div>
+                                    <div class="my-4">
+                                        <i class="fas fa-arrow-down text-2xl text-gray-400"></i>
+                                    </div>
+                                    <div class="inline-block p-4 bg-purple-100 rounded-lg mb-4">
+                                        <i class="fas fa-eye text-2xl text-purple-600"></i>
+                                        <p class="font-bold text-purple-800">Views</p>
+                                        <p class="text-sm">Query Tersimpan</p>
+                                    </div>
+                                    <div class="my-4">
+                                        <i class="fas fa-arrow-down text-2xl text-gray-400"></i>
+                                    </div>
+                                    <div class="inline-block p-4 bg-green-100 rounded-lg">
+                                        <i class="fas fa-desktop text-2xl text-green-600"></i>
+                                        <p class="font-bold text-green-800">Hasil Tampilan</p>
+                                        <p class="text-sm">Data Virtual</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Jenis Views Section -->
+            <section id="jenis-views" class="section">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎭</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-green-800 mb-4">Jenis-Jenis Views</h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border-l-4 border-blue-500">
+                                <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                                    <i class="fas fa-table mr-3"></i>
+                                    Simple Views
+                                </h3>
+                                <p class="text-gray-700 mb-4">Views yang dibuat dari <strong>satu tabel saja</strong>. Paling mudah dipahami dan digunakan.</p>
+                                
+                                <div class="bg-white p-4 rounded-xl mb-4">
+                                    <h4 class="font-bold text-blue-700 mb-2">Contoh Penggunaan:</h4>
+                                    <ul class="text-sm space-y-1 text-gray-600">
+                                        <li>• Menampilkan data siswa tanpa nomor telepon</li>
+                                        <li>• Menampilkan produk yang masih tersedia</li>
+                                        <li>• Menampilkan karyawan aktif saja</li>
+                                    </ul>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 bg-blue-100 rounded-lg">
+                                    <span class="font-medium text-blue-800">Tingkat Kesulitan:</span>
+                                    <div class="flex space-x-1">
+                                        <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                        <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                                        <div class="w-3 h-3 bg-gray-300 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl border-l-4 border-purple-500">
+                                <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                                    <i class="fas fa-layer-group mr-3"></i>
+                                    Complex Views
+                                </h3>
+                                <p class="text-gray-700 mb-4">Views yang dibuat dari <strong>beberapa tabel</strong> dengan JOIN, GROUP BY, atau fungsi agregat.</p>
+                                
+                                <div class="bg-white p-4 rounded-xl mb-4">
+                                    <h4 class="font-bold text-purple-700 mb-2">Contoh Penggunaan:</h4>
+                                    <ul class="text-sm space-y-1 text-gray-600">
+                                        <li>• Laporan penjualan per bulan</li>
+                                        <li>• Data siswa dengan nilai rata-rata</li>
+                                        <li>• Ringkasan stok produk per kategori</li>
+                                    </ul>
+                                </div>
+
+                                <div class="flex items-center justify-between p-3 bg-purple-100 rounded-lg">
+                                    <span class="font-medium text-purple-800">Tingkat Kesulitan:</span>
+                                    <div class="flex space-x-1">
+                                        <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                                        <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                                        <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center">
+                                <i class="fas fa-shield-alt mr-3"></i>
+                                Berdasarkan Fungsi Keamanan
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-white p-4 rounded-xl text-center">
+                                    <div class="text-2xl mb-2">🔒</div>
+                                    <h4 class="font-bold text-red-700">Restricted Views</h4>
+                                    <p class="text-sm text-gray-600 mt-2">Membatasi akses kolom atau baris tertentu</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl text-center">
+                                    <div class="text-2xl mb-2">👁️</div>
+                                    <h4 class="font-bold text-blue-700">Read-Only Views</h4>
+                                    <p class="text-sm text-gray-600 mt-2">Hanya untuk melihat, tidak bisa edit</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl text-center">
+                                    <div class="text-2xl mb-2">✏️</div>
+                                    <h4 class="font-bold text-green-700">Updatable Views</h4>
+                                    <p class="text-sm text-gray-600 mt-2">Bisa digunakan untuk update data</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-teal-800 mb-4 flex items-center">
+                                <i class="fas fa-chart-line mr-3"></i>
+                                Berdasarkan Kompleksitas Data
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center p-4 bg-white rounded-xl">
+                                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                                        <i class="fas fa-filter text-green-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-green-800">Filter Views</h4>
+                                        <p class="text-sm text-gray-600">Menampilkan data dengan kondisi tertentu (WHERE)</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center p-4 bg-white rounded-xl">
+                                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                                        <i class="fas fa-calculator text-blue-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-blue-800">Aggregate Views</h4>
+                                        <p class="text-sm text-gray-600">Menampilkan hasil perhitungan (SUM, COUNT, AVG)</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center p-4 bg-white rounded-xl">
+                                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mr-4">
+                                        <i class="fas fa-link text-purple-600"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-purple-800">Join Views</h4>
+                                        <p class="text-sm text-gray-600">Menggabungkan data dari beberapa tabel</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sintaks Section -->
+            <section id="sintaks" class="section">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">💻</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-indigo-800 mb-4">Sintaks Views</h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        <!-- CREATE VIEW -->
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                                <i class="fas fa-plus-circle mr-3"></i>
+                                Membuat Views (CREATE VIEW)
+                            </h3>
+                            
+                            <div class="bg-gray-900 text-green-400 p-4 rounded-xl mb-4 font-mono text-sm overflow-x-auto">
+                                <div class="mb-2 text-gray-400">-- Sintaks Dasar</div>
+                                <div>CREATE VIEW nama_view AS</div>
+                                <div>SELECT kolom1, kolom2, ...</div>
+                                <div>FROM nama_tabel</div>
+                                <div>WHERE kondisi;</div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-2">Contoh Simple View:</h4>
+                                    <div class="bg-gray-100 p-3 rounded text-sm font-mono">
+                                        CREATE VIEW siswa_aktif AS<br>
+                                        SELECT nama, kelas, jurusan<br>
+                                        FROM siswa<br>
+                                        WHERE status = 'aktif';
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-2">Contoh Complex View:</h4>
+                                    <div class="bg-gray-100 p-3 rounded text-sm font-mono">
+                                        CREATE VIEW nilai_rata AS<br>
+                                        SELECT s.nama, AVG(n.nilai) as rata<br>
+                                        FROM siswa s JOIN nilai n<br>
+                                        ON s.id = n.siswa_id<br>
+                                        GROUP BY s.nama;
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SELECT FROM VIEW -->
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                                <i class="fas fa-search mr-3"></i>
+                                Menggunakan Views (SELECT)
+                            </h3>
+                            
+                            <div class="bg-gray-900 text-blue-400 p-4 rounded-xl mb-4 font-mono text-sm">
+                                <div class="mb-2 text-gray-400">-- Menggunakan Views seperti tabel biasa</div>
+                                <div>SELECT * FROM nama_view;</div>
+                                <div>SELECT kolom FROM nama_view WHERE kondisi;</div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl">
+                                <h4 class="font-bold text-blue-700 mb-3">Contoh Penggunaan:</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="p-2 bg-blue-50 rounded">
+                                        <code>SELECT * FROM siswa_aktif;</code>
+                                        <span class="text-gray-600 ml-2">→ Menampilkan semua siswa aktif</span>
+                                    </div>
+                                    <div class="p-2 bg-blue-50 rounded">
+                                        <code>SELECT nama FROM nilai_rata WHERE rata > 80;</code>
+                                        <span class="text-gray-600 ml-2">→ Siswa dengan rata-rata > 80</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- UPDATE VIEW -->
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center">
+                                <i class="fas fa-edit mr-3"></i>
+                                Mengubah Views (ALTER VIEW)
+                            </h3>
+                            
+                            <div class="bg-gray-900 text-yellow-400 p-4 rounded-xl mb-4 font-mono text-sm">
+                                <div class="mb-2 text-gray-400">-- Mengubah definisi Views</div>
+                                <div>ALTER VIEW nama_view AS</div>
+                                <div>SELECT kolom_baru1, kolom_baru2</div>
+                                <div>FROM tabel_baru</div>
+                                <div>WHERE kondisi_baru;</div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-orange-700 mb-2">Contoh: Views Awal</h4>
+                                    <div class="bg-gray-100 p-3 rounded text-sm font-mono">
+                                        CREATE VIEW siswa_aktif AS<br>
+                                        SELECT nama, kelas<br>
+                                        FROM siswa<br>
+                                        WHERE status = 'aktif';
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-orange-700 mb-2">Contoh: Mengubah Views</h4>
+                                    <div class="bg-gray-100 p-3 rounded text-sm font-mono">
+                                        ALTER VIEW siswa_aktif AS<br>
+                                        SELECT nama, kelas, jurusan, tanggal_lahir<br>
+                                        FROM siswa<br>
+                                        WHERE status = 'aktif';
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl mb-4">
+                                <h4 class="font-bold text-orange-700 mb-3">Contoh Kasus Nyata:</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="p-2 bg-orange-50 rounded">
+                                        <strong>Situasi:</strong> Awalnya Views hanya menampilkan nama dan kelas, tapi sekarang butuh tambahan kolom jurusan
+                                    </div>
+                                    <div class="p-2 bg-orange-50 rounded">
+                                        <code>ALTER VIEW siswa_aktif AS SELECT nama, kelas, jurusan FROM siswa WHERE status = 'aktif';</code>
+                                    </div>
+                                    <div class="p-2 bg-green-50 rounded text-green-700">
+                                        <strong>Hasil:</strong> Views sekarang menampilkan 3 kolom: nama, kelas, dan jurusan
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center text-white text-sm font-bold">!</div>
+                                    <div>
+                                        <h4 class="font-bold text-orange-700">Penting Diingat:</h4>
+                                        <p class="text-sm text-gray-600">ALTER VIEW akan mengganti seluruh definisi Views. Pastikan sintaks baru sudah benar dan tidak ada aplikasi yang bergantung pada struktur Views lama!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DROP VIEW -->
+                        <div class="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-red-800 mb-4 flex items-center">
+                                <i class="fas fa-trash mr-3"></i>
+                                Menghapus Views (DROP VIEW)
+                            </h3>
+                            
+                            <div class="bg-gray-900 text-red-400 p-4 rounded-xl mb-4 font-mono text-sm">
+                                <div class="mb-2 text-gray-400">-- Menghapus Views</div>
+                                <div>DROP VIEW nama_view;</div>
+                                <div class="mt-2 text-gray-400">-- Menghapus jika Views ada</div>
+                                <div>DROP VIEW IF EXISTS nama_view;</div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-red-700 mb-2">Contoh: Menghapus Views Tunggal</h4>
+                                    <div class="bg-gray-100 p-3 rounded text-sm font-mono">
+                                        -- Menghapus Views siswa_aktif<br>
+                                        DROP VIEW siswa_aktif;<br><br>
+                                        -- Cek apakah berhasil dihapus<br>
+                                        SHOW TABLES;
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-red-700 mb-2">Contoh: Menghapus Multiple Views</h4>
+                                    <div class="bg-gray-100 p-3 rounded text-sm font-mono">
+                                        -- Menghapus beberapa Views sekaligus<br>
+                                        DROP VIEW IF EXISTS siswa_rpl, laporan_nilai, statistik_siswa;
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl mb-4">
+                                <h4 class="font-bold text-red-700 mb-3">Contoh Kasus Praktis:</h4>
+                                <div class="space-y-3 text-sm">
+                                    <div class="p-3 bg-red-50 rounded">
+                                        <strong>Situasi 1:</strong> Views tidak digunakan lagi
+                                        <div class="mt-1 font-mono text-xs bg-gray-100 p-2 rounded">
+                                            DROP VIEW views_lama;
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="p-3 bg-red-50 rounded">
+                                        <strong>Situasi 2:</strong> Cleanup Views sementara
+                                        <div class="mt-1 font-mono text-xs bg-gray-100 p-2 rounded">
+                                            DROP VIEW IF EXISTS temp_view1, temp_view2, temp_view3;
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="p-3 bg-red-50 rounded">
+                                        <strong>Situasi 3:</strong> Sebelum membuat ulang Views
+                                        <div class="mt-1 font-mono text-xs bg-gray-100 p-2 rounded">
+                                            DROP VIEW IF EXISTS siswa_aktif;<br>
+                                            CREATE VIEW siswa_aktif AS SELECT ...;
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl mb-4">
+                                <h4 class="font-bold text-red-700 mb-3">Langkah Aman Sebelum DROP VIEW:</h4>
+                                <ol class="text-sm space-y-2 text-gray-700">
+                                    <li class="flex items-start">
+                                        <span class="bg-red-100 text-red-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">1</span>
+                                        <span>Cek apakah ada aplikasi yang menggunakan Views tersebut</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="bg-red-100 text-red-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">2</span>
+                                        <span>Backup definisi Views dengan <code>SHOW CREATE VIEW nama_view;</code></span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="bg-red-100 text-red-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mr-3 mt-0.5">3</span>
+                                        <span>Gunakan <code>IF EXISTS</code> untuk menghindari error</span>
+                                    </li>
+                                </ol>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-bold">⚠</div>
+                                    <div>
+                                        <h4 class="font-bold text-red-700">Hati-hati!</h4>
+                                        <p class="text-sm text-gray-600">DROP VIEW akan menghapus Views secara permanen. Pastikan tidak ada aplikasi yang masih menggunakannya dan selalu backup definisi Views sebelum menghapus!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tips Sintaks -->
+                        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                                <i class="fas fa-lightbulb mr-3"></i>
+                                Tips Menulis Sintaks Views
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <div class="flex items-center p-3 bg-white rounded-xl">
+                                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                                        <span class="text-sm">Gunakan nama Views yang deskriptif</span>
+                                    </div>
+                                    <div class="flex items-center p-3 bg-white rounded-xl">
+                                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                                        <span class="text-sm">Tambahkan komentar untuk Views kompleks</span>
+                                    </div>
+                                    <div class="flex items-center p-3 bg-white rounded-xl">
+                                        <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                                        <span class="text-sm">Test query sebelum membuat Views</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <div class="flex items-center p-3 bg-white rounded-xl">
+                                        <i class="fas fa-times-circle text-red-500 mr-3"></i>
+                                        <span class="text-sm">Jangan gunakan SELECT * untuk Views</span>
+                                    </div>
+                                    <div class="flex items-center p-3 bg-white rounded-xl">
+                                        <i class="fas fa-times-circle text-red-500 mr-3"></i>
+                                        <span class="text-sm">Hindari Views yang terlalu kompleks</span>
+                                    </div>
+                                    <div class="flex items-center p-3 bg-white rounded-xl">
+                                        <i class="fas fa-times-circle text-red-500 mr-3"></i>
+                                        <span class="text-sm">Jangan buat Views dari Views lain</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Keuntungan Section -->
+            <section id="keuntungan" class="section">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">⭐</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-yellow-800 mb-4">Keuntungan Views</h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-2xl border-l-4 border-green-500">
+                                <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                                    <i class="fas fa-shield-alt mr-3"></i>
+                                    Keamanan Data
+                                </h3>
+                                <ul class="space-y-3">
+                                    <li class="flex items-start">
+                                        <i class="fas fa-lock text-green-600 mr-3 mt-1"></i>
+                                        <div>
+                                            <p class="font-medium">Menyembunyikan Data Sensitif</p>
+                                            <p class="text-sm text-gray-600">Kolom seperti password atau gaji bisa disembunyikan</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-user-shield text-green-600 mr-3 mt-1"></i>
+                                        <div>
+                                            <p class="font-medium">Kontrol Akses Pengguna</p>
+                                            <p class="text-sm text-gray-600">Setiap user hanya melihat data yang diizinkan</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-eye-slash text-green-600 mr-3 mt-1"></i>
+                                        <div>
+                                            <p class="font-medium">Menyembunyikan Struktur Tabel</p>
+                                            <p class="text-sm text-gray-600">User tidak perlu tahu struktur database asli</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border-l-4 border-blue-500">
+                                <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                                    <i class="fas fa-magic mr-3"></i>
+                                    Kemudahan Penggunaan
+                                </h3>
+                                <ul class="space-y-3">
+                                    <li class="flex items-start">
+                                        <i class="fas fa-compress-alt text-blue-600 mr-3 mt-1"></i>
+                                        <div>
+                                            <p class="font-medium">Menyederhanakan Query Kompleks</p>
+                                            <p class="text-sm text-gray-600">Query panjang jadi satu nama Views saja</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-recycle text-blue-600 mr-3 mt-1"></i>
+                                        <div>
+                                            <p class="font-medium">Dapat Digunakan Berulang</p>
+                                            <p class="text-sm text-gray-600">Sekali buat, bisa dipakai berkali-kali</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-table text-blue-600 mr-3 mt-1"></i>
+                                        <div>
+                                            <p class="font-medium">Seperti Tabel Virtual</p>
+                                            <p class="text-sm text-gray-600">Bisa di-SELECT, JOIN, bahkan di-UPDATE</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl border-l-4 border-purple-500">
+                                <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                                    <i class="fas fa-rocket mr-3"></i>
+                                    Performa & Efisiensi
+                                </h3>
+                                <ul class="space-y-3">
+                                    <li class="flex items-start">
+                                        <i class="fas fa-database text-purple-600 mr-3 mt-1"></i>
+                                        <div>
+                                            <p class="font-medium">Tidak Menyimpan Data Duplikat</p>
+                                            <p class="text-sm text-gray-600">Menghemat ruang penyimpanan database</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-sync-alt text-purple-600 mr-3 mt-1"></i>
+                                        <div>
+                                            <p class="font-medium">Selalu Data Terbaru</p>
+                                            <p class="text-sm text-gray-600">Otomatis update saat tabel asli berubah</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-tachometer-alt text-purple-600 mr-3 mt-1"></i>
+                                        <div>
+                                            <p class="font-medium">Optimasi Query</p>
+                                            <p class="text-sm text-gray-600">Database bisa mengoptimalkan Views secara otomatis</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-orange-50 to-red-50 p-6 rounded-2xl border-l-4 border-orange-500">
+                                <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center">
+                                    <i class="fas fa-tools mr-3"></i>
+                                    Maintenance & Development
+                                </h3>
+                                <ul class="space-y-3">
+                                    <li class="flex items-start">
+                                        <i class="fas fa-code text-orange-600 mr-3 mt-1"></i>
+                                        <div>
+                                            <p class="font-medium">Konsistensi Logika Bisnis</p>
+                                            <p class="text-sm text-gray-600">Aturan bisnis terpusat dalam Views</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-wrench text-orange-600 mr-3 mt-1"></i>
+                                        <div>
+                                            <p class="font-medium">Mudah Maintenance</p>
+                                            <p class="text-sm text-gray-600">Ubah Views tanpa mengubah aplikasi</p>
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <i class="fas fa-users text-orange-600 mr-3 mt-1"></i>
+                                        <div>
+                                            <p class="font-medium">Kolaborasi Tim</p>
+                                            <p class="text-sm text-gray-600">Developer bisa fokus pada logika aplikasi</p>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-teal-800 mb-4 flex items-center">
+                                <i class="fas fa-chart-line mr-3"></i>
+                                Studi Kasus: Manfaat Views di Dunia Nyata
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <div class="text-2xl mb-3 text-center">🏪</div>
+                                    <h4 class="font-bold text-teal-700 mb-2">E-Commerce</h4>
+                                    <p class="text-sm text-gray-600 mb-3">Views untuk menampilkan produk dengan stok > 0 dan status aktif</p>
+                                    <div class="text-xs bg-teal-50 p-2 rounded">
+                                        <strong>Manfaat:</strong> Customer tidak melihat produk kosong, admin tetap bisa lihat semua produk
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl">
+                                    <div class="text-2xl mb-3 text-center">🏥</div>
+                                    <h4 class="font-bold text-teal-700 mb-2">Rumah Sakit</h4>
+                                    <p class="text-sm text-gray-600 mb-3">Views untuk data pasien tanpa informasi medis sensitif</p>
+                                    <div class="text-xs bg-teal-50 p-2 rounded">
+                                        <strong>Manfaat:</strong> Resepsionis bisa cari pasien tanpa akses ke rekam medis
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl">
+                                    <div class="text-2xl mb-3 text-center">🎓</div>
+                                    <h4 class="font-bold text-teal-700 mb-2">Sekolah</h4>
+                                    <p class="text-sm text-gray-600 mb-3">Views untuk laporan nilai per semester dan per mata pelajaran</p>
+                                    <div class="text-xs bg-teal-50 p-2 rounded">
+                                        <strong>Manfaat:</strong> Guru hanya lihat nilai mapelnya, wali kelas lihat semua nilai siswa
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Praktik Section -->
+            <section id="praktik" class="section">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🛠️</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-red-800 mb-4">Praktik Views Database</h2>
+                        <p class="text-lg text-gray-600">Mari praktik langsung membuat dan menggunakan Views!</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <!-- Persiapan -->
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                                <i class="fas fa-clipboard-list mr-3"></i>
+                                Langkah 1: Persiapan Database
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-blue-700 mb-3">Buat Database dan Tabel Sample</h4>
+                                    <div class="bg-gray-900 text-green-400 p-4 rounded-xl font-mono text-sm overflow-x-auto">
+                                        <div class="text-gray-400 mb-2">-- Membuat database</div>
+                                        <div>CREATE DATABASE sekolah_db;</div>
+                                        <div>USE sekolah_db;</div>
+                                        <div class="mt-4 text-gray-400">-- Membuat tabel siswa</div>
+                                        <div>CREATE TABLE siswa (</div>
+                                        <div>&nbsp;&nbsp;id INT PRIMARY KEY AUTO_INCREMENT,</div>
+                                        <div>&nbsp;&nbsp;nama VARCHAR(100),</div>
+                                        <div>&nbsp;&nbsp;kelas VARCHAR(10),</div>
+                                        <div>&nbsp;&nbsp;jurusan VARCHAR(50),</div>
+                                        <div>&nbsp;&nbsp;status ENUM('aktif', 'nonaktif'),</div>
+                                        <div>&nbsp;&nbsp;tanggal_lahir DATE</div>
+                                        <div>);</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-blue-700 mb-3">Insert Data Sample</h4>
+                                    <div class="bg-gray-900 text-green-400 p-4 rounded-xl font-mono text-sm overflow-x-auto">
+                                        <div>INSERT INTO siswa VALUES</div>
+                                        <div>(1, 'Ahmad Rizki', 'XII', 'RPL', 'aktif', '2005-03-15'),</div>
+                                        <div>(2, 'Siti Nurhaliza', 'XI', 'TKJ', 'aktif', '2006-07-22'),</div>
+                                        <div>(3, 'Budi Santoso', 'X', 'MM', 'nonaktif', '2007-01-10'),</div>
+                                        <div>(4, 'Dewi Sartika', 'XII', 'RPL', 'aktif', '2005-11-08'),</div>
+                                        <div>(5, 'Eko Prasetyo', 'XI', 'TKJ', 'aktif', '2006-09-30');</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Praktik 1 -->
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                                <i class="fas fa-play mr-3"></i>
+                                Langkah 2: Membuat Simple View
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-3">🎯 Tujuan: Buat Views untuk siswa aktif saja</h4>
+                                    <div class="bg-gray-900 text-green-400 p-4 rounded-xl font-mono text-sm overflow-x-auto">
+                                        <div class="text-gray-400 mb-2">-- Membuat Views siswa aktif</div>
+                                        <div>CREATE VIEW siswa_aktif AS</div>
+                                        <div>SELECT id, nama, kelas, jurusan</div>
+                                        <div>FROM siswa</div>
+                                        <div>WHERE status = 'aktif';</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-3">✅ Test Views yang sudah dibuat</h4>
+                                    <div class="bg-gray-900 text-blue-400 p-4 rounded-xl font-mono text-sm">
+                                        <div>SELECT * FROM siswa_aktif;</div>
+                                    </div>
+                                    <div class="mt-3 p-3 bg-green-50 rounded-lg">
+                                        <p class="text-sm text-green-800"><strong>Hasil yang diharapkan:</strong> Hanya menampilkan 4 siswa dengan status aktif (Ahmad, Siti, Dewi, Eko)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Praktik 2 -->
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                                <i class="fas fa-layer-group mr-3"></i>
+                                Langkah 3: Membuat Views dengan Filter
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-purple-700 mb-3">🎯 Tujuan: Buat Views untuk siswa jurusan RPL</h4>
+                                    <div class="bg-gray-900 text-green-400 p-4 rounded-xl font-mono text-sm overflow-x-auto">
+                                        <div class="text-gray-400 mb-2">-- Views siswa jurusan RPL</div>
+                                        <div>CREATE VIEW siswa_rpl AS</div>
+                                        <div>SELECT nama, kelas, </div>
+                                        <div>&nbsp;&nbsp;YEAR(CURDATE()) - YEAR(tanggal_lahir) AS umur</div>
+                                        <div>FROM siswa</div>
+                                        <div>WHERE jurusan = 'RPL' AND status = 'aktif';</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-purple-700 mb-3">✅ Test dan analisis hasil</h4>
+                                    <div class="bg-gray-900 text-blue-400 p-4 rounded-xl font-mono text-sm">
+                                        <div>SELECT * FROM siswa_rpl;</div>
+                                        <div class="mt-2">-- Coba filter lebih lanjut</div>
+                                        <div>SELECT * FROM siswa_rpl WHERE kelas = 'XII';</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Praktik 3 -->
+                        <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center">
+                                <i class="fas fa-table mr-3"></i>
+                                Langkah 4: Buat Tabel Nilai dan Complex View
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-orange-700 mb-3">Buat tabel nilai terlebih dahulu</h4>
+                                    <div class="bg-gray-900 text-green-400 p-4 rounded-xl font-mono text-sm overflow-x-auto">
+                                        <div>CREATE TABLE nilai (</div>
+                                        <div>&nbsp;&nbsp;id INT PRIMARY KEY AUTO_INCREMENT,</div>
+                                        <div>&nbsp;&nbsp;siswa_id INT,</div>
+                                        <div>&nbsp;&nbsp;mata_pelajaran VARCHAR(50),</div>
+                                        <div>&nbsp;&nbsp;nilai DECIMAL(5,2),</div>
+                                        <div>&nbsp;&nbsp;FOREIGN KEY (siswa_id) REFERENCES siswa(id)</div>
+                                        <div>);</div>
+                                        <div class="mt-4">-- Insert data nilai</div>
+                                        <div>INSERT INTO nilai VALUES</div>
+                                        <div>(1, 1, 'Pemrograman Web', 85.5),</div>
+                                        <div>(2, 1, 'Database', 90.0),</div>
+                                        <div>(3, 2, 'Jaringan', 78.5),</div>
+                                        <div>(4, 2, 'Sistem Operasi', 82.0),</div>
+                                        <div>(5, 4, 'Pemrograman Web', 88.0);</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-orange-700 mb-3">🎯 Buat Complex View dengan JOIN</h4>
+                                    <div class="bg-gray-900 text-green-400 p-4 rounded-xl font-mono text-sm overflow-x-auto">
+                                        <div class="text-gray-400 mb-2">-- Views laporan nilai siswa</div>
+                                        <div>CREATE VIEW laporan_nilai AS</div>
+                                        <div>SELECT </div>
+                                        <div>&nbsp;&nbsp;s.nama,</div>
+                                        <div>&nbsp;&nbsp;s.kelas,</div>
+                                        <div>&nbsp;&nbsp;s.jurusan,</div>
+                                        <div>&nbsp;&nbsp;n.mata_pelajaran,</div>
+                                        <div>&nbsp;&nbsp;n.nilai,</div>
+                                        <div>&nbsp;&nbsp;CASE </div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;WHEN n.nilai >= 85 THEN 'A'</div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;WHEN n.nilai >= 75 THEN 'B'</div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;WHEN n.nilai >= 65 THEN 'C'</div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;ELSE 'D'</div>
+                                        <div>&nbsp;&nbsp;END AS grade</div>
+                                        <div>FROM siswa s</div>
+                                        <div>JOIN nilai n ON s.id = n.siswa_id</div>
+                                        <div>WHERE s.status = 'aktif';</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Praktik 4 -->
+                        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-teal-800 mb-4 flex items-center">
+                                <i class="fas fa-chart-bar mr-3"></i>
+                                Langkah 5: Views dengan Agregasi
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-teal-700 mb-3">🎯 Buat Views untuk statistik nilai</h4>
+                                    <div class="bg-gray-900 text-green-400 p-4 rounded-xl font-mono text-sm overflow-x-auto">
+                                        <div class="text-gray-400 mb-2">-- Views statistik nilai per siswa</div>
+                                        <div>CREATE VIEW statistik_siswa AS</div>
+                                        <div>SELECT </div>
+                                        <div>&nbsp;&nbsp;s.nama,</div>
+                                        <div>&nbsp;&nbsp;s.kelas,</div>
+                                        <div>&nbsp;&nbsp;COUNT(n.nilai) AS jumlah_mapel,</div>
+                                        <div>&nbsp;&nbsp;AVG(n.nilai) AS rata_rata,</div>
+                                        <div>&nbsp;&nbsp;MAX(n.nilai) AS nilai_tertinggi,</div>
+                                        <div>&nbsp;&nbsp;MIN(n.nilai) AS nilai_terendah</div>
+                                        <div>FROM siswa s</div>
+                                        <div>LEFT JOIN nilai n ON s.id = n.siswa_id</div>
+                                        <div>WHERE s.status = 'aktif'</div>
+                                        <div>GROUP BY s.id, s.nama, s.kelas;</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-teal-700 mb-3">✅ Test semua Views yang sudah dibuat</h4>
+                                    <div class="space-y-2">
+                                        <div class="p-3 bg-teal-50 rounded-lg">
+                                            <code class="text-sm">SELECT * FROM laporan_nilai;</code>
+                                            <p class="text-xs text-gray-600 mt-1">→ Lihat semua nilai dengan grade</p>
+                                        </div>
+                                        <div class="p-3 bg-teal-50 rounded-lg">
+                                            <code class="text-sm">SELECT * FROM statistik_siswa;</code>
+                                            <p class="text-xs text-gray-600 mt-1">→ Lihat statistik per siswa</p>
+                                        </div>
+                                        <div class="p-3 bg-teal-50 rounded-lg">
+                                            <code class="text-sm">SELECT nama FROM statistik_siswa WHERE rata_rata > 80;</code>
+                                            <p class="text-xs text-gray-600 mt-1">→ Siswa dengan rata-rata > 80</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Praktik 5 -->
+                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-indigo-800 mb-4 flex items-center">
+                                <i class="fas fa-tools mr-3"></i>
+                                Langkah 6: Mengelola Views
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-indigo-700 mb-3">Melihat semua Views yang ada</h4>
+                                    <div class="bg-gray-900 text-blue-400 p-4 rounded-xl font-mono text-sm">
+                                        <div>SHOW TABLES;</div>
+                                        <div class="mt-2">-- atau khusus Views saja</div>
+                                        <div>SELECT TABLE_NAME FROM information_schema.VIEWS</div>
+                                        <div>WHERE TABLE_SCHEMA = 'sekolah_db';</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-indigo-700 mb-3">Mengubah dan menghapus Views</h4>
+                                    <div class="bg-gray-900 text-yellow-400 p-4 rounded-xl font-mono text-sm overflow-x-auto">
+                                        <div class="text-gray-400 mb-2">-- Mengubah Views</div>
+                                        <div>ALTER VIEW siswa_aktif AS</div>
+                                        <div>SELECT id, nama, kelas, jurusan, tanggal_lahir</div>
+                                        <div>FROM siswa</div>
+                                        <div>WHERE status = 'aktif';</div>
+                                        <div class="mt-4 text-gray-400">-- Menghapus Views</div>
+                                        <div class="text-red-400">-- DROP VIEW siswa_rpl;</div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white p-4 rounded-xl">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold">💡</div>
+                                        <div>
+                                            <h4 class="font-bold text-indigo-700">Tugas Mandiri:</h4>
+                                            <ul class="text-sm text-gray-600 mt-2 space-y-1">
+                                                <li>1. Buat Views untuk siswa kelas XII saja</li>
+                                                <li>2. Buat Views untuk mata pelajaran dengan nilai rata-rata tertinggi</li>
+                                                <li>3. Coba gunakan Views dalam query JOIN dengan tabel lain</li>
+                                                <li>4. Eksperimen dengan Views yang menggunakan Views lain</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Kuis Section -->
+            <section id="kuis" class="section">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🧩</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-teal-800 mb-4">Kuis Views Database</h2>
+                        <p class="text-lg text-gray-600">Uji pemahaman kalian tentang Views!</p>
+                    </div>
+
+                    <!-- Input Nama -->
+                    <div id="nameInput" class="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-teal-800 mb-4 text-center">Masukkan Nama Anda</h3>
+                        <div class="max-w-md mx-auto">
+                            <input type="text" id="studentName" placeholder="Nama lengkap..." 
+                                   class="w-full p-4 border-2 border-teal-300 rounded-xl text-lg focus:border-teal-500 focus:outline-none">
+                            <button onclick="startQuiz()" 
+                                    class="w-full mt-4 bg-gradient-to-r from-teal-500 to-cyan-500 text-white p-4 rounded-xl font-bold text-lg hover:from-teal-600 hover:to-cyan-600 transition-all">
+                                Mulai Kuis 🚀
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Container -->
+                    <div id="quizContainer" class="hidden">
+                        <div class="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-blue-800">Soal <span id="currentQuestion">1</span> dari 10</span>
+                                <span class="font-bold text-blue-800">Skor: <span id="currentScore">0</span></span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                <div id="progressBar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 10%"></div>
+                            </div>
+                        </div>
+
+                        <div id="questionContainer" class="mb-6">
+                            <!-- Questions will be inserted here -->
+                        </div>
+
+                        <div class="flex justify-between">
+                            <button id="prevBtn" onclick="previousQuestion()" 
+                                    class="px-6 py-3 bg-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-400 transition-all disabled:opacity-50" disabled>
+                                ← Sebelumnya
+                            </button>
+                            <button id="nextBtn" onclick="nextQuestion()" 
+                                    class="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl font-medium hover:from-blue-600 hover:to-indigo-600 transition-all">
+                                Selanjutnya →
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="resultsContainer" class="hidden">
+                        <div class="text-center">
+                            <div class="text-6xl mb-4">🎉</div>
+                            <h3 class="text-2xl font-bold text-green-800 mb-4">Kuis Selesai!</h3>
+                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl mb-6">
+                                <p class="text-lg mb-2">Nama: <span id="finalName" class="font-bold"></span></p>
+                                <p class="text-2xl font-bold text-green-800">Skor Akhir: <span id="finalScore"></span>/100</p>
+                                <p id="gradeMessage" class="text-lg mt-2"></p>
+                            </div>
+                            <button onclick="restartQuiz()" 
+                                    class="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-8 py-3 rounded-xl font-bold hover:from-teal-600 hover:to-cyan-600 transition-all">
+                                Ulangi Kuis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Penutup Section -->
+            <section id="penutup" class="section">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎓</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Penutup</h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        <!-- Refleksi -->
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                                <i class="fas fa-mirror mr-3"></i>
+                                Refleksi Pembelajaran
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <h4 class="font-bold text-purple-700">Apa yang sudah kalian pelajari?</h4>
+                                    <ul class="space-y-2 text-gray-700">
+                                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Konsep dasar Views database</li>
+                                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Jenis-jenis Views dan penggunaannya</li>
+                                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Sintaks CREATE, ALTER, DROP Views</li>
+                                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Keuntungan menggunakan Views</li>
+                                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Praktik langsung membuat Views</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-purple-700 mb-3">Renungkan:</h4>
+                                    <div class="space-y-3 text-sm text-gray-600">
+                                        <p>💭 Bagaimana Views bisa membantu dalam proyek database kalian?</p>
+                                        <p>🤔 Kapan sebaiknya menggunakan Views dan kapan tidak?</p>
+                                        <p>🎯 Apa tantangan yang kalian hadapi saat praktik?</p>
+                                        <p>✨ Ide kreatif apa yang muncul untuk menggunakan Views?</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Kesimpulan -->
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                                <i class="fas fa-lightbulb mr-3"></i>
+                                Kesimpulan Pembelajaran
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-blue-500">
+                                    <h4 class="font-bold text-blue-700 mb-2">Views adalah "Jendela Ajaib" Database</h4>
+                                    <p class="text-gray-700">Views memungkinkan kita melihat data dengan cara yang berbeda tanpa mengubah struktur tabel asli. Seperti kacamata dengan lensa khusus!</p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-green-500">
+                                    <h4 class="font-bold text-green-700 mb-2">Keamanan dan Kemudahan</h4>
+                                    <p class="text-gray-700">Views memberikan keamanan dengan menyembunyikan data sensitif, sekaligus menyederhanakan query kompleks menjadi mudah digunakan.</p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-purple-500">
+                                    <h4 class="font-bold text-purple-700 mb-2">Skill Penting untuk Masa Depan</h4>
+                                    <p class="text-gray-700">Kemampuan menggunakan Views sangat dibutuhkan di dunia kerja, terutama untuk developer, database administrator, dan data analyst.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tindak Lanjut -->
+                        <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-orange-800 mb-4 flex items-center">
+                                <i class="fas fa-rocket mr-3"></i>
+                                Tindak Lanjut
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-bold text-orange-700 mb-3">Langkah Selanjutnya:</h4>
+                                    <ul class="space-y-2 text-gray-700">
+                                        <li class="flex items-start">
+                                            <i class="fas fa-arrow-right text-orange-500 mr-2 mt-1"></i>
+                                            <span>Praktik lebih banyak dengan database yang lebih kompleks</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-arrow-right text-orange-500 mr-2 mt-1"></i>
+                                            <span>Pelajari Materialized Views untuk performa lebih baik</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-arrow-right text-orange-500 mr-2 mt-1"></i>
+                                            <span>Eksplorasi Views dalam framework web (Laravel, Django, dll)</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <i class="fas fa-arrow-right text-orange-500 mr-2 mt-1"></i>
+                                            <span>Buat proyek database dengan implementasi Views</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-bold text-orange-700 mb-3">Sumber Belajar Lanjutan:</h4>
+                                    <div class="space-y-3">
+                                        <div class="bg-white p-3 rounded-xl">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-book text-blue-500 mr-3"></i>
+                                                <span class="text-sm">Dokumentasi MySQL/PostgreSQL Views</span>
+                                            </div>
+                                        </div>
+                                        <div class="bg-white p-3 rounded-xl">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-video text-red-500 mr-3"></i>
+                                                <span class="text-sm">Tutorial YouTube Database Advanced</span>
+                                            </div>
+                                        </div>
+                                        <div class="bg-white p-3 rounded-xl">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-code text-green-500 mr-3"></i>
+                                                <span class="text-sm">Praktik di platform coding online</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pesan Penutup -->
+                        <div class="bg-gradient-to-r from-pink-100 to-purple-100 p-8 rounded-2xl text-center">
+                            <div class="text-4xl mb-4">🌟</div>
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4">Selamat!</h3>
+                            <p class="text-lg text-gray-700 mb-4">
+                                Kalian telah berhasil menyelesaikan pembelajaran Views Database! 
+                                Skill ini akan sangat berguna dalam karir IT kalian.
+                            </p>
+                            <div class="flex justify-center space-x-4 text-2xl">
+                                <span>🎯</span>
+                                <span>💪</span>
+                                <span>🚀</span>
+                                <span>✨</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-4 italic">
+                                "Database yang baik adalah fondasi aplikasi yang hebat!"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Next Button -->
+            <div id="nextButton" class="text-center mb-8">
+                <button onclick="nextSection()" 
+                        class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Materi Berikutnya →
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-110 z-30">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Overlay for mobile menu -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+
+    <script>
+        // Quiz Data
+        const quizData = [
+            {
+                question: "Apa yang dimaksud dengan Views dalam database?",
+                options: [
+                    "Tabel fisik yang menyimpan data",
+                    "Query tersimpan yang menampilkan data virtual",
+                    "Backup dari tabel utama",
+                    "Index untuk mempercepat pencarian"
+                ],
+                correct: 1
+            },
+            {
+                question: "Perintah SQL untuk membuat Views adalah:",
+                options: [
+                    "MAKE VIEW",
+                    "NEW VIEW", 
+                    "CREATE VIEW",
+                    "BUILD VIEW"
+                ],
+                correct: 2
+            },
+            {
+                question: "Keuntungan utama menggunakan Views adalah:",
+                options: [
+                    "Mempercepat query database",
+                    "Menyimpan lebih banyak data",
+                    "Keamanan dan penyederhanaan query",
+                    "Mengurangi ukuran database"
+                ],
+                correct: 2
+            },
+            {
+                question: "Views yang dibuat dari satu tabel disebut:",
+                options: [
+                    "Complex Views",
+                    "Simple Views",
+                    "Basic Views",
+                    "Single Views"
+                ],
+                correct: 1
+            },
+            {
+                question: "Untuk mengubah definisi Views, perintah yang digunakan adalah:",
+                options: [
+                    "UPDATE VIEW",
+                    "MODIFY VIEW",
+                    "ALTER VIEW", 
+                    "CHANGE VIEW"
+                ],
+                correct: 2
+            },
+            {
+                question: "Views dapat digunakan untuk:",
+                options: [
+                    "Menyembunyikan kolom sensitif",
+                    "Menyederhanakan query kompleks",
+                    "Memberikan akses terbatas ke data",
+                    "Semua jawaban benar"
+                ],
+                correct: 3
+            },
+            {
+                question: "Perbedaan utama Views dengan tabel adalah:",
+                options: [
+                    "Views menyimpan data fisik",
+                    "Views tidak menyimpan data fisik",
+                    "Views lebih cepat dari tabel",
+                    "Views hanya untuk data numerik"
+                ],
+                correct: 1
+            },
+            {
+                question: "Complex Views biasanya menggunakan:",
+                options: [
+                    "Hanya SELECT sederhana",
+                    "JOIN, GROUP BY, atau fungsi agregat",
+                    "Hanya WHERE clause",
+                    "Hanya ORDER BY"
+                ],
+                correct: 1
+            },
+            {
+                question: "Untuk menghapus Views, perintah yang digunakan adalah:",
+                options: [
+                    "DELETE VIEW",
+                    "REMOVE VIEW",
+                    "DROP VIEW",
+                    "CLEAR VIEW"
+                ],
+                correct: 2
+            },
+            {
+                question: "Views selalu menampilkan data yang:",
+                options: [
+                    "Tersimpan saat Views dibuat",
+                    "Terbaru dari tabel asli",
+                    "Sudah difilter secara permanen",
+                    "Tidak pernah berubah"
+                ],
+                correct: 1
+            }
+        ];
+
+        // Global variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let studentName = '';
+        let userAnswers = [];
+
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+                section.style.display = 'none';
+            });
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                targetSection.classList.add('active');
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Update menu active state
+                document.querySelectorAll('.menu-item').forEach(item => {
+                    item.classList.remove('bg-gradient-to-r', 'from-pink-200', 'to-purple-200');
+                });
+                
+                // Close mobile menu
+                closeMobileMenu();
+            }
+        }
+
+        // Mobile menu
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        }
+
+        // Quiz functions
+        function startQuiz() {
+            const nameInput = document.getElementById('studentName').value.trim();
+            if (!nameInput) {
+                alert('Silakan masukkan nama terlebih dahulu!');
+                return;
+            }
+            
+            studentName = nameInput;
+            document.getElementById('nameInput').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            
+            // Reset quiz state
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizData[currentQuestionIndex];
+            const container = document.getElementById('questionContainer');
+            
+            container.innerHTML = `
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+                    <h3 class="text-xl font-bold text-blue-800 mb-4">${question.question}</h3>
+                    <div class="space-y-3">
+                        ${question.options.map((option, index) => `
+                            <div class="quiz-option p-4 bg-white rounded-xl border-2 border-gray-200" onclick="selectAnswer(${index})">
+                                <span class="font-medium">${String.fromCharCode(65 + index)}.</span> ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            // Update progress
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('progressBar').style.width = `${((currentQuestionIndex + 1) / quizData.length) * 100}%`;
+            
+            // Update buttons
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            document.getElementById('nextBtn').textContent = currentQuestionIndex === quizData.length - 1 ? 'Selesai' : 'Selanjutnya →';
+            
+            // Restore previous answer if exists
+            if (userAnswers[currentQuestionIndex] !== undefined) {
+                const options = document.querySelectorAll('.quiz-option');
+                options[userAnswers[currentQuestionIndex]].classList.add('selected');
+            }
+        }
+
+        function selectAnswer(answerIndex) {
+            // Remove previous selection
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            document.querySelectorAll('.quiz-option')[answerIndex].classList.add('selected');
+            
+            // Store answer
+            userAnswers[currentQuestionIndex] = answerIndex;
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex === quizData.length - 1) {
+                finishQuiz();
+            } else {
+                currentQuestionIndex++;
+                showQuestion();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+            }
+        }
+
+        function finishQuiz() {
+            // Calculate score
+            score = 0;
+            userAnswers.forEach((answer, index) => {
+                if (answer === quizData[index].correct) {
+                    score += 10;
+                }
+            });
+            
+            // Show results
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('resultsContainer').classList.remove('hidden');
+            
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('currentScore').textContent = score;
+            
+            // Grade message
+            let gradeMessage = '';
+            if (score >= 90) gradeMessage = '🌟 Luar biasa! Pemahaman kalian sangat baik!';
+            else if (score >= 80) gradeMessage = '👏 Bagus sekali! Kalian sudah memahami materi dengan baik!';
+            else if (score >= 70) gradeMessage = '👍 Cukup baik! Masih ada ruang untuk improvement!';
+            else if (score >= 60) gradeMessage = '📚 Perlu belajar lebih giat lagi!';
+            else gradeMessage = '💪 Jangan menyerah! Ulangi materi dan coba lagi!';
+            
+            document.getElementById('gradeMessage').textContent = gradeMessage;
+        }
+
+        function restartQuiz() {
+            document.getElementById('resultsContainer').classList.add('hidden');
+            document.getElementById('nameInput').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+            
+            // Reset quiz state
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            studentName = '';
+        }
+
+        // Next section
+        function nextSection() {
+            const currentSection = document.querySelector('.section.active');
+            if (!currentSection) return;
+            
+            const sections = ['intro', 'pengenalan', 'konsep-dasar', 'jenis-views', 'sintaks', 'keuntungan', 'praktik', 'kuis', 'penutup'];
+            const currentIndex = sections.indexOf(currentSection.id);
+            
+            if (currentIndex < sections.length - 1) {
+                showSection(sections[currentIndex + 1]);
+            }
+        }
+
+        // Back to top
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show intro section by default
+            showSection('intro');
+            
+            // Mobile menu button
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+            
+            // Overlay click to close menu
+            document.getElementById('overlay').addEventListener('click', closeMobileMenu);
+            
+            // Back to top button
+            document.getElementById('backToTop').addEventListener('click', scrollToTop);
+            
+            // Show/hide back to top button
+            window.addEventListener('scroll', function() {
+                const backToTop = document.getElementById('backToTop');
+                if (window.pageYOffset > 300) {
+                    backToTop.style.display = 'block';
+                } else {
+                    backToTop.style.display = 'none';
+                }
+            });
+            
+            // Enter key for name input
+            document.getElementById('studentName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    startQuiz();
+                }
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98428d83012ccecf',t:'MTc1ODcxOTc0OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
