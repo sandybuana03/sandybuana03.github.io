@@ -1,0 +1,1548 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup & Restore MySQL - Pembelajaran Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse-icon {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .sidebar {
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        
+        @media (min-width: 768px) {
+            .sidebar-hidden {
+                transform: translateX(0);
+            }
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            background-color: #e0e7ff;
+            transform: scale(1.02);
+        }
+        
+        .quiz-option.selected {
+            background-color: #c7d2fe;
+            border-color: #6366f1;
+        }
+        
+        .quiz-option.correct {
+            background-color: #dcfce7;
+            border-color: #16a34a;
+        }
+        
+        .quiz-option.incorrect {
+            background-color: #fee2e2;
+            border-color: #dc2626;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-screen">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="md:hidden fixed top-4 left-4 z-50 bg-white rounded-full p-3 shadow-lg">
+        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <div id="sidebar" class="sidebar sidebar-hidden md:translate-x-0 fixed left-0 top-0 h-full w-80 bg-white shadow-2xl z-40 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-bold text-purple-800">📚 MySQL Backup</h2>
+                <button id="closeSidebar" class="md:hidden text-gray-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" onclick="navigateToSection('intro')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">🚀</span>
+                    <span class="font-medium text-gray-700">Intro</span>
+                </a>
+                <a href="#" onclick="navigateToSection('pengenalan')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">📖</span>
+                    <span class="font-medium text-gray-700">Pengenalan</span>
+                </a>
+                <a href="#" onclick="navigateToSection('konsep-dasar')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">🧠</span>
+                    <span class="font-medium text-gray-700">Konsep Dasar</span>
+                </a>
+                <a href="#" onclick="navigateToSection('jenis-backup')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">📋</span>
+                    <span class="font-medium text-gray-700">Jenis Backup</span>
+                </a>
+                <a href="#" onclick="navigateToSection('tools-backup')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">🛠️</span>
+                    <span class="font-medium text-gray-700">Tools Backup</span>
+                </a>
+                <a href="#" onclick="navigateToSection('praktik')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">⚡</span>
+                    <span class="font-medium text-gray-700">Praktik</span>
+                </a>
+                <a href="#" onclick="navigateToSection('kuis')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">🎯</span>
+                    <span class="font-medium text-gray-700">Kuis</span>
+                </a>
+                <a href="#" onclick="navigateToSection('penutup')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">🎉</span>
+                    <span class="font-medium text-gray-700">Penutup</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-80 min-h-screen">
+        <div class="max-w-4xl mx-auto px-4 py-8">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section fade-in">
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl md:text-6xl font-bold text-purple-800 mb-4">
+                        🗄️ Backup & Restore MySQL
+                    </h1>
+                    <p class="text-xl md:text-2xl text-gray-600">Pembelajaran Interaktif untuk SMK</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-12">
+                    <div class="bg-white rounded-3xl p-8 shadow-xl card-hover">
+                        <h3 class="text-2xl font-bold text-pink-600 mb-6 flex items-center">
+                            <span class="text-3xl mr-3 pulse-icon">🤔</span>
+                            Pertanyaan Pemantik
+                        </h3>
+                        <div class="space-y-4 text-lg">
+                            <p class="bg-pink-50 p-4 rounded-xl">💭 Apa yang terjadi jika data penting di database hilang?</p>
+                            <p class="bg-blue-50 p-4 rounded-xl">🔄 Bagaimana cara melindungi data dari kerusakan?</p>
+                            <p class="bg-green-50 p-4 rounded-xl">⚡ Mengapa backup database sangat penting?</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-8 shadow-xl card-hover">
+                        <h3 class="text-2xl font-bold text-blue-600 mb-6 flex items-center">
+                            <span class="text-3xl mr-3 pulse-icon">🎯</span>
+                            Apa yang Dipelajari
+                        </h3>
+                        <ul class="space-y-3 text-lg">
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✅</span>Konsep backup dan restore</li>
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✅</span>Jenis-jenis backup MySQL</li>
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✅</span>Tools untuk backup</li>
+                            <li class="flex items-center"><span class="text-green-500 mr-3">✅</span>Praktik langsung</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-400 to-pink-400 rounded-3xl p-8 text-white mb-8">
+                    <h3 class="text-3xl font-bold mb-6 flex items-center">
+                        <span class="text-4xl mr-4 bounce">🎯</span>
+                        Tujuan Pembelajaran
+                    </h3>
+                    <div class="grid md:grid-cols-2 gap-6 text-lg">
+                        <div>
+                            <p class="mb-3">🎓 Memahami pentingnya backup database</p>
+                            <p class="mb-3">🛠️ Menguasai tools backup MySQL</p>
+                        </div>
+                        <div>
+                            <p class="mb-3">⚡ Mampu melakukan backup dan restore</p>
+                            <p class="mb-3">🔒 Memahami keamanan data</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-3xl p-8 shadow-xl card-hover">
+                        <h3 class="text-2xl font-bold text-green-600 mb-6 flex items-center">
+                            <span class="text-3xl mr-3 pulse-icon">💡</span>
+                            Pemahaman Bermakna
+                        </h3>
+                        <p class="text-lg text-gray-700 leading-relaxed">
+                            Backup database adalah seperti membuat salinan cadangan foto penting di HP kamu. 
+                            Jika HP rusak, foto masih aman di cloud! Begitu juga dengan database - kita perlu 
+                            salinan cadangan agar data tidak hilang.
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-8 shadow-xl card-hover">
+                        <h3 class="text-2xl font-bold text-orange-600 mb-6 flex items-center">
+                            <span class="text-3xl mr-3 pulse-icon">🔥</span>
+                            Motivasi
+                        </h3>
+                        <p class="text-lg text-gray-700 leading-relaxed">
+                            Dengan menguasai backup MySQL, kamu akan menjadi "penyelamat data" di perusahaan! 
+                            Skill ini sangat dicari di dunia kerja karena data adalah aset paling berharga.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden fade-in">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl font-bold text-purple-800 mb-4">
+                        📖 Pengenalan Backup & Restore MySQL
+                    </h2>
+                </div>
+
+                <div class="bg-white rounded-3xl p-8 shadow-xl mb-8">
+                    <h3 class="text-3xl font-bold text-blue-600 mb-6 flex items-center">
+                        <span class="text-4xl mr-4 pulse-icon">🗄️</span>
+                        Apa itu Backup Database?
+                    </h3>
+                    <p class="text-xl text-gray-700 leading-relaxed mb-6">
+                        Backup database adalah proses membuat salinan cadangan dari seluruh data, struktur tabel, 
+                        dan konfigurasi database. Bayangkan seperti mem-fotocopy semua dokumen penting dan menyimpannya 
+                        di tempat yang aman!
+                    </p>
+                    
+                    <div class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-6">
+                        <h4 class="text-2xl font-bold text-purple-700 mb-4">🎯 Mengapa Backup Penting?</h4>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-white rounded-xl p-4">
+                                <span class="text-2xl">🛡️</span>
+                                <p class="font-semibold text-gray-800">Perlindungan Data</p>
+                                <p class="text-gray-600">Melindungi dari kehilangan data akibat kerusakan hardware</p>
+                            </div>
+                            <div class="bg-white rounded-xl p-4">
+                                <span class="text-2xl">🔄</span>
+                                <p class="font-semibold text-gray-800">Recovery Cepat</p>
+                                <p class="text-gray-600">Memulihkan data dengan cepat saat terjadi masalah</p>
+                            </div>
+                            <div class="bg-white rounded-xl p-4">
+                                <span class="text-2xl">👥</span>
+                                <p class="font-semibold text-gray-800">Human Error</p>
+                                <p class="text-gray-600">Mengatasi kesalahan penghapusan data oleh user</p>
+                            </div>
+                            <div class="bg-white rounded-xl p-4">
+                                <span class="text-2xl">🦠</span>
+                                <p class="font-semibold text-gray-800">Serangan Malware</p>
+                                <p class="text-gray-600">Melindungi dari virus dan ransomware</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl p-8 shadow-xl">
+                    <h3 class="text-3xl font-bold text-green-600 mb-6 flex items-center">
+                        <span class="text-4xl mr-4 pulse-icon">🔄</span>
+                        Apa itu Restore Database?
+                    </h3>
+                    <p class="text-xl text-gray-700 leading-relaxed mb-6">
+                        Restore adalah proses mengembalikan database dari file backup ke kondisi semula. 
+                        Seperti mengembalikan foto yang terhapus dari recycle bin atau cloud storage!
+                    </p>
+                    
+                    <div class="bg-gradient-to-r from-green-100 to-blue-100 rounded-2xl p-6">
+                        <h4 class="text-2xl font-bold text-green-700 mb-4">⚡ Kapan Perlu Restore?</h4>
+                        <div class="space-y-4">
+                            <div class="flex items-center bg-white rounded-xl p-4">
+                                <span class="text-3xl mr-4">💥</span>
+                                <div>
+                                    <p class="font-semibold text-gray-800">Server Crash</p>
+                                    <p class="text-gray-600">Ketika server database mengalami kerusakan</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center bg-white rounded-xl p-4">
+                                <span class="text-3xl mr-4">🗑️</span>
+                                <div>
+                                    <p class="font-semibold text-gray-800">Data Terhapus</p>
+                                    <p class="text-gray-600">Saat data penting terhapus secara tidak sengaja</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center bg-white rounded-xl p-4">
+                                <span class="text-3xl mr-4">🔄</span>
+                                <div>
+                                    <p class="font-semibold text-gray-800">Migrasi Server</p>
+                                    <p class="text-gray-600">Memindahkan database ke server baru</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Konsep Dasar Section -->
+            <div id="konsep-dasar" class="section hidden fade-in">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl font-bold text-purple-800 mb-4">
+                        🧠 Konsep Dasar Backup MySQL
+                    </h2>
+                </div>
+
+                <div class="space-y-8">
+                    <div class="bg-white rounded-3xl p-8 shadow-xl">
+                        <h3 class="text-3xl font-bold text-blue-600 mb-6 flex items-center">
+                            <span class="text-4xl mr-4 pulse-icon">📊</span>
+                            Komponen yang Di-backup
+                        </h3>
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="bg-blue-50 rounded-2xl p-6 text-center">
+                                <span class="text-5xl mb-4 block">📋</span>
+                                <h4 class="text-xl font-bold text-blue-700 mb-2">Data</h4>
+                                <p class="text-gray-600">Semua record dalam tabel database</p>
+                            </div>
+                            <div class="bg-green-50 rounded-2xl p-6 text-center">
+                                <span class="text-5xl mb-4 block">🏗️</span>
+                                <h4 class="text-xl font-bold text-green-700 mb-2">Struktur</h4>
+                                <p class="text-gray-600">Skema tabel, index, dan relasi</p>
+                            </div>
+                            <div class="bg-purple-50 rounded-2xl p-6 text-center">
+                                <span class="text-5xl mb-4 block">⚙️</span>
+                                <h4 class="text-xl font-bold text-purple-700 mb-2">Konfigurasi</h4>
+                                <p class="text-gray-600">User, permission, dan setting</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-8 shadow-xl">
+                        <h3 class="text-3xl font-bold text-orange-600 mb-6 flex items-center">
+                            <span class="text-4xl mr-4 pulse-icon">📈</span>
+                            Strategi Backup
+                        </h3>
+                        <div class="space-y-6">
+                            <div class="bg-gradient-to-r from-red-100 to-pink-100 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-red-700 mb-4 flex items-center">
+                                    <span class="text-3xl mr-3">🔴</span>Full Backup
+                                </h4>
+                                <p class="text-lg text-gray-700 mb-4">Backup lengkap seluruh database</p>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="font-semibold text-green-600">✅ Kelebihan:</p>
+                                        <ul class="text-gray-600 ml-4">
+                                            <li>• Restore mudah dan cepat</li>
+                                            <li>• Data lengkap tersimpan</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-red-600">❌ Kekurangan:</p>
+                                        <ul class="text-gray-600 ml-4">
+                                            <li>• Membutuhkan storage besar</li>
+                                            <li>• Proses backup lama</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-orange-700 mb-4 flex items-center">
+                                    <span class="text-3xl mr-3">🟡</span>Incremental Backup
+                                </h4>
+                                <p class="text-lg text-gray-700 mb-4">Backup hanya perubahan sejak backup terakhir</p>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="font-semibold text-green-600">✅ Kelebihan:</p>
+                                        <ul class="text-gray-600 ml-4">
+                                            <li>• Hemat storage</li>
+                                            <li>• Proses cepat</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-red-600">❌ Kekurangan:</p>
+                                        <ul class="text-gray-600 ml-4">
+                                            <li>• Restore lebih kompleks</li>
+                                            <li>• Butuh backup sebelumnya</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jenis Backup Section -->
+            <div id="jenis-backup" class="section hidden fade-in">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl font-bold text-purple-800 mb-4">
+                        📋 Jenis-Jenis Backup MySQL
+                    </h2>
+                </div>
+
+                <div class="space-y-8">
+                    <div class="bg-white rounded-3xl p-8 shadow-xl">
+                        <h3 class="text-3xl font-bold text-blue-600 mb-6 flex items-center">
+                            <span class="text-4xl mr-4 pulse-icon">🔄</span>
+                            Berdasarkan Metode
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div class="bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-blue-700 mb-4 flex items-center">
+                                    <span class="text-3xl mr-3">🔵</span>Logical Backup
+                                </h4>
+                                <p class="text-lg text-gray-700 mb-4">Backup dalam bentuk SQL statements</p>
+                                <div class="space-y-3">
+                                    <div class="bg-white rounded-xl p-4">
+                                        <p class="font-semibold text-gray-800">📄 Format: SQL Script</p>
+                                        <p class="text-gray-600">File .sql berisi perintah CREATE, INSERT</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4">
+                                        <p class="font-semibold text-gray-800">🛠️ Tool: mysqldump</p>
+                                        <p class="text-gray-600">Tool bawaan MySQL untuk logical backup</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4">
+                                        <p class="font-semibold text-gray-800">📖 Readable: Ya</p>
+                                        <p class="text-gray-600">Bisa dibaca dan diedit manual</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-green-100 to-blue-100 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-green-700 mb-4 flex items-center">
+                                    <span class="text-3xl mr-3">🟢</span>Physical Backup
+                                </h4>
+                                <p class="text-lg text-gray-700 mb-4">Backup file database secara langsung</p>
+                                <div class="space-y-3">
+                                    <div class="bg-white rounded-xl p-4">
+                                        <p class="font-semibold text-gray-800">📁 Format: Binary Files</p>
+                                        <p class="text-gray-600">Copy langsung file .frm, .ibd, .MYD</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4">
+                                        <p class="font-semibold text-gray-800">⚡ Speed: Sangat Cepat</p>
+                                        <p class="text-gray-600">Tidak perlu export/import data</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4">
+                                        <p class="font-semibold text-gray-800">🔒 Readable: Tidak</p>
+                                        <p class="text-gray-600">File binary, tidak bisa dibaca manual</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-8 shadow-xl">
+                        <h3 class="text-3xl font-bold text-purple-600 mb-6 flex items-center">
+                            <span class="text-4xl mr-4 pulse-icon">⏰</span>
+                            Berdasarkan Waktu
+                        </h3>
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="bg-red-50 rounded-2xl p-6 text-center">
+                                <span class="text-5xl mb-4 block">🔴</span>
+                                <h4 class="text-xl font-bold text-red-700 mb-2">Hot Backup</h4>
+                                <p class="text-gray-600 mb-4">Backup saat database aktif</p>
+                                <div class="text-left space-y-2">
+                                    <p class="text-sm text-green-600">✅ Tidak mengganggu user</p>
+                                    <p class="text-sm text-green-600">✅ Database tetap online</p>
+                                    <p class="text-sm text-red-600">❌ Butuh tools khusus</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-yellow-50 rounded-2xl p-6 text-center">
+                                <span class="text-5xl mb-4 block">🟡</span>
+                                <h4 class="text-xl font-bold text-yellow-700 mb-2">Warm Backup</h4>
+                                <p class="text-gray-600 mb-4">Backup dengan akses terbatas</p>
+                                <div class="text-left space-y-2">
+                                    <p class="text-sm text-green-600">✅ Konsistensi data baik</p>
+                                    <p class="text-sm text-yellow-600">⚠️ Read-only mode</p>
+                                    <p class="text-sm text-red-600">❌ Tidak bisa write</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-50 rounded-2xl p-6 text-center">
+                                <span class="text-5xl mb-4 block">🔵</span>
+                                <h4 class="text-xl font-bold text-blue-700 mb-2">Cold Backup</h4>
+                                <p class="text-gray-600 mb-4">Backup saat database offline</p>
+                                <div class="text-left space-y-2">
+                                    <p class="text-sm text-green-600">✅ Konsistensi sempurna</p>
+                                    <p class="text-sm text-green-600">✅ Proses mudah</p>
+                                    <p class="text-sm text-red-600">❌ Database offline</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tools Backup Section -->
+            <div id="tools-backup" class="section hidden fade-in">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl font-bold text-purple-800 mb-4">
+                        🛠️ Tools untuk Backup MySQL
+                    </h2>
+                </div>
+
+                <div class="space-y-8">
+                    <div class="bg-white rounded-3xl p-8 shadow-xl">
+                        <h3 class="text-3xl font-bold text-blue-600 mb-6 flex items-center">
+                            <span class="text-4xl mr-4 pulse-icon">⚡</span>
+                            mysqldump - Tool Utama
+                        </h3>
+                        <div class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-6 mb-6">
+                            <p class="text-xl text-gray-700 leading-relaxed">
+                                <strong>mysqldump</strong> adalah tool bawaan MySQL yang paling populer untuk membuat logical backup. 
+                                Tool ini menghasilkan file SQL yang berisi semua perintah untuk merecreate database.
+                            </p>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <h4 class="text-2xl font-bold text-green-600 flex items-center">
+                                    <span class="text-3xl mr-3">✅</span>Kelebihan
+                                </h4>
+                                <div class="space-y-3">
+                                    <div class="bg-green-50 rounded-xl p-4">
+                                        <p class="font-semibold text-gray-800">📦 Gratis & Built-in</p>
+                                        <p class="text-gray-600">Sudah termasuk dalam instalasi MySQL</p>
+                                    </div>
+                                    <div class="bg-green-50 rounded-xl p-4">
+                                        <p class="font-semibold text-gray-800">🔄 Cross-platform</p>
+                                        <p class="text-gray-600">Bisa restore ke MySQL versi berbeda</p>
+                                    </div>
+                                    <div class="bg-green-50 rounded-xl p-4">
+                                        <p class="font-semibold text-gray-800">📖 Human Readable</p>
+                                        <p class="text-gray-600">File SQL bisa dibaca dan diedit</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <h4 class="text-2xl font-bold text-red-600 flex items-center">
+                                    <span class="text-3xl mr-3">❌</span>Kekurangan
+                                </h4>
+                                <div class="space-y-3">
+                                    <div class="bg-red-50 rounded-xl p-4">
+                                        <p class="font-semibold text-gray-800">🐌 Lambat untuk DB Besar</p>
+                                        <p class="text-gray-600">Proses export/import memakan waktu</p>
+                                    </div>
+                                    <div class="bg-red-50 rounded-xl p-4">
+                                        <p class="font-semibold text-gray-800">🔒 Lock Tables</p>
+                                        <p class="text-gray-600">Bisa mengunci tabel saat backup</p>
+                                    </div>
+                                    <div class="bg-red-50 rounded-xl p-4">
+                                        <p class="font-semibold text-gray-800">💾 File Besar</p>
+                                        <p class="text-gray-600">Ukuran file backup cukup besar</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-8 shadow-xl">
+                        <h3 class="text-3xl font-bold text-purple-600 mb-6 flex items-center">
+                            <span class="text-4xl mr-4 pulse-icon">🚀</span>
+                            Tools Alternatif Lainnya
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-br from-orange-100 to-red-100 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-orange-700 mb-4 flex items-center">
+                                    <span class="text-3xl mr-3">🔥</span>MySQL Workbench
+                                </h4>
+                                <p class="text-gray-700 mb-4">Tool GUI resmi dari MySQL dengan fitur backup visual</p>
+                                <div class="space-y-2">
+                                    <p class="text-sm text-green-600">✅ Interface user-friendly</p>
+                                    <p class="text-sm text-green-600">✅ Wizard backup otomatis</p>
+                                    <p class="text-sm text-green-600">✅ Schedule backup</p>
+                                    <p class="text-sm text-red-600">❌ Butuh instalasi terpisah</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-green-100 to-blue-100 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-green-700 mb-4 flex items-center">
+                                    <span class="text-3xl mr-3">⚡</span>Percona XtraBackup
+                                </h4>
+                                <p class="text-gray-700 mb-4">Tool backup enterprise untuk database besar</p>
+                                <div class="space-y-2">
+                                    <p class="text-sm text-green-600">✅ Hot backup tanpa lock</p>
+                                    <p class="text-sm text-green-600">✅ Incremental backup</p>
+                                    <p class="text-sm text-green-600">✅ Sangat cepat</p>
+                                    <p class="text-sm text-red-600">❌ Hanya untuk InnoDB</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-purple-700 mb-4 flex items-center">
+                                    <span class="text-3xl mr-3">🎯</span>phpMyAdmin
+                                </h4>
+                                <p class="text-gray-700 mb-4">Web interface populer untuk manajemen MySQL</p>
+                                <div class="space-y-2">
+                                    <p class="text-sm text-green-600">✅ Akses via browser</p>
+                                    <p class="text-sm text-green-600">✅ Export berbagai format</p>
+                                    <p class="text-sm text-green-600">✅ Mudah digunakan</p>
+                                    <p class="text-sm text-red-600">❌ Terbatas untuk DB besar</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-blue-700 mb-4 flex items-center">
+                                    <span class="text-3xl mr-3">🔧</span>Custom Scripts
+                                </h4>
+                                <p class="text-gray-700 mb-4">Script otomatis menggunakan bash, Python, atau PHP</p>
+                                <div class="space-y-2">
+                                    <p class="text-sm text-green-600">✅ Sesuai kebutuhan spesifik</p>
+                                    <p class="text-sm text-green-600">✅ Otomasi penuh</p>
+                                    <p class="text-sm text-green-600">✅ Integrasi sistem</p>
+                                    <p class="text-sm text-red-600">❌ Butuh skill programming</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Praktik Section -->
+            <div id="praktik" class="section hidden fade-in">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl font-bold text-purple-800 mb-4">
+                        ⚡ Praktik Backup & Restore MySQL
+                    </h2>
+                    <p class="text-xl text-gray-600">Mari praktik langsung step by step!</p>
+                </div>
+
+                <div class="space-y-8">
+                    <!-- Persiapan -->
+                    <div class="bg-white rounded-3xl p-8 shadow-xl">
+                        <h3 class="text-3xl font-bold text-blue-600 mb-6 flex items-center">
+                            <span class="text-4xl mr-4 pulse-icon">🎯</span>
+                            Langkah 1: Persiapan
+                        </h3>
+                        <div class="bg-blue-50 rounded-2xl p-6 mb-6">
+                            <h4 class="text-2xl font-bold text-blue-700 mb-4">📋 Yang Perlu Disiapkan:</h4>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <div class="flex items-center bg-white rounded-xl p-3">
+                                        <span class="text-2xl mr-3">💻</span>
+                                        <span>MySQL Server terinstall</span>
+                                    </div>
+                                    <div class="flex items-center bg-white rounded-xl p-3">
+                                        <span class="text-2xl mr-3">🗄️</span>
+                                        <span>Database sample untuk latihan</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-center bg-white rounded-xl p-3">
+                                        <span class="text-2xl mr-3">⌨️</span>
+                                        <span>Command Line / Terminal</span>
+                                    </div>
+                                    <div class="flex items-center bg-white rounded-xl p-3">
+                                        <span class="text-2xl mr-3">📁</span>
+                                        <span>Folder untuk menyimpan backup</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-100 to-blue-100 rounded-2xl p-6">
+                            <h4 class="text-2xl font-bold text-green-700 mb-4">🚀 Membuat Database Sample:</h4>
+                            <div class="bg-gray-800 rounded-xl p-4 text-green-400 font-mono text-lg overflow-x-auto">
+                                <p># Login ke MySQL</p>
+                                <p>mysql -u root -p</p>
+                                <br>
+                                <p># Buat database baru</p>
+                                <p>CREATE DATABASE sekolah_smk;</p>
+                                <p>USE sekolah_smk;</p>
+                                <br>
+                                <p># Buat tabel siswa</p>
+                                <p>CREATE TABLE siswa (</p>
+                                <p>&nbsp;&nbsp;id INT PRIMARY KEY AUTO_INCREMENT,</p>
+                                <p>&nbsp;&nbsp;nama VARCHAR(100),</p>
+                                <p>&nbsp;&nbsp;kelas VARCHAR(10),</p>
+                                <p>&nbsp;&nbsp;jurusan VARCHAR(50)</p>
+                                <p>);</p>
+                                <br>
+                                <p># Insert data sample</p>
+                                <p>INSERT INTO siswa VALUES</p>
+                                <p>(1, 'Andi Pratama', 'XII', 'RPL'),</p>
+                                <p>(2, 'Sari Dewi', 'XI', 'TKJ'),</p>
+                                <p>(3, 'Budi Santoso', 'X', 'MM');</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Backup dengan mysqldump -->
+                    <div class="bg-white rounded-3xl p-8 shadow-xl">
+                        <h3 class="text-3xl font-bold text-green-600 mb-6 flex items-center">
+                            <span class="text-4xl mr-4 pulse-icon">💾</span>
+                            Langkah 2: Backup dengan mysqldump
+                        </h3>
+                        
+                        <div class="space-y-6">
+                            <div class="bg-green-50 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-green-700 mb-4">📤 Backup Satu Database:</h4>
+                                <div class="bg-gray-800 rounded-xl p-4 text-green-400 font-mono text-lg overflow-x-auto mb-4">
+                                    <p># Syntax dasar</p>
+                                    <p>mysqldump -u [username] -p [database_name] > backup_file.sql</p>
+                                    <br>
+                                    <p># Contoh praktik</p>
+                                    <p>mysqldump -u root -p sekolah_smk > backup_sekolah.sql</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <p class="text-gray-700"><strong>Penjelasan:</strong></p>
+                                    <ul class="text-gray-600 ml-4 mt-2">
+                                        <li>• <code>-u root</code> : Login sebagai user root</li>
+                                        <li>• <code>-p</code> : Akan meminta password</li>
+                                        <li>• <code>sekolah_smk</code> : Nama database yang akan di-backup</li>
+                                        <li>• <code>> backup_sekolah.sql</code> : Output ke file SQL</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-blue-50 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-blue-700 mb-4">🗄️ Backup Semua Database:</h4>
+                                <div class="bg-gray-800 rounded-xl p-4 text-green-400 font-mono text-lg overflow-x-auto mb-4">
+                                    <p># Backup semua database</p>
+                                    <p>mysqldump -u root -p --all-databases > backup_all.sql</p>
+                                    <br>
+                                    <p># Backup beberapa database spesifik</p>
+                                    <p>mysqldump -u root -p --databases sekolah_smk perpustakaan > backup_multi.sql</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-purple-50 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-purple-700 mb-4">⚙️ Opsi Backup Lanjutan:</h4>
+                                <div class="bg-gray-800 rounded-xl p-4 text-green-400 font-mono text-lg overflow-x-auto mb-4">
+                                    <p># Backup dengan kompresi</p>
+                                    <p>mysqldump -u root -p sekolah_smk | gzip > backup_sekolah.sql.gz</p>
+                                    <br>
+                                    <p># Backup hanya struktur (tanpa data)</p>
+                                    <p>mysqldump -u root -p --no-data sekolah_smk > struktur_only.sql</p>
+                                    <br>
+                                    <p># Backup hanya data (tanpa struktur)</p>
+                                    <p>mysqldump -u root -p --no-create-info sekolah_smk > data_only.sql</p>
+                                    <br>
+                                    <p># Backup dengan timestamp</p>
+                                    <p>mysqldump -u root -p sekolah_smk > backup_$(date +%Y%m%d_%H%M%S).sql</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Restore Database -->
+                    <div class="bg-white rounded-3xl p-8 shadow-xl">
+                        <h3 class="text-3xl font-bold text-orange-600 mb-6 flex items-center">
+                            <span class="text-4xl mr-4 pulse-icon">🔄</span>
+                            Langkah 3: Restore Database
+                        </h3>
+                        
+                        <div class="space-y-6">
+                            <div class="bg-orange-50 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-orange-700 mb-4">📥 Restore ke Database Baru:</h4>
+                                <div class="bg-gray-800 rounded-xl p-4 text-green-400 font-mono text-lg overflow-x-auto mb-4">
+                                    <p># 1. Buat database baru dulu</p>
+                                    <p>mysql -u root -p</p>
+                                    <p>CREATE DATABASE sekolah_restore;</p>
+                                    <p>EXIT;</p>
+                                    <br>
+                                    <p># 2. Restore dari file backup</p>
+                                    <p>mysql -u root -p sekolah_restore < backup_sekolah.sql</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <p class="text-gray-700"><strong>⚠️ Penting:</strong> Database tujuan harus sudah dibuat terlebih dahulu!</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-red-50 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-red-700 mb-4">🔄 Restore Menimpa Database Existing:</h4>
+                                <div class="bg-gray-800 rounded-xl p-4 text-green-400 font-mono text-lg overflow-x-auto mb-4">
+                                    <p># Restore langsung ke database yang ada</p>
+                                    <p>mysql -u root -p sekolah_smk < backup_sekolah.sql</p>
+                                    <br>
+                                    <p># Restore dari file terkompresi</p>
+                                    <p>gunzip < backup_sekolah.sql.gz | mysql -u root -p sekolah_smk</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <p class="text-red-700"><strong>⚠️ Hati-hati:</strong> Ini akan menimpa data yang ada!</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-green-50 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-green-700 mb-4">✅ Verifikasi Hasil Restore:</h4>
+                                <div class="bg-gray-800 rounded-xl p-4 text-green-400 font-mono text-lg overflow-x-auto mb-4">
+                                    <p># Login dan cek database</p>
+                                    <p>mysql -u root -p</p>
+                                    <p>USE sekolah_restore;</p>
+                                    <p>SHOW TABLES;</p>
+                                    <p>SELECT * FROM siswa;</p>
+                                    <p>DESCRIBE siswa;</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Praktik Lanjutan -->
+                    <div class="bg-white rounded-3xl p-8 shadow-xl">
+                        <h3 class="text-3xl font-bold text-purple-600 mb-6 flex items-center">
+                            <span class="text-4xl mr-4 pulse-icon">🚀</span>
+                            Langkah 4: Praktik Lanjutan
+                        </h3>
+                        
+                        <div class="space-y-6">
+                            <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-purple-700 mb-4">🤖 Otomasi Backup dengan Script:</h4>
+                                <div class="bg-gray-800 rounded-xl p-4 text-green-400 font-mono text-sm overflow-x-auto mb-4">
+                                    <p>#!/bin/bash</p>
+                                    <p># Script backup otomatis</p>
+                                    <br>
+                                    <p>DATE=$(date +%Y%m%d_%H%M%S)</p>
+                                    <p>BACKUP_DIR="/backup/mysql"</p>
+                                    <p>DATABASE="sekolah_smk"</p>
+                                    <p>USER="root"</p>
+                                    <p>PASSWORD="your_password"</p>
+                                    <br>
+                                    <p># Buat direktori jika belum ada</p>
+                                    <p>mkdir -p $BACKUP_DIR</p>
+                                    <br>
+                                    <p># Backup database</p>
+                                    <p>mysqldump -u$USER -p$PASSWORD $DATABASE | gzip > $BACKUP_DIR/backup_$DATE.sql.gz</p>
+                                    <br>
+                                    <p># Hapus backup lama (lebih dari 7 hari)</p>
+                                    <p>find $BACKUP_DIR -name "backup_*.sql.gz" -mtime +7 -delete</p>
+                                    <br>
+                                    <p>echo "Backup selesai: backup_$DATE.sql.gz"</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-r from-blue-100 to-green-100 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-blue-700 mb-4">⏰ Penjadwalan Backup dengan Cron:</h4>
+                                <div class="bg-gray-800 rounded-xl p-4 text-green-400 font-mono text-lg overflow-x-auto mb-4">
+                                    <p># Edit crontab</p>
+                                    <p>crontab -e</p>
+                                    <br>
+                                    <p># Backup setiap hari jam 2 pagi</p>
+                                    <p>0 2 * * * /path/to/backup_script.sh</p>
+                                    <br>
+                                    <p># Backup setiap 6 jam</p>
+                                    <p>0 */6 * * * /path/to/backup_script.sh</p>
+                                    <br>
+                                    <p># Backup setiap Minggu jam 1 pagi</p>
+                                    <p>0 1 * * 0 /path/to/backup_script.sh</p>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-yellow-700 mb-4">🔍 Tips Troubleshooting:</h4>
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-4">
+                                        <p class="font-semibold text-red-600">❌ Error: Access denied</p>
+                                        <p class="text-gray-600">Solusi: Periksa username, password, dan privileges user</p>
+                                        <code class="text-sm bg-gray-100 p-1 rounded">GRANT ALL PRIVILEGES ON *.* TO 'user'@'localhost';</code>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4">
+                                        <p class="font-semibold text-red-600">❌ Error: Table doesn't exist</p>
+                                        <p class="text-gray-600">Solusi: Pastikan database tujuan kosong atau gunakan --add-drop-table</p>
+                                        <code class="text-sm bg-gray-100 p-1 rounded">mysqldump --add-drop-table -u root -p database > backup.sql</code>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4">
+                                        <p class="font-semibold text-red-600">❌ File backup terlalu besar</p>
+                                        <p class="text-gray-600">Solusi: Gunakan kompresi atau backup per tabel</p>
+                                        <code class="text-sm bg-gray-100 p-1 rounded">mysqldump -u root -p database table_name > backup_table.sql</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden fade-in">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl font-bold text-purple-800 mb-4">
+                        🎯 Kuis Backup & Restore MySQL
+                    </h2>
+                    <p class="text-xl text-gray-600">Uji pemahamanmu dengan 10 soal berikut!</p>
+                </div>
+
+                <!-- Form Nama -->
+                <div id="nameForm" class="bg-white rounded-3xl p-8 shadow-xl mb-8">
+                    <h3 class="text-3xl font-bold text-blue-600 mb-6 text-center flex items-center justify-center">
+                        <span class="text-4xl mr-4">👤</span>
+                        Masukkan Nama Kamu
+                    </h3>
+                    <div class="max-w-md mx-auto">
+                        <input type="text" id="studentName" placeholder="Nama lengkap..." 
+                               class="w-full p-4 text-xl border-2 border-purple-300 rounded-2xl focus:border-purple-500 focus:outline-none mb-6">
+                        <button onclick="startQuiz()" 
+                                class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xl font-bold py-4 rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all">
+                            🚀 Mulai Kuis
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Kuis Questions -->
+                <div id="quizContainer" class="hidden">
+                    <div class="bg-white rounded-3xl p-8 shadow-xl mb-8">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-2xl font-bold text-purple-600">
+                                Soal <span id="currentQuestion">1</span> dari 10
+                            </h3>
+                            <div class="text-lg font-semibold text-gray-600">
+                                Skor: <span id="currentScore">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-8">
+                            <div class="bg-purple-100 rounded-2xl p-6 mb-6">
+                                <h4 id="questionText" class="text-xl font-semibold text-gray-800"></h4>
+                            </div>
+                            
+                            <div id="optionsContainer" class="space-y-4">
+                                <!-- Options will be inserted here -->
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between">
+                            <button id="prevBtn" onclick="previousQuestion()" 
+                                    class="bg-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:bg-gray-400 transition-colors disabled:opacity-50">
+                                ← Sebelumnya
+                            </button>
+                            <button id="nextBtn" onclick="nextQuestion()" 
+                                    class="bg-purple-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-purple-600 transition-colors disabled:opacity-50">
+                                Selanjutnya →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Result -->
+                <div id="quizResult" class="hidden bg-white rounded-3xl p-8 shadow-xl">
+                    <div class="text-center">
+                        <h3 class="text-4xl font-bold text-purple-600 mb-6">🎉 Kuis Selesai!</h3>
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-8 mb-6">
+                            <p class="text-2xl font-bold text-gray-800 mb-2">Nama: <span id="finalName"></span></p>
+                            <p class="text-3xl font-bold text-purple-600">Skor Akhir: <span id="finalScore"></span>/100</p>
+                            <div id="gradeMessage" class="text-xl font-semibold mt-4"></div>
+                        </div>
+                        <button onclick="restartQuiz()" 
+                                class="bg-gradient-to-r from-green-500 to-blue-500 text-white text-xl font-bold py-4 px-8 rounded-2xl hover:from-green-600 hover:to-blue-600 transition-all">
+                            🔄 Ulangi Kuis
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden fade-in">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl md:text-5xl font-bold text-purple-800 mb-4">
+                        🎉 Penutup Pembelajaran
+                    </h2>
+                </div>
+
+                <div class="space-y-8">
+                    <div class="bg-white rounded-3xl p-8 shadow-xl">
+                        <h3 class="text-3xl font-bold text-blue-600 mb-6 flex items-center">
+                            <span class="text-4xl mr-4 pulse-icon">🤔</span>
+                            Refleksi Pembelajaran
+                        </h3>
+                        <div class="bg-blue-50 rounded-2xl p-6 mb-6">
+                            <h4 class="text-2xl font-bold text-blue-700 mb-4">💭 Mari Renungkan:</h4>
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-xl p-4">
+                                    <p class="font-semibold text-gray-800">🎯 Apa yang sudah kamu pelajari hari ini?</p>
+                                    <p class="text-gray-600 mt-2">Konsep backup, restore, tools MySQL, dan praktik langsung</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <p class="font-semibold text-gray-800">💡 Bagian mana yang paling menarik?</p>
+                                    <p class="text-gray-600 mt-2">Praktik langsung dengan mysqldump dan otomasi backup</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <p class="font-semibold text-gray-800">🚀 Apa yang ingin kamu pelajari lebih lanjut?</p>
+                                    <p class="text-gray-600 mt-2">Advanced backup strategies, monitoring, dan disaster recovery</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-8 shadow-xl">
+                        <h3 class="text-3xl font-bold text-green-600 mb-6 flex items-center">
+                            <span class="text-4xl mr-4 pulse-icon">📝</span>
+                            Kesimpulan Pembelajaran
+                        </h3>
+                        <div class="bg-gradient-to-r from-green-100 to-blue-100 rounded-2xl p-6">
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="text-2xl font-bold text-green-700 mb-4">✅ Yang Sudah Dikuasai:</h4>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-center"><span class="text-green-500 mr-3">🎯</span>Konsep backup dan restore</li>
+                                        <li class="flex items-center"><span class="text-green-500 mr-3">🛠️</span>Penggunaan mysqldump</li>
+                                        <li class="flex items-center"><span class="text-green-500 mr-3">⚡</span>Praktik backup/restore</li>
+                                        <li class="flex items-center"><span class="text-green-500 mr-3">🤖</span>Otomasi dengan script</li>
+                                        <li class="flex items-center"><span class="text-green-500 mr-3">🔍</span>Troubleshooting dasar</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="text-2xl font-bold text-blue-700 mb-4">🎓 Skill yang Diperoleh:</h4>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-center"><span class="text-blue-500 mr-3">💾</span>Database administration</li>
+                                        <li class="flex items-center"><span class="text-blue-500 mr-3">🔒</span>Data protection</li>
+                                        <li class="flex items-center"><span class="text-blue-500 mr-3">⚙️</span>System automation</li>
+                                        <li class="flex items-center"><span class="text-blue-500 mr-3">🚨</span>Disaster recovery</li>
+                                        <li class="flex items-center"><span class="text-blue-500 mr-3">📊</span>Performance optimization</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-8 shadow-xl">
+                        <h3 class="text-3xl font-bold text-purple-600 mb-6 flex items-center">
+                            <span class="text-4xl mr-4 pulse-icon">🚀</span>
+                            Tindak Lanjut
+                        </h3>
+                        <div class="space-y-6">
+                            <div class="bg-purple-50 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-purple-700 mb-4">📚 Materi Lanjutan yang Bisa Dipelajari:</h4>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="space-y-3">
+                                        <div class="bg-white rounded-xl p-4">
+                                            <span class="text-2xl mr-3">🔄</span>
+                                            <strong>MySQL Replication</strong>
+                                            <p class="text-gray-600 text-sm">Master-slave setup untuk high availability</p>
+                                        </div>
+                                        <div class="bg-white rounded-xl p-4">
+                                            <span class="text-2xl mr-3">📊</span>
+                                            <strong>Performance Tuning</strong>
+                                            <p class="text-gray-600 text-sm">Optimasi query dan konfigurasi MySQL</p>
+                                        </div>
+                                        <div class="bg-white rounded-xl p-4">
+                                            <span class="text-2xl mr-3">🔒</span>
+                                            <strong>Security Hardening</strong>
+                                            <p class="text-gray-600 text-sm">Keamanan database dan user management</p>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <div class="bg-white rounded-xl p-4">
+                                            <span class="text-2xl mr-3">☁️</span>
+                                            <strong>Cloud Database</strong>
+                                            <p class="text-gray-600 text-sm">AWS RDS, Google Cloud SQL, Azure Database</p>
+                                        </div>
+                                        <div class="bg-white rounded-xl p-4">
+                                            <span class="text-2xl mr-3">📈</span>
+                                            <strong>Monitoring & Alerting</strong>
+                                            <p class="text-gray-600 text-sm">Prometheus, Grafana, Nagios</p>
+                                        </div>
+                                        <div class="bg-white rounded-xl p-4">
+                                            <span class="text-2xl mr-3">🐳</span>
+                                            <strong>Containerization</strong>
+                                            <p class="text-gray-600 text-sm">Docker, Kubernetes untuk MySQL</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-r from-orange-100 to-red-100 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-orange-700 mb-4">💼 Peluang Karir:</h4>
+                                <div class="grid md:grid-cols-3 gap-4">
+                                    <div class="bg-white rounded-xl p-4 text-center">
+                                        <span class="text-3xl mb-2 block">👨‍💻</span>
+                                        <p class="font-semibold">Database Administrator</p>
+                                        <p class="text-sm text-gray-600">Mengelola dan maintain database</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 text-center">
+                                        <span class="text-3xl mb-2 block">🔧</span>
+                                        <p class="font-semibold">DevOps Engineer</p>
+                                        <p class="text-sm text-gray-600">Otomasi dan infrastructure</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 text-center">
+                                        <span class="text-3xl mb-2 block">🛡️</span>
+                                        <p class="font-semibold">System Administrator</p>
+                                        <p class="text-sm text-gray-600">Mengelola server dan sistem</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-r from-green-100 to-teal-100 rounded-2xl p-6">
+                                <h4 class="text-2xl font-bold text-green-700 mb-4">🎯 Langkah Selanjutnya:</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center bg-white rounded-xl p-4">
+                                        <span class="text-2xl mr-4">1️⃣</span>
+                                        <div>
+                                            <p class="font-semibold">Praktik Rutin</p>
+                                            <p class="text-gray-600">Lakukan backup/restore secara berkala</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center bg-white rounded-xl p-4">
+                                        <span class="text-2xl mr-4">2️⃣</span>
+                                        <div>
+                                            <p class="font-semibold">Buat Project</p>
+                                            <p class="text-gray-600">Implementasi di project sekolah atau pribadi</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center bg-white rounded-xl p-4">
+                                        <span class="text-2xl mr-4">3️⃣</span>
+                                        <div>
+                                            <p class="font-semibold">Pelajari Tools Lain</p>
+                                            <p class="text-gray-600">Eksplorasi Percona, MySQL Workbench, dll</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center bg-white rounded-xl p-4">
+                                        <span class="text-2xl mr-4">4️⃣</span>
+                                        <div>
+                                            <p class="font-semibold">Join Community</p>
+                                            <p class="text-gray-600">Bergabung dengan forum MySQL dan DBA</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center bg-gradient-to-r from-purple-400 to-pink-400 rounded-3xl p-8 text-white">
+                        <h3 class="text-4xl font-bold mb-4">🎉 Selamat!</h3>
+                        <p class="text-2xl mb-6">Kamu telah menyelesaikan pembelajaran Backup & Restore MySQL!</p>
+                        <p class="text-xl">Terus berlatih dan jangan berhenti belajar! 🚀</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Button -->
+            <div id="nextButton" class="mt-12 text-center">
+                <button onclick="nextSection()" 
+                        class="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xl font-bold py-4 px-8 rounded-2xl hover:from-purple-600 hover:to-pink-600 transition-all shadow-lg">
+                    Lanjut ke Materi Berikutnya →
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-purple-500 text-white p-4 rounded-full shadow-lg hover:bg-purple-600 transition-all opacity-0 pointer-events-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Global variables
+        let currentSectionIndex = 0;
+        let currentQuestionIndex = 0;
+        let quizScore = 0;
+        let userAnswers = [];
+        let studentName = '';
+        
+        const sections = ['intro', 'pengenalan', 'konsep-dasar', 'jenis-backup', 'tools-backup', 'praktik', 'kuis', 'penutup'];
+        
+        const quizQuestions = [
+            {
+                question: "Apa yang dimaksud dengan backup database?",
+                options: [
+                    "Menghapus data lama dari database",
+                    "Membuat salinan cadangan dari database",
+                    "Mengoptimalkan performa database",
+                    "Mengupdate struktur tabel database"
+                ],
+                correct: 1
+            },
+            {
+                question: "Tool bawaan MySQL yang paling populer untuk backup adalah:",
+                options: [
+                    "mysql",
+                    "mysqladmin", 
+                    "mysqldump",
+                    "mysqlcheck"
+                ],
+                correct: 2
+            },
+            {
+                question: "Perintah untuk backup database 'sekolah' ke file 'backup.sql' adalah:",
+                options: [
+                    "mysql -u root -p sekolah > backup.sql",
+                    "mysqldump -u root -p sekolah > backup.sql",
+                    "mysqlbackup -u root -p sekolah > backup.sql",
+                    "mysqlex -u root -p sekolah > backup.sql"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa perbedaan antara logical backup dan physical backup?",
+                options: [
+                    "Logical backup lebih cepat dari physical backup",
+                    "Physical backup menghasilkan file SQL, logical backup menghasilkan file binary",
+                    "Logical backup menghasilkan file SQL, physical backup menyalin file database langsung",
+                    "Tidak ada perbedaan antara keduanya"
+                ],
+                correct: 2
+            },
+            {
+                question: "Perintah untuk restore database dari file backup.sql adalah:",
+                options: [
+                    "mysqldump -u root -p database < backup.sql",
+                    "mysql -u root -p database < backup.sql",
+                    "mysqlrestore -u root -p database < backup.sql",
+                    "mysqladmin -u root -p database < backup.sql"
+                ],
+                correct: 1
+            },
+            {
+                question: "Opsi mysqldump untuk backup semua database adalah:",
+                options: [
+                    "--all-databases",
+                    "--full-backup",
+                    "--complete-backup",
+                    "--everything"
+                ],
+                correct: 0
+            },
+            {
+                question: "Apa keuntungan menggunakan kompresi saat backup?",
+                options: [
+                    "Backup menjadi lebih cepat",
+                    "Ukuran file backup menjadi lebih kecil",
+                    "Keamanan data lebih terjamin",
+                    "Proses restore menjadi otomatis"
+                ],
+                correct: 1
+            },
+            {
+                question: "Hot backup adalah:",
+                options: [
+                    "Backup yang dilakukan saat database offline",
+                    "Backup yang dilakukan saat database online dan aktif",
+                    "Backup yang menggunakan suhu tinggi",
+                    "Backup yang dilakukan dengan cepat"
+                ],
+                correct: 1
+            },
+            {
+                question: "Untuk backup hanya struktur tabel tanpa data, opsi yang digunakan adalah:",
+                options: [
+                    "--no-data",
+                    "--structure-only",
+                    "--schema-only",
+                    "--table-structure"
+                ],
+                correct: 0
+            },
+            {
+                question: "Mengapa backup database sangat penting?",
+                options: [
+                    "Untuk mempercepat performa database",
+                    "Untuk menghemat storage space",
+                    "Untuk melindungi data dari kehilangan dan kerusakan",
+                    "Untuk mengurangi beban server"
+                ],
+                correct: 2
+            }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('intro');
+            updateBackToTopButton();
+        });
+
+        // New navigation function that ensures proper scrolling
+        function navigateToSection(sectionId) {
+            // Force scroll to top immediately
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            
+            // Update current section index
+            currentSectionIndex = sections.indexOf(sectionId);
+            
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            targetSection.classList.remove('hidden');
+            targetSection.classList.add('fade-in');
+            
+            // Update navigation active state
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-purple-200');
+            });
+            event?.target?.closest('.nav-item')?.classList.add('bg-purple-200');
+            
+            // Close mobile menu
+            closeMobileMenu();
+            
+            // Update next button visibility
+            updateNextButton();
+            
+            // Multiple scroll attempts to ensure we're at the top
+            requestAnimationFrame(() => {
+                window.scrollTo(0, 0);
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+            });
+        }
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Scroll to top immediately before changing content
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.getElementById(sectionId).classList.add('fade-in');
+            
+            // Update current section index
+            currentSectionIndex = sections.indexOf(sectionId);
+            
+            // Update navigation active state
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-purple-200');
+            });
+            event?.target?.closest('.nav-item')?.classList.add('bg-purple-200');
+            
+            // Close mobile menu
+            closeMobileMenu();
+            
+            // Update next button visibility
+            updateNextButton();
+            
+            // Ensure we're at the top after content loads
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'instant' });
+            }, 50);
+        }
+
+        function nextSection() {
+            if (currentSectionIndex < sections.length - 1) {
+                currentSectionIndex++;
+                // Scroll to top first, then show section
+                window.scrollTo({ top: 0, behavior: 'instant' });
+                showSection(sections[currentSectionIndex]);
+            }
+        }
+
+        function updateNextButton() {
+            const nextButton = document.getElementById('nextButton');
+            if (currentSectionIndex === sections.length - 1) {
+                nextButton.style.display = 'none';
+            } else {
+                nextButton.style.display = 'block';
+            }
+        }
+
+        // Mobile menu functions
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('sidebar-hidden');
+        });
+
+        document.getElementById('closeSidebar').addEventListener('click', closeMobileMenu);
+
+        function closeMobileMenu() {
+            document.getElementById('sidebar').classList.add('sidebar-hidden');
+        }
+
+        // Quiz functions
+        function startQuiz() {
+            studentName = document.getElementById('studentName').value.trim();
+            if (!studentName) {
+                alert('Silakan masukkan nama terlebih dahulu!');
+                return;
+            }
+            
+            document.getElementById('nameForm').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            
+            currentQuestionIndex = 0;
+            quizScore = 0;
+            userAnswers = [];
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizQuestions[currentQuestionIndex];
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'quiz-option bg-white border-2 border-gray-200 rounded-xl p-4 cursor-pointer';
+                optionDiv.innerHTML = `
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="answer" value="${index}" class="mr-4 text-purple-500">
+                        <span class="text-lg">${option}</span>
+                    </label>
+                `;
+                
+                optionDiv.addEventListener('click', function() {
+                    // Remove previous selection
+                    document.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Select current option
+                    this.classList.add('selected');
+                    this.querySelector('input').checked = true;
+                });
+                
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            document.getElementById('nextBtn').textContent = 
+                currentQuestionIndex === quizQuestions.length - 1 ? 'Selesai' : 'Selanjutnya →';
+        }
+
+        function nextQuestion() {
+            const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+            if (!selectedAnswer) {
+                alert('Silakan pilih jawaban terlebih dahulu!');
+                return;
+            }
+            
+            const answerIndex = parseInt(selectedAnswer.value);
+            userAnswers[currentQuestionIndex] = answerIndex;
+            
+            // Check if answer is correct
+            if (answerIndex === quizQuestions[currentQuestionIndex].correct) {
+                quizScore += 10;
+            }
+            
+            document.getElementById('currentScore').textContent = quizScore;
+            
+            if (currentQuestionIndex === quizQuestions.length - 1) {
+                showQuizResult();
+            } else {
+                currentQuestionIndex++;
+                showQuestion();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+                
+                // Restore previous answer if exists
+                if (userAnswers[currentQuestionIndex] !== undefined) {
+                    const previousAnswer = userAnswers[currentQuestionIndex];
+                    const options = document.querySelectorAll('.quiz-option');
+                    options[previousAnswer].classList.add('selected');
+                    options[previousAnswer].querySelector('input').checked = true;
+                }
+            }
+        }
+
+        function showQuizResult() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('quizResult').classList.remove('hidden');
+            
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = quizScore;
+            
+            const gradeMessage = document.getElementById('gradeMessage');
+            if (quizScore >= 80) {
+                gradeMessage.textContent = '🎉 Excellent! Kamu sangat memahami materi!';
+                gradeMessage.className = 'text-xl font-semibold mt-4 text-green-600';
+            } else if (quizScore >= 60) {
+                gradeMessage.textContent = '👍 Good! Pemahaman kamu cukup baik!';
+                gradeMessage.className = 'text-xl font-semibold mt-4 text-blue-600';
+            } else {
+                gradeMessage.textContent = '💪 Keep Learning! Pelajari lagi materinya ya!';
+                gradeMessage.className = 'text-xl font-semibold mt-4 text-orange-600';
+            }
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizResult').classList.add('hidden');
+            document.getElementById('nameForm').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+            currentQuestionIndex = 0;
+            quizScore = 0;
+            userAnswers = [];
+            document.getElementById('currentScore').textContent = '0';
+        }
+
+        // Back to top functionality
+        window.addEventListener('scroll', updateBackToTopButton);
+
+        function updateBackToTopButton() {
+            const backToTopBtn = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
+                backToTopBtn.classList.add('opacity-100');
+            } else {
+                backToTopBtn.classList.add('opacity-0', 'pointer-events-none');
+                backToTopBtn.classList.remove('opacity-100');
+            }
+        }
+
+        document.getElementById('backToTop').addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            
+            if (!sidebar.contains(event.target) && !mobileMenuBtn.contains(event.target)) {
+                closeMobileMenu();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'984bd83861eaced2',t:'MTc1ODgxNzE4MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
