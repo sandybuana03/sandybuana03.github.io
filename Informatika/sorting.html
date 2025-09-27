@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Algoritma Pencarian - Pembelajaran Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .animate-bounce-slow {
+            animation: bounce 2s infinite;
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 3s infinite;
+        }
+        
+        .search-demo {
+            transition: all 0.5s ease;
+        }
+        
+        .highlight {
+            background-color: #fef3c7;
+            animation: highlight 0.5s ease;
+        }
+        
+        @keyframes highlight {
+            0% { background-color: #fbbf24; }
+            100% { background-color: #fef3c7; }
+        }
+        
+        .found {
+            background-color: #d1fae5;
+            border: 2px solid #10b981;
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 min-h-screen">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="md:hidden fixed top-4 left-4 z-50 bg-white p-3 rounded-full shadow-lg">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar sidebar-transition fixed left-0 top-0 h-full w-80 bg-white shadow-xl z-40 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-bold text-purple-800">📚 Menu Pembelajaran</h2>
+                <button id="closeSidebar" class="md:hidden text-gray-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <nav class="space-y-3">
+                <a href="#" onclick="showSection('intro')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">🚀</span>
+                    <span class="font-medium">Intro</span>
+                </a>
+                <a href="#" onclick="showSection('pengenalan')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">🎯</span>
+                    <span class="font-medium">Pengenalan</span>
+                </a>
+                <a href="#" onclick="showSection('materi')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">📖</span>
+                    <span class="font-medium">Materi</span>
+                </a>
+                <a href="#" onclick="showSection('tugas')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">✏️</span>
+                    <span class="font-medium">Tugas</span>
+                </a>
+                <a href="#" onclick="showSection('kuis')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">🧩</span>
+                    <span class="font-medium">Kuis</span>
+                </a>
+                <a href="#" onclick="showSection('penutup')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">🎉</span>
+                    <span class="font-medium">Penutup</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-80 min-h-screen">
+        <!-- Intro Section -->
+        <div id="intro" class="section active p-6 md:p-12">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl md:text-6xl font-bold text-purple-800 mb-4 animate-bounce-slow">
+                        🔍 Algoritma Pencarian
+                    </h1>
+                    <p class="text-xl text-gray-600">Pembelajaran Interaktif untuk SMK</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-12">
+                    <div class="bg-white rounded-3xl p-8 shadow-lg card-hover">
+                        <h3 class="text-2xl font-bold text-pink-600 mb-4 flex items-center">
+                            🤔 Pertanyaan Pemantik
+                        </h3>
+                        <div class="space-y-4 text-lg">
+                            <p>• Bagaimana cara mencari nama teman di daftar kontak HP?</p>
+                            <p>• Mengapa Google bisa menemukan informasi dengan cepat?</p>
+                            <p>• Apa bedanya mencari buku di perpustakaan yang tertata rapi vs berantakan?</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-8 shadow-lg card-hover">
+                        <h3 class="text-2xl font-bold text-blue-600 mb-4 flex items-center">
+                            🎯 Apa yang Dipelajari?
+                        </h3>
+                        <div class="space-y-3 text-lg">
+                            <p>✅ Konsep dasar algoritma pencarian</p>
+                            <p>✅ Linear Search (Pencarian Berurutan)</p>
+                            <p>✅ Binary Search (Pencarian Biner)</p>
+                            <p>✅ Perbandingan efisiensi algoritma</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-yellow-200 to-orange-200 rounded-3xl p-8 mb-8">
+                    <h3 class="text-2xl font-bold text-orange-800 mb-4 flex items-center">
+                        🏆 Tujuan Pembelajaran
+                    </h3>
+                    <div class="grid md:grid-cols-2 gap-6 text-lg">
+                        <div>
+                            <p class="mb-2">📚 <strong>Pengetahuan:</strong></p>
+                            <p>Memahami konsep dan jenis algoritma pencarian</p>
+                        </div>
+                        <div>
+                            <p class="mb-2">🛠️ <strong>Keterampilan:</strong></p>
+                            <p>Mampu menerapkan algoritma pencarian dalam program</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-green-600 mb-4 flex items-center">
+                        💡 Pemahaman Bermakna
+                    </h3>
+                    <p class="text-lg leading-relaxed">
+                        Algoritma pencarian adalah fondasi dari banyak aplikasi yang kita gunakan sehari-hari. 
+                        Dari mencari lagu di Spotify, mencari produk di e-commerce, hingga mencari informasi di Google - 
+                        semuanya menggunakan algoritma pencarian yang efisien!
+                    </p>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-200 to-pink-200 rounded-3xl p-8">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4 flex items-center animate-pulse-slow">
+                        🌟 Motivasi
+                    </h3>
+                    <p class="text-lg leading-relaxed">
+                        "Setiap programmer yang hebat dimulai dari memahami algoritma dasar. 
+                        Algoritma pencarian adalah salah satu skill fundamental yang akan membuat kamu 
+                        menjadi programmer yang lebih baik dan efisien!"
+                    </p>
+                </div>
+
+                <div class="text-center mt-12">
+                    <button onclick="showSection('pengenalan')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Mulai Belajar! 🚀
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pengenalan Section -->
+        <div id="pengenalan" class="section p-6 md:p-12 hidden">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold text-center text-purple-800 mb-12">
+                    🎯 Pengenalan Algoritma Pencarian
+                </h2>
+
+                <div class="bg-white rounded-3xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-blue-600 mb-6 flex items-center">
+                        🤖 Apa itu Algoritma Pencarian?
+                    </h3>
+                    <p class="text-lg leading-relaxed mb-6">
+                        Algoritma pencarian adalah serangkaian langkah sistematis untuk menemukan data tertentu 
+                        dalam kumpulan data. Bayangkan seperti mencari buku di perpustakaan atau mencari nama 
+                        di daftar telepon!
+                    </p>
+                    
+                    <div class="bg-blue-50 rounded-2xl p-6">
+                        <h4 class="font-bold text-blue-800 mb-3">🎯 Analogi Sederhana:</h4>
+                        <p class="text-lg">
+                            Seperti bermain "tebak angka" - kamu punya strategi untuk menebak angka yang 
+                            dipikiran temanmu dengan cara yang paling efisien!
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-gradient-to-br from-green-100 to-green-200 rounded-3xl p-8">
+                        <h3 class="text-2xl font-bold text-green-800 mb-4">✅ Mengapa Penting?</h3>
+                        <ul class="space-y-3 text-lg">
+                            <li>🚀 Membuat program lebih cepat</li>
+                            <li>💾 Menghemat memori komputer</li>
+                            <li>⚡ Meningkatkan pengalaman pengguna</li>
+                            <li>🎯 Dasar untuk algoritma kompleks</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-orange-100 to-orange-200 rounded-3xl p-8">
+                        <h3 class="text-2xl font-bold text-orange-800 mb-4">🌍 Contoh Penggunaan</h3>
+                        <ul class="space-y-3 text-lg">
+                            <li>🔍 Mesin pencari Google</li>
+                            <li>📱 Pencarian kontak di HP</li>
+                            <li>🛒 Pencarian produk online</li>
+                            <li>🎵 Pencarian lagu di Spotify</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl p-8 shadow-lg">
+                    <h3 class="text-2xl font-bold text-purple-600 mb-6">🎮 Demo Interaktif: Konsep Dasar</h3>
+                    <p class="text-lg mb-6">Coba cari angka 7 dalam deret berikut dengan mengklik kotak-kotaknya:</p>
+                    
+                    <div id="basicDemo" class="flex flex-wrap gap-3 justify-center mb-6">
+                        <div class="demo-box w-16 h-16 bg-blue-200 rounded-lg flex items-center justify-center text-xl font-bold cursor-pointer hover:bg-blue-300 transition-colors" data-value="3">3</div>
+                        <div class="demo-box w-16 h-16 bg-blue-200 rounded-lg flex items-center justify-center text-xl font-bold cursor-pointer hover:bg-blue-300 transition-colors" data-value="7">7</div>
+                        <div class="demo-box w-16 h-16 bg-blue-200 rounded-lg flex items-center justify-center text-xl font-bold cursor-pointer hover:bg-blue-300 transition-colors" data-value="1">1</div>
+                        <div class="demo-box w-16 h-16 bg-blue-200 rounded-lg flex items-center justify-center text-xl font-bold cursor-pointer hover:bg-blue-300 transition-colors" data-value="9">9</div>
+                        <div class="demo-box w-16 h-16 bg-blue-200 rounded-lg flex items-center justify-center text-xl font-bold cursor-pointer hover:bg-blue-300 transition-colors" data-value="5">5</div>
+                    </div>
+                    
+                    <div id="demoResult" class="text-center text-lg font-semibold"></div>
+                    <button onclick="resetDemo()" class="mt-4 bg-purple-500 text-white px-6 py-2 rounded-full hover:bg-purple-600 transition-colors">Reset Demo</button>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Materi Section -->
+        <div id="materi" class="section p-6 md:p-12 hidden">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold text-center text-purple-800 mb-12">
+                    📖 Materi: Jenis-Jenis Algoritma Pencarian
+                </h2>
+
+                <!-- Linear Search -->
+                <div class="bg-white rounded-3xl p-8 shadow-lg mb-8">
+                    <h3 class="text-3xl font-bold text-green-600 mb-6 flex items-center">
+                        🔍 Linear Search (Pencarian Berurutan)
+                    </h3>
+                    
+                    <!-- Penjelasan Konsep -->
+                    <div class="bg-green-50 rounded-2xl p-6 mb-8">
+                        <h4 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                            🤔 Apa itu Linear Search?
+                        </h4>
+                        <p class="text-lg leading-relaxed mb-4">
+                            Linear Search adalah algoritma pencarian paling sederhana yang bekerja dengan cara memeriksa 
+                            setiap elemen dalam array satu per satu, dimulai dari elemen pertama hingga elemen yang dicari 
+                            ditemukan atau sampai akhir array.
+                        </p>
+                        
+                        <div class="bg-white rounded-xl p-4 mb-4">
+                            <h5 class="font-bold text-green-700 mb-2">🏠 Analogi Kehidupan Sehari-hari:</h5>
+                            <p class="text-lg">
+                                Bayangkan kamu mencari kunci di dalam tas. Kamu akan mengeluarkan barang satu per satu 
+                                dari tas sampai menemukan kunci tersebut. Itulah cara kerja Linear Search!
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <h4 class="text-xl font-bold text-green-800 mb-4">📝 Langkah-langkah Detail:</h4>
+                            <ol class="space-y-3 text-lg">
+                                <li class="flex items-start">
+                                    <span class="bg-green-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 mt-1">1</span>
+                                    <span>Mulai dari elemen pertama (index 0)</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-green-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 mt-1">2</span>
+                                    <span>Bandingkan dengan elemen yang dicari</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-green-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 mt-1">3</span>
+                                    <span>Jika sama, kembalikan posisi/index</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-green-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 mt-1">4</span>
+                                    <span>Jika tidak sama, lanjut ke elemen berikutnya</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-green-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 mt-1">5</span>
+                                    <span>Ulangi sampai ditemukan atau array habis</span>
+                                </li>
+                            </ol>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold text-green-800 mb-4">⚡ Karakteristik:</h4>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-3">✅</span>
+                                    <span class="text-lg">Sederhana dan mudah dipahami</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-3">✅</span>
+                                    <span class="text-lg">Bisa untuk data tidak terurut</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-3">✅</span>
+                                    <span class="text-lg">Tidak perlu preprocessing</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-3">❌</span>
+                                    <span class="text-lg">Lambat untuk data besar</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-3">🕐</span>
+                                    <span class="text-lg">Kompleksitas waktu: O(n)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="bg-green-50 rounded-2xl p-6 mb-6">
+                        <h4 class="text-xl font-bold text-green-800 mb-4">🎮 Demo Linear Search</h4>
+                        <p class="mb-4">Cari angka <span id="linearTarget" class="font-bold text-red-600">8</span> dalam array berikut:</p>
+                        
+                        <div id="linearArray" class="flex flex-wrap gap-2 justify-center mb-4">
+                            <div class="array-item w-12 h-12 bg-blue-200 rounded flex items-center justify-center font-bold">4</div>
+                            <div class="array-item w-12 h-12 bg-blue-200 rounded flex items-center justify-center font-bold">2</div>
+                            <div class="array-item w-12 h-12 bg-blue-200 rounded flex items-center justify-center font-bold">8</div>
+                            <div class="array-item w-12 h-12 bg-blue-200 rounded flex items-center justify-center font-bold">1</div>
+                            <div class="array-item w-12 h-12 bg-blue-200 rounded flex items-center justify-center font-bold">9</div>
+                            <div class="array-item w-12 h-12 bg-blue-200 rounded flex items-center justify-center font-bold">3</div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button onclick="startLinearSearch()" class="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600 transition-colors mr-4">
+                                Mulai Pencarian
+                            </button>
+                            <button onclick="resetLinearSearch()" class="bg-gray-500 text-white px-6 py-2 rounded-full hover:bg-gray-600 transition-colors">
+                                Reset
+                            </button>
+                        </div>
+                        <div id="linearResult" class="mt-4 text-center font-semibold"></div>
+                    </div>
+
+                    <!-- Kelebihan dan Kekurangan -->
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-green-100 rounded-xl p-6">
+                            <h5 class="text-lg font-bold text-green-800 mb-3 flex items-center">
+                                👍 Kelebihan Linear Search
+                            </h5>
+                            <ul class="space-y-2 text-base">
+                                <li>• Mudah dipahami dan diimplementasikan</li>
+                                <li>• Bekerja pada data terurut maupun tidak terurut</li>
+                                <li>• Tidak memerlukan memori tambahan</li>
+                                <li>• Cocok untuk dataset kecil</li>
+                            </ul>
+                        </div>
+                        <div class="bg-red-100 rounded-xl p-6">
+                            <h5 class="text-lg font-bold text-red-800 mb-3 flex items-center">
+                                👎 Kekurangan Linear Search
+                            </h5>
+                            <ul class="space-y-2 text-base">
+                                <li>• Lambat untuk dataset besar</li>
+                                <li>• Tidak efisien jika data sudah terurut</li>
+                                <li>• Worst case: harus cek semua elemen</li>
+                                <li>• Kompleksitas waktu O(n)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Binary Search -->
+                <div class="bg-white rounded-3xl p-8 shadow-lg mb-8">
+                    <h3 class="text-3xl font-bold text-blue-600 mb-6 flex items-center">
+                        ⚡ Binary Search (Pencarian Biner)
+                    </h3>
+                    
+                    <!-- Penjelasan Konsep -->
+                    <div class="bg-blue-50 rounded-2xl p-6 mb-8">
+                        <h4 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                            🤔 Apa itu Binary Search?
+                        </h4>
+                        <p class="text-lg leading-relaxed mb-4">
+                            Binary Search adalah algoritma pencarian yang sangat efisien untuk data yang sudah terurut. 
+                            Algoritma ini bekerja dengan cara membagi array menjadi dua bagian dan menentukan di bagian 
+                            mana elemen yang dicari berada, kemudian mengulangi proses ini hingga elemen ditemukan.
+                        </p>
+                        
+                        <div class="bg-white rounded-xl p-4 mb-4">
+                            <h5 class="font-bold text-blue-700 mb-2">🎯 Analogi Kehidupan Sehari-hari:</h5>
+                            <p class="text-lg">
+                                Seperti bermain tebak angka 1-100. Kamu mulai dengan angka 50. Jika terlalu besar, 
+                                coba 25. Jika terlalu kecil, coba 75. Dengan cara ini, kamu bisa menemukan angka 
+                                dengan cepat!
+                            </p>
+                        </div>
+
+                        <div class="bg-white rounded-xl p-4">
+                            <h5 class="font-bold text-blue-700 mb-2">📚 Analogi Kamus:</h5>
+                            <p class="text-lg">
+                                Ketika mencari kata di kamus, kamu tidak mulai dari halaman 1. Kamu buka di tengah, 
+                                lalu tentukan apakah kata yang dicari ada di bagian kiri atau kanan, kemudian ulangi 
+                                proses ini. Itulah Binary Search!
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <h4 class="text-xl font-bold text-blue-800 mb-4">📝 Langkah-langkah Detail:</h4>
+                            <ol class="space-y-3 text-lg">
+                                <li class="flex items-start">
+                                    <span class="bg-blue-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 mt-1">1</span>
+                                    <span>Pastikan data sudah terurut</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-blue-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 mt-1">2</span>
+                                    <span>Tentukan batas kiri (left) dan kanan (right)</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-blue-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 mt-1">3</span>
+                                    <span>Hitung posisi tengah: mid = (left + right) / 2</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-blue-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 mt-1">4</span>
+                                    <span>Bandingkan elemen tengah dengan target</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-blue-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 mt-1">5</span>
+                                    <span>Jika sama: ditemukan! Jika lebih besar: cari di kiri. Jika lebih kecil: cari di kanan</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-blue-200 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3 mt-1">6</span>
+                                    <span>Ulangi sampai ditemukan atau left > right</span>
+                                </li>
+                            </ol>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold text-blue-800 mb-4">⚡ Karakteristik:</h4>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-3">✅</span>
+                                    <span class="text-lg">Sangat cepat untuk data besar</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-3">✅</span>
+                                    <span class="text-lg">Efisien dalam penggunaan waktu</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-3">✅</span>
+                                    <span class="text-lg">Kompleksitas logaritmik</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-3">❌</span>
+                                    <span class="text-lg">Data harus terurut terlebih dahulu</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-3">🕐</span>
+                                    <span class="text-lg">Kompleksitas waktu: O(log n)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- Visualisasi Konsep -->
+                    <div class="bg-blue-50 rounded-2xl p-6 mb-6">
+                        <h4 class="text-xl font-bold text-blue-800 mb-4">🎯 Mengapa Binary Search Cepat?</h4>
+                        <div class="grid md:grid-cols-3 gap-4 text-center">
+                            <div class="bg-white rounded-lg p-4">
+                                <div class="text-3xl mb-2">📊</div>
+                                <h5 class="font-bold mb-2">1000 elemen</h5>
+                                <p class="text-sm">Linear: 1000 langkah</p>
+                                <p class="text-sm text-blue-600">Binary: 10 langkah</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-4">
+                                <div class="text-3xl mb-2">📈</div>
+                                <h5 class="font-bold mb-2">1 juta elemen</h5>
+                                <p class="text-sm">Linear: 1,000,000 langkah</p>
+                                <p class="text-sm text-blue-600">Binary: 20 langkah</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-4">
+                                <div class="text-3xl mb-2">🚀</div>
+                                <h5 class="font-bold mb-2">1 miliar elemen</h5>
+                                <p class="text-sm">Linear: 1,000,000,000 langkah</p>
+                                <p class="text-sm text-blue-600">Binary: 30 langkah</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 rounded-2xl p-6 mb-6">
+                        <h4 class="text-xl font-bold text-blue-800 mb-4">🎮 Demo Binary Search</h4>
+                        <p class="mb-4">Cari angka <span id="binaryTarget" class="font-bold text-red-600">7</span> dalam array terurut:</p>
+                        
+                        <div id="binaryArray" class="flex flex-wrap gap-2 justify-center mb-4">
+                            <div class="array-item w-12 h-12 bg-blue-200 rounded flex items-center justify-center font-bold">1</div>
+                            <div class="array-item w-12 h-12 bg-blue-200 rounded flex items-center justify-center font-bold">3</div>
+                            <div class="array-item w-12 h-12 bg-blue-200 rounded flex items-center justify-center font-bold">5</div>
+                            <div class="array-item w-12 h-12 bg-blue-200 rounded flex items-center justify-center font-bold">7</div>
+                            <div class="array-item w-12 h-12 bg-blue-200 rounded flex items-center justify-center font-bold">9</div>
+                            <div class="array-item w-12 h-12 bg-blue-200 rounded flex items-center justify-center font-bold">11</div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button onclick="startBinarySearch()" class="bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors mr-4">
+                                Mulai Pencarian
+                            </button>
+                            <button onclick="resetBinarySearch()" class="bg-gray-500 text-white px-6 py-2 rounded-full hover:bg-gray-600 transition-colors">
+                                Reset
+                            </button>
+                        </div>
+                        <div id="binaryResult" class="mt-4 text-center font-semibold"></div>
+                    </div>
+
+                    <!-- Kelebihan dan Kekurangan -->
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-green-100 rounded-xl p-6">
+                            <h5 class="text-lg font-bold text-green-800 mb-3 flex items-center">
+                                👍 Kelebihan Binary Search
+                            </h5>
+                            <ul class="space-y-2 text-base">
+                                <li>• Sangat cepat untuk dataset besar</li>
+                                <li>• Kompleksitas waktu O(log n)</li>
+                                <li>• Efisien dalam penggunaan waktu</li>
+                                <li>• Cocok untuk pencarian berulang</li>
+                            </ul>
+                        </div>
+                        <div class="bg-red-100 rounded-xl p-6">
+                            <h5 class="text-lg font-bold text-red-800 mb-3 flex items-center">
+                                👎 Kekurangan Binary Search
+                            </h5>
+                            <ul class="space-y-2 text-base">
+                                <li>• Data harus terurut terlebih dahulu</li>
+                                <li>• Tidak cocok untuk data yang sering berubah</li>
+                                <li>• Lebih kompleks untuk dipahami</li>
+                                <li>• Memerlukan akses random ke elemen</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contoh Penerapan Nyata -->
+                <div class="bg-white rounded-3xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-purple-600 mb-6 flex items-center">
+                        🌍 Penerapan dalam Kehidupan Nyata
+                    </h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-xl font-bold text-green-600 mb-4">🔍 Linear Search digunakan untuk:</h4>
+                            <div class="space-y-3">
+                                <div class="bg-green-50 rounded-lg p-3">
+                                    <h5 class="font-bold">📱 Pencarian Kontak HP</h5>
+                                    <p class="text-sm">Ketika kontak tidak diurutkan alfabetis</p>
+                                </div>
+                                <div class="bg-green-50 rounded-lg p-3">
+                                    <h5 class="font-bold">📧 Pencarian Email</h5>
+                                    <p class="text-sm">Mencari email berdasarkan kata kunci</p>
+                                </div>
+                                <div class="bg-green-50 rounded-lg p-3">
+                                    <h5 class="font-bold">🛒 Keranjang Belanja</h5>
+                                    <p class="text-sm">Mencari produk dalam keranjang kecil</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-xl font-bold text-blue-600 mb-4">⚡ Binary Search digunakan untuk:</h4>
+                            <div class="space-y-3">
+                                <div class="bg-blue-50 rounded-lg p-3">
+                                    <h5 class="font-bold">📚 Kamus Digital</h5>
+                                    <p class="text-sm">Mencari kata dalam kamus online</p>
+                                </div>
+                                <div class="bg-blue-50 rounded-lg p-3">
+                                    <h5 class="font-bold">🗂️ Database</h5>
+                                    <p class="text-sm">Pencarian data dalam database besar</p>
+                                </div>
+                                <div class="bg-blue-50 rounded-lg p-3">
+                                    <h5 class="font-bold">🎵 Spotify/YouTube</h5>
+                                    <p class="text-sm">Mencari lagu dalam daftar terurut</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Perbandingan -->
+                <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-3xl p-8 shadow-lg">
+                    <h3 class="text-3xl font-bold text-purple-800 mb-6 text-center">
+                        ⚖️ Perbandingan Algoritma
+                    </h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full bg-white rounded-2xl overflow-hidden shadow-lg">
+                            <thead class="bg-purple-600 text-white">
+                                <tr>
+                                    <th class="p-4 text-left">Aspek</th>
+                                    <th class="p-4 text-center">Linear Search</th>
+                                    <th class="p-4 text-center">Binary Search</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-lg">
+                                <tr class="border-b">
+                                    <td class="p-4 font-semibold">Kecepatan</td>
+                                    <td class="p-4 text-center">🐌 Lambat (O(n))</td>
+                                    <td class="p-4 text-center">🚀 Cepat (O(log n))</td>
+                                </tr>
+                                <tr class="border-b bg-gray-50">
+                                    <td class="p-4 font-semibold">Syarat Data</td>
+                                    <td class="p-4 text-center">✅ Tidak perlu terurut</td>
+                                    <td class="p-4 text-center">⚠️ Harus terurut</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="p-4 font-semibold">Kompleksitas</td>
+                                    <td class="p-4 text-center">😊 Sederhana</td>
+                                    <td class="p-4 text-center">🤔 Sedikit kompleks</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="p-4 font-semibold">Kapan Digunakan</td>
+                                    <td class="p-4 text-center">Data kecil/tidak terurut</td>
+                                    <td class="p-4 text-center">Data besar/terurut</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="text-center mt-12">
+                    <button onclick="showSection('tugas')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Lanjut ke Tugas! 📝
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Tugas Section -->
+        <div id="tugas" class="section p-6 md:p-12 hidden">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold text-center text-purple-800 mb-12">
+                    ✏️ Tugas Pembelajaran
+                </h2>
+
+                <div class="space-y-8">
+                    <div class="bg-white rounded-3xl p-8 shadow-lg">
+                        <h3 class="text-2xl font-bold text-green-600 mb-6 flex items-center">
+                            📝 Soal 1: Analisis Kasus
+                        </h3>
+                        <p class="text-lg mb-4">
+                            Kamu diminta membuat sistem pencarian untuk perpustakaan sekolah yang memiliki 10.000 buku. 
+                            Buku-buku tersebut sudah diurutkan berdasarkan nomor ISBN.
+                        </p>
+                        <p class="text-lg font-semibold mb-4">
+                            Pertanyaan: Algoritma pencarian mana yang akan kamu pilih dan mengapa?
+                        </p>
+                        <textarea class="w-full h-32 p-4 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-lg" 
+                                  placeholder="Tuliskan jawaban kamu di sini..."></textarea>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-8 shadow-lg">
+                        <h3 class="text-2xl font-bold text-blue-600 mb-6 flex items-center">
+                            🔍 Soal 2: Simulasi Langkah
+                        </h3>
+                        <p class="text-lg mb-4">
+                            Diberikan array terurut: [2, 5, 8, 12, 16, 23, 38, 45, 67, 78]
+                        </p>
+                        <p class="text-lg font-semibold mb-4">
+                            Pertanyaan: Tuliskan langkah-langkah Binary Search untuk mencari angka 23!
+                        </p>
+                        <textarea class="w-full h-40 p-4 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-lg" 
+                                  placeholder="Contoh: Langkah 1: Cek elemen tengah (index 4) = 16..."></textarea>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-8 shadow-lg">
+                        <h3 class="text-2xl font-bold text-orange-600 mb-6 flex items-center">
+                            💡 Soal 3: Penerapan Praktis
+                        </h3>
+                        <p class="text-lg mb-4">
+                            Sebutkan 3 contoh aplikasi atau website yang kamu gunakan sehari-hari yang menggunakan algoritma pencarian. 
+                            Jelaskan mengapa mereka membutuhkan algoritma pencarian yang efisien!
+                        </p>
+                        <textarea class="w-full h-32 p-4 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-lg" 
+                                  placeholder="Contoh: 1. Instagram - untuk mencari username teman..."></textarea>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-3xl p-8">
+                        <h3 class="text-2xl font-bold text-orange-800 mb-4 flex items-center">
+                            🎯 Tips Mengerjakan Tugas
+                        </h3>
+                        <ul class="space-y-2 text-lg">
+                            <li>✅ Baca soal dengan teliti</li>
+                            <li>✅ Gunakan contoh konkret dalam penjelasan</li>
+                            <li>✅ Jelaskan alasan pemilihan algoritma</li>
+                            <li>✅ Gunakan bahasa yang mudah dipahami</li>
+                        </ul>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Kuis Section -->
+        <div id="kuis" class="section p-6 md:p-12 hidden">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold text-center text-purple-800 mb-12">
+                    🧩 Kuis Algoritma Pencarian
+                </h2>
+
+                <!-- Input Nama -->
+                <div id="nameInput" class="bg-white rounded-3xl p-8 shadow-lg text-center">
+                    <h3 class="text-2xl font-bold text-purple-600 mb-6">Masukkan Nama Kamu</h3>
+                    <input type="text" id="studentName" class="w-full max-w-md mx-auto p-4 border-2 border-purple-300 rounded-lg text-xl text-center focus:border-purple-500 focus:outline-none" placeholder="Nama lengkap...">
+                    <button onclick="startQuiz()" class="mt-6 bg-purple-500 text-white px-8 py-4 rounded-full text-xl font-semibold hover:bg-purple-600 transition-all transform hover:scale-105">
+                        Mulai Kuis! 🚀
+                    </button>
+                </div>
+
+                <!-- Quiz Container -->
+                <div id="quizContainer" class="hidden">
+                    <div class="bg-white rounded-3xl p-8 shadow-lg mb-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <span class="text-lg font-semibold text-purple-600">Soal <span id="currentQuestion">1</span> dari 10</span>
+                            <span class="text-lg font-semibold text-purple-600">Skor: <span id="currentScore">0</span></span>
+                        </div>
+                        
+                        <div class="w-full bg-gray-200 rounded-full h-3 mb-8">
+                            <div id="progressBar" class="bg-purple-500 h-3 rounded-full transition-all duration-300" style="width: 10%"></div>
+                        </div>
+
+                        <h3 id="questionText" class="text-xl font-bold text-gray-800 mb-6"></h3>
+                        
+                        <div id="answerOptions" class="space-y-4">
+                            <!-- Options will be inserted here -->
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button id="nextQuestionBtn" onclick="nextQuestion()" class="bg-purple-500 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-purple-600 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                            Soal Berikutnya
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Result -->
+                <div id="quizResult" class="hidden bg-white rounded-3xl p-8 shadow-lg text-center">
+                    <h3 class="text-3xl font-bold text-purple-600 mb-6">🎉 Kuis Selesai!</h3>
+                    <div class="text-6xl mb-6" id="resultEmoji">🎊</div>
+                    <p class="text-2xl font-bold mb-4">Selamat <span id="finalName"></span>!</p>
+                    <p class="text-xl mb-6">Skor kamu: <span id="finalScore" class="font-bold text-purple-600"></span>/100</p>
+                    <div id="resultMessage" class="text-lg mb-8"></div>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button onclick="restartQuiz()" class="bg-purple-500 text-white px-8 py-4 rounded-full text-xl font-semibold hover:bg-purple-600 transition-all transform hover:scale-105">
+                            Ulangi Kuis
+                        </button>
+                        <button onclick="showSection('penutup')" class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-full text-xl font-semibold hover:from-green-600 hover:to-blue-600 transition-all transform hover:scale-105">
+                            Lanjut ke Penutup 🎉
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Penutup Section -->
+        <div id="penutup" class="section p-6 md:p-12 hidden">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold text-center text-purple-800 mb-12">
+                    🎉 Penutup Pembelajaran
+                </h2>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white rounded-3xl p-8 shadow-lg">
+                        <h3 class="text-2xl font-bold text-green-600 mb-6 flex items-center">
+                            🤔 Refleksi
+                        </h3>
+                        <div class="space-y-4">
+                            <p class="text-lg font-semibold">Renungkan pertanyaan berikut:</p>
+                            <ul class="space-y-3 text-lg">
+                                <li>• Apa hal paling menarik yang kamu pelajari hari ini?</li>
+                                <li>• Bagian mana yang masih perlu diperdalam?</li>
+                                <li>• Bagaimana kamu akan menerapkan ilmu ini?</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-blue-100 to-purple-100 rounded-3xl p-8">
+                        <h3 class="text-2xl font-bold text-blue-600 mb-6 flex items-center">
+                            📚 Kesimpulan Pembelajaran
+                        </h3>
+                        <ul class="space-y-3 text-lg">
+                            <li>✅ Memahami konsep algoritma pencarian</li>
+                            <li>✅ Mengenal Linear Search dan Binary Search</li>
+                            <li>✅ Memahami perbandingan efisiensi</li>
+                            <li>✅ Menerapkan dalam contoh nyata</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl p-8 shadow-lg mb-8">
+                    <h3 class="text-2xl font-bold text-orange-600 mb-6 flex items-center">
+                        🚀 Tindak Lanjut
+                    </h3>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-xl font-bold text-orange-800 mb-4">📖 Materi Selanjutnya:</h4>
+                            <ul class="space-y-2 text-lg">
+                                <li>• Algoritma Sorting (Pengurutan)</li>
+                                <li>• Struktur Data Array dan List</li>
+                                <li>• Kompleksitas Algoritma</li>
+                                <li>• Algoritma Rekursif</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold text-orange-800 mb-4">💻 Praktik Lanjutan:</h4>
+                            <ul class="space-y-2 text-lg">
+                                <li>• Implementasi dalam bahasa pemrograman</li>
+                                <li>• Membuat aplikasi pencarian sederhana</li>
+                                <li>• Analisis performa algoritma</li>
+                                <li>• Studi kasus aplikasi nyata</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-200 to-pink-200 rounded-3xl p-8 text-center">
+                    <h3 class="text-3xl font-bold text-purple-800 mb-4">🌟 Selamat!</h3>
+                    <p class="text-xl leading-relaxed mb-6">
+                        Kamu telah menyelesaikan pembelajaran tentang Algoritma Pencarian! 
+                        Terus semangat belajar dan jangan lupa untuk terus berlatih. 
+                        Ingat, setiap programmer hebat dimulai dari langkah kecil seperti ini!
+                    </p>
+                    <div class="text-6xl animate-bounce-slow">🎊🎉🏆</div>
+                </div>
+
+                <div class="text-center mt-12">
+                    <button onclick="showSection('intro')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Kembali ke Awal 🔄
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-purple-500 text-white p-4 rounded-full shadow-lg hover:bg-purple-600 transition-all transform hover:scale-110 z-30 hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Global variables
+        let currentSectionIndex = 0;
+        const sections = ['intro', 'pengenalan', 'materi', 'tugas', 'kuis', 'penutup'];
+        let quizData = [];
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+        let selectedAnswer = null;
+
+        // Quiz questions
+        const questions = [
+            {
+                question: "Apa yang dimaksud dengan algoritma pencarian?",
+                options: [
+                    "Cara mengurutkan data dari kecil ke besar",
+                    "Serangkaian langkah untuk menemukan data tertentu",
+                    "Metode untuk menghapus data yang tidak perlu",
+                    "Teknik untuk menyimpan data di memori"
+                ],
+                correct: 1
+            },
+            {
+                question: "Karakteristik utama Linear Search adalah:",
+                options: [
+                    "Data harus terurut terlebih dahulu",
+                    "Mencari dari tengah array",
+                    "Memeriksa elemen satu per satu dari awal",
+                    "Hanya bisa digunakan untuk angka"
+                ],
+                correct: 2
+            },
+            {
+                question: "Kompleksitas waktu Linear Search adalah:",
+                options: [
+                    "O(1)",
+                    "O(log n)",
+                    "O(n)",
+                    "O(n²)"
+                ],
+                correct: 2
+            },
+            {
+                question: "Syarat utama untuk menggunakan Binary Search adalah:",
+                options: [
+                    "Data harus berupa angka",
+                    "Data harus terurut",
+                    "Data harus genap jumlahnya",
+                    "Data harus kurang dari 100 elemen"
+                ],
+                correct: 1
+            },
+            {
+                question: "Kompleksitas waktu Binary Search adalah:",
+                options: [
+                    "O(n)",
+                    "O(n²)",
+                    "O(log n)",
+                    "O(1)"
+                ],
+                correct: 2
+            },
+            {
+                question: "Dalam Binary Search, jika elemen yang dicari lebih kecil dari elemen tengah, maka:",
+                options: [
+                    "Pencarian dilanjutkan ke bagian kanan",
+                    "Pencarian dilanjutkan ke bagian kiri",
+                    "Pencarian dihentikan",
+                    "Mulai dari awal lagi"
+                ],
+                correct: 1
+            },
+            {
+                question: "Manakah yang BUKAN keuntungan Binary Search?",
+                options: [
+                    "Sangat cepat untuk data besar",
+                    "Efisien dalam penggunaan waktu",
+                    "Bisa digunakan untuk data tidak terurut",
+                    "Kompleksitas logaritmik"
+                ],
+                correct: 2
+            },
+            {
+                question: "Contoh penggunaan algoritma pencarian dalam kehidupan sehari-hari adalah:",
+                options: [
+                    "Mencari kontak di HP",
+                    "Menghitung luas segitiga",
+                    "Menggambar lingkaran",
+                    "Menyalakan komputer"
+                ],
+                correct: 0
+            },
+            {
+                question: "Jika kita memiliki array [1,3,5,7,9] dan mencari angka 7 dengan Binary Search, elemen tengah pertama yang diperiksa adalah:",
+                options: [
+                    "1",
+                    "3",
+                    "5",
+                    "7"
+                ],
+                correct: 2
+            },
+            {
+                question: "Algoritma pencarian mana yang lebih cocok untuk data yang sering berubah (tidak selalu terurut)?",
+                options: [
+                    "Binary Search",
+                    "Linear Search",
+                    "Keduanya sama saja",
+                    "Tidak ada yang cocok"
+                ],
+                correct: 1
+            }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('intro');
+            setupEventListeners();
+            setupDemoInteractions();
+        });
+
+        function setupEventListeners() {
+            // Mobile menu
+            document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.add('open');
+            });
+
+            document.getElementById('closeSidebar').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.remove('open');
+            });
+
+            // Back to top button
+            window.addEventListener('scroll', function() {
+                const backToTop = document.getElementById('backToTop');
+                if (window.pageYOffset > 300) {
+                    backToTop.classList.remove('hidden');
+                } else {
+                    backToTop.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('backToTop').addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(e) {
+                const sidebar = document.getElementById('sidebar');
+                const mobileBtn = document.getElementById('mobileMenuBtn');
+                
+                if (window.innerWidth < 768 && 
+                    !sidebar.contains(e.target) && 
+                    !mobileBtn.contains(e.target) && 
+                    sidebar.classList.contains('open')) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        }
+
+        function setupDemoInteractions() {
+            // Basic demo interaction
+            const demoBoxes = document.querySelectorAll('.demo-box');
+            demoBoxes.forEach(box => {
+                box.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    const result = document.getElementById('demoResult');
+                    
+                    if (value === '7') {
+                        this.classList.add('found');
+                        result.innerHTML = '🎉 Hebat! Kamu menemukan angka 7!';
+                        result.className = 'text-center text-lg font-semibold text-green-600';
+                    } else {
+                        this.classList.add('highlight');
+                        result.innerHTML = '❌ Bukan angka 7, coba lagi!';
+                        result.className = 'text-center text-lg font-semibold text-red-600';
+                        setTimeout(() => {
+                            this.classList.remove('highlight');
+                        }, 1000);
+                    }
+                });
+            });
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+                section.classList.remove('active');
+            });
+
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            targetSection.classList.remove('hidden');
+            targetSection.classList.add('active');
+
+            // Update current section index
+            currentSectionIndex = sections.indexOf(sectionId);
+
+            // Update navigation active state
+            document.querySelectorAll('.nav-item').forEach((item, index) => {
+                item.classList.remove('bg-purple-200', 'text-purple-800');
+                if (index === currentSectionIndex) {
+                    item.classList.add('bg-purple-200', 'text-purple-800');
+                }
+            });
+            
+            // Update navigation buttons
+            updateNavigationButtons();
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Close mobile sidebar
+            document.getElementById('sidebar').classList.remove('open');
+        }
+
+        function updateNavigationButtons() {
+            // Remove existing navigation if any
+            const existingNav = document.querySelector('.section-navigation');
+            if (existingNav) {
+                existingNav.remove();
+            }
+
+            // Show navigation on all sections except penutup
+            if (currentSectionIndex === sections.length - 1) {
+                return;
+            }
+
+            // Create navigation container
+            const navContainer = document.createElement('div');
+            navContainer.className = 'section-navigation flex justify-between items-center mt-12 pt-8 border-t border-gray-200';
+
+            // Previous button
+            if (currentSectionIndex > 0) {
+                const prevBtn = document.createElement('button');
+                prevBtn.onclick = () => {
+                    const prevSection = sections[currentSectionIndex - 1];
+                    showSection(prevSection);
+                };
+                prevBtn.className = 'flex items-center bg-gray-500 text-white px-6 py-3 rounded-full text-lg font-semibold hover:bg-gray-600 transition-all transform hover:scale-105';
+                
+                const prevSectionName = {
+                    'intro': 'Intro',
+                    'pengenalan': 'Pengenalan',
+                    'materi': 'Materi',
+                    'tugas': 'Tugas',
+                    'kuis': 'Kuis'
+                };
+                
+                prevBtn.innerHTML = `← ${prevSectionName[sections[currentSectionIndex - 1]] || 'Sebelumnya'}`;
+                navContainer.appendChild(prevBtn);
+            } else {
+                navContainer.appendChild(document.createElement('div')); // Empty div for spacing
+            }
+
+            // Next button
+            if (currentSectionIndex < sections.length - 1) {
+                const nextBtn = document.createElement('button');
+                nextBtn.onclick = () => {
+                    const nextSection = sections[currentSectionIndex + 1];
+                    showSection(nextSection);
+                };
+                nextBtn.className = 'flex items-center bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105';
+                
+                const nextSectionName = {
+                    'pengenalan': 'Pengenalan',
+                    'materi': 'Materi',
+                    'tugas': 'Tugas', 
+                    'kuis': 'Kuis',
+                    'penutup': 'Penutup'
+                };
+                
+                nextBtn.innerHTML = `${nextSectionName[sections[currentSectionIndex + 1]] || 'Selanjutnya'} →`;
+                navContainer.appendChild(nextBtn);
+            }
+
+            // Add to current section
+            const currentSection = document.getElementById(sections[currentSectionIndex]);
+            const container = currentSection.querySelector('.max-w-4xl');
+            if (container) {
+                container.appendChild(navContainer);
+            }
+        }
+
+
+
+        function resetDemo() {
+            const demoBoxes = document.querySelectorAll('.demo-box');
+            demoBoxes.forEach(box => {
+                box.classList.remove('found', 'highlight');
+            });
+            document.getElementById('demoResult').innerHTML = '';
+        }
+
+        // Linear Search Demo
+        function startLinearSearch() {
+            const items = document.querySelectorAll('#linearArray .array-item');
+            const result = document.getElementById('linearResult');
+            const target = 8;
+            let currentIndex = 0;
+
+            // Reset previous states
+            items.forEach(item => {
+                item.classList.remove('highlight', 'found');
+                item.style.backgroundColor = '#dbeafe';
+            });
+
+            result.innerHTML = 'Memulai pencarian...';
+
+            function searchStep() {
+                if (currentIndex < items.length) {
+                    // Highlight current item
+                    items[currentIndex].classList.add('highlight');
+                    items[currentIndex].style.backgroundColor = '#fbbf24';
+                    
+                    const currentValue = parseInt(items[currentIndex].textContent);
+                    result.innerHTML = `Langkah ${currentIndex + 1}: Memeriksa index ${currentIndex} = ${currentValue}`;
+
+                    if (currentValue === target) {
+                        setTimeout(() => {
+                            items[currentIndex].classList.add('found');
+                            items[currentIndex].style.backgroundColor = '#10b981';
+                            result.innerHTML = `🎉 Ditemukan! Angka ${target} ada di index ${currentIndex}. Total langkah: ${currentIndex + 1}`;
+                        }, 1000);
+                        return;
+                    }
+
+                    currentIndex++;
+                    setTimeout(searchStep, 1500);
+                } else {
+                    result.innerHTML = `❌ Angka ${target} tidak ditemukan dalam array.`;
+                }
+            }
+
+            searchStep();
+        }
+
+        function resetLinearSearch() {
+            const items = document.querySelectorAll('#linearArray .array-item');
+            items.forEach(item => {
+                item.classList.remove('highlight', 'found');
+                item.style.backgroundColor = '#dbeafe';
+            });
+            document.getElementById('linearResult').innerHTML = '';
+        }
+
+        // Binary Search Demo
+        function startBinarySearch() {
+            const items = document.querySelectorAll('#binaryArray .array-item');
+            const result = document.getElementById('binaryResult');
+            const target = 7;
+            const array = [1, 3, 5, 7, 9, 11];
+            let left = 0;
+            let right = array.length - 1;
+            let step = 1;
+
+            // Reset previous states
+            items.forEach(item => {
+                item.classList.remove('highlight', 'found');
+                item.style.backgroundColor = '#dbeafe';
+            });
+
+            result.innerHTML = 'Memulai binary search...';
+
+            function searchStep() {
+                if (left <= right) {
+                    const mid = Math.floor((left + right) / 2);
+                    
+                    // Highlight middle element
+                    items[mid].classList.add('highlight');
+                    items[mid].style.backgroundColor = '#fbbf24';
+                    
+                    result.innerHTML = `Langkah ${step}: Cek tengah (index ${mid}) = ${array[mid]}`;
+
+                    if (array[mid] === target) {
+                        setTimeout(() => {
+                            items[mid].classList.add('found');
+                            items[mid].style.backgroundColor = '#10b981';
+                            result.innerHTML = `🎉 Ditemukan! Angka ${target} ada di index ${mid}. Total langkah: ${step}`;
+                        }, 1500);
+                        return;
+                    } else if (array[mid] > target) {
+                        setTimeout(() => {
+                            result.innerHTML += ` → Terlalu besar, cari di kiri`;
+                            right = mid - 1;
+                            step++;
+                            setTimeout(searchStep, 1000);
+                        }, 1500);
+                    } else {
+                        setTimeout(() => {
+                            result.innerHTML += ` → Terlalu kecil, cari di kanan`;
+                            left = mid + 1;
+                            step++;
+                            setTimeout(searchStep, 1000);
+                        }, 1500);
+                    }
+                } else {
+                    result.innerHTML = `❌ Angka ${target} tidak ditemukan.`;
+                }
+            }
+
+            searchStep();
+        }
+
+        function resetBinarySearch() {
+            const items = document.querySelectorAll('#binaryArray .array-item');
+            items.forEach(item => {
+                item.classList.remove('highlight', 'found');
+                item.style.backgroundColor = '#dbeafe';
+            });
+            document.getElementById('binaryResult').innerHTML = '';
+        }
+
+        // Quiz Functions
+        function startQuiz() {
+            const name = document.getElementById('studentName').value.trim();
+            if (!name) {
+                alert('Silakan masukkan nama kamu terlebih dahulu!');
+                return;
+            }
+
+            document.getElementById('nameInput').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            
+            // Initialize quiz
+            quizData = [...questions];
+            currentQuizIndex = 0;
+            quizScore = 0;
+            selectedAnswer = null;
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizData[currentQuizIndex];
+            document.getElementById('currentQuestion').textContent = currentQuizIndex + 1;
+            document.getElementById('currentScore').textContent = quizScore;
+            document.getElementById('questionText').textContent = question.question;
+            
+            // Update progress bar
+            const progress = ((currentQuizIndex + 1) / quizData.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Create answer options
+            const optionsContainer = document.getElementById('answerOptions');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'w-full p-4 text-left bg-gray-100 hover:bg-purple-100 rounded-lg transition-colors border-2 border-transparent';
+                button.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
+                button.onclick = () => selectAnswer(index, button);
+                optionsContainer.appendChild(button);
+            });
+            
+            // Reset next button
+            document.getElementById('nextQuestionBtn').disabled = true;
+            selectedAnswer = null;
+        }
+
+        function selectAnswer(answerIndex, buttonElement) {
+            // Remove previous selection
+            document.querySelectorAll('#answerOptions button').forEach(btn => {
+                btn.classList.remove('border-purple-500', 'bg-purple-100');
+                btn.classList.add('border-transparent');
+            });
+            
+            // Highlight selected answer
+            buttonElement.classList.add('border-purple-500', 'bg-purple-100');
+            buttonElement.classList.remove('border-transparent');
+            
+            selectedAnswer = answerIndex;
+            document.getElementById('nextQuestionBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            if (selectedAnswer === null) return;
+            
+            // Check if answer is correct
+            if (selectedAnswer === quizData[currentQuizIndex].correct) {
+                quizScore += 10;
+            }
+            
+            currentQuizIndex++;
+            
+            if (currentQuizIndex < quizData.length) {
+                showQuestion();
+            } else {
+                showQuizResult();
+            }
+        }
+
+        function showQuizResult() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('quizResult').classList.remove('hidden');
+            
+            const name = document.getElementById('studentName').value;
+            document.getElementById('finalName').textContent = name;
+            document.getElementById('finalScore').textContent = quizScore;
+            
+            // Set result message and emoji based on score
+            const resultEmoji = document.getElementById('resultEmoji');
+            const resultMessage = document.getElementById('resultMessage');
+            
+            if (quizScore >= 80) {
+                resultEmoji.textContent = '🏆';
+                resultMessage.innerHTML = '<div class="text-green-600">Luar biasa! Kamu sangat memahami materi algoritma pencarian!</div>';
+            } else if (quizScore >= 60) {
+                resultEmoji.textContent = '👏';
+                resultMessage.innerHTML = '<div class="text-blue-600">Bagus! Kamu sudah cukup memahami materi. Terus belajar ya!</div>';
+            } else {
+                resultEmoji.textContent = '💪';
+                resultMessage.innerHTML = '<div class="text-orange-600">Jangan menyerah! Coba baca materi lagi dan ulangi kuisnya.</div>';
+            }
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizResult').classList.add('hidden');
+            document.getElementById('nameInput').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'985a7b32b5fb4c64',t:'MTc1ODk3MDY1OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
