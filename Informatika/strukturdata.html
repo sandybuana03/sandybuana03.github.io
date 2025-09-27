@@ -3,18 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Belajar Struktur Data - Interaktif</title>
+    <title>Konsep Dasar Struktur Data - Pembelajaran Interaktif</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             box-sizing: border-box;
         }
         
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        
-        * {
-            font-family: 'Poppins', sans-serif;
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
         }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        
+        .bounce { animation: bounce 2s infinite; }
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+        .slide-in { animation: slideIn 0.5s ease-out; }
         
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -26,1386 +40,679 @@
         
         .card-hover:hover {
             transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
         
-        .bounce {
-            animation: bounce 2s infinite;
+        .demo-container {
+            background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
         }
         
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-10px);
-            }
-            60% {
-                transform: translateY(-5px);
-            }
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .mobile-menu {
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-        }
-        
-        .mobile-menu.active {
-            transform: translateX(0);
-        }
-        
-        .quiz-option {
+        .array-cell {
             transition: all 0.3s ease;
         }
         
-        .quiz-option:hover {
-            background-color: #e0e7ff;
-            transform: scale(1.02);
+        .array-cell:hover {
+            transform: scale(1.1);
+            background-color: #fbbf24;
         }
         
-        .quiz-option.selected {
-            background-color: #c7d2fe;
-            border-color: #6366f1;
+        .stack-item {
+            transition: all 0.5s ease;
         }
         
-        .quiz-option.correct {
-            background-color: #dcfce7;
-            border-color: #22c55e;
+        .queue-item {
+            transition: all 0.5s ease;
         }
         
-        .quiz-option.incorrect {
-            background-color: #fee2e2;
-            border-color: #ef4444;
+        /* Desktop font sizes */
+        .desktop-text { font-size: 1.25rem; line-height: 1.7; }
+        .desktop-title { font-size: 2.5rem; }
+        .desktop-subtitle { font-size: 1.5rem; }
+        .desktop-large { font-size: 1.375rem; line-height: 1.6; }
+        
+        @media (max-width: 768px) {
+            .mobile-text { font-size: 1.1rem; line-height: 1.6; }
+            .mobile-title { font-size: 1.8rem; }
+            .desktop-text { font-size: 1.1rem; line-height: 1.6; }
+            .desktop-title { font-size: 1.8rem; }
+            .desktop-subtitle { font-size: 1.2rem; }
+            .desktop-large { font-size: 1.1rem; line-height: 1.6; }
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 min-h-screen">
-    <!-- Mobile Menu Overlay -->
-    <div id="mobileMenuOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
-    
-    <!-- Mobile Menu -->
-    <div id="mobileMenu" class="mobile-menu fixed left-0 top-0 h-full w-80 bg-white shadow-2xl z-50 lg:hidden overflow-y-auto">
-        <div class="p-6">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-xl font-bold text-purple-800">📚 Menu Pembelajaran</h2>
-                <button id="closeMobileMenu" class="text-gray-500 hover:text-gray-700">
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white/90 backdrop-blur-sm shadow-lg fixed top-0 w-full z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="text-2xl">📚</div>
+                    <h1 class="ml-2 text-xl font-bold text-purple-800">Struktur Data</h1>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-4">
+                    <button onclick="showSection('intro')" class="nav-btn px-4 py-2 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">Intro</button>
+                    <button onclick="showSection('pengenalan')" class="nav-btn px-4 py-2 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">Pengenalan</button>
+                    <button onclick="showSection('materi')" class="nav-btn px-4 py-2 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">Materi</button>
+                    <button onclick="showSection('tugas')" class="nav-btn px-4 py-2 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">Tugas</button>
+                    <button onclick="showSection('kuis')" class="nav-btn px-4 py-2 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">Kuis</button>
+                    <button onclick="showSection('penutup')" class="nav-btn px-4 py-2 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">Penutup</button>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg text-purple-700 hover:bg-purple-100">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                     </svg>
                 </button>
             </div>
-            <nav class="space-y-3">
-                <a href="#" onclick="showSection('intro')" class="nav-link block px-4 py-3 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">
-                    🌟 Intro
-                </a>
-                <a href="#" onclick="showSection('pengenalan')" class="nav-link block px-4 py-3 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">
-                    📖 Pengenalan
-                </a>
-                <a href="#" onclick="showSection('konsep-dasar')" class="nav-link block px-4 py-3 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">
-                    🧠 Konsep Dasar
-                </a>
-                <a href="#" onclick="showSection('jenis-struktur')" class="nav-link block px-4 py-3 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">
-                    🏗️ Jenis Struktur Data
-                </a>
-                <a href="#" onclick="showSection('implementasi')" class="nav-link block px-4 py-3 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">
-                    💻 Implementasi
-                </a>
-                <a href="#" onclick="showSection('tugas')" class="nav-link block px-4 py-3 rounded-lg text-orange-700 hover:bg-orange-100 transition-colors">
-                    📝 Tugas
-                </a>
-                <a href="#" onclick="showSection('kuis')" class="nav-link block px-4 py-3 rounded-lg text-green-700 hover:bg-green-100 transition-colors">
-                    🎯 Kuis
-                </a>
-                <a href="#" onclick="showSection('penutup')" class="nav-link block px-4 py-3 rounded-lg text-blue-700 hover:bg-blue-100 transition-colors">
-                    🎉 Penutup
-                </a>
-            </nav>
         </div>
-    </div>
-
-    <!-- Desktop Sidebar -->
-    <div class="hidden lg:block fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-30 overflow-y-auto">
-        <div class="p-6">
-            <div class="mb-8">
-                <h2 class="text-xl font-bold text-purple-800 flex items-center">
-                    📚 Menu Pembelajaran
-                </h2>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-sm border-t">
+            <div class="px-4 py-2 space-y-1">
+                <button onclick="showSection('intro'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg text-purple-700 hover:bg-purple-100">Intro</button>
+                <button onclick="showSection('pengenalan'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg text-purple-700 hover:bg-purple-100">Pengenalan</button>
+                <button onclick="showSection('materi'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg text-purple-700 hover:bg-purple-100">Materi</button>
+                <button onclick="showSection('tugas'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg text-purple-700 hover:bg-purple-100">Tugas</button>
+                <button onclick="showSection('kuis'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg text-purple-700 hover:bg-purple-100">Kuis</button>
+                <button onclick="showSection('penutup'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg text-purple-700 hover:bg-purple-100">Penutup</button>
             </div>
-            <nav class="space-y-3">
-                <a href="#" onclick="showSection('intro')" class="nav-link block px-4 py-3 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">
-                    🌟 Intro
-                </a>
-                <a href="#" onclick="showSection('pengenalan')" class="nav-link block px-4 py-3 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">
-                    📖 Pengenalan
-                </a>
-                <a href="#" onclick="showSection('konsep-dasar')" class="nav-link block px-4 py-3 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">
-                    🧠 Konsep Dasar
-                </a>
-                <a href="#" onclick="showSection('jenis-struktur')" class="nav-link block px-4 py-3 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">
-                    🏗️ Jenis Struktur Data
-                </a>
-                <a href="#" onclick="showSection('implementasi')" class="nav-link block px-4 py-3 rounded-lg text-purple-700 hover:bg-purple-100 transition-colors">
-                    💻 Implementasi
-                </a>
-                <a href="#" onclick="showSection('tugas')" class="nav-link block px-4 py-3 rounded-lg text-orange-700 hover:bg-orange-100 transition-colors">
-                    📝 Tugas
-                </a>
-                <a href="#" onclick="showSection('kuis')" class="nav-link block px-4 py-3 rounded-lg text-green-700 hover:bg-green-100 transition-colors">
-                    🎯 Kuis
-                </a>
-                <a href="#" onclick="showSection('penutup')" class="nav-link block px-4 py-3 rounded-lg text-blue-700 hover:bg-blue-100 transition-colors">
-                    🎉 Penutup
-                </a>
-            </nav>
         </div>
-    </div>
-
-    <!-- Mobile Header -->
-    <div class="lg:hidden fixed top-0 left-0 right-0 bg-white shadow-md p-4 flex justify-between items-center z-30">
-        <button id="openMobileMenu" class="text-purple-700">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
-        </button>
-        <h1 class="text-lg font-bold text-purple-800">Struktur Data</h1>
-        <div class="w-6"></div>
-    </div>
+    </nav>
 
     <!-- Main Content -->
-    <div class="lg:ml-64 min-h-screen">
-        <div class="max-w-4xl mx-auto px-4 py-8 lg:py-8 pt-20">
-            
-            <!-- Intro Section -->
-            <div id="intro" class="section fade-in">
-                <div class="text-center mb-12">
-                    <div class="bounce mb-6">
-                        <div class="text-8xl">🎓</div>
-                    </div>
-                    <h1 class="text-4xl lg:text-6xl font-bold text-purple-800 mb-4">
-                        Selamat Datang! 
-                    </h1>
-                    <p class="text-xl lg:text-2xl text-purple-600">
-                        Mari Belajar Struktur Data dengan Menyenangkan! 🚀
-                    </p>
-                </div>
+    <main class="pt-20 pb-8">
+        <!-- Intro Section -->
+        <section id="intro" class="section max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 fade-in">
+                <div class="text-6xl mb-4 bounce">🎯</div>
+                <h2 class="text-4xl md:text-5xl font-bold text-purple-800 mb-6 mobile-title">Selamat Datang!</h2>
+                <p class="text-xl text-purple-600 desktop-large">Mari belajar Konsep Dasar Struktur Data dengan cara yang menyenangkan!</p>
+            </div>
 
-                <div class="grid md:grid-cols-2 gap-8 mb-12">
-                    <div class="bg-white rounded-3xl p-8 shadow-lg card-hover">
-                        <div class="text-4xl mb-4">🤔</div>
-                        <h3 class="text-2xl font-bold text-purple-800 mb-4">Pertanyaan Pemantik</h3>
-                        <div class="space-y-4 text-lg text-gray-700">
-                            <p>💭 Pernahkah kamu bertanya-tanya bagaimana komputer menyimpan dan mengatur data?</p>
-                            <p>🏗️ Mengapa ada berbagai cara untuk menyusun informasi dalam program?</p>
-                            <p>⚡ Bagaimana cara membuat program yang lebih efisien dan cepat?</p>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-3xl p-8 shadow-lg card-hover">
-                        <div class="text-4xl mb-4">📚</div>
-                        <h3 class="text-2xl font-bold text-purple-800 mb-4">Apa yang Dipelajari</h3>
-                        <ul class="space-y-3 text-lg text-gray-700">
-                            <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Konsep dasar struktur data</li>
-                            <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Jenis-jenis struktur data</li>
-                            <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Implementasi dalam pemrograman</li>
-                            <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Aplikasi dalam kehidupan sehari-hari</li>
-                        </ul>
+            <div class="grid md:grid-cols-2 gap-8 mb-12">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg card-hover">
+                    <div class="text-4xl mb-4">🤔</div>
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">Pertanyaan Pemantik</h3>
+                    <div class="space-y-3 desktop-text">
+                        <p class="text-purple-700">• Bagaimana komputer menyimpan data?</p>
+                        <p class="text-purple-700">• Mengapa ada berbagai cara menyimpan data?</p>
+                        <p class="text-purple-700">• Apa bedanya array dengan linked list?</p>
                     </div>
                 </div>
 
-                <div class="bg-gradient-to-r from-purple-400 to-pink-400 rounded-3xl p-8 text-white mb-8">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg card-hover">
+                    <div class="text-4xl mb-4">📖</div>
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">Apa yang Dipelajari</h3>
+                    <div class="space-y-3 desktop-text">
+                        <p class="text-purple-700">• Konsep dasar struktur data</p>
+                        <p class="text-purple-700">• Jenis-jenis struktur data</p>
+                        <p class="text-purple-700">• Implementasi dan penggunaan</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-pink-200 to-purple-200 rounded-2xl p-8 mb-8 shadow-lg">
+                <div class="text-center">
                     <div class="text-4xl mb-4">🎯</div>
-                    <h3 class="text-2xl font-bold mb-4">Tujuan Pembelajaran</h3>
-                    <div class="grid md:grid-cols-2 gap-6 text-lg">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">Tujuan Pembelajaran</h3>
+                    <div class="grid md:grid-cols-2 gap-6 text-left desktop-text">
                         <div>
-                            <p class="mb-2">🧠 Memahami konsep struktur data</p>
-                            <p class="mb-2">🔍 Mengidentifikasi jenis struktur data</p>
+                            <p class="text-purple-700 mb-2">✅ Memahami konsep struktur data</p>
+                            <p class="text-purple-700 mb-2">✅ Mengenal jenis-jenis struktur data</p>
                         </div>
                         <div>
-                            <p class="mb-2">💡 Menerapkan dalam pemrograman</p>
-                            <p class="mb-2">⚡ Memilih struktur data yang tepat</p>
+                            <p class="text-purple-700 mb-2">✅ Dapat mengimplementasikan struktur data sederhana</p>
+                            <p class="text-purple-700 mb-2">✅ Memilih struktur data yang tepat</p>
                         </div>
-                    </div>
-                </div>
-
-                <div class="grid md:grid-cols-2 gap-8">
-                    <div class="bg-white rounded-3xl p-8 shadow-lg card-hover">
-                        <div class="text-4xl mb-4">💡</div>
-                        <h3 class="text-2xl font-bold text-purple-800 mb-4">Pemahaman Bermakna</h3>
-                        <p class="text-lg text-gray-700">
-                            Struktur data adalah fondasi dari semua program komputer. Seperti cara kita mengatur barang di rumah, 
-                            komputer juga perlu cara yang teratur untuk menyimpan dan mengakses informasi dengan efisien.
-                        </p>
-                    </div>
-
-                    <div class="bg-white rounded-3xl p-8 shadow-lg card-hover">
-                        <div class="text-4xl mb-4">🔥</div>
-                        <h3 class="text-2xl font-bold text-purple-800 mb-4">Motivasi</h3>
-                        <p class="text-lg text-gray-700">
-                            Dengan memahami struktur data, kamu akan menjadi programmer yang lebih baik! 
-                            Kamu bisa membuat aplikasi yang lebih cepat, efisien, dan dapat menangani data dalam jumlah besar.
-                        </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Pengenalan Section -->
-            <div id="pengenalan" class="section hidden fade-in">
-                <div class="text-center mb-12">
-                    <div class="text-6xl mb-4">📖</div>
-                    <h1 class="text-4xl lg:text-5xl font-bold text-purple-800 mb-4">Pengenalan Struktur Data</h1>
-                    <p class="text-xl text-purple-600">Mari mulai perjalanan belajar kita!</p>
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">💡</div>
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">Pemahaman Bermakna</h3>
+                    <p class="text-purple-700 desktop-text">Struktur data adalah cara mengorganisir dan menyimpan data agar dapat digunakan secara efisien. Seperti mengatur buku di perpustakaan, kita perlu cara yang tepat untuk menyimpan data agar mudah dicari dan digunakan.</p>
                 </div>
+            </div>
 
-                <div class="bg-white rounded-3xl p-8 shadow-lg mb-8">
-                    <h2 class="text-3xl font-bold text-purple-800 mb-6 flex items-center">
-                        🌟 Apa itu Struktur Data?
-                    </h2>
-                    <div class="text-lg text-gray-700 space-y-4">
-                        <p>
-                            <strong>Struktur Data</strong> adalah cara mengorganisir, menyimpan, dan mengatur data dalam komputer 
-                            sehingga dapat digunakan secara efisien. Bayangkan seperti cara kita mengatur buku di perpustakaan 
-                            atau barang di lemari.
-                        </p>
-                        <div class="bg-blue-50 p-6 rounded-2xl">
-                            <h4 class="font-bold text-blue-800 mb-2">🏠 Analogi Sederhana:</h4>
-                            <p>
-                                Struktur data seperti berbagai jenis wadah penyimpanan di rumah:
-                            </p>
-                            <ul class="mt-2 space-y-1">
-                                <li>📚 <strong>Rak buku</strong> = Array (data tersusun berurutan)</li>
-                                <li>🗂️ <strong>Filing cabinet</strong> = Database (data terorganisir)</li>
-                                <li>📦 <strong>Kotak bertumpuk</strong> = Stack (tumpukan data)</li>
-                                <li>🚶‍♂️ <strong>Antrian</strong> = Queue (data berurutan masuk-keluar)</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid md:grid-cols-2 gap-8 mb-8">
-                    <div class="bg-white rounded-3xl p-8 shadow-lg card-hover">
-                        <div class="text-4xl mb-4">🎯</div>
-                        <h3 class="text-2xl font-bold text-purple-800 mb-4">Mengapa Penting?</h3>
-                        <ul class="space-y-3 text-lg text-gray-700">
-                            <li class="flex items-start">
-                                <span class="text-green-500 mr-2 mt-1">✓</span>
-                                <span><strong>Efisiensi:</strong> Program berjalan lebih cepat</span>
-                            </li>
-                            <li class="flex items-start">
-                                <span class="text-green-500 mr-2 mt-1">✓</span>
-                                <span><strong>Organisasi:</strong> Data tertata dengan rapi</span>
-                            </li>
-                            <li class="flex items-start">
-                                <span class="text-green-500 mr-2 mt-1">✓</span>
-                                <span><strong>Kemudahan:</strong> Mudah mencari dan mengubah data</span>
-                            </li>
-                            <li class="flex items-start">
-                                <span class="text-green-500 mr-2 mt-1">✓</span>
-                                <span><strong>Skalabilitas:</strong> Dapat menangani data besar</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="bg-white rounded-3xl p-8 shadow-lg card-hover">
-                        <div class="text-4xl mb-4">🌍</div>
-                        <h3 class="text-2xl font-bold text-purple-800 mb-4">Contoh dalam Kehidupan</h3>
-                        <ul class="space-y-3 text-lg text-gray-700">
-                            <li class="flex items-start">
-                                <span class="text-blue-500 mr-2 mt-1">📱</span>
-                                <span><strong>Kontak HP:</strong> Daftar nama tersusun alfabetis</span>
-                            </li>
-                            <li class="flex items-start">
-                                <span class="text-blue-500 mr-2 mt-1">🎵</span>
-                                <span><strong>Playlist musik:</strong> Lagu-lagu dalam urutan tertentu</span>
-                            </li>
-                            <li class="flex items-start">
-                                <span class="text-blue-500 mr-2 mt-1">📧</span>
-                                <span><strong>Email:</strong> Pesan tersusun berdasarkan waktu</span>
-                            </li>
-                            <li class="flex items-start">
-                                <span class="text-blue-500 mr-2 mt-1">🛒</span>
-                                <span><strong>Keranjang belanja:</strong> Daftar barang yang akan dibeli</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="bg-gradient-to-r from-green-400 to-blue-400 rounded-3xl p-8 text-white">
+            <div class="bg-gradient-to-r from-yellow-200 to-orange-200 rounded-2xl p-8 shadow-lg">
+                <div class="text-center">
                     <div class="text-4xl mb-4">🚀</div>
-                    <h3 class="text-2xl font-bold mb-4">Fun Fact!</h3>
-                    <p class="text-lg">
-                        Tahukah kamu? Google menggunakan struktur data yang sangat canggih untuk mencari informasi 
-                        dari miliaran halaman web dalam hitungan detik! Tanpa struktur data yang tepat, 
-                        pencarian di Google bisa memakan waktu berjam-jam! 🤯
-                    </p>
+                    <h3 class="text-2xl font-bold text-orange-800 mb-4">Motivasi</h3>
+                    <p class="text-orange-700 desktop-text">Dengan memahami struktur data, kamu akan menjadi programmer yang lebih baik! Struktur data adalah fondasi dari semua aplikasi dan sistem yang kita gunakan sehari-hari.</p>
                 </div>
             </div>
 
-            <!-- Konsep Dasar Section -->
-            <div id="konsep-dasar" class="section hidden fade-in">
-                <div class="text-center mb-12">
-                    <div class="text-6xl mb-4">🧠</div>
-                    <h1 class="text-4xl lg:text-5xl font-bold text-purple-800 mb-4">Konsep Dasar Struktur Data</h1>
-                    <p class="text-xl text-purple-600">Memahami fondasi yang kuat!</p>
+            <div class="text-center mt-12">
+                <button onclick="showSection('pengenalan'); window.scrollTo({top: 0, behavior: 'smooth'})" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+                    Mulai Belajar! 🎉
+                </button>
+            </div>
+        </section>
+
+        <!-- Pengenalan Section -->
+        <section id="pengenalan" class="section hidden max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 fade-in">
+                <div class="text-6xl mb-4">📊</div>
+                <h2 class="text-4xl md:text-5xl font-bold text-purple-800 mb-6 mobile-title">Pengenalan Struktur Data</h2>
+            </div>
+
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg">
+                <h3 class="text-2xl font-bold text-purple-800 mb-6 flex items-center">
+                    <span class="text-3xl mr-3">🤓</span>
+                    Apa itu Struktur Data?
+                </h3>
+                <p class="text-purple-700 mb-6 desktop-text">
+                    Struktur data adalah cara khusus untuk mengorganisir dan menyimpan data dalam komputer sehingga dapat digunakan secara efisien. Bayangkan seperti mengatur barang-barang di rumah - ada yang disimpan di lemari, ada yang di laci, ada yang digantung.
+                </p>
+                
+                <div class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl p-6 mb-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">🏠 Analogi Sederhana</h4>
+                    <div class="grid md:grid-cols-2 gap-4 desktop-text">
+                        <div class="bg-white/60 rounded-lg p-4">
+                            <div class="text-2xl mb-2">📚</div>
+                            <p><strong>Perpustakaan:</strong> Buku disusun berdasarkan kategori dan nomor</p>
+                        </div>
+                        <div class="bg-white/60 rounded-lg p-4">
+                            <div class="text-2xl mb-2">🍽️</div>
+                            <p><strong>Piring:</strong> Ditumpuk satu per satu (seperti Stack)</p>
+                        </div>
+                        <div class="bg-white/60 rounded-lg p-4">
+                            <div class="text-2xl mb-2">🚶‍♂️</div>
+                            <p><strong>Antrian:</strong> Orang mengantri berurutan (seperti Queue)</p>
+                        </div>
+                        <div class="bg-white/60 rounded-lg p-4">
+                            <div class="text-2xl mb-2">🏘️</div>
+                            <p><strong>Rumah:</strong> Alamat berurutan (seperti Array)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg">
+                <h3 class="text-2xl font-bold text-purple-800 mb-6 flex items-center">
+                    <span class="text-3xl mr-3">🎯</span>
+                    Mengapa Struktur Data Penting?
+                </h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <div class="text-2xl">⚡</div>
+                            <div>
+                                <h4 class="font-bold text-purple-800">Efisiensi</h4>
+                                <p class="text-purple-700 desktop-text">Membuat program berjalan lebih cepat</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="text-2xl">🎯</div>
+                            <div>
+                                <h4 class="font-bold text-purple-800">Organisasi</h4>
+                                <p class="text-purple-700 desktop-text">Data tersusun rapi dan mudah dikelola</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-start space-x-3">
+                            <div class="text-2xl">💾</div>
+                            <div>
+                                <h4 class="font-bold text-purple-800">Hemat Memori</h4>
+                                <p class="text-purple-700 desktop-text">Menggunakan memori secara optimal</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-3">
+                            <div class="text-2xl">🔍</div>
+                            <div>
+                                <h4 class="font-bold text-purple-800">Pencarian</h4>
+                                <p class="text-purple-700 desktop-text">Memudahkan pencarian dan pengambilan data</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-green-200 to-blue-200 rounded-2xl p-8 shadow-lg">
+                <h3 class="text-2xl font-bold text-green-800 mb-6 flex items-center">
+                    <span class="text-3xl mr-3">🌟</span>
+                    Contoh dalam Kehidupan Sehari-hari
+                </h3>
+                <div class="grid md:grid-cols-3 gap-4 desktop-text">
+                    <div class="bg-white/60 rounded-lg p-4 text-center">
+                        <div class="text-3xl mb-2">📱</div>
+                        <h4 class="font-bold text-green-800 mb-2">Kontak HP</h4>
+                        <p class="text-green-700">Disimpan dalam urutan alfabetis</p>
+                    </div>
+                    <div class="bg-white/60 rounded-lg p-4 text-center">
+                        <div class="text-3xl mb-2">🎵</div>
+                        <h4 class="font-bold text-green-800 mb-2">Playlist Musik</h4>
+                        <p class="text-green-700">Lagu-lagu tersusun berurutan</p>
+                    </div>
+                    <div class="bg-white/60 rounded-lg p-4 text-center">
+                        <div class="text-3xl mb-2">🛒</div>
+                        <h4 class="font-bold text-green-800 mb-2">Keranjang Belanja</h4>
+                        <p class="text-green-700">Barang ditambah dan dihapus</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <button onclick="showSection('materi'); window.scrollTo({top: 0, behavior: 'smooth'})" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+                    Lanjut ke Materi 📚
+                </button>
+            </div>
+        </section>
+
+        <!-- Materi Section -->
+        <section id="materi" class="section hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 fade-in">
+                <div class="text-6xl mb-4">🧠</div>
+                <h2 class="text-4xl md:text-5xl font-bold text-purple-800 mb-6 mobile-title">Jenis-Jenis Struktur Data</h2>
+            </div>
+
+            <!-- Array -->
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg">
+                <h3 class="text-3xl font-bold text-purple-800 mb-6 flex items-center">
+                    <span class="text-4xl mr-3">📋</span>
+                    1. Array (Larik)
+                </h3>
+                <p class="text-purple-700 mb-6 desktop-text">
+                    Array adalah struktur data yang menyimpan elemen-elemen dengan tipe data yang sama dalam urutan yang berurutan. Seperti deretan rumah yang memiliki nomor alamat berurutan.
+                </p>
+                
+                <div class="demo-container rounded-xl p-6 mb-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">🎮 Demo Interaktif Array</h4>
+                    <div class="flex flex-wrap gap-2 mb-4" id="array-demo">
+                        <div class="array-cell bg-yellow-300 border-2 border-yellow-500 rounded-lg p-4 text-center font-bold cursor-pointer" data-index="0">10</div>
+                        <div class="array-cell bg-yellow-300 border-2 border-yellow-500 rounded-lg p-4 text-center font-bold cursor-pointer" data-index="1">25</div>
+                        <div class="array-cell bg-yellow-300 border-2 border-yellow-500 rounded-lg p-4 text-center font-bold cursor-pointer" data-index="2">30</div>
+                        <div class="array-cell bg-yellow-300 border-2 border-yellow-500 rounded-lg p-4 text-center font-bold cursor-pointer" data-index="3">45</div>
+                        <div class="array-cell bg-yellow-300 border-2 border-yellow-500 rounded-lg p-4 text-center font-bold cursor-pointer" data-index="4">50</div>
+                    </div>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <input type="number" id="array-input" placeholder="Masukkan angka" class="px-4 py-2 rounded-lg border-2 border-purple-300 focus:border-purple-500 outline-none">
+                        <button onclick="addToArray()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold">Tambah</button>
+                        <button onclick="removeFromArray()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold">Hapus Terakhir</button>
+                    </div>
+                    <p class="text-purple-700 desktop-text">Klik pada elemen array untuk melihat indeksnya!</p>
                 </div>
 
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-green-100 rounded-xl p-6">
+                        <h4 class="text-xl font-bold text-green-800 mb-4">✅ Kelebihan Array</h4>
+                        <ul class="space-y-2 text-green-700 desktop-text">
+                            <li>• Akses data sangat cepat dengan indeks</li>
+                            <li>• Mudah digunakan dan dipahami</li>
+                            <li>• Hemat memori</li>
+                        </ul>
+                    </div>
+                    <div class="bg-red-100 rounded-xl p-6">
+                        <h4 class="text-xl font-bold text-red-800 mb-4">❌ Kekurangan Array</h4>
+                        <ul class="space-y-2 text-red-700 desktop-text">
+                            <li>• Ukuran tetap (tidak bisa berubah)</li>
+                            <li>• Penyisipan dan penghapusan lambat</li>
+                            <li>• Memori harus berurutan</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stack -->
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg">
+                <h3 class="text-3xl font-bold text-purple-800 mb-6 flex items-center">
+                    <span class="text-4xl mr-3">🥞</span>
+                    2. Stack (Tumpukan)
+                </h3>
+                <p class="text-purple-700 mb-6 mobile-text">
+                    Stack adalah struktur data yang mengikuti prinsip LIFO (Last In, First Out). Seperti tumpukan piring - piring yang terakhir ditaruh akan diambil pertama kali.
+                </p>
+                
+                <div class="demo-container rounded-xl p-6 mb-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">🎮 Demo Interaktif Stack</h4>
+                    <div class="flex justify-center mb-4">
+                        <div class="flex flex-col-reverse items-center space-y-reverse space-y-2" id="stack-demo">
+                            <div class="stack-item bg-blue-300 border-2 border-blue-500 rounded-lg p-4 w-24 text-center font-bold">A</div>
+                            <div class="stack-item bg-blue-300 border-2 border-blue-500 rounded-lg p-4 w-24 text-center font-bold">B</div>
+                            <div class="stack-item bg-blue-300 border-2 border-blue-500 rounded-lg p-4 w-24 text-center font-bold">C</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-center gap-2 mb-4">
+                        <input type="text" id="stack-input" placeholder="Masukkan data" maxlength="3" class="px-4 py-2 rounded-lg border-2 border-purple-300 focus:border-purple-500 outline-none w-32">
+                        <button onclick="pushToStack()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold">Push</button>
+                        <button onclick="popFromStack()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold">Pop</button>
+                    </div>
+                    <p class="text-center text-purple-700 mobile-text">Push = menambah ke atas, Pop = mengambil dari atas</p>
+                </div>
+
+                <div class="bg-blue-100 rounded-xl p-6">
+                    <h4 class="text-xl font-bold text-blue-800 mb-4">🎯 Penggunaan Stack</h4>
+                    <div class="grid md:grid-cols-3 gap-4 desktop-text">
+                        <div class="text-center">
+                            <div class="text-2xl mb-2">↩️</div>
+                            <p class="text-blue-700"><strong>Undo/Redo</strong><br>Dalam aplikasi</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl mb-2">🌐</div>
+                            <p class="text-blue-700"><strong>Browser History</strong><br>Tombol back</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl mb-2">🧮</div>
+                            <p class="text-blue-700"><strong>Kalkulator</strong><br>Operasi matematika</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Queue -->
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg">
+                <h3 class="text-3xl font-bold text-purple-800 mb-6 flex items-center">
+                    <span class="text-4xl mr-3">🚶‍♂️</span>
+                    3. Queue (Antrian)
+                </h3>
+                <p class="text-purple-700 mb-6 mobile-text">
+                    Queue adalah struktur data yang mengikuti prinsip FIFO (First In, First Out). Seperti antrian di kasir - orang yang datang pertama akan dilayani pertama.
+                </p>
+                
+                <div class="demo-container rounded-xl p-6 mb-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">🎮 Demo Interaktif Queue</h4>
+                    <div class="flex justify-center mb-4">
+                        <div class="flex items-center space-x-2" id="queue-demo">
+                            <div class="queue-item bg-green-300 border-2 border-green-500 rounded-lg p-4 text-center font-bold">1</div>
+                            <div class="text-2xl">→</div>
+                            <div class="queue-item bg-green-300 border-2 border-green-500 rounded-lg p-4 text-center font-bold">2</div>
+                            <div class="text-2xl">→</div>
+                            <div class="queue-item bg-green-300 border-2 border-green-500 rounded-lg p-4 text-center font-bold">3</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-center gap-2 mb-4">
+                        <input type="text" id="queue-input" placeholder="Masukkan data" maxlength="3" class="px-4 py-2 rounded-lg border-2 border-purple-300 focus:border-purple-500 outline-none w-32">
+                        <button onclick="enqueue()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-semibold">Enqueue</button>
+                        <button onclick="dequeue()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold">Dequeue</button>
+                    </div>
+                    <p class="text-center text-purple-700 mobile-text">Enqueue = masuk dari belakang, Dequeue = keluar dari depan</p>
+                </div>
+
+                <div class="bg-green-100 rounded-xl p-6">
+                    <h4 class="text-xl font-bold text-green-800 mb-4">🎯 Penggunaan Queue</h4>
+                    <div class="grid md:grid-cols-3 gap-4 desktop-text">
+                        <div class="text-center">
+                            <div class="text-2xl mb-2">🖨️</div>
+                            <p class="text-green-700"><strong>Print Queue</strong><br>Antrian cetak dokumen</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl mb-2">💬</div>
+                            <p class="text-green-700"><strong>Chat Messages</strong><br>Pesan berurutan</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl mb-2">🎮</div>
+                            <p class="text-green-700"><strong>Game Matchmaking</strong><br>Antrian pemain</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Linked List -->
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg">
+                <h3 class="text-3xl font-bold text-purple-800 mb-6 flex items-center">
+                    <span class="text-4xl mr-3">🔗</span>
+                    4. Linked List (Daftar Berantai)
+                </h3>
+                <p class="text-purple-700 mb-6 mobile-text">
+                    Linked List adalah struktur data yang terdiri dari node-node yang saling terhubung. Setiap node berisi data dan pointer ke node berikutnya. Seperti rantai yang setiap mata rantainya terhubung ke mata rantai berikutnya.
+                </p>
+                
+                <div class="demo-container rounded-xl p-6 mb-6">
+                    <h4 class="text-xl font-bold text-purple-800 mb-4">🎮 Visualisasi Linked List</h4>
+                    <div class="flex items-center justify-center space-x-2 mb-4 overflow-x-auto">
+                        <div class="flex items-center bg-orange-300 border-2 border-orange-500 rounded-lg p-4 min-w-max">
+                            <span class="font-bold">A</span>
+                            <div class="ml-2 text-xl">→</div>
+                        </div>
+                        <div class="flex items-center bg-orange-300 border-2 border-orange-500 rounded-lg p-4 min-w-max">
+                            <span class="font-bold">B</span>
+                            <div class="ml-2 text-xl">→</div>
+                        </div>
+                        <div class="flex items-center bg-orange-300 border-2 border-orange-500 rounded-lg p-4 min-w-max">
+                            <span class="font-bold">C</span>
+                            <div class="ml-2 text-xl">→</div>
+                        </div>
+                        <div class="bg-gray-300 border-2 border-gray-500 rounded-lg p-4 font-bold">NULL</div>
+                    </div>
+                    <p class="text-center text-purple-700 mobile-text">Setiap kotak adalah node yang berisi data dan pointer ke node berikutnya</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-green-100 rounded-xl p-6">
+                        <h4 class="text-xl font-bold text-green-800 mb-4">✅ Kelebihan Linked List</h4>
+                        <ul class="space-y-2 text-green-700 desktop-text">
+                            <li>• Ukuran dinamis (bisa berubah)</li>
+                            <li>• Penyisipan dan penghapusan cepat</li>
+                            <li>• Tidak perlu memori berurutan</li>
+                        </ul>
+                    </div>
+                    <div class="bg-red-100 rounded-xl p-6">
+                        <h4 class="text-xl font-bold text-red-800 mb-4">❌ Kekurangan Linked List</h4>
+                        <ul class="space-y-2 text-red-700 desktop-text">
+                            <li>• Akses data lebih lambat</li>
+                            <li>• Membutuhkan memori ekstra untuk pointer</li>
+                            <li>• Tidak bisa akses langsung ke elemen</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <button onclick="showSection('tugas')" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+                    Lanjut ke Tugas 📝
+                </button>
+            </div>
+        </section>
+
+        <!-- Tugas Section -->
+        <section id="tugas" class="section hidden max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 fade-in">
+                <div class="text-6xl mb-4">📝</div>
+                <h2 class="text-4xl md:text-5xl font-bold text-purple-800 mb-6 mobile-title">Tugas Pembelajaran</h2>
+            </div>
+
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg">
+                <h3 class="text-2xl font-bold text-purple-800 mb-6">Soal Essay</h3>
+                
                 <div class="space-y-8">
-                    <div class="bg-white rounded-3xl p-8 shadow-lg">
-                        <h2 class="text-3xl font-bold text-purple-800 mb-6 flex items-center">
-                            🏗️ Elemen Dasar Struktur Data
-                        </h2>
-                        
-                        <div class="grid md:grid-cols-2 gap-8 mb-8">
-                            <div class="bg-blue-50 p-6 rounded-2xl">
-                                <div class="text-3xl mb-3">📦</div>
-                                <h4 class="text-xl font-bold text-blue-800 mb-3">Data/Elemen</h4>
-                                <p class="text-gray-700">
-                                    Informasi yang disimpan dalam struktur data. Bisa berupa angka, teks, 
-                                    gambar, atau jenis data lainnya.
-                                </p>
-                                <div class="mt-3 text-sm text-blue-600">
-                                    Contoh: Nama siswa, nilai ujian, alamat email
-                                </div>
-                            </div>
-
-                            <div class="bg-green-50 p-6 rounded-2xl">
-                                <div class="text-3xl mb-3">🔗</div>
-                                <h4 class="text-xl font-bold text-green-800 mb-3">Relasi/Hubungan</h4>
-                                <p class="text-gray-700">
-                                    Cara elemen-elemen data saling berhubungan atau terhubung satu sama lain 
-                                    dalam struktur.
-                                </p>
-                                <div class="mt-3 text-sm text-green-600">
-                                    Contoh: Urutan, hierarki, keterkaitan
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="grid md:grid-cols-2 gap-8">
-                            <div class="bg-purple-50 p-6 rounded-2xl">
-                                <div class="text-3xl mb-3">⚡</div>
-                                <h4 class="text-xl font-bold text-purple-800 mb-3">Operasi</h4>
-                                <p class="text-gray-700">
-                                    Tindakan yang dapat dilakukan pada struktur data seperti menambah, 
-                                    menghapus, mencari, atau mengubah data.
-                                </p>
-                                <div class="mt-3 text-sm text-purple-600">
-                                    Contoh: Insert, Delete, Search, Update
-                                </div>
-                            </div>
-
-                            <div class="bg-orange-50 p-6 rounded-2xl">
-                                <div class="text-3xl mb-3">📏</div>
-                                <h4 class="text-xl font-bold text-orange-800 mb-3">Kompleksitas</h4>
-                                <p class="text-gray-700">
-                                    Ukuran seberapa efisien struktur data dalam hal waktu dan ruang 
-                                    penyimpanan yang dibutuhkan.
-                                </p>
-                                <div class="mt-3 text-sm text-orange-600">
-                                    Contoh: O(1), O(n), O(log n)
-                                </div>
-                            </div>
-                        </div>
+                    <div class="bg-blue-50 rounded-xl p-6">
+                        <h4 class="text-xl font-bold text-blue-800 mb-4">1. Pemahaman Konsep (25 poin)</h4>
+                        <p class="text-blue-700 mb-4 mobile-text">Jelaskan dengan kata-kata sendiri apa yang dimaksud dengan struktur data dan mengapa struktur data penting dalam pemrograman. Berikan contoh analogi dari kehidupan sehari-hari!</p>
+                        <textarea class="w-full h-32 p-4 border-2 border-blue-300 rounded-lg focus:border-blue-500 outline-none mobile-text" placeholder="Tulis jawaban Anda di sini..."></textarea>
                     </div>
 
-                    <div class="bg-white rounded-3xl p-8 shadow-lg">
-                        <h2 class="text-3xl font-bold text-purple-800 mb-6 flex items-center">
-                            🎭 Karakteristik Struktur Data
-                        </h2>
-                        
-                        <div class="space-y-6">
-                            <div class="border-l-4 border-blue-400 pl-6">
-                                <h4 class="text-xl font-bold text-blue-800 mb-2">🔄 Linear vs Non-Linear</h4>
-                                <div class="grid md:grid-cols-2 gap-4">
-                                    <div class="bg-blue-50 p-4 rounded-lg">
-                                        <strong>Linear:</strong> Data tersusun berurutan seperti barisan
-                                        <br><small class="text-blue-600">Contoh: Array, List, Stack, Queue</small>
-                                    </div>
-                                    <div class="bg-green-50 p-4 rounded-lg">
-                                        <strong>Non-Linear:</strong> Data tersusun seperti pohon atau jaringan
-                                        <br><small class="text-green-600">Contoh: Tree, Graph</small>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="border-l-4 border-green-400 pl-6">
-                                <h4 class="text-xl font-bold text-green-800 mb-2">🏠 Static vs Dynamic</h4>
-                                <div class="grid md:grid-cols-2 gap-4">
-                                    <div class="bg-green-50 p-4 rounded-lg">
-                                        <strong>Static:</strong> Ukuran tetap, tidak bisa berubah
-                                        <br><small class="text-green-600">Contoh: Array dengan ukuran tetap</small>
-                                    </div>
-                                    <div class="bg-purple-50 p-4 rounded-lg">
-                                        <strong>Dynamic:</strong> Ukuran bisa berubah sesuai kebutuhan
-                                        <br><small class="text-purple-600">Contoh: Linked List, Dynamic Array</small>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="border-l-4 border-purple-400 pl-6">
-                                <h4 class="text-xl font-bold text-purple-800 mb-2">🎯 Homogeneous vs Heterogeneous</h4>
-                                <div class="grid md:grid-cols-2 gap-4">
-                                    <div class="bg-purple-50 p-4 rounded-lg">
-                                        <strong>Homogeneous:</strong> Semua elemen bertipe sama
-                                        <br><small class="text-purple-600">Contoh: Array of integers</small>
-                                    </div>
-                                    <div class="bg-orange-50 p-4 rounded-lg">
-                                        <strong>Heterogeneous:</strong> Elemen bisa berbeda tipe
-                                        <br><small class="text-orange-600">Contoh: Record, Object</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="bg-green-50 rounded-xl p-6">
+                        <h4 class="text-xl font-bold text-green-800 mb-4">2. Perbandingan Struktur Data (25 poin)</h4>
+                        <p class="text-green-700 mb-4 mobile-text">Bandingkan antara Array dan Linked List. Sebutkan minimal 2 kelebihan dan 2 kekurangan masing-masing. Kapan sebaiknya menggunakan Array dan kapan menggunakan Linked List?</p>
+                        <textarea class="w-full h-32 p-4 border-2 border-green-300 rounded-lg focus:border-green-500 outline-none mobile-text" placeholder="Tulis jawaban Anda di sini..."></textarea>
                     </div>
 
-                    <div class="bg-gradient-to-r from-pink-400 to-purple-400 rounded-3xl p-8 text-white">
-                        <div class="text-4xl mb-4">💡</div>
-                        <h3 class="text-2xl font-bold mb-4">Tips Memilih Struktur Data</h3>
-                        <div class="grid md:grid-cols-2 gap-6 text-lg">
-                            <div>
-                                <p class="mb-2">🤔 <strong>Pertimbangkan kebutuhan:</strong> Apa yang sering dilakukan?</p>
-                                <p class="mb-2">⚡ <strong>Perhatikan efisiensi:</strong> Seberapa cepat operasinya?</p>
-                            </div>
-                            <div>
-                                <p class="mb-2">💾 <strong>Ukur memori:</strong> Berapa banyak ruang yang dibutuhkan?</p>
-                                <p class="mb-2">🔮 <strong>Pikirkan masa depan:</strong> Apakah data akan bertambah?</p>
-                            </div>
-                        </div>
+                    <div class="bg-purple-50 rounded-xl p-6">
+                        <h4 class="text-xl font-bold text-purple-800 mb-4">3. Implementasi Stack (25 poin)</h4>
+                        <p class="text-purple-700 mb-4 mobile-text">Anda diminta membuat fitur "Undo" dalam aplikasi text editor. Jelaskan bagaimana Anda akan menggunakan struktur data Stack untuk mengimplementasikan fitur ini. Berikan contoh langkah-langkahnya!</p>
+                        <textarea class="w-full h-32 p-4 border-2 border-purple-300 rounded-lg focus:border-purple-500 outline-none mobile-text" placeholder="Tulis jawaban Anda di sini..."></textarea>
+                    </div>
+
+                    <div class="bg-orange-50 rounded-xl p-6">
+                        <h4 class="text-xl font-bold text-orange-800 mb-4">4. Aplikasi Queue (25 poin)</h4>
+                        <p class="text-orange-700 mb-4 mobile-text">Sebuah restoran fast food ingin membuat sistem antrian digital untuk pelanggan. Jelaskan bagaimana struktur data Queue dapat digunakan untuk sistem ini. Apa operasi-operasi yang diperlukan?</p>
+                        <textarea class="w-full h-32 p-4 border-2 border-orange-300 rounded-lg focus:border-orange-500 outline-none mobile-text" placeholder="Tulis jawaban Anda di sini..."></textarea>
                     </div>
                 </div>
-            </div>
 
-            <!-- Jenis Struktur Data Section -->
-            <div id="jenis-struktur" class="section hidden fade-in">
-                <div class="text-center mb-12">
-                    <div class="text-6xl mb-4">🏗️</div>
-                    <h1 class="text-4xl lg:text-5xl font-bold text-purple-800 mb-4">Jenis-Jenis Struktur Data</h1>
-                    <p class="text-xl text-purple-600">Mengenal berbagai macam struktur data!</p>
-                </div>
-
-                <div class="space-y-8">
-                    <!-- Array -->
-                    <div class="bg-white rounded-3xl p-8 shadow-lg card-hover">
-                        <div class="flex items-center mb-6">
-                            <div class="text-4xl mr-4">📊</div>
-                            <h2 class="text-3xl font-bold text-blue-800">Array (Larik)</h2>
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-8">
-                            <div>
-                                <p class="text-lg text-gray-700 mb-4">
-                                    Array adalah kumpulan elemen yang disimpan dalam lokasi memori yang berurutan. 
-                                    Setiap elemen dapat diakses menggunakan indeks.
-                                </p>
-                                
-                                <div class="bg-blue-50 p-4 rounded-lg mb-4">
-                                    <h4 class="font-bold text-blue-800 mb-2">Karakteristik:</h4>
-                                    <ul class="space-y-1 text-sm">
-                                        <li>✓ Ukuran tetap</li>
-                                        <li>✓ Akses langsung dengan indeks</li>
-                                        <li>✓ Elemen bertipe sama</li>
-                                        <li>✓ Memori berurutan</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <h4 class="font-bold mb-2">Visualisasi Array:</h4>
-                                    <div class="flex space-x-2 mb-2">
-                                        <div class="bg-blue-200 p-2 rounded text-center text-sm">10</div>
-                                        <div class="bg-blue-200 p-2 rounded text-center text-sm">25</div>
-                                        <div class="bg-blue-200 p-2 rounded text-center text-sm">30</div>
-                                        <div class="bg-blue-200 p-2 rounded text-center text-sm">45</div>
-                                        <div class="bg-blue-200 p-2 rounded text-center text-sm">50</div>
-                                    </div>
-                                    <div class="flex space-x-2 text-xs text-gray-600">
-                                        <div class="p-2 text-center">[0]</div>
-                                        <div class="p-2 text-center">[1]</div>
-                                        <div class="p-2 text-center">[2]</div>
-                                        <div class="p-2 text-center">[3]</div>
-                                        <div class="p-2 text-center">[4]</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-4 text-sm text-gray-600">
-                                    <strong>Contoh penggunaan:</strong> Daftar nilai siswa, koordinat titik, data sensor
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Linked List -->
-                    <div class="bg-white rounded-3xl p-8 shadow-lg card-hover">
-                        <div class="flex items-center mb-6">
-                            <div class="text-4xl mr-4">🔗</div>
-                            <h2 class="text-3xl font-bold text-green-800">Linked List</h2>
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-8">
-                            <div>
-                                <p class="text-lg text-gray-700 mb-4">
-                                    Linked List adalah struktur data linear di mana elemen-elemen (node) 
-                                    dihubungkan menggunakan pointer atau referensi.
-                                </p>
-                                
-                                <div class="bg-green-50 p-4 rounded-lg mb-4">
-                                    <h4 class="font-bold text-green-800 mb-2">Karakteristik:</h4>
-                                    <ul class="space-y-1 text-sm">
-                                        <li>✓ Ukuran dinamis</li>
-                                        <li>✓ Akses berurutan</li>
-                                        <li>✓ Mudah insert/delete</li>
-                                        <li>✓ Memori tidak berurutan</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <h4 class="font-bold mb-2">Visualisasi Linked List:</h4>
-                                    <div class="flex items-center space-x-2 mb-2">
-                                        <div class="bg-green-200 p-2 rounded text-center text-sm">A</div>
-                                        <div class="text-sm">→</div>
-                                        <div class="bg-green-200 p-2 rounded text-center text-sm">B</div>
-                                        <div class="text-sm">→</div>
-                                        <div class="bg-green-200 p-2 rounded text-center text-sm">C</div>
-                                        <div class="text-sm">→</div>
-                                        <div class="bg-gray-300 p-2 rounded text-center text-sm">NULL</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-4 text-sm text-gray-600">
-                                    <strong>Contoh penggunaan:</strong> Playlist musik, history browser, undo/redo
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Stack -->
-                    <div class="bg-white rounded-3xl p-8 shadow-lg card-hover">
-                        <div class="flex items-center mb-6">
-                            <div class="text-4xl mr-4">📚</div>
-                            <h2 class="text-3xl font-bold text-purple-800">Stack (Tumpukan)</h2>
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-8">
-                            <div>
-                                <p class="text-lg text-gray-700 mb-4">
-                                    Stack adalah struktur data yang mengikuti prinsip LIFO (Last In, First Out). 
-                                    Seperti tumpukan piring, yang terakhir ditaruh akan pertama diambil.
-                                </p>
-                                
-                                <div class="bg-purple-50 p-4 rounded-lg mb-4">
-                                    <h4 class="font-bold text-purple-800 mb-2">Operasi Utama:</h4>
-                                    <ul class="space-y-1 text-sm">
-                                        <li>✓ Push (menambah ke atas)</li>
-                                        <li>✓ Pop (mengambil dari atas)</li>
-                                        <li>✓ Top/Peek (melihat elemen teratas)</li>
-                                        <li>✓ isEmpty (cek kosong)</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <h4 class="font-bold mb-2">Visualisasi Stack:</h4>
-                                    <div class="space-y-1">
-                                        <div class="bg-purple-200 p-2 rounded text-center text-sm">30 ← Top</div>
-                                        <div class="bg-purple-200 p-2 rounded text-center text-sm">20</div>
-                                        <div class="bg-purple-200 p-2 rounded text-center text-sm">10</div>
-                                        <div class="bg-gray-300 p-2 rounded text-center text-sm">Bottom</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-4 text-sm text-gray-600">
-                                    <strong>Contoh penggunaan:</strong> Undo/Redo, function call, expression evaluation
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Queue -->
-                    <div class="bg-white rounded-3xl p-8 shadow-lg card-hover">
-                        <div class="flex items-center mb-6">
-                            <div class="text-4xl mr-4">🚶‍♂️</div>
-                            <h2 class="text-3xl font-bold text-orange-800">Queue (Antrian)</h2>
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-8">
-                            <div>
-                                <p class="text-lg text-gray-700 mb-4">
-                                    Queue adalah struktur data yang mengikuti prinsip FIFO (First In, First Out). 
-                                    Seperti antrian di kasir, yang pertama datang akan pertama dilayani.
-                                </p>
-                                
-                                <div class="bg-orange-50 p-4 rounded-lg mb-4">
-                                    <h4 class="font-bold text-orange-800 mb-2">Operasi Utama:</h4>
-                                    <ul class="space-y-1 text-sm">
-                                        <li>✓ Enqueue (menambah di belakang)</li>
-                                        <li>✓ Dequeue (mengambil dari depan)</li>
-                                        <li>✓ Front (melihat elemen depan)</li>
-                                        <li>✓ isEmpty (cek kosong)</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <h4 class="font-bold mb-2">Visualisasi Queue:</h4>
-                                    <div class="flex items-center space-x-2">
-                                        <div class="text-sm">Front →</div>
-                                        <div class="bg-orange-200 p-2 rounded text-center text-sm">A</div>
-                                        <div class="bg-orange-200 p-2 rounded text-center text-sm">B</div>
-                                        <div class="bg-orange-200 p-2 rounded text-center text-sm">C</div>
-                                        <div class="text-sm">← Rear</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-4 text-sm text-gray-600">
-                                    <strong>Contoh penggunaan:</strong> Print queue, task scheduling, BFS algorithm
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tree -->
-                    <div class="bg-white rounded-3xl p-8 shadow-lg card-hover">
-                        <div class="flex items-center mb-6">
-                            <div class="text-4xl mr-4">🌳</div>
-                            <h2 class="text-3xl font-bold text-green-800">Tree (Pohon)</h2>
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-8">
-                            <div>
-                                <p class="text-lg text-gray-700 mb-4">
-                                    Tree adalah struktur data hierarkis yang terdiri dari node-node yang 
-                                    terhubung dalam bentuk seperti pohon terbalik.
-                                </p>
-                                
-                                <div class="bg-green-50 p-4 rounded-lg mb-4">
-                                    <h4 class="font-bold text-green-800 mb-2">Komponen:</h4>
-                                    <ul class="space-y-1 text-sm">
-                                        <li>✓ Root (akar)</li>
-                                        <li>✓ Parent & Child (induk & anak)</li>
-                                        <li>✓ Leaf (daun)</li>
-                                        <li>✓ Level & Height</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <div class="bg-gray-50 p-4 rounded-lg">
-                                    <h4 class="font-bold mb-2">Visualisasi Tree:</h4>
-                                    <div class="text-center space-y-2 text-sm">
-                                        <div class="bg-green-200 p-2 rounded inline-block">A (Root)</div>
-                                        <div class="flex justify-center space-x-4">
-                                            <div class="bg-green-200 p-2 rounded">B</div>
-                                            <div class="bg-green-200 p-2 rounded">C</div>
-                                        </div>
-                                        <div class="flex justify-center space-x-2">
-                                            <div class="bg-green-200 p-1 rounded text-xs">D</div>
-                                            <div class="bg-green-200 p-1 rounded text-xs">E</div>
-                                            <div class="bg-green-200 p-1 rounded text-xs">F</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-4 text-sm text-gray-600">
-                                    <strong>Contoh penggunaan:</strong> File system, decision tree, HTML DOM
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Implementasi Section -->
-            <div id="implementasi" class="section hidden fade-in">
-                <div class="text-center mb-12">
-                    <div class="text-6xl mb-4">💻</div>
-                    <h1 class="text-4xl lg:text-5xl font-bold text-purple-800 mb-4">Implementasi Struktur Data</h1>
-                    <p class="text-xl text-purple-600">Mari lihat bagaimana struktur data bekerja dalam kode!</p>
-                </div>
-
-                <div class="space-y-8">
-                    <!-- Array Implementation -->
-                    <div class="bg-white rounded-3xl p-8 shadow-lg">
-                        <div class="flex items-center mb-6">
-                            <div class="text-4xl mr-4">📊</div>
-                            <h2 class="text-3xl font-bold text-blue-800">Implementasi Array</h2>
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-8">
-                            <div>
-                                <h4 class="text-xl font-bold text-blue-800 mb-4">Contoh dalam JavaScript:</h4>
-                                <div class="bg-gray-900 text-green-400 p-4 rounded-lg text-sm font-mono overflow-x-auto">
-                                    <div class="text-gray-400">// Membuat array</div>
-                                    <div>let nilai = [85, 90, 78, 92, 88];</div>
-                                    <br>
-                                    <div class="text-gray-400">// Mengakses elemen</div>
-                                    <div>console.log(nilai[0]); // 85</div>
-                                    <br>
-                                    <div class="text-gray-400">// Mengubah elemen</div>
-                                    <div>nilai[2] = 80;</div>
-                                    <br>
-                                    <div class="text-gray-400">// Menambah elemen</div>
-                                    <div>nilai.push(95);</div>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <h4 class="text-xl font-bold text-blue-800 mb-4">Operasi Array:</h4>
-                                <div class="space-y-3">
-                                    <div class="bg-blue-50 p-3 rounded-lg">
-                                        <strong>Akses:</strong> O(1) - Sangat cepat
-                                        <br><small>Langsung ke indeks yang diinginkan</small>
-                                    </div>
-                                    <div class="bg-blue-50 p-3 rounded-lg">
-                                        <strong>Pencarian:</strong> O(n) - Linear
-                                        <br><small>Harus cek satu per satu</small>
-                                    </div>
-                                    <div class="bg-blue-50 p-3 rounded-lg">
-                                        <strong>Insert/Delete:</strong> O(n) - Lambat
-                                        <br><small>Harus geser elemen lain</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Stack Implementation -->
-                    <div class="bg-white rounded-3xl p-8 shadow-lg">
-                        <div class="flex items-center mb-6">
-                            <div class="text-4xl mr-4">📚</div>
-                            <h2 class="text-3xl font-bold text-purple-800">Implementasi Stack</h2>
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-8">
-                            <div>
-                                <h4 class="text-xl font-bold text-purple-800 mb-4">Contoh dalam JavaScript:</h4>
-                                <div class="bg-gray-900 text-green-400 p-4 rounded-lg text-sm font-mono overflow-x-auto">
-                                    <div class="text-gray-400">// Membuat stack</div>
-                                    <div>let stack = [];</div>
-                                    <br>
-                                    <div class="text-gray-400">// Push (menambah)</div>
-                                    <div>stack.push(10);</div>
-                                    <div>stack.push(20);</div>
-                                    <div>stack.push(30);</div>
-                                    <br>
-                                    <div class="text-gray-400">// Pop (mengambil)</div>
-                                    <div>let top = stack.pop(); // 30</div>
-                                    <br>
-                                    <div class="text-gray-400">// Peek (melihat teratas)</div>
-                                    <div>let peek = stack[stack.length-1];</div>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <h4 class="text-xl font-bold text-purple-800 mb-4">Contoh Aplikasi:</h4>
-                                <div class="space-y-4">
-                                    <div class="bg-purple-50 p-4 rounded-lg">
-                                        <strong>🔙 Undo/Redo Function</strong>
-                                        <p class="text-sm mt-2">Setiap aksi disimpan di stack. Undo = pop dari stack aksi.</p>
-                                    </div>
-                                    <div class="bg-purple-50 p-4 rounded-lg">
-                                        <strong>🧮 Evaluasi Ekspresi</strong>
-                                        <p class="text-sm mt-2">Menghitung (2+3)*4 menggunakan stack untuk operator.</p>
-                                    </div>
-                                    <div class="bg-purple-50 p-4 rounded-lg">
-                                        <strong>📞 Function Call</strong>
-                                        <p class="text-sm mt-2">Setiap pemanggilan fungsi masuk ke call stack.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Interactive Demo -->
-                    <div class="bg-gradient-to-r from-indigo-400 to-purple-400 rounded-3xl p-8 text-white">
-                        <div class="text-center mb-8">
-                            <div class="text-4xl mb-4">🎮</div>
-                            <h2 class="text-3xl font-bold mb-4">Demo Interaktif Stack</h2>
-                            <p class="text-lg">Coba sendiri bagaimana stack bekerja!</p>
-                        </div>
-                        
-                        <div class="max-w-md mx-auto">
-                            <div class="bg-white rounded-lg p-6 text-gray-800">
-                                <div class="text-center mb-4">
-                                    <h4 class="font-bold text-lg">Stack Demo</h4>
-                                </div>
-                                
-                                <div id="stackDemo" class="min-h-32 bg-gray-100 rounded-lg p-4 mb-4 flex flex-col-reverse items-center justify-start space-y-reverse space-y-1">
-                                    <!-- Stack elements will appear here -->
-                                </div>
-                                
-                                <div class="flex space-x-2 mb-4">
-                                    <input type="number" id="stackInput" placeholder="Masukkan angka" class="flex-1 p-2 border rounded">
-                                    <button onclick="pushToStack()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Push</button>
-                                    <button onclick="popFromStack()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Pop</button>
-                                </div>
-                                
-                                <div id="stackStatus" class="text-center text-sm text-gray-600">
-                                    Stack kosong
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Best Practices -->
-                    <div class="bg-white rounded-3xl p-8 shadow-lg">
-                        <div class="flex items-center mb-6">
-                            <div class="text-4xl mr-4">💡</div>
-                            <h2 class="text-3xl font-bold text-green-800">Tips Implementasi</h2>
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-8">
-                            <div>
-                                <h4 class="text-xl font-bold text-green-800 mb-4">✅ Yang Harus Dilakukan:</h4>
-                                <ul class="space-y-3">
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-2 mt-1">✓</span>
-                                        <span>Pilih struktur data sesuai kebutuhan</span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-2 mt-1">✓</span>
-                                        <span>Pertimbangkan kompleksitas waktu dan ruang</span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-2 mt-1">✓</span>
-                                        <span>Buat kode yang mudah dibaca dan dipahami</span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <span class="text-green-500 mr-2 mt-1">✓</span>
-                                        <span>Test dengan berbagai kasus</span>
-                                    </li>
-                                </ul>
-                            </div>
-                            
-                            <div>
-                                <h4 class="text-xl font-bold text-red-800 mb-4">❌ Yang Harus Dihindari:</h4>
-                                <ul class="space-y-3">
-                                    <li class="flex items-start">
-                                        <span class="text-red-500 mr-2 mt-1">✗</span>
-                                        <span>Menggunakan struktur data yang tidak efisien</span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <span class="text-red-500 mr-2 mt-1">✗</span>
-                                        <span>Mengabaikan batas memori</span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <span class="text-red-500 mr-2 mt-1">✗</span>
-                                        <span>Tidak menangani kasus error</span>
-                                    </li>
-                                    <li class="flex items-start">
-                                        <span class="text-red-500 mr-2 mt-1">✗</span>
-                                        <span>Membuat kode yang terlalu kompleks</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tugas Section -->
-            <div id="tugas" class="section hidden fade-in">
-                <div class="text-center mb-12">
-                    <div class="text-6xl mb-4">📝</div>
-                    <h1 class="text-4xl lg:text-5xl font-bold text-orange-800 mb-4">Tugas Pembelajaran</h1>
-                    <p class="text-xl text-orange-600">Saatnya menguji pemahaman kamu!</p>
-                </div>
-
-                <div class="space-y-8">
-                    <div class="bg-white rounded-3xl p-8 shadow-lg">
-                        <h2 class="text-3xl font-bold text-orange-800 mb-6 flex items-center">
-                            🎯 Soal Essay
-                        </h2>
-                        
-                        <div class="space-y-8">
-                            <div class="border-l-4 border-orange-400 pl-6">
-                                <h3 class="text-xl font-bold text-orange-800 mb-3">Soal 1: Analisis Kasus</h3>
-                                <div class="bg-orange-50 p-6 rounded-lg mb-4">
-                                    <p class="text-lg text-gray-700 mb-4">
-                                        Kamu diminta untuk membuat sistem manajemen perpustakaan digital. 
-                                        Sistem ini harus dapat menyimpan informasi buku, melacak peminjaman, 
-                                        dan mengelola antrian reservasi buku.
-                                    </p>
-                                    <p class="font-semibold text-orange-800">
-                                        Pertanyaan: Struktur data apa saja yang akan kamu gunakan untuk setiap fitur tersebut? 
-                                        Jelaskan alasan pemilihan masing-masing struktur data dan bagaimana implementasinya!
-                                    </p>
-                                </div>
-                                <textarea 
-                                    id="answer1" 
-                                    class="w-full h-32 p-4 border-2 border-orange-200 rounded-lg focus:border-orange-400 focus:outline-none"
-                                    placeholder="Tuliskan jawaban kamu di sini..."
-                                ></textarea>
-                            </div>
-
-                            <div class="border-l-4 border-blue-400 pl-6">
-                                <h3 class="text-xl font-bold text-blue-800 mb-3">Soal 2: Perbandingan Efisiensi</h3>
-                                <div class="bg-blue-50 p-6 rounded-lg mb-4">
-                                    <p class="text-lg text-gray-700 mb-4">
-                                        Sebuah aplikasi media sosial perlu menyimpan dan menampilkan postingan pengguna. 
-                                        Ada dua pilihan: menggunakan Array atau Linked List.
-                                    </p>
-                                    <p class="font-semibold text-blue-800">
-                                        Pertanyaan: Bandingkan kedua struktur data tersebut dalam konteks:
-                                        <br>a) Menambah postingan baru
-                                        <br>b) Menghapus postingan lama
-                                        <br>c) Mencari postingan tertentu
-                                        <br>d) Menampilkan semua postingan
-                                        <br>Struktur data mana yang lebih cocok dan mengapa?
-                                    </p>
-                                </div>
-                                <textarea 
-                                    id="answer2" 
-                                    class="w-full h-32 p-4 border-2 border-blue-200 rounded-lg focus:border-blue-400 focus:outline-none"
-                                    placeholder="Tuliskan jawaban kamu di sini..."
-                                ></textarea>
-                            </div>
-
-                            <div class="border-l-4 border-green-400 pl-6">
-                                <h3 class="text-xl font-bold text-green-800 mb-3">Soal 3: Desain Algoritma</h3>
-                                <div class="bg-green-50 p-6 rounded-lg mb-4">
-                                    <p class="text-lg text-gray-700 mb-4">
-                                        Kamu ingin membuat fitur "Undo" dan "Redo" untuk aplikasi text editor. 
-                                        Pengguna dapat melakukan berbagai aksi seperti mengetik, menghapus, 
-                                        memformat teks, dan sebagainya.
-                                    </p>
-                                    <p class="font-semibold text-green-800">
-                                        Pertanyaan: Rancang algoritma untuk fitur Undo/Redo menggunakan struktur data yang tepat. 
-                                        Jelaskan bagaimana cara kerja algoritma tersebut dan berikan contoh skenario penggunaannya!
-                                    </p>
-                                </div>
-                                <textarea 
-                                    id="answer3" 
-                                    class="w-full h-32 p-4 border-2 border-green-200 rounded-lg focus:border-green-400 focus:outline-none"
-                                    placeholder="Tuliskan jawaban kamu di sini..."
-                                ></textarea>
-                            </div>
-
-                            <div class="border-l-4 border-purple-400 pl-6">
-                                <h3 class="text-xl font-bold text-purple-800 mb-3">Soal 4: Studi Kasus Nyata</h3>
-                                <div class="bg-purple-50 p-6 rounded-lg mb-4">
-                                    <p class="text-lg text-gray-700 mb-4">
-                                        Perhatikan aplikasi-aplikasi berikut: WhatsApp, Instagram, Google Maps, 
-                                        dan Spotify. Setiap aplikasi menggunakan berbagai struktur data untuk 
-                                        fitur-fitur utamanya.
-                                    </p>
-                                    <p class="font-semibold text-purple-800">
-                                        Pertanyaan: Pilih salah satu aplikasi di atas, identifikasi minimal 3 fitur utamanya, 
-                                        dan jelaskan struktur data apa yang mungkin digunakan untuk setiap fitur tersebut. 
-                                        Berikan alasan yang logis untuk setiap pilihan!
-                                    </p>
-                                </div>
-                                <textarea 
-                                    id="answer4" 
-                                    class="w-full h-32 p-4 border-2 border-purple-200 rounded-lg focus:border-purple-400 focus:outline-none"
-                                    placeholder="Tuliskan jawaban kamu di sini..."
-                                ></textarea>
-                            </div>
-
-                            <div class="border-l-4 border-pink-400 pl-6">
-                                <h3 class="text-xl font-bold text-pink-800 mb-3">Soal 5: Optimasi dan Inovasi</h3>
-                                <div class="bg-pink-50 p-6 rounded-lg mb-4">
-                                    <p class="text-lg text-gray-700 mb-4">
-                                        Sebuah game online memiliki sistem ranking pemain yang harus diupdate 
-                                        secara real-time. Ada jutaan pemain dan ranking berubah setiap detik 
-                                        berdasarkan skor yang diperoleh.
-                                    </p>
-                                    <p class="font-semibold text-pink-800">
-                                        Pertanyaan: Bagaimana kamu akan merancang sistem ranking yang efisien? 
-                                        Struktur data apa yang akan digunakan? Bagaimana menangani update yang 
-                                        sangat sering? Jelaskan solusi kreatif kamu!
-                                    </p>
-                                </div>
-                                <textarea 
-                                    id="answer5" 
-                                    class="w-full h-32 p-4 border-2 border-pink-200 rounded-lg focus:border-pink-400 focus:outline-none"
-                                    placeholder="Tuliskan jawaban kamu di sini..."
-                                ></textarea>
-                            </div>
-                        </div>
-
-                        <div class="mt-8 text-center">
-                            <button 
-                                onclick="submitTugas()" 
-                                class="bg-gradient-to-r from-orange-400 to-pink-400 text-white px-8 py-3 rounded-full text-lg font-semibold hover:from-orange-500 hover:to-pink-500 transition-all duration-300 shadow-lg"
-                            >
-                                📤 Submit Tugas
-                            </button>
-                        </div>
-
-                        <div id="tugasResult" class="mt-6 hidden">
-                            <div class="bg-green-50 border-2 border-green-200 rounded-lg p-6">
-                                <div class="flex items-center mb-4">
-                                    <div class="text-3xl mr-3">✅</div>
-                                    <h3 class="text-xl font-bold text-green-800">Tugas Berhasil Dikumpulkan!</h3>
-                                </div>
-                                <p class="text-green-700">
-                                    Terima kasih telah mengerjakan tugas dengan baik. Jawaban kamu menunjukkan 
-                                    pemahaman yang mendalam tentang struktur data. Terus semangat belajar! 🎉
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tips Mengerjakan -->
-                    <div class="bg-gradient-to-r from-yellow-400 to-orange-400 rounded-3xl p-8 text-white">
-                        <div class="text-4xl mb-4">💡</div>
-                        <h3 class="text-2xl font-bold mb-4">Tips Mengerjakan Tugas</h3>
-                        <div class="grid md:grid-cols-2 gap-6 text-lg">
-                            <div>
-                                <p class="mb-2">🤔 <strong>Baca soal dengan teliti</strong> - Pahami apa yang diminta</p>
-                                <p class="mb-2">📝 <strong>Buat outline jawaban</strong> - Susun poin-poin utama dulu</p>
-                                <p class="mb-2">🔍 <strong>Berikan contoh konkret</strong> - Ilustrasikan dengan kasus nyata</p>
-                            </div>
-                            <div>
-                                <p class="mb-2">⚡ <strong>Jelaskan alasan</strong> - Mengapa memilih struktur data tertentu</p>
-                                <p class="mb-2">🎯 <strong>Fokus pada efisiensi</strong> - Pertimbangkan waktu dan ruang</p>
-                                <p class="mb-2">✨ <strong>Berpikir kreatif</strong> - Cari solusi inovatif</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Kuis Section -->
-            <div id="kuis" class="section hidden fade-in">
-                <div class="text-center mb-12">
-                    <div class="text-6xl mb-4">🎯</div>
-                    <h1 class="text-4xl lg:text-5xl font-bold text-green-800 mb-4">Kuis Struktur Data</h1>
-                    <p class="text-xl text-green-600">Uji pemahaman kamu dengan 10 soal menarik!</p>
-                </div>
-
-                <!-- Quiz Start Screen -->
-                <div id="quizStart" class="bg-white rounded-3xl p-8 shadow-lg text-center">
-                    <div class="text-6xl mb-6">🚀</div>
-                    <h2 class="text-3xl font-bold text-green-800 mb-6">Siap Memulai Kuis?</h2>
-                    <p class="text-lg text-gray-700 mb-8">
-                        Kuis ini terdiri dari 10 soal pilihan ganda tentang struktur data. 
-                        Masukkan nama kamu terlebih dahulu!
-                    </p>
-                    
-                    <div class="max-w-md mx-auto mb-8">
-                        <input 
-                            type="text" 
-                            id="studentName" 
-                            placeholder="Masukkan nama kamu..." 
-                            class="w-full p-4 text-lg border-2 border-green-200 rounded-lg focus:border-green-400 focus:outline-none"
-                        >
-                    </div>
-                    
-                    <button 
-                        onclick="startQuiz()" 
-                        class="bg-gradient-to-r from-green-400 to-blue-400 text-white px-8 py-4 rounded-full text-xl font-semibold hover:from-green-500 hover:to-blue-500 transition-all duration-300 shadow-lg"
-                    >
-                        🎯 Mulai Kuis
+                <div class="mt-8 text-center">
+                    <button onclick="submitTugas()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+                        Submit Tugas ✅
                     </button>
                 </div>
+            </div>
 
-                <!-- Quiz Questions -->
-                <div id="quizQuestions" class="hidden">
-                    <div class="bg-white rounded-3xl p-8 shadow-lg">
-                        <div class="flex justify-between items-center mb-8">
-                            <div class="text-lg font-semibold text-gray-600">
-                                Soal <span id="currentQuestion">1</span> dari 10
-                            </div>
-                            <div class="text-lg font-semibold text-green-600">
-                                Skor: <span id="currentScore">0</span>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-8">
-                            <div class="bg-green-100 rounded-full h-3 mb-4">
-                                <div id="progressBar" class="bg-green-500 h-3 rounded-full transition-all duration-300" style="width: 10%"></div>
-                            </div>
-                        </div>
+            <div class="text-center mt-12">
+                <button onclick="showSection('kuis'); window.scrollTo({top: 0, behavior: 'smooth'})" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+                    Lanjut ke Kuis 🧠
+                </button>
+            </div>
+        </section>
 
-                        <div id="questionContainer">
-                            <!-- Questions will be loaded here -->
-                        </div>
+        <!-- Kuis Section -->
+        <section id="kuis" class="section hidden max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 fade-in">
+                <div class="text-6xl mb-4">🧠</div>
+                <h2 class="text-4xl md:text-5xl font-bold text-purple-800 mb-6 mobile-title">Kuis Interaktif</h2>
+            </div>
 
-                        <div class="mt-8 flex justify-between">
-                            <button 
-                                id="prevBtn" 
-                                onclick="previousQuestion()" 
-                                class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition-colors disabled:opacity-50"
-                                disabled
-                            >
-                                ← Sebelumnya
-                            </button>
-                            <button 
-                                id="nextBtn" 
-                                onclick="nextQuestion()" 
-                                class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors"
-                            >
-                                Selanjutnya →
-                            </button>
-                        </div>
+            <!-- Input Nama -->
+            <div id="nama-input" class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg text-center">
+                <h3 class="text-2xl font-bold text-purple-800 mb-6">Masukkan Nama Anda</h3>
+                <input type="text" id="student-name" placeholder="Nama lengkap" class="px-6 py-4 text-lg border-2 border-purple-300 rounded-lg focus:border-purple-500 outline-none mb-6 w-full max-w-md">
+                <br>
+                <button onclick="startKuis()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+                    Mulai Kuis! 🚀
+                </button>
+            </div>
+
+            <!-- Kuis Questions -->
+            <div id="kuis-container" class="hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-purple-800">Pertanyaan <span id="question-number">1</span> dari 10</h3>
+                        <div class="text-lg font-semibold text-purple-600">Skor: <span id="current-score">0</span></div>
                     </div>
-                </div>
-
-                <!-- Quiz Results -->
-                <div id="quizResults" class="hidden">
-                    <div class="bg-white rounded-3xl p-8 shadow-lg text-center">
-                        <div id="resultIcon" class="text-8xl mb-6">🎉</div>
-                        <h2 class="text-4xl font-bold text-green-800 mb-4">Selamat!</h2>
-                        <div class="text-2xl text-gray-700 mb-2">
-                            <strong id="finalName"></strong>
-                        </div>
-                        <div class="text-3xl font-bold text-green-600 mb-6">
-                            Skor Akhir: <span id="finalScore">0</span>/100
-                        </div>
-                        
-                        <div id="scoreMessage" class="text-lg text-gray-700 mb-8 p-6 rounded-lg">
-                            <!-- Score message will be inserted here -->
-                        </div>
-
-                        <div class="grid md:grid-cols-2 gap-6 mb-8">
-                            <div class="bg-green-50 p-6 rounded-lg">
-                                <div class="text-3xl mb-2">✅</div>
-                                <div class="text-xl font-bold text-green-800">Jawaban Benar</div>
-                                <div class="text-2xl font-bold text-green-600" id="correctAnswers">0</div>
-                            </div>
-                            <div class="bg-red-50 p-6 rounded-lg">
-                                <div class="text-3xl mb-2">❌</div>
-                                <div class="text-xl font-bold text-red-800">Jawaban Salah</div>
-                                <div class="text-2xl font-bold text-red-600" id="wrongAnswers">0</div>
-                            </div>
-                        </div>
-
-                        <button 
-                            onclick="restartQuiz()" 
-                            class="bg-gradient-to-r from-blue-400 to-purple-400 text-white px-8 py-4 rounded-full text-xl font-semibold hover:from-blue-500 hover:to-purple-500 transition-all duration-300 shadow-lg"
-                        >
-                            🔄 Ulangi Kuis
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl p-6 mb-6">
+                        <p id="question-text" class="text-lg font-semibold text-purple-800 mobile-text"></p>
+                    </div>
+                    
+                    <div id="options-container" class="space-y-4 mb-8">
+                        <!-- Options will be inserted here -->
+                    </div>
+                    
+                    <div class="text-center">
+                        <button id="next-btn" onclick="nextQuestion()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105 hidden">
+                            Pertanyaan Selanjutnya
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Penutup Section -->
-            <div id="penutup" class="section hidden fade-in">
-                <div class="text-center mb-12">
-                    <div class="text-6xl mb-4">🎉</div>
-                    <h1 class="text-4xl lg:text-5xl font-bold text-blue-800 mb-4">Penutup Pembelajaran</h1>
-                    <p class="text-xl text-blue-600">Selamat! Kamu telah menyelesaikan pembelajaran struktur data!</p>
-                </div>
-
-                <div class="space-y-8">
-                    <div class="bg-white rounded-3xl p-8 shadow-lg">
-                        <div class="flex items-center mb-6">
-                            <div class="text-4xl mr-4">🤔</div>
-                            <h2 class="text-3xl font-bold text-blue-800">Refleksi</h2>
-                        </div>
-                        
-                        <div class="space-y-6">
-                            <div class="bg-blue-50 p-6 rounded-lg">
-                                <h4 class="text-xl font-bold text-blue-800 mb-4">Mari Refleksikan Pembelajaran Kita:</h4>
-                                <div class="space-y-4">
-                                    <div class="flex items-start">
-                                        <span class="text-blue-500 mr-3 mt-1">💭</span>
-                                        <div>
-                                            <strong>Apa yang paling menarik dari pembelajaran ini?</strong>
-                                            <p class="text-gray-700 mt-1">Mungkin kamu terkejut betapa pentingnya struktur data dalam kehidupan sehari-hari?</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start">
-                                        <span class="text-blue-500 mr-3 mt-1">🧠</span>
-                                        <div>
-                                            <strong>Konsep mana yang paling mudah dipahami?</strong>
-                                            <p class="text-gray-700 mt-1">Array mungkin yang paling familiar, atau justru Stack yang paling logis?</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start">
-                                        <span class="text-blue-500 mr-3 mt-1">🤯</span>
-                                        <div>
-                                            <strong>Bagian mana yang masih perlu diperdalam?</strong>
-                                            <p class="text-gray-700 mt-1">Implementasi Tree mungkin masih terasa kompleks? Itu normal!</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start">
-                                        <span class="text-blue-500 mr-3 mt-1">🚀</span>
-                                        <div>
-                                            <strong>Bagaimana kamu akan menerapkan pengetahuan ini?</strong>
-                                            <p class="text-gray-700 mt-1">Mulai dari project kecil atau analisis aplikasi yang sering kamu gunakan?</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-3xl p-8 shadow-lg">
-                        <div class="flex items-center mb-6">
-                            <div class="text-4xl mr-4">📚</div>
-                            <h2 class="text-3xl font-bold text-green-800">Kesimpulan Pembelajaran</h2>
-                        </div>
-                        
-                        <div class="space-y-6">
-                            <div class="bg-green-50 p-6 rounded-lg">
-                                <h4 class="text-xl font-bold text-green-800 mb-4">Apa yang Telah Kita Pelajari:</h4>
-                                <div class="grid md:grid-cols-2 gap-6">
-                                    <div>
-                                        <h5 class="font-bold text-green-700 mb-2">🎯 Konsep Fundamental</h5>
-                                        <ul class="space-y-1 text-sm text-gray-700">
-                                            <li>• Definisi dan pentingnya struktur data</li>
-                                            <li>• Karakteristik linear vs non-linear</li>
-                                            <li>• Static vs dynamic structures</li>
-                                            <li>• Kompleksitas waktu dan ruang</li>
-                                        </ul>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-bold text-green-700 mb-2">🏗️ Jenis-Jenis Struktur</h5>
-                                        <ul class="space-y-1 text-sm text-gray-700">
-                                            <li>• Array - akses cepat dengan indeks</li>
-                                            <li>• Linked List - fleksibilitas tinggi</li>
-                                            <li>• Stack - LIFO untuk undo/redo</li>
-                                            <li>• Queue - FIFO untuk antrian</li>
-                                            <li>• Tree - hierarki data</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-gradient-to-r from-green-400 to-blue-400 rounded-lg p-6 text-white">
-                                <h4 class="text-xl font-bold mb-3">🌟 Key Takeaways</h4>
-                                <div class="grid md:grid-cols-3 gap-4 text-sm">
-                                    <div class="text-center">
-                                        <div class="text-2xl mb-2">⚡</div>
-                                        <strong>Efisiensi Matters</strong>
-                                        <p class="mt-1">Pilih struktur data yang tepat untuk performa optimal</p>
-                                    </div>
-                                    <div class="text-center">
-                                        <div class="text-2xl mb-2">🎯</div>
-                                        <strong>Context is King</strong>
-                                        <p class="mt-1">Tidak ada struktur data yang sempurna untuk semua kasus</p>
-                                    </div>
-                                    <div class="text-center">
-                                        <div class="text-2xl mb-2">🚀</div>
-                                        <strong>Practice Makes Perfect</strong>
-                                        <p class="mt-1">Implementasi dan latihan adalah kunci penguasaan</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-3xl p-8 shadow-lg">
-                        <div class="flex items-center mb-6">
-                            <div class="text-4xl mr-4">🎯</div>
-                            <h2 class="text-3xl font-bold text-purple-800">Tindak Lanjut</h2>
-                        </div>
-                        
-                        <div class="space-y-6">
-                            <div class="bg-purple-50 p-6 rounded-lg">
-                                <h4 class="text-xl font-bold text-purple-800 mb-4">Langkah Selanjutnya untuk Mengembangkan Kemampuan:</h4>
-                                
-                                <div class="grid md:grid-cols-2 gap-8">
-                                    <div>
-                                        <h5 class="font-bold text-purple-700 mb-3">📖 Pembelajaran Lanjutan</h5>
-                                        <ul class="space-y-2 text-gray-700">
-                                            <li class="flex items-start">
-                                                <span class="text-purple-500 mr-2 mt-1">•</span>
-                                                <span>Pelajari algoritma sorting dan searching</span>
-                                            </li>
-                                            <li class="flex items-start">
-                                                <span class="text-purple-500 mr-2 mt-1">•</span>
-                                                <span>Eksplorasi struktur data advanced (Hash Table, Heap, Graph)</span>
-                                            </li>
-                                            <li class="flex items-start">
-                                                <span class="text-purple-500 mr-2 mt-1">•</span>
-                                                <span>Pelajari Big O Notation lebih mendalam</span>
-                                            </li>
-                                            <li class="flex items-start">
-                                                <span class="text-purple-500 mr-2 mt-1">•</span>
-                                                <span>Baca tentang Database dan indexing</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    
-                                    <div>
-                                        <h5 class="font-bold text-purple-700 mb-3">💻 Praktik Langsung</h5>
-                                        <ul class="space-y-2 text-gray-700">
-                                            <li class="flex items-start">
-                                                <span class="text-purple-500 mr-2 mt-1">•</span>
-                                                <span>Implementasikan struktur data dari scratch</span>
-                                            </li>
-                                            <li class="flex items-start">
-                                                <span class="text-purple-500 mr-2 mt-1">•</span>
-                                                <span>Buat project sederhana (To-Do List, Calculator)</span>
-                                            </li>
-                                            <li class="flex items-start">
-                                                <span class="text-purple-500 mr-2 mt-1">•</span>
-                                                <span>Latihan soal di platform coding (LeetCode, HackerRank)</span>
-                                            </li>
-                                            <li class="flex items-start">
-                                                <span class="text-purple-500 mr-2 mt-1">•</span>
-                                                <span>Analisis aplikasi favorit kamu</span>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-gradient-to-r from-pink-400 to-purple-400 rounded-lg p-6 text-white">
-                                <div class="text-center">
-                                    <div class="text-4xl mb-4">🏆</div>
-                                    <h4 class="text-2xl font-bold mb-3">Selamat!</h4>
-                                    <p class="text-lg mb-4">
-                                        Kamu telah menyelesaikan pembelajaran dasar struktur data dengan baik! 
-                                        Ini adalah fondasi yang sangat penting untuk menjadi programmer yang handal.
-                                    </p>
-                                    <div class="bg-white bg-opacity-20 rounded-lg p-4 mt-6">
-                                        <p class="text-sm">
-                                            💡 <strong>Remember:</strong> "The best way to learn data structures is to implement them yourself. 
-                                            Start small, think big, and never stop coding!" 🚀
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="text-center">
-                                <button 
-                                    onclick="showSection('intro')" 
-                                    class="bg-gradient-to-r from-blue-400 to-purple-400 text-white px-8 py-4 rounded-full text-xl font-semibold hover:from-blue-500 hover:to-purple-500 transition-all duration-300 shadow-lg"
-                                >
-                                    🔄 Kembali ke Awal
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Next Button -->
-            <div id="nextButton" class="mt-12 text-center">
-                <button 
-                    onclick="nextSection()" 
-                    class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg"
-                >
-                    Lanjut ke Materi Berikutnya →
+            <!-- Hasil Kuis -->
+            <div id="hasil-kuis" class="hidden bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg text-center">
+                <div class="text-6xl mb-4">🎉</div>
+                <h3 class="text-3xl font-bold text-purple-800 mb-4">Selamat!</h3>
+                <p class="text-xl text-purple-700 mb-4">Nama: <span id="final-name" class="font-bold"></span></p>
+                <p class="text-2xl font-bold text-purple-800 mb-6">Skor Akhir: <span id="final-score"></span>/100</p>
+                <div id="grade-message" class="text-lg mb-6"></div>
+                <button onclick="resetKuis()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105 mr-4">
+                    Ulangi Kuis
                 </button>
             </div>
-        </div>
-    </div>
 
-    <!-- Back to Top Button -->
-    <button 
-        id="backToTop" 
-        onclick="scrollToTop()" 
-        class="fixed bottom-6 right-6 bg-purple-500 text-white p-4 rounded-full shadow-lg hover:bg-purple-600 transition-all duration-300 opacity-0 pointer-events-none"
-    >
+            <div class="text-center mt-12">
+                <button onclick="showSection('penutup'); window.scrollTo({top: 0, behavior: 'smooth'})" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+                    Lanjut ke Penutup 🎯
+                </button>
+            </div>
+        </section>
+
+        <!-- Penutup Section -->
+        <section id="penutup" class="section hidden max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 fade-in">
+                <div class="text-6xl mb-4">🎯</div>
+                <h2 class="text-4xl md:text-5xl font-bold text-purple-800 mb-6 mobile-title">Penutup Pembelajaran</h2>
+            </div>
+
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-lg">
+                <h3 class="text-2xl font-bold text-purple-800 mb-6 flex items-center">
+                    <span class="text-3xl mr-3">🤔</span>
+                    Refleksi Pembelajaran
+                </h3>
+                <div class="space-y-4">
+                    <div class="bg-blue-50 rounded-xl p-6">
+                        <h4 class="text-xl font-bold text-blue-800 mb-4">Apa yang sudah kamu pelajari hari ini?</h4>
+                        <textarea class="w-full h-24 p-4 border-2 border-blue-300 rounded-lg focus:border-blue-500 outline-none mobile-text" placeholder="Tulis refleksi Anda..."></textarea>
+                    </div>
+                    <div class="bg-green-50 rounded-xl p-6">
+                        <h4 class="text-xl font-bold text-green-800 mb-4">Bagian mana yang paling menarik?</h4>
+                        <textarea class="w-full h-24 p-4 border-2 border-green-300 rounded-lg focus:border-green-500 outline-none mobile-text" placeholder="Tulis refleksi Anda..."></textarea>
+                    </div>
+                    <div class="bg-purple-50 rounded-xl p-6">
+                        <h4 class="text-xl font-bold text-purple-800 mb-4">Apa yang masih ingin kamu pelajari lebih lanjut?</h4>
+                        <textarea class="w-full h-24 p-4 border-2 border-purple-300 rounded-lg focus:border-purple-500 outline-none mobile-text" placeholder="Tulis refleksi Anda..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-green-200 to-blue-200 rounded-2xl p-8 mb-8 shadow-lg">
+                <h3 class="text-2xl font-bold text-green-800 mb-6 flex items-center">
+                    <span class="text-3xl mr-3">📚</span>
+                    Kesimpulan Pembelajaran
+                </h3>
+                <div class="grid md:grid-cols-2 gap-6 mobile-text">
+                    <div>
+                        <h4 class="text-xl font-bold text-green-800 mb-4">Yang Telah Dipelajari:</h4>
+                        <ul class="space-y-2 text-green-700">
+                            <li>✅ Konsep dasar struktur data</li>
+                            <li>✅ Array dan karakteristiknya</li>
+                            <li>✅ Stack (LIFO) dan penggunaannya</li>
+                            <li>✅ Queue (FIFO) dan implementasinya</li>
+                            <li>✅ Linked List dan fleksibilitasnya</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold text-green-800 mb-4">Keterampilan yang Diperoleh:</h4>
+                        <ul class="space-y-2 text-green-700">
+                            <li>🎯 Memilih struktur data yang tepat</li>
+                            <li>🎯 Memahami kelebihan dan kekurangan</li>
+                            <li>🎯 Mengimplementasikan konsep dasar</li>
+                            <li>🎯 Menerapkan dalam kehidupan sehari-hari</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-yellow-200 to-orange-200 rounded-2xl p-8 shadow-lg">
+                <h3 class="text-2xl font-bold text-orange-800 mb-6 flex items-center">
+                    <span class="text-3xl mr-3">🚀</span>
+                    Tindak Lanjut
+                </h3>
+                <div class="grid md:grid-cols-3 gap-4 desktop-text">
+                    <div class="bg-white/60 rounded-lg p-4 text-center">
+                        <div class="text-3xl mb-2">💻</div>
+                        <h4 class="font-bold text-orange-800 mb-2">Praktik Coding</h4>
+                        <p class="text-orange-700">Implementasikan struktur data dalam bahasa pemrograman</p>
+                    </div>
+                    <div class="bg-white/60 rounded-lg p-4 text-center">
+                        <div class="text-3xl mb-2">📖</div>
+                        <h4 class="font-bold text-orange-800 mb-2">Pelajari Lebih Lanjut</h4>
+                        <p class="text-orange-700">Tree, Graph, Hash Table, dan struktur data lainnya</p>
+                    </div>
+                    <div class="bg-white/60 rounded-lg p-4 text-center">
+                        <div class="text-3xl mb-2">🎯</div>
+                        <h4 class="font-bold text-orange-800 mb-2">Proyek Nyata</h4>
+                        <p class="text-orange-700">Buat aplikasi sederhana menggunakan struktur data</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-12">
+                <div class="text-6xl mb-4">🎉</div>
+                <h3 class="text-3xl font-bold text-purple-800 mb-4">Selamat!</h3>
+                <p class="text-xl text-purple-700 mb-8 mobile-text">Kamu telah menyelesaikan pembelajaran Konsep Dasar Struktur Data!</p>
+                <button onclick="showSection('intro'); window.scrollTo({top: 0, behavior: 'smooth'})" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+                    Kembali ke Awal 🔄
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-6 right-6 bg-purple-600 hover:bg-purple-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-110 z-40 hidden">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
         </svg>
@@ -1413,168 +720,68 @@
 
     <script>
         // Global variables
-        let currentSectionIndex = 0;
-        let stackArray = [];
-        let quizData = [];
-        let currentQuizQuestion = 0;
-        let quizScore = 0;
-        let userAnswers = [];
+        let currentSection = 'intro';
+        let arrayData = [10, 25, 30, 45, 50];
+        let stackData = ['A', 'B', 'C'];
+        let queueData = ['1', '2', '3'];
+        let kuisData = [];
+        let currentQuestion = 0;
+        let score = 0;
         let studentName = '';
 
-        const sections = ['intro', 'pengenalan', 'konsep-dasar', 'jenis-struktur', 'implementasi', 'tugas', 'kuis', 'penutup'];
-
-        // Quiz questions data
-        const quizQuestions = [
+        // Quiz questions
+        const questions = [
             {
                 question: "Apa yang dimaksud dengan struktur data?",
-                options: [
-                    "Cara mengorganisir dan menyimpan data dalam komputer",
-                    "Program untuk membuat database",
-                    "Bahasa pemrograman khusus",
-                    "Algoritma untuk mengurutkan data"
-                ],
-                correct: 0,
-                explanation: "Struktur data adalah cara mengorganisir, menyimpan, dan mengatur data dalam komputer sehingga dapat digunakan secara efisien."
+                options: ["Cara menyimpan file di komputer", "Cara mengorganisir dan menyimpan data", "Bahasa pemrograman", "Sistem operasi"],
+                correct: 1
             },
             {
-                question: "Manakah yang merupakan karakteristik utama dari Array?",
-                options: [
-                    "Ukuran dinamis dan akses berurutan",
-                    "Ukuran tetap dan akses langsung dengan indeks",
-                    "Menggunakan pointer untuk menghubungkan elemen",
-                    "Mengikuti prinsip LIFO"
-                ],
-                correct: 1,
-                explanation: "Array memiliki ukuran tetap dan memungkinkan akses langsung ke elemen menggunakan indeks."
+                question: "Struktur data mana yang menggunakan prinsip LIFO?",
+                options: ["Array", "Queue", "Stack", "Linked List"],
+                correct: 2
             },
             {
-                question: "Prinsip apa yang digunakan oleh struktur data Stack?",
-                options: [
-                    "FIFO (First In, First Out)",
-                    "LIFO (Last In, First Out)",
-                    "Random Access",
-                    "Sequential Access"
-                ],
-                correct: 1,
-                explanation: "Stack menggunakan prinsip LIFO (Last In, First Out) - elemen yang terakhir masuk akan pertama keluar."
+                question: "Apa kepanjangan dari FIFO?",
+                options: ["First In, First Out", "Fast In, Fast Out", "Final In, Final Out", "First Input, First Output"],
+                correct: 0
             },
             {
-                question: "Operasi apa yang digunakan untuk menambahkan elemen ke dalam Stack?",
-                options: [
-                    "Enqueue",
-                    "Insert",
-                    "Push",
-                    "Add"
-                ],
-                correct: 2,
-                explanation: "Push adalah operasi untuk menambahkan elemen ke bagian atas Stack."
+                question: "Kelebihan utama Array adalah:",
+                options: ["Ukuran dinamis", "Akses data cepat dengan indeks", "Tidak perlu memori berurutan", "Penyisipan data cepat"],
+                correct: 1
             },
             {
-                question: "Struktur data mana yang paling cocok untuk implementasi fitur Undo/Redo?",
-                options: [
-                    "Array",
-                    "Queue",
-                    "Stack",
-                    "Linked List"
-                ],
-                correct: 2,
-                explanation: "Stack sangat cocok untuk Undo/Redo karena aksi terakhir yang dilakukan akan menjadi yang pertama di-undo (LIFO)."
+                question: "Operasi untuk menambah data ke Stack disebut:",
+                options: ["Enqueue", "Push", "Insert", "Add"],
+                correct: 1
             },
             {
-                question: "Apa perbedaan utama antara Array dan Linked List?",
-                options: [
-                    "Array lebih lambat dari Linked List",
-                    "Array menggunakan memori berurutan, Linked List tidak",
-                    "Linked List tidak bisa menyimpan data",
-                    "Array hanya bisa menyimpan angka"
-                ],
-                correct: 1,
-                explanation: "Array menyimpan elemen dalam memori yang berurutan, sedangkan Linked List menyimpan elemen di lokasi memori yang tidak harus berurutan dan dihubungkan dengan pointer."
+                question: "Dalam Queue, data baru ditambahkan di:",
+                options: ["Depan", "Belakang", "Tengah", "Mana saja"],
+                correct: 1
             },
             {
-                question: "Manakah contoh penggunaan Queue dalam kehidupan sehari-hari?",
-                options: [
-                    "Tumpukan buku di meja",
-                    "Antrian di kasir supermarket",
-                    "Susunan kartu dalam permainan",
-                    "Folder file di komputer"
-                ],
-                correct: 1,
-                explanation: "Antrian di kasir supermarket mengikuti prinsip FIFO - orang yang datang pertama akan dilayani pertama, sama seperti Queue."
+                question: "Linked List terdiri dari:",
+                options: ["Array berurutan", "Node yang saling terhubung", "Stack bertingkat", "Queue berlapis"],
+                correct: 1
             },
             {
-                question: "Apa keuntungan utama menggunakan Linked List dibanding Array?",
-                options: [
-                    "Akses elemen lebih cepat",
-                    "Menggunakan memori lebih sedikit",
-                    "Ukuran dapat berubah secara dinamis",
-                    "Lebih mudah dipahami"
-                ],
-                correct: 2,
-                explanation: "Linked List memiliki ukuran yang dinamis - dapat bertambah atau berkurang sesuai kebutuhan, tidak seperti Array yang ukurannya tetap."
+                question: "Kekurangan utama Linked List adalah:",
+                options: ["Ukuran tetap", "Akses data lambat", "Tidak bisa menyimpan data", "Hanya untuk angka"],
+                correct: 1
             },
             {
-                question: "Dalam struktur data Tree, apa yang dimaksud dengan 'Root'?",
-                options: [
-                    "Node yang paling bawah",
-                    "Node yang tidak memiliki anak",
-                    "Node yang paling atas/awal",
-                    "Node yang memiliki paling banyak anak"
-                ],
-                correct: 2,
-                explanation: "Root adalah node paling atas dalam Tree, merupakan titik awal dari seluruh struktur hierarki."
+                question: "Contoh penggunaan Stack dalam kehidupan sehari-hari:",
+                options: ["Antrian bank", "Tumpukan piring", "Daftar kontak", "Playlist musik"],
+                correct: 1
             },
             {
-                question: "Mengapa pemilihan struktur data yang tepat penting dalam pemrograman?",
-                options: [
-                    "Agar kode terlihat lebih rapi",
-                    "Untuk meningkatkan efisiensi waktu dan memori",
-                    "Supaya mudah dipahami programmer lain",
-                    "Karena diwajibkan oleh bahasa pemrograman"
-                ],
-                correct: 1,
-                explanation: "Pemilihan struktur data yang tepat sangat penting untuk meningkatkan efisiensi program dalam hal waktu eksekusi dan penggunaan memori."
+                question: "Manakah yang BUKAN termasuk struktur data dasar?",
+                options: ["Array", "Stack", "Database", "Queue"],
+                correct: 2
             }
         ];
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            showSection('intro');
-            setupEventListeners();
-            updateBackToTopButton();
-        });
-
-        // Event listeners
-        function setupEventListeners() {
-            // Mobile menu
-            document.getElementById('openMobileMenu').addEventListener('click', function() {
-                document.getElementById('mobileMenu').classList.add('active');
-                document.getElementById('mobileMenuOverlay').classList.remove('hidden');
-            });
-
-            document.getElementById('closeMobileMenu').addEventListener('click', closeMobileMenu);
-            document.getElementById('mobileMenuOverlay').addEventListener('click', closeMobileMenu);
-
-            // Scroll event for back to top button
-            window.addEventListener('scroll', updateBackToTopButton);
-
-            // Quiz input enter key
-            document.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const activeElement = document.activeElement;
-                    if (activeElement.id === 'studentName') {
-                        startQuiz();
-                    } else if (activeElement.id === 'stackInput') {
-                        pushToStack();
-                    }
-                }
-            });
-        }
-
-        function closeMobileMenu() {
-            document.getElementById('mobileMenu').classList.remove('active');
-            document.getElementById('mobileMenuOverlay').classList.add('hidden');
-        }
 
         // Navigation functions
         function showSection(sectionId) {
@@ -1582,377 +789,282 @@
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.add('hidden');
             });
-
-            // Show selected section
+            
+            // Show target section
             document.getElementById(sectionId).classList.remove('hidden');
             document.getElementById(sectionId).classList.add('fade-in');
-
-            // Update current section index
-            currentSectionIndex = sections.indexOf(sectionId);
-
-            // Update navigation active state
-            updateNavigation(sectionId);
-
-            // Close mobile menu
-            closeMobileMenu();
-
-            // Force scroll to top immediately
-            window.scrollTo(0, 0);
             
-            // Also use smooth scroll as backup
-            setTimeout(() => {
-                scrollToTop();
-            }, 50);
-
-            // Update next button visibility
-            updateNextButton();
-        }
-
-        function updateNavigation(activeSection) {
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('bg-purple-200', 'bg-orange-200', 'bg-green-200', 'bg-blue-200');
-            });
-
-            // Add active state to current section
-            const activeLinks = document.querySelectorAll(`[onclick="showSection('${activeSection}')"]`);
-            activeLinks.forEach(link => {
-                if (activeSection === 'tugas') {
-                    link.classList.add('bg-orange-200');
-                } else if (activeSection === 'kuis') {
-                    link.classList.add('bg-green-200');
-                } else if (activeSection === 'penutup') {
-                    link.classList.add('bg-blue-200');
-                } else {
-                    link.classList.add('bg-purple-200');
-                }
-            });
-        }
-
-        function nextSection() {
-            if (currentSectionIndex < sections.length - 1) {
-                // Force scroll to top first
-                window.scrollTo(0, 0);
-                
-                currentSectionIndex++;
-                showSection(sections[currentSectionIndex]);
-            }
-        }
-
-        function updateNextButton() {
-            const nextButton = document.getElementById('nextButton');
-            if (currentSectionIndex >= sections.length - 1) {
-                nextButton.style.display = 'none';
-            } else {
-                nextButton.style.display = 'block';
-            }
-        }
-
-        function scrollToTop() {
-            // Force immediate scroll first
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
+            // Update current section
+            currentSection = sectionId;
             
-            // Then smooth scroll as enhancement
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Update active nav button
+            updateActiveNav(sectionId);
         }
 
-        function updateBackToTopButton() {
-            const backToTopBtn = document.getElementById('backToTop');
-            if (window.pageYOffset > 300) {
-                backToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
-                backToTopBtn.classList.add('opacity-100');
-            } else {
-                backToTopBtn.classList.add('opacity-0', 'pointer-events-none');
-                backToTopBtn.classList.remove('opacity-100');
+        function updateActiveNav(sectionId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-200');
+            });
+            
+            const activeBtn = document.querySelector(`button[onclick="showSection('${sectionId}')"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-purple-200');
             }
         }
 
-        // Stack Demo Functions
-        function pushToStack() {
-            const input = document.getElementById('stackInput');
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        }
+
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+
+        // Array demo functions
+        function addToArray() {
+            const input = document.getElementById('array-input');
             const value = input.value.trim();
             
-            if (value === '') {
-                alert('Masukkan angka terlebih dahulu!');
-                return;
+            if (value && !isNaN(value)) {
+                arrayData.push(parseInt(value));
+                updateArrayDisplay();
+                input.value = '';
             }
+        }
 
-            if (isNaN(value)) {
-                alert('Harap masukkan angka yang valid!');
-                return;
+        function removeFromArray() {
+            if (arrayData.length > 0) {
+                arrayData.pop();
+                updateArrayDisplay();
             }
+        }
 
-            stackArray.push(parseInt(value));
-            input.value = '';
-            updateStackDisplay();
+        function updateArrayDisplay() {
+            const container = document.getElementById('array-demo');
+            container.innerHTML = '';
+            
+            arrayData.forEach((value, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'array-cell bg-yellow-300 border-2 border-yellow-500 rounded-lg p-4 text-center font-bold cursor-pointer';
+                cell.textContent = value;
+                cell.setAttribute('data-index', index);
+                cell.onclick = () => alert(`Elemen: ${value}, Indeks: ${index}`);
+                container.appendChild(cell);
+            });
+        }
+
+        // Stack demo functions
+        function pushToStack() {
+            const input = document.getElementById('stack-input');
+            const value = input.value.trim().toUpperCase();
+            
+            if (value && value.length <= 3) {
+                stackData.push(value);
+                updateStackDisplay();
+                input.value = '';
+            }
         }
 
         function popFromStack() {
-            if (stackArray.length === 0) {
-                alert('Stack kosong! Tidak ada elemen yang bisa di-pop.');
-                return;
+            if (stackData.length > 0) {
+                const popped = stackData.pop();
+                updateStackDisplay();
+                alert(`Elemen "${popped}" telah di-pop dari stack!`);
             }
-
-            const poppedValue = stackArray.pop();
-            updateStackDisplay();
-            
-            // Show popped value
-            const status = document.getElementById('stackStatus');
-            status.innerHTML = `Elemen ${poppedValue} telah di-pop dari stack`;
-            status.className = 'text-center text-sm text-red-600';
         }
 
         function updateStackDisplay() {
-            const stackDemo = document.getElementById('stackDemo');
-            const status = document.getElementById('stackStatus');
+            const container = document.getElementById('stack-demo');
+            container.innerHTML = '';
             
-            stackDemo.innerHTML = '';
-            
-            if (stackArray.length === 0) {
-                status.innerHTML = 'Stack kosong';
-                status.className = 'text-center text-sm text-gray-600';
-                return;
-            }
-
-            // Display stack elements (top to bottom)
-            for (let i = stackArray.length - 1; i >= 0; i--) {
-                const element = document.createElement('div');
-                element.className = 'bg-purple-200 border-2 border-purple-300 rounded-lg p-3 text-center font-bold text-purple-800 min-w-16';
-                element.textContent = stackArray[i];
-                
-                if (i === stackArray.length - 1) {
-                    element.classList.add('bg-purple-300');
-                    const topLabel = document.createElement('span');
-                    topLabel.className = 'text-xs text-purple-600 ml-2';
-                    topLabel.textContent = '← Top';
-                    element.appendChild(topLabel);
-                }
-                
-                stackDemo.appendChild(element);
-            }
-
-            status.innerHTML = `Stack berisi ${stackArray.length} elemen`;
-            status.className = 'text-center text-sm text-green-600';
+            stackData.forEach(value => {
+                const item = document.createElement('div');
+                item.className = 'stack-item bg-blue-300 border-2 border-blue-500 rounded-lg p-4 w-24 text-center font-bold';
+                item.textContent = value;
+                container.appendChild(item);
+            });
         }
 
-        // Tugas Functions
+        // Queue demo functions
+        function enqueue() {
+            const input = document.getElementById('queue-input');
+            const value = input.value.trim();
+            
+            if (value && value.length <= 3) {
+                queueData.push(value);
+                updateQueueDisplay();
+                input.value = '';
+            }
+        }
+
+        function dequeue() {
+            if (queueData.length > 0) {
+                const dequeued = queueData.shift();
+                updateQueueDisplay();
+                alert(`Elemen "${dequeued}" telah keluar dari queue!`);
+            }
+        }
+
+        function updateQueueDisplay() {
+            const container = document.getElementById('queue-demo');
+            container.innerHTML = '';
+            
+            queueData.forEach((value, index) => {
+                const item = document.createElement('div');
+                item.className = 'queue-item bg-green-300 border-2 border-green-500 rounded-lg p-4 text-center font-bold';
+                item.textContent = value;
+                container.appendChild(item);
+                
+                if (index < queueData.length - 1) {
+                    const arrow = document.createElement('div');
+                    arrow.className = 'text-2xl';
+                    arrow.textContent = '→';
+                    container.appendChild(arrow);
+                }
+            });
+        }
+
+        // Tugas functions
         function submitTugas() {
-            const answers = [
-                document.getElementById('answer1').value.trim(),
-                document.getElementById('answer2').value.trim(),
-                document.getElementById('answer3').value.trim(),
-                document.getElementById('answer4').value.trim(),
-                document.getElementById('answer5').value.trim()
-            ];
-
-            const emptyAnswers = answers.filter(answer => answer === '').length;
+            const textareas = document.querySelectorAll('#tugas textarea');
+            let allFilled = true;
             
-            if (emptyAnswers > 0) {
-                alert(`Masih ada ${emptyAnswers} soal yang belum dijawab. Silakan lengkapi semua jawaban.`);
-                return;
-            }
-
-            // Show success message
-            document.getElementById('tugasResult').classList.remove('hidden');
-            
-            // Scroll to result
-            document.getElementById('tugasResult').scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'center'
-            });
-        }
-
-        // Quiz Functions
-        function startQuiz() {
-            const nameInput = document.getElementById('studentName');
-            studentName = nameInput.value.trim();
-            
-            if (studentName === '') {
-                alert('Silakan masukkan nama kamu terlebih dahulu!');
-                nameInput.focus();
-                return;
-            }
-
-            // Initialize quiz
-            currentQuizQuestion = 0;
-            quizScore = 0;
-            userAnswers = [];
-            quizData = [...quizQuestions];
-
-            // Show quiz questions
-            document.getElementById('quizStart').classList.add('hidden');
-            document.getElementById('quizQuestions').classList.remove('hidden');
-            
-            loadQuestion();
-        }
-
-        function loadQuestion() {
-            const question = quizData[currentQuizQuestion];
-            const container = document.getElementById('questionContainer');
-            
-            container.innerHTML = `
-                <div class="mb-8">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6">${question.question}</h3>
-                    <div class="space-y-3">
-                        ${question.options.map((option, index) => `
-                            <div class="quiz-option border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:bg-gray-50" onclick="selectAnswer(${index})">
-                                <div class="flex items-center">
-                                    <div class="w-6 h-6 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
-                                        <div class="w-3 h-3 bg-green-500 rounded-full hidden answer-dot"></div>
-                                    </div>
-                                    <span class="text-lg">${option}</span>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-
-            // Update progress
-            document.getElementById('currentQuestion').textContent = currentQuizQuestion + 1;
-            document.getElementById('currentScore').textContent = quizScore;
-            document.getElementById('progressBar').style.width = `${((currentQuizQuestion + 1) / quizData.length) * 100}%`;
-
-            // Update buttons
-            document.getElementById('prevBtn').disabled = currentQuizQuestion === 0;
-            document.getElementById('nextBtn').textContent = currentQuizQuestion === quizData.length - 1 ? 'Selesai' : 'Selanjutnya →';
-
-            // Restore previous answer if exists
-            if (userAnswers[currentQuizQuestion] !== undefined) {
-                selectAnswer(userAnswers[currentQuizQuestion], false);
-            }
-        }
-
-        function selectAnswer(answerIndex, updateScore = true) {
-            // Remove previous selection
-            document.querySelectorAll('.quiz-option').forEach(option => {
-                option.classList.remove('selected');
-                option.querySelector('.answer-dot').classList.add('hidden');
-            });
-
-            // Add selection to clicked option
-            const selectedOption = document.querySelectorAll('.quiz-option')[answerIndex];
-            selectedOption.classList.add('selected');
-            selectedOption.querySelector('.answer-dot').classList.remove('hidden');
-
-            // Store answer
-            const previousAnswer = userAnswers[currentQuizQuestion];
-            userAnswers[currentQuizQuestion] = answerIndex;
-
-            // Update score if this is a new answer
-            if (updateScore && previousAnswer === undefined) {
-                if (answerIndex === quizData[currentQuizQuestion].correct) {
-                    quizScore += 10;
-                    document.getElementById('currentScore').textContent = quizScore;
+            textareas.forEach(textarea => {
+                if (textarea.value.trim() === '') {
+                    allFilled = false;
                 }
+            });
+            
+            if (allFilled) {
+                alert('🎉 Tugas berhasil dikumpulkan! Terima kasih atas partisipasinya.');
+            } else {
+                alert('⚠️ Mohon lengkapi semua jawaban sebelum submit.');
             }
+        }
+
+        // Quiz functions
+        function startKuis() {
+            const name = document.getElementById('student-name').value.trim();
+            if (name === '') {
+                alert('Mohon masukkan nama Anda terlebih dahulu!');
+                return;
+            }
+            
+            studentName = name;
+            currentQuestion = 0;
+            score = 0;
+            
+            document.getElementById('nama-input').classList.add('hidden');
+            document.getElementById('kuis-container').classList.remove('hidden');
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestion];
+            document.getElementById('question-number').textContent = currentQuestion + 1;
+            document.getElementById('question-text').textContent = question.question;
+            document.getElementById('current-score').textContent = score;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'w-full text-left p-4 bg-white border-2 border-purple-200 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-all mobile-text';
+                button.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
+                button.onclick = () => selectAnswer(index, button);
+                optionsContainer.appendChild(button);
+            });
+            
+            document.getElementById('next-btn').classList.add('hidden');
+        }
+
+        function selectAnswer(selectedIndex, buttonElement) {
+            const question = questions[currentQuestion];
+            const buttons = document.querySelectorAll('#options-container button');
+            
+            // Disable all buttons
+            buttons.forEach(btn => btn.disabled = true);
+            
+            // Show correct/incorrect
+            buttons.forEach((btn, index) => {
+                if (index === question.correct) {
+                    btn.classList.add('bg-green-200', 'border-green-500');
+                } else if (index === selectedIndex && index !== question.correct) {
+                    btn.classList.add('bg-red-200', 'border-red-500');
+                }
+            });
+            
+            // Update score
+            if (selectedIndex === question.correct) {
+                score += 10;
+                document.getElementById('current-score').textContent = score;
+            }
+            
+            // Show next button
+            document.getElementById('next-btn').classList.remove('hidden');
         }
 
         function nextQuestion() {
-            if (userAnswers[currentQuizQuestion] === undefined) {
-                alert('Silakan pilih jawaban terlebih dahulu!');
-                return;
-            }
-
-            if (currentQuizQuestion < quizData.length - 1) {
-                currentQuizQuestion++;
-                loadQuestion();
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                showQuestion();
             } else {
-                finishQuiz();
+                showResults();
             }
         }
 
-        function previousQuestion() {
-            if (currentQuizQuestion > 0) {
-                currentQuizQuestion--;
-                loadQuestion();
-            }
-        }
-
-        function finishQuiz() {
-            // Calculate final results
-            let correctAnswers = 0;
-            for (let i = 0; i < userAnswers.length; i++) {
-                if (userAnswers[i] === quizData[i].correct) {
-                    correctAnswers++;
-                }
-            }
+        function showResults() {
+            document.getElementById('kuis-container').classList.add('hidden');
+            document.getElementById('hasil-kuis').classList.remove('hidden');
             
-            const wrongAnswers = quizData.length - correctAnswers;
-            const finalScore = (correctAnswers / quizData.length) * 100;
-
-            // Show results
-            document.getElementById('quizQuestions').classList.add('hidden');
-            document.getElementById('quizResults').classList.remove('hidden');
-
-            // Update result display
-            document.getElementById('finalName').textContent = studentName;
-            document.getElementById('finalScore').textContent = Math.round(finalScore);
-            document.getElementById('correctAnswers').textContent = correctAnswers;
-            document.getElementById('wrongAnswers').textContent = wrongAnswers;
-
-            // Set result message and icon based on score
-            const resultIcon = document.getElementById('resultIcon');
-            const scoreMessage = document.getElementById('scoreMessage');
+            document.getElementById('final-name').textContent = studentName;
+            document.getElementById('final-score').textContent = score;
             
-            if (finalScore >= 90) {
-                resultIcon.textContent = '🏆';
-                scoreMessage.innerHTML = `
-                    <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
-                        <strong class="text-yellow-800">Luar Biasa!</strong>
-                        <p class="text-yellow-700 mt-2">Kamu menguasai materi struktur data dengan sangat baik! Pertahankan semangat belajar ini! 🌟</p>
-                    </div>
-                `;
-            } else if (finalScore >= 70) {
-                resultIcon.textContent = '🎉';
-                scoreMessage.innerHTML = `
-                    <div class="bg-green-50 border-2 border-green-200 rounded-lg p-4">
-                        <strong class="text-green-800">Bagus Sekali!</strong>
-                        <p class="text-green-700 mt-2">Pemahaman kamu tentang struktur data sudah cukup baik. Terus berlatih untuk hasil yang lebih optimal! 💪</p>
-                    </div>
-                `;
-            } else if (finalScore >= 50) {
-                resultIcon.textContent = '😊';
-                scoreMessage.innerHTML = `
-                    <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
-                        <strong class="text-blue-800">Cukup Baik!</strong>
-                        <p class="text-blue-700 mt-2">Kamu sudah memahami konsep dasar. Coba pelajari kembali materi yang masih kurang dipahami! 📚</p>
-                    </div>
-                `;
+            const gradeMessage = document.getElementById('grade-message');
+            if (score >= 80) {
+                gradeMessage.innerHTML = '<div class="text-green-600 font-bold">🌟 Excellent! Pemahaman Anda sangat baik!</div>';
+            } else if (score >= 60) {
+                gradeMessage.innerHTML = '<div class="text-blue-600 font-bold">👍 Good! Terus tingkatkan pemahaman Anda!</div>';
             } else {
-                resultIcon.textContent = '💪';
-                scoreMessage.innerHTML = `
-                    <div class="bg-orange-50 border-2 border-orange-200 rounded-lg p-4">
-                        <strong class="text-orange-800">Semangat!</strong>
-                        <p class="text-orange-700 mt-2">Jangan menyerah! Pelajari kembali materi dari awal dan coba lagi. Kamu pasti bisa! 🚀</p>
-                    </div>
-                `;
+                gradeMessage.innerHTML = '<div class="text-orange-600 font-bold">💪 Keep Learning! Ulangi materi dan coba lagi!</div>';
             }
-
-            // Scroll to top of results
-            scrollToTop();
         }
 
-        function restartQuiz() {
-            // Reset quiz state
-            currentQuizQuestion = 0;
-            quizScore = 0;
-            userAnswers = [];
-            studentName = '';
-            
-            // Clear name input
-            document.getElementById('studentName').value = '';
-            
-            // Show start screen
-            document.getElementById('quizResults').classList.add('hidden');
-            document.getElementById('quizStart').classList.remove('hidden');
-            
-            // Scroll to top
-            scrollToTop();
+        function resetKuis() {
+            document.getElementById('hasil-kuis').classList.add('hidden');
+            document.getElementById('nama-input').classList.remove('hidden');
+            document.getElementById('student-name').value = '';
+            currentQuestion = 0;
+            score = 0;
         }
+
+        // Back to top functionality
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('back-to-top');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.remove('hidden');
+            } else {
+                backToTop.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('back-to-top').addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('intro');
+            updateArrayDisplay();
+            updateStackDisplay();
+            updateQueueDisplay();
+        });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'985273b0b6fae793',t:'MTc1ODg4NjQ2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'985a145d65379a2b',t:'MTc1ODk2NjQ0Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
