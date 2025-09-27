@@ -1360,8 +1360,10 @@
 
             // Show selected section
             const targetSection = document.getElementById(sectionId);
-            targetSection.classList.remove('hidden');
-            targetSection.classList.add('active');
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                targetSection.classList.add('active');
+            }
 
             // Update current section index
             currentSectionIndex = sections.indexOf(sectionId);
@@ -1374,24 +1376,33 @@
                 }
             });
             
-            // Update navigation buttons
-            updateNavigationButtons();
+            // Scroll to top immediately
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
             
-            // Scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Also use smooth scroll as backup
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 50);
 
             // Close mobile sidebar
-            document.getElementById('sidebar').classList.remove('open');
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.remove('open');
+            }
+            
+            // Update navigation buttons after a short delay
+            setTimeout(() => {
+                updateNavigationButtons();
+            }, 150);
         }
 
         function updateNavigationButtons() {
             // Remove existing navigation if any
-            const existingNav = document.querySelector('.section-navigation');
-            if (existingNav) {
-                existingNav.remove();
-            }
+            const existingNavs = document.querySelectorAll('.section-navigation');
+            existingNavs.forEach(nav => nav.remove());
 
-            // Show navigation on all sections except penutup
+            // Don't show navigation on penutup section
             if (currentSectionIndex === sections.length - 1) {
                 return;
             }
@@ -1403,7 +1414,8 @@
             // Previous button
             if (currentSectionIndex > 0) {
                 const prevBtn = document.createElement('button');
-                prevBtn.onclick = () => {
+                prevBtn.onclick = (e) => {
+                    e.preventDefault();
                     const prevSection = sections[currentSectionIndex - 1];
                     showSection(prevSection);
                 };
@@ -1411,7 +1423,7 @@
                 
                 const prevSectionName = {
                     'intro': 'Intro',
-                    'pengenalan': 'Pengenalan',
+                    'pengenalan': 'Pengenalan', 
                     'materi': 'Materi',
                     'tugas': 'Tugas',
                     'kuis': 'Kuis'
@@ -1420,13 +1432,16 @@
                 prevBtn.innerHTML = `← ${prevSectionName[sections[currentSectionIndex - 1]] || 'Sebelumnya'}`;
                 navContainer.appendChild(prevBtn);
             } else {
-                navContainer.appendChild(document.createElement('div')); // Empty div for spacing
+                // Empty div for spacing
+                const emptyDiv = document.createElement('div');
+                navContainer.appendChild(emptyDiv);
             }
 
             // Next button
             if (currentSectionIndex < sections.length - 1) {
                 const nextBtn = document.createElement('button');
-                nextBtn.onclick = () => {
+                nextBtn.onclick = (e) => {
+                    e.preventDefault();
                     const nextSection = sections[currentSectionIndex + 1];
                     showSection(nextSection);
                 };
@@ -1434,22 +1449,30 @@
                 
                 const nextSectionName = {
                     'pengenalan': 'Pengenalan',
-                    'materi': 'Materi',
-                    'tugas': 'Tugas', 
+                    'materi': 'Materi', 
+                    'tugas': 'Tugas',
                     'kuis': 'Kuis',
                     'penutup': 'Penutup'
                 };
                 
                 nextBtn.innerHTML = `${nextSectionName[sections[currentSectionIndex + 1]] || 'Selanjutnya'} →`;
                 navContainer.appendChild(nextBtn);
+            } else {
+                // Empty div for spacing
+                const emptyDiv = document.createElement('div');
+                navContainer.appendChild(emptyDiv);
             }
 
-            // Add to current section
-            const currentSection = document.getElementById(sections[currentSectionIndex]);
-            const container = currentSection.querySelector('.max-w-4xl');
-            if (container) {
-                container.appendChild(navContainer);
-            }
+            // Add to current section with delay to ensure DOM is ready
+            setTimeout(() => {
+                const currentSection = document.getElementById(sections[currentSectionIndex]);
+                if (currentSection) {
+                    const container = currentSection.querySelector('.max-w-4xl');
+                    if (container && !container.querySelector('.section-navigation')) {
+                        container.appendChild(navContainer);
+                    }
+                }
+            }, 100);
         }
 
 
@@ -1839,5 +1862,5 @@
             document.getElementById('studentName').value = '';
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'985a7f6230f7aa09',t:'MTc1ODk3MDgyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'985a8425e1deb29b',t:'MTc1ODk3MTAyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
