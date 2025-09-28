@@ -1,0 +1,1799 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Komputer von Neumann - Pembelajaran Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-bounce { animation: bounce 2s infinite; }
+        .animate-pulse { animation: pulse 2s infinite; }
+        .animate-slideIn { animation: slideIn 0.5s ease-out; }
+        .animate-fadeIn { animation: fadeIn 0.6s ease-out; }
+        
+        .sidebar-open { transform: translateX(0); }
+        .sidebar-closed { transform: translateX(-100%); }
+        
+        .content-shift { margin-left: 16rem; }
+        
+        @media (max-width: 768px) {
+            .content-shift { margin-left: 0; }
+        }
+        
+        .von-neumann-diagram {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .component-box {
+            transition: all 0.3s ease;
+        }
+        
+        .component-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-screen">
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-gradient-to-b from-purple-600 to-indigo-700 text-white transform sidebar-closed transition-transform duration-300 ease-in-out z-50 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-xl font-bold">📚 Menu Pembelajaran</h2>
+                <button id="closeSidebar" class="md:hidden text-white hover:text-gray-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <nav class="space-y-3">
+                <a href="#" onclick="showSection('intro')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+                    <span class="text-2xl mr-3">🚀</span>
+                    <span>Intro</span>
+                </a>
+                <a href="#" onclick="showSection('pengenalan')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+                    <span class="text-2xl mr-3">👋</span>
+                    <span>Pengenalan</span>
+                </a>
+                <a href="#" onclick="showSection('arsitektur')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+                    <span class="text-2xl mr-3">🏗️</span>
+                    <span>Arsitektur von Neumann</span>
+                </a>
+                <a href="#" onclick="showSection('komponen')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+                    <span class="text-2xl mr-3">⚙️</span>
+                    <span>Komponen Utama</span>
+                </a>
+                <a href="#" onclick="showSection('cara-kerja')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+                    <span class="text-2xl mr-3">🔄</span>
+                    <span>Cara Kerja</span>
+                </a>
+                <a href="#" onclick="showSection('simulasi')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+                    <span class="text-2xl mr-3">🎮</span>
+                    <span>Simulasi Interaktif</span>
+                </a>
+                <a href="#" onclick="showSection('tugas')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+                    <span class="text-2xl mr-3">📝</span>
+                    <span>Tugas</span>
+                </a>
+                <a href="#" onclick="showSection('kuis')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+                    <span class="text-2xl mr-3">🧠</span>
+                    <span>Kuis</span>
+                </a>
+                <a href="#" onclick="showSection('penutup')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors">
+                    <span class="text-2xl mr-3">🎯</span>
+                    <span>Penutup</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Mobile Header -->
+    <div class="md:hidden bg-gradient-to-r from-purple-600 to-indigo-700 text-white p-4 flex items-center justify-between">
+        <button id="openSidebar" class="text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+        <h1 class="text-lg font-bold">Model von Neumann</h1>
+        <div class="w-6"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="transition-all duration-300 ease-in-out">
+        <!-- Intro Section -->
+        <div id="intro" class="section active min-h-screen p-6 md:p-12">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12 animate-fadeIn">
+                    <h1 class="text-4xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-6">
+                        🖥️ Model Komputer von Neumann
+                    </h1>
+                    <p class="text-xl md:text-2xl text-gray-700 mb-8">Pembelajaran Interaktif untuk SMK</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-12">
+                    <div class="bg-white rounded-3xl p-8 shadow-xl animate-fadeIn">
+                        <h2 class="text-2xl font-bold text-purple-700 mb-6 flex items-center">
+                            <span class="text-3xl mr-3 animate-bounce">🤔</span>
+                            Pertanyaan Pemantik
+                        </h2>
+                        <div class="space-y-4 text-lg text-gray-700">
+                            <p>• Bagaimana komputer bisa memproses data?</p>
+                            <p>• Apa yang terjadi di dalam komputer saat kita menjalankan program?</p>
+                            <p>• Mengapa semua komputer modern memiliki struktur yang mirip?</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-yellow-100 to-orange-100 rounded-3xl p-8 shadow-xl animate-fadeIn">
+                        <h2 class="text-2xl font-bold text-orange-700 mb-6 flex items-center">
+                            <span class="text-3xl mr-3 animate-pulse">📚</span>
+                            Apa yang Dipelajari?
+                        </h2>
+                        <div class="space-y-3 text-lg text-gray-700">
+                            <p>✅ Konsep dasar arsitektur komputer</p>
+                            <p>✅ Model Input-Proses-Output</p>
+                            <p>✅ Komponen utama komputer</p>
+                            <p>✅ Cara kerja sistem komputer</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-100 to-blue-100 rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <h2 class="text-2xl font-bold text-green-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🎯</span>
+                        Tujuan Pembelajaran
+                    </h2>
+                    <div class="grid md:grid-cols-2 gap-6 text-lg text-gray-700">
+                        <div>
+                            <p class="mb-3">Setelah mempelajari materi ini, kalian akan mampu:</p>
+                            <ul class="space-y-2">
+                                <li>• Menjelaskan konsep model von Neumann</li>
+                                <li>• Mengidentifikasi komponen utama komputer</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <ul class="space-y-2">
+                                <li>• Memahami alur kerja sistem komputer</li>
+                                <li>• Menganalisis proses Input-Proses-Output</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-pink-100 to-purple-100 rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <h2 class="text-2xl font-bold text-pink-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">💡</span>
+                        Pemahaman Bermakna
+                    </h2>
+                    <p class="text-lg text-gray-700 leading-relaxed">
+                        Dengan memahami model von Neumann, kalian akan mengerti bagaimana komputer yang kalian gunakan sehari-hari bekerja. 
+                        Mulai dari saat kalian mengetik di keyboard, hingga muncul tulisan di layar - semuanya mengikuti prinsip dasar yang 
+                        akan kita pelajari bersama!
+                    </p>
+                </div>
+
+                <div class="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-3xl p-8 shadow-xl animate-fadeIn">
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3 animate-bounce">🚀</span>
+                        Motivasi
+                    </h2>
+                    <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                        Sebagai siswa SMK, pemahaman tentang arsitektur komputer adalah fondasi penting untuk karir di bidang teknologi. 
+                        Baik kalian ingin menjadi programmer, teknisi komputer, atau ahli jaringan - semuanya dimulai dari sini!
+                    </p>
+                    <div class="text-center">
+                        <span class="text-4xl">💪 Ayo mulai petualangan belajar kita! 🎉</span>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Pengenalan Section -->
+        <div id="pengenalan" class="section min-h-screen p-6 md:p-12 hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12 animate-fadeIn">
+                    <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
+                        👋 Pengenalan Model von Neumann
+                    </h1>
+                </div>
+
+                <div class="bg-white rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <div class="flex items-center mb-6">
+                        <span class="text-4xl mr-4">👨‍🔬</span>
+                        <h2 class="text-3xl font-bold text-blue-700">Siapa John von Neumann?</h2>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                                John von Neumann adalah seorang matematikawan dan ilmuwan komputer jenius dari Hungaria-Amerika. 
+                                Pada tahun 1945, dia menciptakan konsep arsitektur komputer yang masih digunakan hingga sekarang!
+                            </p>
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <p class="text-blue-800 font-semibold">💡 Tahukah kamu?</p>
+                                <p class="text-blue-700">Hampir semua komputer modern, termasuk smartphone kalian, menggunakan arsitektur von Neumann!</p>
+                            </div>
+                        </div>
+                        <div class="bg-gradient-to-br from-blue-100 to-purple-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-blue-700 mb-4">Kontribusi von Neumann:</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li>✅ Konsep stored-program computer</li>
+                                <li>✅ Arsitektur komputer modern</li>
+                                <li>✅ Dasar pemrograman komputer</li>
+                                <li>✅ Teori game dan AI</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-100 to-teal-100 rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <h2 class="text-3xl font-bold text-green-700 mb-6 flex items-center">
+                        <span class="text-4xl mr-4">🏗️</span>
+                        Apa itu Model von Neumann?
+                    </h2>
+                    <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                        Model von Neumann adalah blueprint atau cetak biru yang menjelaskan bagaimana komputer harus dibangun dan bekerja. 
+                        Bayangkan seperti denah rumah yang menunjukkan di mana letak kamar, dapur, dan ruang tamu.
+                    </p>
+                    
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-lg text-center component-box">
+                            <span class="text-4xl mb-3 block">📥</span>
+                            <h3 class="text-xl font-bold text-green-700 mb-2">INPUT</h3>
+                            <p class="text-gray-600">Data masuk ke komputer</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-lg text-center component-box">
+                            <span class="text-4xl mb-3 block">⚙️</span>
+                            <h3 class="text-xl font-bold text-green-700 mb-2">PROSES</h3>
+                            <p class="text-gray-600">Pengolahan data</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-lg text-center component-box">
+                            <span class="text-4xl mb-3 block">📤</span>
+                            <h3 class="text-xl font-bold text-green-700 mb-2">OUTPUT</h3>
+                            <p class="text-gray-600">Hasil keluar dari komputer</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-3xl p-8 shadow-xl animate-fadeIn">
+                    <h2 class="text-3xl font-bold text-orange-700 mb-6 flex items-center">
+                        <span class="text-4xl mr-4">🌟</span>
+                        Mengapa Penting?
+                    </h2>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-orange-600 mb-4">Untuk Kehidupan Sehari-hari:</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li>🎮 Bermain game</li>
+                                <li>📱 Menggunakan smartphone</li>
+                                <li>💻 Bekerja dengan komputer</li>
+                                <li>🌐 Browsing internet</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-orange-600 mb-4">Untuk Karir SMK:</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li>👨‍💻 Programmer</li>
+                                <li>🔧 Teknisi komputer</li>
+                                <li>🌐 Ahli jaringan</li>
+                                <li>🎨 Desainer grafis</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Arsitektur Section -->
+        <div id="arsitektur" class="section min-h-screen p-6 md:p-12 hidden">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12 animate-fadeIn">
+                    <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-6">
+                        🏗️ Arsitektur von Neumann
+                    </h1>
+                </div>
+
+                <div class="bg-white rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <h2 class="text-3xl font-bold text-indigo-700 mb-8 text-center">Diagram Arsitektur von Neumann</h2>
+                    
+                    <div class="von-neumann-diagram rounded-2xl p-8 mb-8">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-white">
+                            <!-- Input Unit -->
+                            <div class="bg-white bg-opacity-20 rounded-xl p-6 text-center component-box">
+                                <span class="text-5xl mb-4 block">📥</span>
+                                <h3 class="text-2xl font-bold mb-3">INPUT UNIT</h3>
+                                <p class="text-lg">Keyboard, Mouse, Microphone</p>
+                            </div>
+                            
+                            <!-- Central Processing Unit -->
+                            <div class="bg-white bg-opacity-20 rounded-xl p-6 text-center component-box">
+                                <span class="text-5xl mb-4 block">🧠</span>
+                                <h3 class="text-2xl font-bold mb-3">CPU</h3>
+                                <p class="text-lg">Control Unit + ALU</p>
+                            </div>
+                            
+                            <!-- Output Unit -->
+                            <div class="bg-white bg-opacity-20 rounded-xl p-6 text-center component-box">
+                                <span class="text-5xl mb-4 block">📤</span>
+                                <h3 class="text-2xl font-bold mb-3">OUTPUT UNIT</h3>
+                                <p class="text-lg">Monitor, Speaker, Printer</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Memory Unit -->
+                        <div class="mt-8">
+                            <div class="bg-white bg-opacity-20 rounded-xl p-6 text-center component-box">
+                                <span class="text-5xl mb-4 block text-white">💾</span>
+                                <h3 class="text-2xl font-bold mb-3 text-white">MEMORY UNIT</h3>
+                                <p class="text-lg text-white">RAM, ROM, Storage</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrows -->
+                        <div class="flex justify-center mt-6">
+                            <div class="text-center text-white">
+                                <p class="text-lg font-semibold">↕️ Data dan Instruksi mengalir bolak-balik ↕️</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-gradient-to-br from-blue-100 to-indigo-100 rounded-3xl p-8 shadow-xl animate-fadeIn">
+                        <h2 class="text-2xl font-bold text-blue-700 mb-6 flex items-center">
+                            <span class="text-3xl mr-3">🔑</span>
+                            Prinsip Utama
+                        </h2>
+                        <div class="space-y-4">
+                            <div class="bg-white p-4 rounded-lg">
+                                <h3 class="font-bold text-blue-600 mb-2">1. Stored Program Concept</h3>
+                                <p class="text-gray-700">Program dan data disimpan dalam memori yang sama</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <h3 class="font-bold text-blue-600 mb-2">2. Sequential Execution</h3>
+                                <p class="text-gray-700">Instruksi dijalankan satu per satu secara berurutan</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <h3 class="font-bold text-blue-600 mb-2">3. Binary Representation</h3>
+                                <p class="text-gray-700">Semua data dan instruksi dalam bentuk biner (0 dan 1)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-green-100 to-teal-100 rounded-3xl p-8 shadow-xl animate-fadeIn">
+                        <h2 class="text-2xl font-bold text-green-700 mb-6 flex items-center">
+                            <span class="text-3xl mr-3">⚡</span>
+                            Keunggulan Model ini
+                        </h2>
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-3">✅</span>
+                                <p class="text-gray-700">Sederhana dan mudah dipahami</p>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-3">✅</span>
+                                <p class="text-gray-700">Fleksibel untuk berbagai aplikasi</p>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-3">✅</span>
+                                <p class="text-gray-700">Mudah diprogram</p>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-3">✅</span>
+                                <p class="text-gray-700">Standar industri</p>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-3">✅</span>
+                                <p class="text-gray-700">Biaya produksi rendah</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-3xl p-8 shadow-xl animate-fadeIn">
+                    <h2 class="text-3xl font-bold text-purple-700 mb-6 flex items-center">
+                        <span class="text-4xl mr-4">🔄</span>
+                        Alur Kerja Dasar
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="bg-white p-6 rounded-xl text-center shadow-lg component-box">
+                            <span class="text-4xl mb-3 block">1️⃣</span>
+                            <h3 class="font-bold text-purple-600 mb-2">FETCH</h3>
+                            <p class="text-gray-600">Ambil instruksi dari memori</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl text-center shadow-lg component-box">
+                            <span class="text-4xl mb-3 block">2️⃣</span>
+                            <h3 class="font-bold text-purple-600 mb-2">DECODE</h3>
+                            <p class="text-gray-600">Terjemahkan instruksi</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl text-center shadow-lg component-box">
+                            <span class="text-4xl mb-3 block">3️⃣</span>
+                            <h3 class="font-bold text-purple-600 mb-2">EXECUTE</h3>
+                            <p class="text-gray-600">Jalankan instruksi</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl text-center shadow-lg component-box">
+                            <span class="text-4xl mb-3 block">4️⃣</span>
+                            <h3 class="font-bold text-purple-600 mb-2">STORE</h3>
+                            <p class="text-gray-600">Simpan hasil</p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-6">
+                        <p class="text-lg text-purple-700 font-semibold">🔄 Siklus ini berulang terus menerus!</p>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Komponen Section -->
+        <div id="komponen" class="section min-h-screen p-6 md:p-12 hidden">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12 animate-fadeIn">
+                    <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600 mb-6">
+                        ⚙️ Komponen Utama
+                    </h1>
+                </div>
+
+                <!-- CPU Section -->
+                <div class="bg-white rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <h2 class="text-3xl font-bold text-blue-700 mb-8 flex items-center">
+                        <span class="text-4xl mr-4">🧠</span>
+                        Central Processing Unit (CPU)
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                                CPU adalah "otak" komputer yang bertugas memproses semua instruksi dan data. 
+                                Seperti otak manusia yang mengontrol seluruh tubuh, CPU mengontrol seluruh komputer.
+                            </p>
+                            
+                            <div class="bg-blue-50 p-6 rounded-xl">
+                                <h3 class="text-xl font-bold text-blue-700 mb-4">CPU terdiri dari 2 bagian utama:</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-start">
+                                        <span class="text-2xl mr-3">🎛️</span>
+                                        <div>
+                                            <h4 class="font-bold text-blue-600">Control Unit (CU)</h4>
+                                            <p class="text-gray-700">Mengatur dan mengontrol semua operasi</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <span class="text-2xl mr-3">🧮</span>
+                                        <div>
+                                            <h4 class="font-bold text-blue-600">Arithmetic Logic Unit (ALU)</h4>
+                                            <p class="text-gray-700">Melakukan perhitungan matematika dan logika</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-blue-100 to-purple-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-blue-700 mb-4">Contoh Kerja CPU:</h3>
+                            <div class="space-y-3">
+                                <div class="bg-white p-3 rounded-lg">
+                                    <p class="text-gray-700"><strong>Input:</strong> Kamu mengetik "2 + 3" di kalkulator</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg">
+                                    <p class="text-gray-700"><strong>CU:</strong> "Oke, ini operasi penjumlahan"</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg">
+                                    <p class="text-gray-700"><strong>ALU:</strong> "2 + 3 = 5"</p>
+                                </div>
+                                <div class="bg-white p-3 rounded-lg">
+                                    <p class="text-gray-700"><strong>Output:</strong> Layar menampilkan "5"</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Memory Section -->
+                <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <h2 class="text-3xl font-bold text-purple-700 mb-8 flex items-center">
+                        <span class="text-4xl mr-4">💾</span>
+                        Memory Unit (Memori)
+                    </h2>
+                    
+                    <p class="text-lg text-gray-700 leading-relaxed mb-8">
+                        Memori adalah tempat penyimpanan data dan program. Bayangkan seperti lemari dengan banyak laci, 
+                        setiap laci memiliki alamat unik untuk menyimpan informasi.
+                    </p>
+                    
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-lg component-box">
+                            <span class="text-4xl mb-4 block text-center">⚡</span>
+                            <h3 class="text-xl font-bold text-purple-600 mb-3 text-center">RAM</h3>
+                            <p class="text-gray-700 text-center mb-3">Random Access Memory</p>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• Penyimpanan sementara</li>
+                                <li>• Akses cepat</li>
+                                <li>• Data hilang saat mati</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg component-box">
+                            <span class="text-4xl mb-4 block text-center">🔒</span>
+                            <h3 class="text-xl font-bold text-purple-600 mb-3 text-center">ROM</h3>
+                            <p class="text-gray-700 text-center mb-3">Read Only Memory</p>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• Penyimpanan permanen</li>
+                                <li>• Hanya bisa dibaca</li>
+                                <li>• Berisi program dasar</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg component-box">
+                            <span class="text-4xl mb-4 block text-center">💿</span>
+                            <h3 class="text-xl font-bold text-purple-600 mb-3 text-center">Storage</h3>
+                            <p class="text-gray-700 text-center mb-3">Hard Disk, SSD</p>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• Penyimpanan jangka panjang</li>
+                                <li>• Kapasitas besar</li>
+                                <li>• Data tetap ada</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input/Output Section -->
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-gradient-to-br from-green-100 to-teal-100 rounded-3xl p-8 shadow-xl animate-fadeIn">
+                        <h2 class="text-2xl font-bold text-green-700 mb-6 flex items-center">
+                            <span class="text-3xl mr-3">📥</span>
+                            Input Unit
+                        </h2>
+                        <p class="text-lg text-gray-700 mb-6">
+                            Perangkat yang digunakan untuk memasukkan data ke dalam komputer.
+                        </p>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white p-4 rounded-lg text-center component-box">
+                                <span class="text-3xl mb-2 block">⌨️</span>
+                                <p class="font-semibold text-green-600">Keyboard</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg text-center component-box">
+                                <span class="text-3xl mb-2 block">🖱️</span>
+                                <p class="font-semibold text-green-600">Mouse</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg text-center component-box">
+                                <span class="text-3xl mb-2 block">🎤</span>
+                                <p class="font-semibold text-green-600">Microphone</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg text-center component-box">
+                                <span class="text-3xl mb-2 block">📷</span>
+                                <p class="font-semibold text-green-600">Camera</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-orange-100 to-red-100 rounded-3xl p-8 shadow-xl animate-fadeIn">
+                        <h2 class="text-2xl font-bold text-orange-700 mb-6 flex items-center">
+                            <span class="text-3xl mr-3">📤</span>
+                            Output Unit
+                        </h2>
+                        <p class="text-lg text-gray-700 mb-6">
+                            Perangkat yang digunakan untuk menampilkan hasil pemrosesan data.
+                        </p>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white p-4 rounded-lg text-center component-box">
+                                <span class="text-3xl mb-2 block">🖥️</span>
+                                <p class="font-semibold text-orange-600">Monitor</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg text-center component-box">
+                                <span class="text-3xl mb-2 block">🔊</span>
+                                <p class="font-semibold text-orange-600">Speaker</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg text-center component-box">
+                                <span class="text-3xl mb-2 block">🖨️</span>
+                                <p class="font-semibold text-orange-600">Printer</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg text-center component-box">
+                                <span class="text-3xl mb-2 block">🎧</span>
+                                <p class="font-semibold text-orange-600">Headphone</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Cara Kerja Section -->
+        <div id="cara-kerja" class="section min-h-screen p-6 md:p-12 hidden">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12 animate-fadeIn">
+                    <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-red-600 mb-6">
+                        🔄 Cara Kerja Model von Neumann
+                    </h1>
+                </div>
+
+                <div class="bg-white rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <h2 class="text-3xl font-bold text-orange-700 mb-8 text-center">Siklus Fetch-Decode-Execute-Store</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-blue-100 to-blue-200 p-6 rounded-xl text-center component-box">
+                            <span class="text-5xl mb-4 block">📥</span>
+                            <h3 class="text-xl font-bold text-blue-700 mb-3">1. FETCH</h3>
+                            <p class="text-gray-700">CPU mengambil instruksi dari memori</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-100 to-green-200 p-6 rounded-xl text-center component-box">
+                            <span class="text-5xl mb-4 block">🔍</span>
+                            <h3 class="text-xl font-bold text-green-700 mb-3">2. DECODE</h3>
+                            <p class="text-gray-700">Control Unit menerjemahkan instruksi</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-purple-100 to-purple-200 p-6 rounded-xl text-center component-box">
+                            <span class="text-5xl mb-4 block">⚡</span>
+                            <h3 class="text-xl font-bold text-purple-700 mb-3">3. EXECUTE</h3>
+                            <p class="text-gray-700">ALU menjalankan operasi yang diminta</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-orange-100 to-orange-200 p-6 rounded-xl text-center component-box">
+                            <span class="text-5xl mb-4 block">💾</span>
+                            <h3 class="text-xl font-bold text-orange-700 mb-3">4. STORE</h3>
+                            <p class="text-gray-700">Hasil disimpan kembali ke memori</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <p class="text-lg text-gray-700 font-semibold">🔄 Siklus ini berulang jutaan kali per detik!</p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <h2 class="text-3xl font-bold text-indigo-700 mb-8 flex items-center">
+                        <span class="text-4xl mr-4">📚</span>
+                        Contoh Nyata: Menghitung 5 + 3
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <div class="flex items-center mb-4">
+                                <span class="text-3xl mr-4">👤</span>
+                                <h3 class="text-xl font-bold text-indigo-600">Langkah User:</h3>
+                            </div>
+                            <p class="text-lg text-gray-700">Kamu mengetik "5 + 3" di kalkulator dan menekan Enter</p>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-blue-50 p-6 rounded-xl">
+                                <h3 class="text-xl font-bold text-blue-700 mb-4">🔄 Yang Terjadi di Komputer:</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-start">
+                                        <span class="text-xl mr-3">1️⃣</span>
+                                        <p class="text-gray-700"><strong>FETCH:</strong> CPU mengambil instruksi "tambahkan 5 dan 3" dari memori</p>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <span class="text-xl mr-3">2️⃣</span>
+                                        <p class="text-gray-700"><strong>DECODE:</strong> Control Unit: "Ini operasi penjumlahan"</p>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <span class="text-xl mr-3">3️⃣</span>
+                                        <p class="text-gray-700"><strong>EXECUTE:</strong> ALU menghitung: 5 + 3 = 8</p>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <span class="text-xl mr-3">4️⃣</span>
+                                        <p class="text-gray-700"><strong>STORE:</strong> Hasil "8" disimpan dan dikirim ke layar</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-green-50 p-6 rounded-xl">
+                                <h3 class="text-xl font-bold text-green-700 mb-4">📤 Hasil:</h3>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <span class="text-4xl">🖥️</span>
+                                    <p class="text-2xl font-bold text-green-600 mt-2">8</p>
+                                    <p class="text-gray-600">Muncul di layar</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <h2 class="text-3xl font-bold text-yellow-700 mb-8 flex items-center">
+                        <span class="text-4xl mr-4">⚡</span>
+                        Kecepatan Pemrosesan
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-xl text-center shadow-lg component-box">
+                            <span class="text-4xl mb-4 block">🐌</span>
+                            <h3 class="text-xl font-bold text-yellow-600 mb-2">Komputer Lama</h3>
+                            <p class="text-gray-700">Ribuan operasi per detik</p>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl text-center shadow-lg component-box">
+                            <span class="text-4xl mb-4 block">🏃</span>
+                            <h3 class="text-xl font-bold text-yellow-600 mb-2">Komputer Modern</h3>
+                            <p class="text-gray-700">Miliaran operasi per detik</p>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl text-center shadow-lg component-box">
+                            <span class="text-4xl mb-4 block">🚀</span>
+                            <h3 class="text-xl font-bold text-yellow-600 mb-2">Supercomputer</h3>
+                            <p class="text-gray-700">Triliun operasi per detik</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-white p-6 rounded-xl">
+                        <h3 class="text-xl font-bold text-yellow-700 mb-4 text-center">💡 Tahukah Kamu?</h3>
+                        <p class="text-lg text-gray-700 text-center">
+                            Smartphone kalian bisa melakukan lebih dari 1 miliar operasi per detik! 
+                            Itu sebabnya kalian bisa main game, video call, dan browsing internet dengan lancar.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-pink-100 to-purple-100 rounded-3xl p-8 shadow-xl animate-fadeIn">
+                    <h2 class="text-3xl font-bold text-pink-700 mb-8 flex items-center">
+                        <span class="text-4xl mr-4">🌐</span>
+                        Aplikasi dalam Kehidupan Sehari-hari
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-pink-600 mb-4">Contoh Penggunaan:</h3>
+                            <div class="space-y-3">
+                                <div class="bg-white p-4 rounded-lg flex items-center">
+                                    <span class="text-2xl mr-3">🎮</span>
+                                    <p class="text-gray-700">Bermain game - CPU memproses grafik dan logika game</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg flex items-center">
+                                    <span class="text-2xl mr-3">📱</span>
+                                    <p class="text-gray-700">Menggunakan aplikasi - setiap tap diproses oleh CPU</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg flex items-center">
+                                    <span class="text-2xl mr-3">🌐</span>
+                                    <p class="text-gray-700">Browsing internet - CPU memproses data website</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-bold text-pink-600 mb-4">Proses yang Sama:</h3>
+                            <div class="bg-white p-6 rounded-xl">
+                                <p class="text-gray-700 leading-relaxed">
+                                    Semua aktivitas ini menggunakan siklus Fetch-Decode-Execute-Store yang sama! 
+                                    Baik saat kalian mengetik pesan WhatsApp atau bermain Mobile Legends, 
+                                    prinsip kerjanya tetap mengikuti model von Neumann.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Simulasi Section -->
+        <div id="simulasi" class="section min-h-screen p-6 md:p-12 hidden">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-12 animate-fadeIn">
+                    <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-6">
+                        🎮 Simulasi Interaktif
+                    </h1>
+                    <p class="text-xl text-gray-700">Mari lihat bagaimana komputer bekerja secara langsung!</p>
+                </div>
+
+                <!-- CPU Simulator -->
+                <div class="bg-white rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <h2 class="text-3xl font-bold text-purple-700 mb-8 text-center flex items-center justify-center">
+                        <span class="text-4xl mr-4">🧠</span>
+                        Simulator CPU von Neumann
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-gradient-to-br from-blue-100 to-purple-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-blue-700 mb-4">Input Operasi:</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">Angka Pertama:</label>
+                                    <input type="number" id="num1" class="w-full p-3 border-2 border-blue-300 rounded-lg text-lg" placeholder="Masukkan angka pertama" value="5">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">Operasi:</label>
+                                    <select id="operation" class="w-full p-3 border-2 border-blue-300 rounded-lg text-lg">
+                                        <option value="+">Penjumlahan (+)</option>
+                                        <option value="-">Pengurangan (-)</option>
+                                        <option value="*">Perkalian (×)</option>
+                                        <option value="/">Pembagian (÷)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">Angka Kedua:</label>
+                                    <input type="number" id="num2" class="w-full p-3 border-2 border-blue-300 rounded-lg text-lg" placeholder="Masukkan angka kedua" value="3">
+                                </div>
+                                <button onclick="startSimulation()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white p-3 rounded-lg text-lg font-bold hover:from-purple-700 hover:to-pink-700 transition-all duration-300">
+                                    🚀 Mulai Simulasi
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-100 to-teal-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-green-700 mb-4">Status CPU:</h3>
+                            <div id="cpuStatus" class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">CPU Status:</span>
+                                        <span id="cpuState" class="text-gray-500">Menunggu...</span>
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Langkah Saat Ini:</span>
+                                        <span id="currentStep" class="text-gray-500">-</span>
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-semibold">Hasil:</span>
+                                        <span id="result" class="text-2xl font-bold text-green-600">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Simulation Steps -->
+                    <div id="simulationSteps" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                        <div id="step1" class="step-box bg-gray-100 p-6 rounded-xl text-center transition-all duration-500">
+                            <span class="text-4xl mb-3 block">📥</span>
+                            <h3 class="font-bold text-gray-500 mb-2">FETCH</h3>
+                            <p class="text-gray-400 text-sm">Mengambil instruksi</p>
+                        </div>
+                        <div id="step2" class="step-box bg-gray-100 p-6 rounded-xl text-center transition-all duration-500">
+                            <span class="text-4xl mb-3 block">🔍</span>
+                            <h3 class="font-bold text-gray-500 mb-2">DECODE</h3>
+                            <p class="text-gray-400 text-sm">Menerjemahkan instruksi</p>
+                        </div>
+                        <div id="step3" class="step-box bg-gray-100 p-6 rounded-xl text-center transition-all duration-500">
+                            <span class="text-4xl mb-3 block">⚡</span>
+                            <h3 class="font-bold text-gray-500 mb-2">EXECUTE</h3>
+                            <p class="text-gray-400 text-sm">Menjalankan operasi</p>
+                        </div>
+                        <div id="step4" class="step-box bg-gray-100 p-6 rounded-xl text-center transition-all duration-500">
+                            <span class="text-4xl mb-3 block">💾</span>
+                            <h3 class="font-bold text-gray-500 mb-2">STORE</h3>
+                            <p class="text-gray-400 text-sm">Menyimpan hasil</p>
+                        </div>
+                    </div>
+                    
+                    <div id="simulationLog" class="bg-gray-50 p-6 rounded-xl">
+                        <h3 class="text-xl font-bold text-gray-700 mb-4">📋 Log Simulasi:</h3>
+                        <div id="logContent" class="text-gray-600">
+                            Klik "Mulai Simulasi" untuk melihat proses kerja CPU...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Memory Simulator -->
+                <div class="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <h2 class="text-3xl font-bold text-indigo-700 mb-8 text-center flex items-center justify-center">
+                        <span class="text-4xl mr-4">💾</span>
+                        Simulator Memori
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-indigo-600 mb-4">Simulasi Penyimpanan Data:</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">Data yang akan disimpan:</label>
+                                    <input type="text" id="memoryData" class="w-full p-3 border-2 border-indigo-300 rounded-lg text-lg" placeholder="Ketik sesuatu..." value="Hello World">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 font-semibold mb-2">Alamat Memori:</label>
+                                    <select id="memoryAddress" class="w-full p-3 border-2 border-indigo-300 rounded-lg text-lg">
+                                        <option value="0x1000">0x1000</option>
+                                        <option value="0x1001">0x1001</option>
+                                        <option value="0x1002">0x1002</option>
+                                        <option value="0x1003">0x1003</option>
+                                    </select>
+                                </div>
+                                <button onclick="storeInMemory()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-3 rounded-lg text-lg font-bold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300">
+                                    💾 Simpan ke Memori
+                                </button>
+                                <button onclick="clearMemory()" class="w-full bg-gradient-to-r from-red-500 to-pink-500 text-white p-3 rounded-lg text-lg font-bold hover:from-red-600 hover:to-pink-600 transition-all duration-300">
+                                    🗑️ Hapus Semua
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-bold text-indigo-600 mb-4">Isi Memori:</h3>
+                            <div id="memoryContent" class="bg-white p-4 rounded-lg border-2 border-indigo-200 min-h-48">
+                                <div class="text-gray-500 text-center">Memori kosong...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Tugas Section -->
+        <div id="tugas" class="section min-h-screen p-6 md:p-12 hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12 animate-fadeIn">
+                    <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600 mb-6">
+                        📝 Tugas Pembelajaran
+                    </h1>
+                    <p class="text-xl text-gray-700">Tunjukkan pemahamanmu tentang Model von Neumann!</p>
+                </div>
+
+                <div class="bg-white rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <h2 class="text-2xl font-bold text-green-700 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">📋</span>
+                        Soal Essay
+                    </h2>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-green-50 p-6 rounded-xl">
+                            <h3 class="text-lg font-bold text-green-700 mb-3">Soal 1:</h3>
+                            <p class="text-gray-700 mb-4">
+                                Jelaskan dengan bahasa sendiri apa yang dimaksud dengan Model Komputer von Neumann! 
+                                Mengapa model ini penting dalam dunia komputer?
+                            </p>
+                            <textarea id="answer1" class="w-full p-4 border-2 border-green-300 rounded-lg text-lg min-h-32" placeholder="Tulis jawabanmu di sini..."></textarea>
+                        </div>
+                        
+                        <div class="bg-blue-50 p-6 rounded-xl">
+                            <h3 class="text-lg font-bold text-blue-700 mb-3">Soal 2:</h3>
+                            <p class="text-gray-700 mb-4">
+                                Sebutkan dan jelaskan 4 komponen utama dalam arsitektur von Neumann! 
+                                Berikan contoh perangkat untuk masing-masing komponen!
+                            </p>
+                            <textarea id="answer2" class="w-full p-4 border-2 border-blue-300 rounded-lg text-lg min-h-32" placeholder="Tulis jawabanmu di sini..."></textarea>
+                        </div>
+                        
+                        <div class="bg-purple-50 p-6 rounded-xl">
+                            <h3 class="text-lg font-bold text-purple-700 mb-3">Soal 3:</h3>
+                            <p class="text-gray-700 mb-4">
+                                Jelaskan siklus Fetch-Decode-Execute-Store dengan menggunakan contoh sederhana! 
+                                Misalnya saat kamu mengetik nama di Microsoft Word.
+                            </p>
+                            <textarea id="answer3" class="w-full p-4 border-2 border-purple-300 rounded-lg text-lg min-h-32" placeholder="Tulis jawabanmu di sini..."></textarea>
+                        </div>
+                        
+                        <div class="bg-orange-50 p-6 rounded-xl">
+                            <h3 class="text-lg font-bold text-orange-700 mb-3">Soal 4:</h3>
+                            <p class="text-gray-700 mb-4">
+                                Apa perbedaan antara RAM, ROM, dan Storage dalam komputer? 
+                                Jelaskan fungsi masing-masing dan berikan contoh penggunaannya!
+                            </p>
+                            <textarea id="answer4" class="w-full p-4 border-2 border-orange-300 rounded-lg text-lg min-h-32" placeholder="Tulis jawabanmu di sini..."></textarea>
+                        </div>
+                        
+                        <div class="bg-pink-50 p-6 rounded-xl">
+                            <h3 class="text-lg font-bold text-pink-700 mb-3">Soal 5:</h3>
+                            <p class="text-gray-700 mb-4">
+                                Bagaimana penerapan model von Neumann dalam kehidupan sehari-hari? 
+                                Berikan 3 contoh aktivitas yang kamu lakukan dengan gadget/komputer dan jelaskan prosesnya!
+                            </p>
+                            <textarea id="answer5" class="w-full p-4 border-2 border-pink-300 rounded-lg text-lg min-h-32" placeholder="Tulis jawabanmu di sini..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-8">
+                        <button onclick="submitAssignment()" class="bg-gradient-to-r from-green-600 to-blue-600 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-green-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                            ✅ Submit Tugas
+                        </button>
+                    </div>
+                </div>
+
+                <div id="assignmentResult" class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-3xl p-8 shadow-xl hidden animate-fadeIn">
+                    <h2 class="text-2xl font-bold text-orange-700 mb-4 flex items-center">
+                        <span class="text-3xl mr-3">🎉</span>
+                        Tugas Berhasil Dikumpulkan!
+                    </h2>
+                    <p class="text-lg text-gray-700">
+                        Terima kasih telah mengerjakan tugas dengan baik! Jawaban kamu menunjukkan pemahaman yang bagus tentang Model von Neumann. 
+                        Lanjutkan ke kuis untuk menguji pengetahuanmu lebih lanjut!
+                    </p>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Kuis Section -->
+        <div id="kuis" class="section min-h-screen p-6 md:p-12 hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12 animate-fadeIn">
+                    <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-6">
+                        🧠 Kuis Interaktif
+                    </h1>
+                    <p class="text-xl text-gray-700">Uji pemahamanmu dengan 10 soal pilihan ganda!</p>
+                </div>
+
+                <!-- Quiz Start -->
+                <div id="quizStart" class="bg-white rounded-3xl p-8 shadow-xl animate-fadeIn">
+                    <div class="text-center mb-8">
+                        <span class="text-6xl mb-4 block">🎯</span>
+                        <h2 class="text-3xl font-bold text-purple-700 mb-4">Siap untuk Kuis?</h2>
+                        <p class="text-lg text-gray-700 mb-6">
+                            Kuis ini terdiri dari 10 soal pilihan ganda tentang Model von Neumann. 
+                            Masukkan nama kamu terlebih dahulu!
+                        </p>
+                    </div>
+                    
+                    <div class="max-w-md mx-auto">
+                        <label class="block text-gray-700 font-semibold mb-3 text-lg">Nama Lengkap:</label>
+                        <input type="text" id="studentName" class="w-full p-4 border-2 border-purple-300 rounded-lg text-lg mb-6" placeholder="Masukkan nama lengkap kamu">
+                        <button onclick="startQuiz()" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4 rounded-lg text-xl font-bold hover:from-purple-700 hover:to-pink-700 transition-all duration-300">
+                            🚀 Mulai Kuis
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Questions -->
+                <div id="quizQuestions" class="bg-white rounded-3xl p-8 shadow-xl hidden animate-fadeIn">
+                    <div class="flex justify-between items-center mb-8">
+                        <h2 class="text-2xl font-bold text-purple-700">Kuis Model von Neumann</h2>
+                        <div class="text-lg font-semibold text-gray-600">
+                            Soal <span id="currentQuestion">1</span> dari <span id="totalQuestions">10</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-8">
+                        <div class="bg-purple-100 rounded-full h-3 mb-4">
+                            <div id="progressBar" class="bg-gradient-to-r from-purple-600 to-pink-600 h-3 rounded-full transition-all duration-300" style="width: 10%"></div>
+                        </div>
+                    </div>
+                    
+                    <div id="questionContainer" class="mb-8">
+                        <!-- Questions will be loaded here -->
+                    </div>
+                    
+                    <div class="flex justify-between">
+                        <button id="prevBtn" onclick="previousQuestion()" class="bg-gray-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors" disabled>
+                            ← Sebelumnya
+                        </button>
+                        <button id="nextBtn" onclick="nextQuestion()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300">
+                            Selanjutnya →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Result -->
+                <div id="quizResult" class="bg-white rounded-3xl p-8 shadow-xl hidden animate-fadeIn">
+                    <div class="text-center">
+                        <span id="resultEmoji" class="text-8xl mb-6 block">🎉</span>
+                        <h2 class="text-3xl font-bold text-purple-700 mb-4">Kuis Selesai!</h2>
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-xl mb-6">
+                            <p class="text-xl font-semibold text-gray-700 mb-2">Nama: <span id="finalName" class="text-purple-600"></span></p>
+                            <p class="text-2xl font-bold text-purple-600">Skor: <span id="finalScore">0</span>/10</p>
+                            <p class="text-lg text-gray-600 mt-2">Persentase: <span id="finalPercentage">0</span>%</p>
+                        </div>
+                        <div id="scoreMessage" class="text-lg text-gray-700 mb-6"></div>
+                        <button onclick="retakeQuiz()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 mr-4">
+                            🔄 Ulangi Kuis
+                        </button>
+                        <button onclick="showSection('penutup')" class="bg-gradient-to-r from-green-600 to-blue-600 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-green-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-300">
+                            Lanjut ke Penutup! 🎯
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Penutup Section -->
+        <div id="penutup" class="section min-h-screen p-6 md:p-12 hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12 animate-fadeIn">
+                    <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 mb-6">
+                        🎯 Penutup Pembelajaran
+                    </h1>
+                    <p class="text-xl text-gray-700">Selamat! Kamu telah menyelesaikan pembelajaran Model von Neumann</p>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-100 to-teal-100 rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <h2 class="text-3xl font-bold text-green-700 mb-6 flex items-center">
+                        <span class="text-4xl mr-4">🤔</span>
+                        Refleksi Pembelajaran
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-green-600 mb-4">Apa yang sudah kamu pelajari?</h3>
+                            <div class="space-y-3">
+                                <div class="bg-white p-4 rounded-lg flex items-center">
+                                    <span class="text-2xl mr-3">✅</span>
+                                    <p class="text-gray-700">Konsep dasar Model von Neumann</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg flex items-center">
+                                    <span class="text-2xl mr-3">✅</span>
+                                    <p class="text-gray-700">4 komponen utama komputer</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg flex items-center">
+                                    <span class="text-2xl mr-3">✅</span>
+                                    <p class="text-gray-700">Siklus Fetch-Decode-Execute-Store</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg flex items-center">
+                                    <span class="text-2xl mr-3">✅</span>
+                                    <p class="text-gray-700">Penerapan dalam kehidupan sehari-hari</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-bold text-green-600 mb-4">Bagaimana perasaanmu?</h3>
+                            <div class="bg-white p-6 rounded-xl">
+                                <p class="text-gray-700 leading-relaxed mb-4">
+                                    Tuliskan refleksi singkat tentang pembelajaran hari ini. 
+                                    Apa yang paling menarik? Apa yang masih perlu diperdalam?
+                                </p>
+                                <textarea id="reflection" class="w-full p-4 border-2 border-green-300 rounded-lg text-lg min-h-24" placeholder="Tulis refleksimu di sini..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <h2 class="text-3xl font-bold text-blue-700 mb-6 flex items-center">
+                        <span class="text-4xl mr-4">📚</span>
+                        Kesimpulan Pembelajaran
+                    </h2>
+                    
+                    <div class="bg-white p-6 rounded-xl mb-6">
+                        <h3 class="text-xl font-bold text-blue-600 mb-4">Poin-Poin Penting:</h3>
+                        <div class="space-y-3 text-lg text-gray-700">
+                            <p>🔹 <strong>Model von Neumann</strong> adalah blueprint dasar semua komputer modern</p>
+                            <p>🔹 <strong>4 Komponen Utama:</strong> CPU, Memory, Input Unit, Output Unit</p>
+                            <p>🔹 <strong>CPU</strong> terdiri dari Control Unit dan ALU yang bekerja sama</p>
+                            <p>🔹 <strong>Siklus FDES</strong> (Fetch-Decode-Execute-Store) berulang jutaan kali per detik</p>
+                            <p>🔹 <strong>Semua perangkat</strong> yang kita gunakan mengikuti prinsip ini</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-6 rounded-xl">
+                        <h3 class="text-xl font-bold text-blue-600 mb-3">💡 Mengapa Ini Penting?</h3>
+                        <p class="text-lg text-gray-700 leading-relaxed">
+                            Dengan memahami model von Neumann, kamu sekarang tahu bagaimana komputer bekerja dari dalam. 
+                            Ini adalah fondasi penting untuk mempelajari pemrograman, jaringan komputer, dan teknologi lainnya. 
+                            Setiap kali kamu menggunakan smartphone atau komputer, ingatlah proses FDES yang terjadi di dalamnya!
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-3xl p-8 shadow-xl mb-8 animate-fadeIn">
+                    <h2 class="text-3xl font-bold text-purple-700 mb-6 flex items-center">
+                        <span class="text-4xl mr-4">🚀</span>
+                        Tindak Lanjut
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-purple-600 mb-4">Untuk Memperdalam:</h3>
+                            <div class="space-y-3">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-600">📖 Baca Lebih Lanjut</h4>
+                                    <p class="text-gray-700 text-sm">Cari artikel tentang sejarah komputer dan perkembangan teknologi</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-600">🔧 Praktik Langsung</h4>
+                                    <p class="text-gray-700 text-sm">Coba bongkar komputer lama (dengan pengawasan) untuk melihat komponennya</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-600">💻 Belajar Programming</h4>
+                                    <p class="text-gray-700 text-sm">Mulai belajar bahasa pemrograman sederhana seperti Scratch atau Python</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-bold text-purple-600 mb-4">Materi Selanjutnya:</h3>
+                            <div class="space-y-3">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-600">🌐 Sistem Operasi</h4>
+                                    <p class="text-gray-700 text-sm">Pelajari bagaimana OS mengelola hardware</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-600">🔗 Jaringan Komputer</h4>
+                                    <p class="text-gray-700 text-sm">Pahami bagaimana komputer saling terhubung</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-600">🛡️ Keamanan Komputer</h4>
+                                    <p class="text-gray-700 text-sm">Pelajari cara melindungi sistem komputer</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-3xl p-8 shadow-xl animate-fadeIn">
+                    <div class="text-center">
+                        <span class="text-8xl mb-6 block">🎉</span>
+                        <h2 class="text-3xl font-bold text-orange-700 mb-4">Selamat!</h2>
+                        <p class="text-xl text-gray-700 mb-6">
+                            Kamu telah berhasil menyelesaikan pembelajaran Model Komputer von Neumann! 
+                            Pengetahuan ini akan sangat berguna untuk perjalanan kariermu di bidang teknologi.
+                        </p>
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <span class="bg-white px-4 py-2 rounded-full text-orange-600 font-semibold">🏆 Pembelajaran Selesai</span>
+                            <span class="bg-white px-4 py-2 rounded-full text-orange-600 font-semibold">🧠 Pengetahuan Bertambah</span>
+                            <span class="bg-white px-4 py-2 rounded-full text-orange-600 font-semibold">🚀 Siap Lanjut</span>
+                        </div>
+                        
+                        <div class="mt-8">
+                            <button onclick="showSection('intro')" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-indigo-700 hover:to-purple-700 transform hover:scale-105 transition-all duration-300">
+                                🔄 Ulangi Pembelajaran
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4 rounded-full shadow-lg hover:from-purple-700 hover:to-pink-700 transform hover:scale-110 transition-all duration-300 z-40 hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Global variables
+        let currentQuizQuestion = 0;
+        let quizAnswers = [];
+        let quizScore = 0;
+        let studentName = '';
+        
+        // Quiz questions
+        const quizQuestions = [
+            {
+                question: "Siapa yang menciptakan Model Komputer von Neumann?",
+                options: ["John von Neumann", "Alan Turing", "Charles Babbage", "Bill Gates"],
+                correct: 0
+            },
+            {
+                question: "Apa kepanjangan dari CPU?",
+                options: ["Computer Processing Unit", "Central Processing Unit", "Central Program Unit", "Computer Program Unit"],
+                correct: 1
+            },
+            {
+                question: "Berapa komponen utama dalam arsitektur von Neumann?",
+                options: ["3", "4", "5", "6"],
+                correct: 1
+            },
+            {
+                question: "Apa fungsi utama ALU dalam CPU?",
+                options: ["Mengontrol operasi", "Menyimpan data", "Melakukan perhitungan", "Menampilkan hasil"],
+                correct: 2
+            },
+            {
+                question: "Urutan yang benar dalam siklus CPU adalah:",
+                options: ["Execute-Fetch-Decode-Store", "Fetch-Decode-Execute-Store", "Decode-Fetch-Execute-Store", "Store-Fetch-Decode-Execute"],
+                correct: 1
+            },
+            {
+                question: "Jenis memori yang kehilangan data saat komputer dimatikan adalah:",
+                options: ["ROM", "Hard Disk", "RAM", "SSD"],
+                correct: 2
+            },
+            {
+                question: "Contoh perangkat input adalah:",
+                options: ["Monitor", "Speaker", "Keyboard", "Printer"],
+                correct: 2
+            },
+            {
+                question: "Apa yang dimaksud dengan 'stored program concept'?",
+                options: ["Program disimpan di CD", "Program dan data disimpan dalam memori yang sama", "Program hanya ada di ROM", "Program tidak bisa diubah"],
+                correct: 1
+            },
+            {
+                question: "Control Unit bertugas untuk:",
+                options: ["Melakukan perhitungan", "Mengatur dan mengontrol operasi", "Menyimpan data", "Menampilkan hasil"],
+                correct: 1
+            },
+            {
+                question: "Contoh penerapan model von Neumann dalam kehidupan sehari-hari adalah:",
+                options: ["Menggunakan smartphone", "Menulis dengan pulpen", "Membaca buku", "Berjalan kaki"],
+                correct: 0
+            }
+        ];
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.add('hidden');
+                section.classList.remove('active');
+            });
+            
+            // Remove active state from all nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('bg-white', 'bg-opacity-30', 'text-white');
+                item.classList.add('hover:bg-white', 'hover:bg-opacity-20');
+            });
+            
+            // Add active state to current nav item
+            const activeNavItem = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (activeNavItem) {
+                activeNavItem.classList.add('bg-white', 'bg-opacity-30', 'text-white');
+                activeNavItem.classList.remove('hover:bg-white', 'hover:bg-opacity-20');
+            }
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                targetSection.classList.add('active');
+                
+                // Close sidebar on mobile
+                if (window.innerWidth < 768) {
+                    closeSidebar();
+                }
+                
+                // Update content margin for desktop
+                updateContentMargin();
+                
+                // Scroll to top after a small delay to ensure section is visible
+                setTimeout(() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 100);
+            }
+        }
+
+        function updateContentMargin() {
+            const mainContent = document.getElementById('mainContent');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (window.innerWidth >= 768) {
+                if (sidebar.classList.contains('sidebar-open')) {
+                    mainContent.classList.add('content-shift');
+                } else {
+                    mainContent.classList.remove('content-shift');
+                }
+            } else {
+                mainContent.classList.remove('content-shift');
+            }
+        }
+
+        // Sidebar functions
+        function openSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.remove('sidebar-closed');
+            sidebar.classList.add('sidebar-open');
+            updateContentMargin();
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.remove('sidebar-open');
+            sidebar.classList.add('sidebar-closed');
+            updateContentMargin();
+        }
+
+        // Simulation functions
+        function startSimulation() {
+            const num1 = parseFloat(document.getElementById('num1').value) || 0;
+            const num2 = parseFloat(document.getElementById('num2').value) || 0;
+            const operation = document.getElementById('operation').value;
+            
+            // Reset steps
+            for (let i = 1; i <= 4; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.className = 'step-box bg-gray-100 p-6 rounded-xl text-center transition-all duration-500';
+                step.querySelector('h3').className = 'font-bold text-gray-500 mb-2';
+                step.querySelector('p').className = 'text-gray-400 text-sm';
+            }
+            
+            document.getElementById('logContent').innerHTML = 'Memulai simulasi...<br>';
+            
+            // Start simulation steps
+            setTimeout(() => fetchStep(num1, num2, operation), 500);
+        }
+
+        function fetchStep(num1, num2, operation) {
+            const step1 = document.getElementById('step1');
+            step1.className = 'step-box bg-blue-100 p-6 rounded-xl text-center transition-all duration-500 transform scale-105';
+            step1.querySelector('h3').className = 'font-bold text-blue-700 mb-2';
+            step1.querySelector('p').className = 'text-blue-600 text-sm';
+            
+            document.getElementById('cpuState').textContent = 'Mengambil instruksi...';
+            document.getElementById('currentStep').textContent = 'FETCH';
+            document.getElementById('logContent').innerHTML += `📥 FETCH: Mengambil instruksi "${num1} ${operation} ${num2}" dari memori<br>`;
+            
+            setTimeout(() => decodeStep(num1, num2, operation), 1500);
+        }
+
+        function decodeStep(num1, num2, operation) {
+            const step2 = document.getElementById('step2');
+            step2.className = 'step-box bg-green-100 p-6 rounded-xl text-center transition-all duration-500 transform scale-105';
+            step2.querySelector('h3').className = 'font-bold text-green-700 mb-2';
+            step2.querySelector('p').className = 'text-green-600 text-sm';
+            
+            document.getElementById('cpuState').textContent = 'Menerjemahkan instruksi...';
+            document.getElementById('currentStep').textContent = 'DECODE';
+            
+            let operationName = '';
+            switch(operation) {
+                case '+': operationName = 'penjumlahan'; break;
+                case '-': operationName = 'pengurangan'; break;
+                case '*': operationName = 'perkalian'; break;
+                case '/': operationName = 'pembagian'; break;
+            }
+            
+            document.getElementById('logContent').innerHTML += `🔍 DECODE: Control Unit menerjemahkan - ini adalah operasi ${operationName}<br>`;
+            
+            setTimeout(() => executeStep(num1, num2, operation), 1500);
+        }
+
+        function executeStep(num1, num2, operation) {
+            const step3 = document.getElementById('step3');
+            step3.className = 'step-box bg-purple-100 p-6 rounded-xl text-center transition-all duration-500 transform scale-105';
+            step3.querySelector('h3').className = 'font-bold text-purple-700 mb-2';
+            step3.querySelector('p').className = 'text-purple-600 text-sm';
+            
+            document.getElementById('cpuState').textContent = 'Menjalankan operasi...';
+            document.getElementById('currentStep').textContent = 'EXECUTE';
+            
+            let result;
+            switch(operation) {
+                case '+': result = num1 + num2; break;
+                case '-': result = num1 - num2; break;
+                case '*': result = num1 * num2; break;
+                case '/': result = num2 !== 0 ? num1 / num2 : 'Error: Pembagian dengan nol'; break;
+            }
+            
+            document.getElementById('logContent').innerHTML += `⚡ EXECUTE: ALU menghitung ${num1} ${operation} ${num2} = ${result}<br>`;
+            
+            setTimeout(() => storeStep(result), 1500);
+        }
+
+        function storeStep(result) {
+            const step4 = document.getElementById('step4');
+            step4.className = 'step-box bg-orange-100 p-6 rounded-xl text-center transition-all duration-500 transform scale-105';
+            step4.querySelector('h3').className = 'font-bold text-orange-700 mb-2';
+            step4.querySelector('p').className = 'text-orange-600 text-sm';
+            
+            document.getElementById('cpuState').textContent = 'Menyimpan hasil...';
+            document.getElementById('currentStep').textContent = 'STORE';
+            document.getElementById('result').textContent = result;
+            document.getElementById('logContent').innerHTML += `💾 STORE: Hasil "${result}" disimpan dan dikirim ke output<br>`;
+            document.getElementById('logContent').innerHTML += `<br>✅ <strong>Simulasi selesai! Siklus FDES berhasil dijalankan.</strong>`;
+            
+            setTimeout(() => {
+                document.getElementById('cpuState').textContent = 'Siap untuk operasi berikutnya';
+                document.getElementById('currentStep').textContent = 'Menunggu...';
+            }, 2000);
+        }
+
+        // Memory simulation functions
+        let memoryData = {};
+
+        function storeInMemory() {
+            const data = document.getElementById('memoryData').value;
+            const address = document.getElementById('memoryAddress').value;
+            
+            if (data.trim() === '') {
+                alert('Masukkan data terlebih dahulu!');
+                return;
+            }
+            
+            memoryData[address] = data;
+            updateMemoryDisplay();
+        }
+
+        function clearMemory() {
+            memoryData = {};
+            updateMemoryDisplay();
+        }
+
+        function updateMemoryDisplay() {
+            const memoryContent = document.getElementById('memoryContent');
+            
+            if (Object.keys(memoryData).length === 0) {
+                memoryContent.innerHTML = '<div class="text-gray-500 text-center">Memori kosong...</div>';
+                return;
+            }
+            
+            let html = '';
+            for (const [address, data] of Object.entries(memoryData)) {
+                html += `
+                    <div class="bg-indigo-50 p-3 rounded-lg mb-2 flex justify-between items-center">
+                        <div>
+                            <span class="font-semibold text-indigo-600">${address}:</span>
+                            <span class="text-gray-700">${data}</span>
+                        </div>
+                        <button onclick="deleteFromMemory('${address}')" class="text-red-500 hover:text-red-700">
+                            🗑️
+                        </button>
+                    </div>
+                `;
+            }
+            
+            memoryContent.innerHTML = html;
+        }
+
+        function deleteFromMemory(address) {
+            delete memoryData[address];
+            updateMemoryDisplay();
+        }
+
+        // Assignment functions
+        function submitAssignment() {
+            const answers = [];
+            for (let i = 1; i <= 5; i++) {
+                const answer = document.getElementById(`answer${i}`).value.trim();
+                if (answer === '') {
+                    alert(`Mohon isi jawaban soal ${i}!`);
+                    return;
+                }
+                answers.push(answer);
+            }
+            
+            // Show result
+            document.getElementById('assignmentResult').classList.remove('hidden');
+            document.getElementById('assignmentResult').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Quiz functions
+        function startQuiz() {
+            const name = document.getElementById('studentName').value.trim();
+            if (name === '') {
+                alert('Mohon masukkan nama terlebih dahulu!');
+                return;
+            }
+            
+            studentName = name;
+            currentQuizQuestion = 0;
+            quizAnswers = new Array(quizQuestions.length).fill(-1);
+            quizScore = 0;
+            
+            document.getElementById('quizStart').classList.add('hidden');
+            document.getElementById('quizQuestions').classList.remove('hidden');
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = quizQuestions[currentQuizQuestion];
+            const container = document.getElementById('questionContainer');
+            
+            document.getElementById('currentQuestion').textContent = currentQuizQuestion + 1;
+            document.getElementById('totalQuestions').textContent = quizQuestions.length;
+            
+            const progress = ((currentQuizQuestion + 1) / quizQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            let html = `
+                <div class="bg-purple-50 p-6 rounded-xl mb-6">
+                    <h3 class="text-xl font-bold text-purple-700 mb-4">${question.question}</h3>
+                    <div class="space-y-3">
+            `;
+            
+            question.options.forEach((option, index) => {
+                const checked = quizAnswers[currentQuizQuestion] === index ? 'checked' : '';
+                html += `
+                    <label class="flex items-center p-3 bg-white rounded-lg cursor-pointer hover:bg-purple-50 transition-colors">
+                        <input type="radio" name="question${currentQuizQuestion}" value="${index}" ${checked} onchange="selectAnswer(${index})" class="mr-3">
+                        <span class="text-gray-700">${option}</span>
+                    </label>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentQuizQuestion === 0;
+            document.getElementById('nextBtn').textContent = currentQuizQuestion === quizQuestions.length - 1 ? 'Selesai' : 'Selanjutnya →';
+        }
+
+        function selectAnswer(answerIndex) {
+            quizAnswers[currentQuizQuestion] = answerIndex;
+        }
+
+        function nextQuestion() {
+            if (quizAnswers[currentQuizQuestion] === -1) {
+                alert('Mohon pilih jawaban terlebih dahulu!');
+                return;
+            }
+            
+            if (currentQuizQuestion < quizQuestions.length - 1) {
+                currentQuizQuestion++;
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuizQuestion > 0) {
+                currentQuizQuestion--;
+                loadQuestion();
+            }
+        }
+
+        function finishQuiz() {
+            // Calculate score
+            quizScore = 0;
+            for (let i = 0; i < quizQuestions.length; i++) {
+                if (quizAnswers[i] === quizQuestions[i].correct) {
+                    quizScore++;
+                }
+            }
+            
+            const percentage = Math.round((quizScore / quizQuestions.length) * 100);
+            
+            // Show result
+            document.getElementById('quizQuestions').classList.add('hidden');
+            document.getElementById('quizResult').classList.remove('hidden');
+            
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = quizScore;
+            document.getElementById('finalPercentage').textContent = percentage;
+            
+            // Set emoji and message based on score
+            let emoji, message;
+            if (percentage >= 90) {
+                emoji = '🏆';
+                message = 'Luar biasa! Kamu sangat memahami materi Model von Neumann!';
+            } else if (percentage >= 80) {
+                emoji = '🎉';
+                message = 'Bagus sekali! Pemahaman kamu tentang materi sudah sangat baik!';
+            } else if (percentage >= 70) {
+                emoji = '👏';
+                message = 'Baik! Kamu sudah cukup memahami materi, terus belajar ya!';
+            } else if (percentage >= 60) {
+                emoji = '📚';
+                message = 'Cukup baik! Coba pelajari lagi materi yang belum dipahami.';
+            } else {
+                emoji = '💪';
+                message = 'Jangan menyerah! Ulangi pembelajaran dan coba lagi.';
+            }
+            
+            document.getElementById('resultEmoji').textContent = emoji;
+            document.getElementById('scoreMessage').textContent = message;
+        }
+
+        function retakeQuiz() {
+            document.getElementById('quizResult').classList.add('hidden');
+            document.getElementById('quizStart').classList.remove('hidden');
+            document.getElementById('studentName').value = studentName;
+        }
+
+        // Back to top functionality
+        function initBackToTop() {
+            const backToTopBtn = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('hidden');
+                } else {
+                    backToTopBtn.classList.add('hidden');
+                }
+            });
+            
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // Auto navigation helper
+        function getNextSection(currentSection) {
+            const sectionOrder = ['intro', 'pengenalan', 'arsitektur', 'komponen', 'cara-kerja', 'simulasi', 'tugas', 'kuis', 'penutup'];
+            const currentIndex = sectionOrder.indexOf(currentSection);
+            if (currentIndex >= 0 && currentIndex < sectionOrder.length - 1) {
+                return sectionOrder[currentIndex + 1];
+            }
+            return null;
+        }
+
+        function addNextButtons() {
+            const sections = ['intro', 'pengenalan', 'arsitektur', 'komponen', 'cara-kerja', 'simulasi', 'tugas'];
+            
+            sections.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                const nextSection = getNextSection(sectionId);
+                
+                if (section && nextSection) {
+                    // Check if next button already exists
+                    const existingButton = section.querySelector('.auto-next-btn');
+                    if (!existingButton) {
+                        const nextButton = document.createElement('div');
+                        nextButton.className = 'text-center mt-12 auto-next-btn';
+                        
+                        let buttonText = '';
+                        let buttonIcon = '';
+                        switch(nextSection) {
+                            case 'pengenalan': buttonText = 'Lanjut ke Pengenalan!'; buttonIcon = '👋'; break;
+                            case 'arsitektur': buttonText = 'Pelajari Arsitektur!'; buttonIcon = '🏗️'; break;
+                            case 'komponen': buttonText = 'Lihat Komponen!'; buttonIcon = '⚙️'; break;
+                            case 'cara-kerja': buttonText = 'Pelajari Cara Kerja!'; buttonIcon = '🔄'; break;
+                            case 'simulasi': buttonText = 'Coba Simulasi!'; buttonIcon = '🎮'; break;
+                            case 'tugas': buttonText = 'Kerjakan Tugas!'; buttonIcon = '📝'; break;
+                            case 'kuis': buttonText = 'Ikuti Kuis!'; buttonIcon = '🧠'; break;
+                            case 'penutup': buttonText = 'Ke Penutup!'; buttonIcon = '🎯'; break;
+                        }
+                        
+                        nextButton.innerHTML = `
+                            <button onclick="showSection('${nextSection}')" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-full text-xl font-bold hover:from-purple-700 hover:to-pink-700 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                                ${buttonText} ${buttonIcon}
+                            </button>
+                        `;
+                        
+                        section.querySelector('.max-w-4xl, .max-w-6xl').appendChild(nextButton);
+                    }
+                }
+            });
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar event listeners
+            document.getElementById('openSidebar').addEventListener('click', openSidebar);
+            document.getElementById('closeSidebar').addEventListener('click', closeSidebar);
+            
+            // Auto-open sidebar on desktop
+            if (window.innerWidth >= 768) {
+                openSidebar();
+            }
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth >= 768) {
+                    openSidebar();
+                } else {
+                    closeSidebar();
+                }
+            });
+            
+            // Initialize back to top
+            initBackToTop();
+            
+            // Add next buttons to all sections
+            addNextButtons();
+            
+            // Show intro section by default
+            showSection('intro');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'985fe03e66f7ea81',t:'MTc1OTAyNzIyNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
