@@ -1,0 +1,2069 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembelajaran Sistem Operasi - SMK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .animate-bounce-slow {
+            animation: bounce 2s infinite;
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 3s infinite;
+        }
+        
+        .memory-block {
+            transition: all 0.5s ease;
+        }
+        
+        .memory-block.allocated {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+        }
+        
+        .memory-block.free {
+            background: linear-gradient(45deg, #48dbfb, #0abde3);
+        }
+        
+        .process-item {
+            transition: all 0.3s ease;
+        }
+        
+        .process-running {
+            background: linear-gradient(45deg, #26de81, #20bf6b);
+        }
+        
+        .process-waiting {
+            background: linear-gradient(45deg, #fed330, #f7b731);
+        }
+        
+        .process-terminated {
+            background: linear-gradient(45deg, #fc5c65, #eb3349);
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            transform: scale(1.02);
+        }
+        
+        .quiz-option.correct {
+            background: linear-gradient(45deg, #26de81, #20bf6b);
+            color: white;
+        }
+        
+        .quiz-option.incorrect {
+            background: linear-gradient(45deg, #fc5c65, #eb3349);
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 min-h-screen">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-white rounded-full p-3 shadow-lg">
+        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-2xl transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 overflow-y-auto">
+        <div class="p-6 gradient-bg text-white">
+            <h1 class="text-2xl font-bold mb-2">🖥️ Sistem Operasi</h1>
+            <p class="text-purple-100">Pembelajaran Interaktif SMK</p>
+        </div>
+        
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li><a href="#" onclick="showSection('intro')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🚀</span>
+                    <span class="font-medium text-gray-700">Intro</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('pengenalan')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">📚</span>
+                    <span class="font-medium text-gray-700">Pengenalan</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('memori')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🧠</span>
+                    <span class="font-medium text-gray-700">Pengelolaan Memori</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('proses')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">⚙️</span>
+                    <span class="font-medium text-gray-700">Pengelolaan Proses</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('kernel')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🔧</span>
+                    <span class="font-medium text-gray-700">Antarmuka Kernel</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('interaksi')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">👤</span>
+                    <span class="font-medium text-gray-700">Interaksi Pengguna</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('utilitas')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🛠️</span>
+                    <span class="font-medium text-gray-700">Utilitas Sistem</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('tugas')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">📝</span>
+                    <span class="font-medium text-gray-700">Tugas</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('kuis')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🎯</span>
+                    <span class="font-medium text-gray-700">Kuis</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('penutup')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🎉</span>
+                    <span class="font-medium text-gray-700">Penutup</span>
+                </a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-screen">
+        <div class="max-w-4xl mx-auto p-4 lg:p-8">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4 animate-bounce-slow">🖥️</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Selamat Datang di Pembelajaran Sistem Operasi!</h1>
+                        <p class="text-xl text-gray-600">Mari jelajahi dunia sistem operasi dengan cara yang menyenangkan!</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-gradient-to-r from-purple-400 to-pink-400 rounded-2xl p-6 text-white">
+                            <h3 class="text-2xl font-bold mb-4">🤔 Pertanyaan Pemantik</h3>
+                            <ul class="space-y-3 text-lg">
+                                <li>• Bagaimana komputer mengelola memori?</li>
+                                <li>• Mengapa ada banyak program bisa jalan bersamaan?</li>
+                                <li>• Bagaimana sistem operasi bekerja?</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-400 to-cyan-400 rounded-2xl p-6 text-white">
+                            <h3 class="text-2xl font-bold mb-4">🎯 Tujuan Pembelajaran</h3>
+                            <ul class="space-y-3 text-lg">
+                                <li>• Memahami pengelolaan memori</li>
+                                <li>• Mengerti manajemen proses</li>
+                                <li>• Memahami antarmuka kernel</li>
+                                <li>• Mengenal utilitas sistem</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-green-400 to-blue-500 rounded-2xl p-6 text-white mb-8">
+                        <h3 class="text-2xl font-bold mb-4">💡 Pemahaman Bermakna</h3>
+                        <p class="text-lg leading-relaxed">
+                            Sistem operasi adalah jembatan antara pengguna dan hardware komputer. Seperti seorang manajer yang mengatur semua aktivitas di kantor, sistem operasi mengatur semua program dan sumber daya komputer agar bekerja dengan harmonis.
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl p-6 text-white">
+                        <h3 class="text-2xl font-bold mb-4">🔥 Motivasi</h3>
+                        <p class="text-lg leading-relaxed">
+                            Dengan memahami sistem operasi, kamu akan menjadi teknisi yang lebih handal! Kamu bisa memecahkan masalah komputer, mengoptimalkan performa, dan bahkan membuat aplikasi yang lebih efisien. Mari mulai petualangan seru ini! 🚀
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('pengenalan')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                        Mulai Belajar! 🎉
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📚</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Pengenalan Sistem Operasi</h1>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🤖 Apa itu Sistem Operasi?</h3>
+                            <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                                Sistem Operasi (Operating System/OS) adalah perangkat lunak utama yang mengelola semua sumber daya komputer. Bayangkan OS seperti seorang direktur orkestra yang mengatur semua musisi (program) agar bermain dengan harmonis.
+                            </p>
+                            <div class="grid md:grid-cols-3 gap-4 mt-6">
+                                <div class="bg-white rounded-xl p-4 text-center">
+                                    <div class="text-3xl mb-2">🎭</div>
+                                    <h4 class="font-bold">Antarmuka</h4>
+                                    <p class="text-sm">Menghubungkan user dengan komputer</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 text-center">
+                                    <div class="text-3xl mb-2">🎯</div>
+                                    <h4 class="font-bold">Manajemen</h4>
+                                    <p class="text-sm">Mengatur sumber daya sistem</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 text-center">
+                                    <div class="text-3xl mb-2">🛡️</div>
+                                    <h4 class="font-bold">Keamanan</h4>
+                                    <p class="text-sm">Melindungi sistem dan data</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-100 to-blue-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🏗️ Fungsi Utama Sistem Operasi</h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-2xl">🧠</div>
+                                        <div>
+                                            <h4 class="font-bold">Pengelolaan Memori</h4>
+                                            <p class="text-sm text-gray-600">Mengatur penggunaan RAM untuk program</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-2xl">⚙️</div>
+                                        <div>
+                                            <h4 class="font-bold">Manajemen Proses</h4>
+                                            <p class="text-sm text-gray-600">Mengatur jalannya program-program</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-2xl">💾</div>
+                                        <div>
+                                            <h4 class="font-bold">Sistem File</h4>
+                                            <p class="text-sm text-gray-600">Mengatur penyimpanan data</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-2xl">🔌</div>
+                                        <div>
+                                            <h4 class="font-bold">Manajemen I/O</h4>
+                                            <p class="text-sm text-gray-600">Mengatur input dan output device</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-2xl">🌐</div>
+                                        <div>
+                                            <h4 class="font-bold">Jaringan</h4>
+                                            <p class="text-sm text-gray-600">Mengatur koneksi dan komunikasi</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-2xl">🛠️</div>
+                                        <div>
+                                            <h4 class="font-bold">Utilitas</h4>
+                                            <p class="text-sm text-gray-600">Menyediakan tools untuk user</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">📱 Contoh Sistem Operasi</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="bg-white rounded-xl p-4 text-center card-hover">
+                                    <div class="text-4xl mb-2">🪟</div>
+                                    <h4 class="font-bold">Windows</h4>
+                                    <p class="text-sm text-gray-600">Microsoft</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 text-center card-hover">
+                                    <div class="text-4xl mb-2">🐧</div>
+                                    <h4 class="font-bold">Linux</h4>
+                                    <p class="text-sm text-gray-600">Open Source</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 text-center card-hover">
+                                    <div class="text-4xl mb-2">🍎</div>
+                                    <h4 class="font-bold">macOS</h4>
+                                    <p class="text-sm text-gray-600">Apple</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 text-center card-hover">
+                                    <div class="text-4xl mb-2">🤖</div>
+                                    <h4 class="font-bold">Android</h4>
+                                    <p class="text-sm text-gray-600">Google</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('memori')" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                        Lanjut ke Pengelolaan Memori 🧠
+                    </button>
+                </div>
+            </div>
+
+            <!-- Memori Section -->
+            <div id="memori" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🧠</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Pengelolaan Memori</h1>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">💭 Apa itu Memori?</h3>
+                            <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                                Memori komputer seperti meja kerja kamu. Semakin besar meja, semakin banyak buku dan alat tulis yang bisa kamu letakkan untuk bekerja. RAM (Random Access Memory) adalah "meja kerja" komputer tempat program-program bekerja.
+                            </p>
+                            
+                            <div class="bg-white rounded-xl p-6 mt-6">
+                                <h4 class="text-xl font-bold mb-4">🎯 Simulasi Memori</h4>
+                                <div class="grid grid-cols-8 gap-2 mb-4" id="memoryBlocks">
+                                    <!-- Memory blocks will be generated by JavaScript -->
+                                </div>
+                                <div class="flex flex-wrap gap-4 mb-4">
+                                    <button onclick="allocateMemory()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+                                        🟢 Alokasi Program
+                                    </button>
+                                    <button onclick="deallocateMemory()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                                        🔴 Hapus Program
+                                    </button>
+                                    <button onclick="resetMemory()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                                        🔄 Reset
+                                    </button>
+                                </div>
+                                <div class="flex items-center space-x-4 text-sm">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-gradient-to-r from-blue-400 to-cyan-400 rounded mr-2"></div>
+                                        <span>Memori Kosong</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-gradient-to-r from-red-400 to-yellow-400 rounded mr-2"></div>
+                                        <span>Memori Terpakai</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🏗️ Jenis-jenis Memori</h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="text-xl font-bold mb-3 flex items-center">
+                                        <span class="text-2xl mr-2">⚡</span>
+                                        Memori Utama (RAM)
+                                    </h4>
+                                    <ul class="space-y-2 text-gray-700">
+                                        <li>• Menyimpan program yang sedang berjalan</li>
+                                        <li>• Akses sangat cepat</li>
+                                        <li>• Data hilang saat komputer mati</li>
+                                        <li>• Contoh: DDR4, DDR5</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="text-xl font-bold mb-3 flex items-center">
+                                        <span class="text-2xl mr-2">💾</span>
+                                        Memori Sekunder
+                                    </h4>
+                                    <ul class="space-y-2 text-gray-700">
+                                        <li>• Menyimpan data permanen</li>
+                                        <li>• Akses lebih lambat dari RAM</li>
+                                        <li>• Data tetap ada saat komputer mati</li>
+                                        <li>• Contoh: HDD, SSD, Flash Drive</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-100 to-teal-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🎯 Teknik Pengelolaan Memori</h3>
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="text-lg font-bold mb-2 flex items-center">
+                                        <span class="text-xl mr-2">📦</span>
+                                        Partisi Memori
+                                    </h4>
+                                    <p class="text-gray-700">Membagi memori menjadi bagian-bagian untuk program yang berbeda, seperti membagi meja kerja menjadi beberapa area.</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="text-lg font-bold mb-2 flex items-center">
+                                        <span class="text-xl mr-2">🔄</span>
+                                        Virtual Memory
+                                    </h4>
+                                    <p class="text-gray-700">Menggunakan hard disk sebagai perpanjangan RAM ketika RAM penuh, seperti menggunakan laci meja saat meja kerja penuh.</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="text-lg font-bold mb-2 flex items-center">
+                                        <span class="text-xl mr-2">📄</span>
+                                        Paging
+                                    </h4>
+                                    <p class="text-gray-700">Membagi program menjadi halaman-halaman kecil yang bisa dipindah-pindah antara RAM dan hard disk.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('proses')" class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                        Lanjut ke Pengelolaan Proses ⚙️
+                    </button>
+                </div>
+            </div>
+
+            <!-- Proses Section -->
+            <div id="proses" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">⚙️</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Pengelolaan Proses</h1>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-orange-100 to-red-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🔄 Apa itu Proses?</h3>
+                            <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                                Proses adalah program yang sedang berjalan di komputer. Bayangkan seperti chef di dapur - setiap chef (proses) sedang memasak hidangan (menjalankan tugas) yang berbeda secara bersamaan.
+                            </p>
+                            
+                            <div class="bg-white rounded-xl p-6 mt-6">
+                                <h4 class="text-xl font-bold mb-4">🎭 Simulasi Manajemen Proses</h4>
+                                <div class="space-y-3 mb-4" id="processList">
+                                    <!-- Process items will be generated by JavaScript -->
+                                </div>
+                                <div class="flex flex-wrap gap-4 mb-4">
+                                    <button onclick="createProcess()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+                                        ➕ Buat Proses Baru
+                                    </button>
+                                    <button onclick="terminateProcess()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">
+                                        ❌ Hentikan Proses
+                                    </button>
+                                    <button onclick="resetProcesses()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                                        🔄 Reset
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4 text-sm">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-gradient-to-r from-green-400 to-teal-400 rounded mr-2"></div>
+                                        <span>Running</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-400 rounded mr-2"></div>
+                                        <span>Waiting</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-gradient-to-r from-red-400 to-pink-400 rounded mr-2"></div>
+                                        <span>Terminated</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-100 to-indigo-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">📊 Status Proses</h3>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-white rounded-xl p-4 text-center">
+                                    <div class="text-3xl mb-2">🟢</div>
+                                    <h4 class="font-bold text-green-600">Running</h4>
+                                    <p class="text-sm text-gray-600">Proses sedang dieksekusi oleh CPU</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 text-center">
+                                    <div class="text-3xl mb-2">🟡</div>
+                                    <h4 class="font-bold text-yellow-600">Ready</h4>
+                                    <p class="text-sm text-gray-600">Proses siap dieksekusi, menunggu giliran</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 text-center">
+                                    <div class="text-3xl mb-2">🔴</div>
+                                    <h4 class="font-bold text-red-600">Blocked</h4>
+                                    <p class="text-sm text-gray-600">Proses menunggu input/output</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-cyan-100 to-blue-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🎯 Algoritma Penjadwalan</h3>
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="text-lg font-bold mb-2 flex items-center">
+                                        <span class="text-xl mr-2">🥇</span>
+                                        First Come First Served (FCFS)
+                                    </h4>
+                                    <p class="text-gray-700">Proses yang datang pertama akan dilayani pertama, seperti antrian di kasir.</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="text-lg font-bold mb-2 flex items-center">
+                                        <span class="text-xl mr-2">⏱️</span>
+                                        Shortest Job First (SJF)
+                                    </h4>
+                                    <p class="text-gray-700">Proses dengan waktu eksekusi terpendek akan dijalankan terlebih dahulu.</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="text-lg font-bold mb-2 flex items-center">
+                                        <span class="text-xl mr-2">🔄</span>
+                                        Round Robin
+                                    </h4>
+                                    <p class="text-gray-700">Setiap proses mendapat jatah waktu yang sama secara bergiliran.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('kernel')" class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                        Lanjut ke Antarmuka Kernel 🔧
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kernel Section -->
+            <div id="kernel" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🔧</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Antarmuka Kernel Hardware</h1>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🧠 Apa itu Kernel?</h3>
+                            <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                                Kernel adalah inti dari sistem operasi, seperti jantung dalam tubuh manusia. Kernel menghubungkan software dengan hardware, mengatur semua komunikasi antara program dan perangkat keras komputer.
+                            </p>
+                            
+                            <div class="bg-white rounded-xl p-6 mt-6">
+                                <h4 class="text-xl font-bold mb-4">🔌 Simulasi Komunikasi Hardware</h4>
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <div class="space-y-4">
+                                        <h5 class="font-bold">Hardware Components:</h5>
+                                        <div class="space-y-2">
+                                            <button onclick="accessHardware('cpu')" class="w-full bg-blue-100 hover:bg-blue-200 p-3 rounded-lg text-left transition-colors">
+                                                🖥️ CPU - Central Processing Unit
+                                            </button>
+                                            <button onclick="accessHardware('memory')" class="w-full bg-green-100 hover:bg-green-200 p-3 rounded-lg text-left transition-colors">
+                                                🧠 Memory - RAM
+                                            </button>
+                                            <button onclick="accessHardware('storage')" class="w-full bg-yellow-100 hover:bg-yellow-200 p-3 rounded-lg text-left transition-colors">
+                                                💾 Storage - Hard Disk
+                                            </button>
+                                            <button onclick="accessHardware('network')" class="w-full bg-purple-100 hover:bg-purple-200 p-3 rounded-lg text-left transition-colors">
+                                                🌐 Network - Ethernet/WiFi
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-xl p-4">
+                                        <h5 class="font-bold mb-2">Kernel Response:</h5>
+                                        <div id="kernelResponse" class="text-sm text-gray-600 min-h-[100px] p-3 bg-white rounded border">
+                                            Klik salah satu hardware untuk melihat bagaimana kernel menangani permintaan...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-teal-100 to-cyan-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🏗️ Lapisan Sistem Operasi</h3>
+                            <div class="space-y-3">
+                                <div class="bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-xl p-4">
+                                    <h4 class="font-bold">👤 User Applications</h4>
+                                    <p class="text-sm">Program yang digunakan user (Word, Browser, Game)</p>
+                                </div>
+                                <div class="bg-gradient-to-r from-blue-400 to-purple-400 text-white rounded-xl p-4">
+                                    <h4 class="font-bold">🔧 System Calls</h4>
+                                    <p class="text-sm">Interface antara aplikasi dan kernel</p>
+                                </div>
+                                <div class="bg-gradient-to-r from-green-400 to-blue-400 text-white rounded-xl p-4">
+                                    <h4 class="font-bold">🧠 Kernel</h4>
+                                    <p class="text-sm">Inti sistem operasi yang mengatur hardware</p>
+                                </div>
+                                <div class="bg-gradient-to-r from-yellow-400 to-green-400 text-white rounded-xl p-4">
+                                    <h4 class="font-bold">⚙️ Hardware</h4>
+                                    <p class="text-sm">Perangkat keras fisik (CPU, RAM, HDD)</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-pink-100 to-rose-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🔗 Device Drivers</h3>
+                            <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                                Device driver adalah penerjemah antara sistem operasi dan hardware. Seperti penerjemah bahasa, driver menerjemahkan perintah dari OS ke bahasa yang dimengerti oleh hardware.
+                            </p>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold mb-2">📱 Contoh Driver:</h4>
+                                    <ul class="space-y-1 text-gray-700">
+                                        <li>• Driver Printer</li>
+                                        <li>• Driver Kartu Grafis</li>
+                                        <li>• Driver Sound Card</li>
+                                        <li>• Driver USB</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold mb-2">⚡ Fungsi Driver:</h4>
+                                    <ul class="space-y-1 text-gray-700">
+                                        <li>• Menerjemahkan perintah OS</li>
+                                        <li>• Mengontrol hardware</li>
+                                        <li>• Menangani interrupt</li>
+                                        <li>• Optimasi performa</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('interaksi')" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                        Lanjut ke Interaksi Pengguna 👤
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interaksi Section -->
+            <div id="interaksi" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">👤</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Interaksi dengan Pengguna</h1>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-rose-100 to-pink-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🎭 User Interface (UI)</h3>
+                            <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                                User Interface adalah cara pengguna berinteraksi dengan komputer. Seperti dashboard mobil yang memungkinkan pengemudi mengontrol mobil, UI memungkinkan user mengontrol komputer.
+                            </p>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="text-xl font-bold mb-3 flex items-center">
+                                        <span class="text-2xl mr-2">💻</span>
+                                        GUI (Graphical User Interface)
+                                    </h4>
+                                    <ul class="space-y-2 text-gray-700">
+                                        <li>• Menggunakan gambar dan ikon</li>
+                                        <li>• Interaksi dengan mouse dan keyboard</li>
+                                        <li>• Mudah dipelajari pemula</li>
+                                        <li>• Contoh: Windows, macOS</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="text-xl font-bold mb-3 flex items-center">
+                                        <span class="text-2xl mr-2">⌨️</span>
+                                        CLI (Command Line Interface)
+                                    </h4>
+                                    <ul class="space-y-2 text-gray-700">
+                                        <li>• Menggunakan perintah teks</li>
+                                        <li>• Interaksi dengan keyboard saja</li>
+                                        <li>• Lebih cepat untuk expert</li>
+                                        <li>• Contoh: Terminal, Command Prompt</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🖱️ Simulasi Interface</h3>
+                            <div class="bg-white rounded-xl p-6">
+                                <div class="mb-4">
+                                    <div class="flex space-x-4 mb-4">
+                                        <button onclick="switchInterface('gui')" id="guiBtn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                                            GUI Mode
+                                        </button>
+                                        <button onclick="switchInterface('cli')" id="cliBtn" class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+                                            CLI Mode
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- CLI Commands Reference -->
+                                    <div id="cliReference" class="hidden bg-gray-50 rounded-lg p-4 mb-4">
+                                        <h4 class="font-bold text-gray-800 mb-3">📋 Daftar Command yang Tersedia:</h4>
+                                        <div class="grid md:grid-cols-2 gap-4 text-sm">
+                                            <div class="space-y-2">
+                                                <div class="flex justify-between">
+                                                    <code class="bg-gray-200 px-2 py-1 rounded">ls</code>
+                                                    <span class="text-gray-600">Lihat daftar file</span>
+                                                </div>
+                                                <div class="flex justify-between">
+                                                    <code class="bg-gray-200 px-2 py-1 rounded">pwd</code>
+                                                    <span class="text-gray-600">Lokasi direktori saat ini</span>
+                                                </div>
+                                                <div class="flex justify-between">
+                                                    <code class="bg-gray-200 px-2 py-1 rounded">whoami</code>
+                                                    <span class="text-gray-600">Nama user aktif</span>
+                                                </div>
+                                                <div class="flex justify-between">
+                                                    <code class="bg-gray-200 px-2 py-1 rounded">date</code>
+                                                    <span class="text-gray-600">Tanggal dan waktu</span>
+                                                </div>
+                                            </div>
+                                            <div class="space-y-2">
+                                                <div class="flex justify-between">
+                                                    <code class="bg-gray-200 px-2 py-1 rounded">help</code>
+                                                    <span class="text-gray-600">Bantuan command</span>
+                                                </div>
+                                                <div class="flex justify-between">
+                                                    <code class="bg-gray-200 px-2 py-1 rounded">clear</code>
+                                                    <span class="text-gray-600">Bersihkan layar</span>
+                                                </div>
+                                                <div class="flex justify-between">
+                                                    <code class="bg-gray-200 px-2 py-1 rounded">mkdir</code>
+                                                    <span class="text-gray-600">Buat folder baru</span>
+                                                </div>
+                                                <div class="flex justify-between">
+                                                    <code class="bg-gray-200 px-2 py-1 rounded">cat</code>
+                                                    <span class="text-gray-600">Baca isi file</span>
+                                                </div>
+                                                <div class="flex justify-between">
+                                                    <code class="bg-gray-200 px-2 py-1 rounded">echo</code>
+                                                    <span class="text-gray-600">Tampilkan teks</span>
+                                                </div>
+                                                <div class="flex justify-between">
+                                                    <code class="bg-gray-200 px-2 py-1 rounded">ps</code>
+                                                    <span class="text-gray-600">Lihat proses aktif</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3 text-xs text-gray-500">
+                                            💡 Tip: Ketik command di terminal dan tekan Enter untuk mencoba!
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="guiInterface" class="interface-demo">
+                                    <div class="bg-gradient-to-r from-blue-400 to-purple-500 text-white p-3 rounded-t-lg">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-3 h-3 bg-red-400 rounded-full"></div>
+                                            <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                                            <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                                            <span class="ml-4 font-bold">File Manager</span>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 p-4 rounded-b-lg">
+                                        <div class="grid grid-cols-4 gap-4">
+                                            <div class="text-center p-3 bg-white rounded-lg hover:bg-blue-50 cursor-pointer" onclick="showMessage('Membuka folder Documents')">
+                                                <div class="text-3xl mb-1">📁</div>
+                                                <div class="text-sm">Documents</div>
+                                            </div>
+                                            <div class="text-center p-3 bg-white rounded-lg hover:bg-blue-50 cursor-pointer" onclick="showMessage('Membuka folder Pictures')">
+                                                <div class="text-3xl mb-1">🖼️</div>
+                                                <div class="text-sm">Pictures</div>
+                                            </div>
+                                            <div class="text-center p-3 bg-white rounded-lg hover:bg-blue-50 cursor-pointer" onclick="showMessage('Membuka file music.mp3')">
+                                                <div class="text-3xl mb-1">🎵</div>
+                                                <div class="text-sm">music.mp3</div>
+                                            </div>
+                                            <div class="text-center p-3 bg-white rounded-lg hover:bg-blue-50 cursor-pointer" onclick="showMessage('Membuka file report.pdf')">
+                                                <div class="text-3xl mb-1">📄</div>
+                                                <div class="text-sm">report.pdf</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="cliInterface" class="interface-demo hidden">
+                                    <div class="bg-black text-green-400 p-4 rounded-lg font-mono">
+                                        <div class="mb-2">user@computer:~$ ls</div>
+                                        <div class="mb-2 text-white">Documents  Pictures  music.mp3  report.pdf</div>
+                                        <div class="mb-2">user@computer:~$ cd Documents</div>
+                                        <div class="mb-2">user@computer:~/Documents$ ls</div>
+                                        <div class="mb-2 text-white">file1.txt  file2.txt  project/</div>
+                                        <div class="flex">
+                                            <span>user@computer:~/Documents$ </span>
+                                            <input type="text" id="cliInput" class="bg-transparent border-none outline-none text-green-400 flex-1" placeholder="ketik perintah..." onkeypress="handleCliCommand(event)">
+                                        </div>
+                                        <div id="cliOutput" class="mt-2"></div>
+                                    </div>
+                                </div>
+                                
+                                <div id="interfaceMessage" class="mt-4 p-3 bg-blue-100 rounded-lg hidden">
+                                    <p class="text-blue-800"></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-100 to-teal-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🎯 Komponen Interaksi</h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-4">
+                                        <h4 class="font-bold mb-2 flex items-center">
+                                            <span class="text-xl mr-2">🖱️</span>
+                                            Input Devices
+                                        </h4>
+                                        <ul class="text-sm text-gray-700 space-y-1">
+                                            <li>• Mouse - pointing dan clicking</li>
+                                            <li>• Keyboard - input teks dan shortcut</li>
+                                            <li>• Touchscreen - sentuh langsung</li>
+                                            <li>• Microphone - input suara</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4">
+                                        <h4 class="font-bold mb-2 flex items-center">
+                                            <span class="text-xl mr-2">🖥️</span>
+                                            Output Devices
+                                        </h4>
+                                        <ul class="text-sm text-gray-700 space-y-1">
+                                            <li>• Monitor - tampilan visual</li>
+                                            <li>• Speaker - output audio</li>
+                                            <li>• Printer - output cetak</li>
+                                            <li>• LED indicator - status sistem</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold mb-3">🎨 Prinsip Desain UI yang Baik:</h4>
+                                    <ul class="space-y-2 text-gray-700">
+                                        <li class="flex items-center">
+                                            <span class="text-green-500 mr-2">✓</span>
+                                            Konsisten dalam layout dan warna
+                                        </li>
+                                        <li class="flex items-center">
+                                            <span class="text-green-500 mr-2">✓</span>
+                                            Mudah dipahami dan intuitif
+                                        </li>
+                                        <li class="flex items-center">
+                                            <span class="text-green-500 mr-2">✓</span>
+                                            Responsif terhadap input user
+                                        </li>
+                                        <li class="flex items-center">
+                                            <span class="text-green-500 mr-2">✓</span>
+                                            Memberikan feedback yang jelas
+                                        </li>
+                                        <li class="flex items-center">
+                                            <span class="text-green-500 mr-2">✓</span>
+                                            Accessible untuk semua user
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('utilitas')" class="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                        Lanjut ke Utilitas Sistem 🛠️
+                    </button>
+                </div>
+            </div>
+
+            <!-- Utilitas Section -->
+            <div id="utilitas" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🛠️</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Penyediaan Utilitas</h1>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🔧 Apa itu Utilitas Sistem?</h3>
+                            <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                                Utilitas sistem adalah program-program bantuan yang membantu mengelola, memelihara, dan mengoptimalkan komputer. Seperti toolkit mekanik yang membantu memperbaiki dan merawat mobil.
+                            </p>
+                            
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-white rounded-xl p-4 text-center card-hover">
+                                    <div class="text-3xl mb-2">🧹</div>
+                                    <h4 class="font-bold">Pembersihan</h4>
+                                    <p class="text-sm text-gray-600">Membersihkan file sampah</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 text-center card-hover">
+                                    <div class="text-3xl mb-2">🔍</div>
+                                    <h4 class="font-bold">Pencarian</h4>
+                                    <p class="text-sm text-gray-600">Mencari file dan program</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 text-center card-hover">
+                                    <div class="text-3xl mb-2">📊</div>
+                                    <h4 class="font-bold">Monitoring</h4>
+                                    <p class="text-sm text-gray-600">Memantau performa sistem</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-cyan-100 to-blue-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">📋 Jenis-jenis Utilitas</h3>
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="text-lg font-bold mb-3 flex items-center">
+                                        <span class="text-2xl mr-2">📁</span>
+                                        File Management
+                                    </h4>
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        <ul class="space-y-1 text-gray-700">
+                                            <li>• File Explorer/Finder</li>
+                                            <li>• Copy, Move, Delete files</li>
+                                            <li>• Compress/Extract files</li>
+                                        </ul>
+                                        <ul class="space-y-1 text-gray-700">
+                                            <li>• Search files</li>
+                                            <li>• File properties</li>
+                                            <li>• Backup & Restore</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="text-lg font-bold mb-3 flex items-center">
+                                        <span class="text-2xl mr-2">⚡</span>
+                                        System Performance
+                                    </h4>
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        <ul class="space-y-1 text-gray-700">
+                                            <li>• Task Manager</li>
+                                            <li>• System Monitor</li>
+                                            <li>• Disk Cleanup</li>
+                                        </ul>
+                                        <ul class="space-y-1 text-gray-700">
+                                            <li>• Registry Cleaner</li>
+                                            <li>• Defragmentation</li>
+                                            <li>• Startup Manager</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="text-lg font-bold mb-3 flex items-center">
+                                        <span class="text-2xl mr-2">🛡️</span>
+                                        Security & Maintenance
+                                    </h4>
+                                    <div class="grid md:grid-cols-2 gap-4">
+                                        <ul class="space-y-1 text-gray-700">
+                                            <li>• Antivirus Scanner</li>
+                                            <li>• Firewall Manager</li>
+                                            <li>• System Update</li>
+                                        </ul>
+                                        <ul class="space-y-1 text-gray-700">
+                                            <li>• Password Manager</li>
+                                            <li>• System Restore</li>
+                                            <li>• Error Checking</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-100 to-indigo-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🎮 Simulasi Task Manager</h3>
+                            <div class="bg-white rounded-xl p-6">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h4 class="text-xl font-bold">System Performance Monitor</h4>
+                                    <button onclick="refreshStats()" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">
+                                        🔄 Refresh
+                                    </button>
+                                </div>
+                                
+                                <div class="grid md:grid-cols-3 gap-4 mb-6">
+                                    <div class="bg-gradient-to-r from-blue-400 to-cyan-400 text-white rounded-xl p-4">
+                                        <h5 class="font-bold mb-2">💻 CPU Usage</h5>
+                                        <div class="text-2xl font-bold" id="cpuUsage">45%</div>
+                                        <div class="w-full bg-white bg-opacity-30 rounded-full h-2 mt-2">
+                                            <div class="bg-white h-2 rounded-full" id="cpuBar" style="width: 45%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gradient-to-r from-green-400 to-teal-400 text-white rounded-xl p-4">
+                                        <h5 class="font-bold mb-2">🧠 Memory Usage</h5>
+                                        <div class="text-2xl font-bold" id="memoryUsage">62%</div>
+                                        <div class="w-full bg-white bg-opacity-30 rounded-full h-2 mt-2">
+                                            <div class="bg-white h-2 rounded-full" id="memoryBar" style="width: 62%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gradient-to-r from-purple-400 to-pink-400 text-white rounded-xl p-4">
+                                        <h5 class="font-bold mb-2">💾 Disk Usage</h5>
+                                        <div class="text-2xl font-bold" id="diskUsage">78%</div>
+                                        <div class="w-full bg-white bg-opacity-30 rounded-full h-2 mt-2">
+                                            <div class="bg-white h-2 rounded-full" id="diskBar" style="width: 78%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 rounded-xl p-4">
+                                    <h5 class="font-bold mb-3">🏃‍♂️ Running Processes</h5>
+                                    <div class="space-y-2" id="runningProcesses">
+                                        <div class="flex justify-between items-center bg-white p-2 rounded">
+                                            <span>🌐 Chrome Browser</span>
+                                            <span class="text-sm text-gray-600">CPU: 15% | RAM: 512MB</span>
+                                        </div>
+                                        <div class="flex justify-between items-center bg-white p-2 rounded">
+                                            <span>📝 Text Editor</span>
+                                            <span class="text-sm text-gray-600">CPU: 2% | RAM: 128MB</span>
+                                        </div>
+                                        <div class="flex justify-between items-center bg-white p-2 rounded">
+                                            <span>🎵 Music Player</span>
+                                            <span class="text-sm text-gray-600">CPU: 8% | RAM: 256MB</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-emerald-100 to-teal-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🎯 Manfaat Utilitas Sistem</h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-2xl">⚡</div>
+                                        <div>
+                                            <h4 class="font-bold">Meningkatkan Performa</h4>
+                                            <p class="text-sm text-gray-600">Membersihkan file sampah dan mengoptimalkan sistem</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-2xl">🛡️</div>
+                                        <div>
+                                            <h4 class="font-bold">Keamanan Sistem</h4>
+                                            <p class="text-sm text-gray-600">Melindungi dari virus dan malware</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-2xl">🔧</div>
+                                        <div>
+                                            <h4 class="font-bold">Pemeliharaan Mudah</h4>
+                                            <p class="text-sm text-gray-600">Otomatisasi tugas maintenance</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-2xl">📊</div>
+                                        <div>
+                                            <h4 class="font-bold">Monitoring Real-time</h4>
+                                            <p class="text-sm text-gray-600">Memantau status sistem secara langsung</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-2xl">💾</div>
+                                        <div>
+                                            <h4 class="font-bold">Manajemen Storage</h4>
+                                            <p class="text-sm text-gray-600">Mengatur ruang penyimpanan efisien</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="text-2xl">🎯</div>
+                                        <div>
+                                            <h4 class="font-bold">User Experience</h4>
+                                            <p class="text-sm text-gray-600">Membuat penggunaan komputer lebih nyaman</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('tugas')" class="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                        Lanjut ke Tugas 📝
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tugas Section -->
+            <div id="tugas" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📝</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Tugas Pembelajaran</h1>
+                        <p class="text-xl text-gray-600">Jawablah pertanyaan-pertanyaan berikut dengan lengkap!</p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">📋 Soal Essay</h3>
+                            
+                            <div class="space-y-6">
+                                <div class="bg-white rounded-xl p-6">
+                                    <h4 class="font-bold text-lg mb-3">1. Pengelolaan Memori (20 poin)</h4>
+                                    <p class="text-gray-700 mb-4">
+                                        Jelaskan perbedaan antara memori utama (RAM) dan memori sekunder (Storage). Berikan contoh penggunaan masing-masing dalam kehidupan sehari-hari dan mengapa keduanya penting dalam sistem komputer!
+                                    </p>
+                                    <textarea class="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none" placeholder="Tulis jawaban kamu di sini..."></textarea>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-6">
+                                    <h4 class="font-bold text-lg mb-3">2. Manajemen Proses (20 poin)</h4>
+                                    <p class="text-gray-700 mb-4">
+                                        Bayangkan kamu sedang menggunakan komputer untuk mengerjakan tugas. Kamu membuka browser, text editor, dan music player secara bersamaan. Jelaskan bagaimana sistem operasi mengelola ketiga proses tersebut agar bisa berjalan bersamaan!
+                                    </p>
+                                    <textarea class="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none" placeholder="Tulis jawaban kamu di sini..."></textarea>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-6">
+                                    <h4 class="font-bold text-lg mb-3">3. Antarmuka Kernel (20 poin)</h4>
+                                    <p class="text-gray-700 mb-4">
+                                        Mengapa kernel disebut sebagai "jantung" sistem operasi? Jelaskan peran kernel dalam menghubungkan software dengan hardware, dan berikan contoh konkret ketika kamu menyimpan file di komputer!
+                                    </p>
+                                    <textarea class="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none" placeholder="Tulis jawaban kamu di sini..."></textarea>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-6">
+                                    <h4 class="font-bold text-lg mb-3">4. User Interface (20 poin)</h4>
+                                    <p class="text-gray-700 mb-4">
+                                        Bandingkan kelebihan dan kekurangan antara GUI (Graphical User Interface) dan CLI (Command Line Interface). Dalam situasi apa sebaiknya menggunakan GUI dan kapan sebaiknya menggunakan CLI?
+                                    </p>
+                                    <textarea class="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none" placeholder="Tulis jawaban kamu di sini..."></textarea>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-6">
+                                    <h4 class="font-bold text-lg mb-3">5. Utilitas Sistem (20 poin)</h4>
+                                    <p class="text-gray-700 mb-4">
+                                        Sebutkan dan jelaskan 5 utilitas sistem yang sering kamu gunakan di komputer/laptop. Untuk setiap utilitas, jelaskan fungsinya dan mengapa utilitas tersebut penting untuk menjaga performa komputer!
+                                    </p>
+                                    <textarea class="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none" placeholder="Tulis jawaban kamu di sini..."></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8 text-center">
+                                <button onclick="submitTugas()" class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-8 py-3 rounded-full text-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                                    📤 Submit Tugas
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">💡 Tips Mengerjakan Tugas</h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <ul class="space-y-2 text-gray-700">
+                                    <li class="flex items-center">
+                                        <span class="text-green-500 mr-2">✓</span>
+                                        Baca soal dengan teliti
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="text-green-500 mr-2">✓</span>
+                                        Gunakan bahasa sendiri
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="text-green-500 mr-2">✓</span>
+                                        Berikan contoh konkret
+                                    </li>
+                                </ul>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li class="flex items-center">
+                                        <span class="text-green-500 mr-2">✓</span>
+                                        Jawab sesuai pengalaman
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="text-green-500 mr-2">✓</span>
+                                        Periksa kembali jawaban
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="text-green-500 mr-2">✓</span>
+                                        Tulis dengan rapi
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('kuis')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                        Lanjut ke Kuis 🎯
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎯</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Kuis Interaktif</h1>
+                        <p class="text-xl text-gray-600">Uji pemahamanmu dengan 10 soal pilihan ganda!</p>
+                    </div>
+                    
+                    <!-- Quiz Start Screen -->
+                    <div id="quizStart" class="text-center">
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-8 mb-8">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6">Siap untuk tantangan? 🚀</h3>
+                            <div class="max-w-md mx-auto">
+                                <label class="block text-left font-bold text-gray-700 mb-2">Masukkan nama kamu:</label>
+                                <input type="text" id="studentName" class="w-full p-4 border border-gray-300 rounded-lg text-lg" placeholder="Nama lengkap...">
+                            </div>
+                            <button onclick="startQuiz()" class="mt-6 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                                🎮 Mulai Kuis!
+                            </button>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6">
+                            <h4 class="text-xl font-bold text-gray-800 mb-4">📋 Aturan Kuis</h4>
+                            <div class="grid md:grid-cols-2 gap-4 text-left">
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• 10 soal pilihan ganda</li>
+                                    <li>• Setiap soal bernilai 10 poin</li>
+                                    <li>• Tidak ada batas waktu</li>
+                                </ul>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• Pilih jawaban terbaik</li>
+                                    <li>• Hasil langsung ditampilkan</li>
+                                    <li>• Skor maksimal: 100 poin</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quiz Questions -->
+                    <div id="quizQuestions" class="hidden">
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-bold">Halo, <span id="displayName"></span>! 👋</h3>
+                                <div class="text-lg font-bold text-purple-600">
+                                    Soal <span id="currentQuestion">1</span> dari 10
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div id="progressBar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-300" style="width: 10%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-indigo-100 to-purple-100 rounded-2xl p-6 mb-6">
+                            <h4 id="questionText" class="text-xl font-bold text-gray-800 mb-6"></h4>
+                            <div id="optionsContainer" class="space-y-3">
+                                <!-- Options will be generated by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button id="nextQuestionBtn" onclick="nextQuestion()" class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-8 py-3 rounded-full text-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                Soal Berikutnya ➡️
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quiz Results -->
+                    <div id="quizResults" class="hidden text-center">
+                        <div class="bg-gradient-to-r from-green-100 to-teal-100 rounded-2xl p-8 mb-6">
+                            <div class="text-6xl mb-4" id="resultEmoji">🎉</div>
+                            <h3 class="text-3xl font-bold text-gray-800 mb-4">Selamat, <span id="finalName"></span>!</h3>
+                            <div class="text-5xl font-bold text-green-600 mb-4" id="finalScore">0</div>
+                            <p class="text-xl text-gray-700 mb-6" id="resultMessage"></p>
+                            
+                            <div class="grid md:grid-cols-3 gap-4 mb-6">
+                                <div class="bg-white rounded-xl p-4">
+                                    <div class="text-2xl mb-2">✅</div>
+                                    <div class="text-lg font-bold text-green-600" id="correctAnswers">0</div>
+                                    <div class="text-sm text-gray-600">Benar</div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <div class="text-2xl mb-2">❌</div>
+                                    <div class="text-lg font-bold text-red-600" id="wrongAnswers">0</div>
+                                    <div class="text-sm text-gray-600">Salah</div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <div class="text-2xl mb-2">📊</div>
+                                    <div class="text-lg font-bold text-blue-600" id="percentage">0%</div>
+                                    <div class="text-sm text-gray-600">Persentase</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <button onclick="restartQuiz()" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-full font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                                🔄 Ulangi Kuis
+                            </button>
+                            <button onclick="nextSection('penutup')" class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-6 py-3 rounded-full font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                                Lanjut ke Penutup 🎉
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4 animate-bounce-slow">🎉</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Selamat! Kamu Telah Menyelesaikan Pembelajaran!</h1>
+                        <p class="text-xl text-gray-600">Mari refleksikan apa yang telah kamu pelajari hari ini</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🤔 Refleksi Pembelajaran</h3>
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold mb-2">Apa yang paling menarik dari pembelajaran hari ini?</h4>
+                                    <textarea class="w-full h-24 p-3 border border-gray-300 rounded-lg resize-none" placeholder="Tulis refleksi kamu..."></textarea>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold mb-2">Bagian mana yang masih perlu dipelajari lebih lanjut?</h4>
+                                    <textarea class="w-full h-24 p-3 border border-gray-300 rounded-lg resize-none" placeholder="Tulis refleksi kamu..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-100 to-cyan-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">📚 Kesimpulan Pembelajaran</h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-4">
+                                        <h4 class="font-bold mb-2 flex items-center">
+                                            <span class="text-xl mr-2">🧠</span>
+                                            Pengelolaan Memori
+                                        </h4>
+                                        <p class="text-sm text-gray-700">Sistem operasi mengatur RAM dan storage untuk menjalankan program secara efisien.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4">
+                                        <h4 class="font-bold mb-2 flex items-center">
+                                            <span class="text-xl mr-2">⚙️</span>
+                                            Manajemen Proses
+                                        </h4>
+                                        <p class="text-sm text-gray-700">OS mengatur jalannya program dengan algoritma penjadwalan yang tepat.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4">
+                                        <h4 class="font-bold mb-2 flex items-center">
+                                            <span class="text-xl mr-2">🔧</span>
+                                            Antarmuka Kernel
+                                        </h4>
+                                        <p class="text-sm text-gray-700">Kernel menghubungkan software dengan hardware melalui driver dan system calls.</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-4">
+                                        <h4 class="font-bold mb-2 flex items-center">
+                                            <span class="text-xl mr-2">👤</span>
+                                            Interaksi Pengguna
+                                        </h4>
+                                        <p class="text-sm text-gray-700">GUI dan CLI memberikan cara berbeda untuk berinteraksi dengan komputer.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4">
+                                        <h4 class="font-bold mb-2 flex items-center">
+                                            <span class="text-xl mr-2">🛠️</span>
+                                            Utilitas Sistem
+                                        </h4>
+                                        <p class="text-sm text-gray-700">Tools bantuan untuk maintenance, monitoring, dan optimasi sistem komputer.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4">
+                                        <h4 class="font-bold mb-2 flex items-center">
+                                            <span class="text-xl mr-2">🎯</span>
+                                            Integrasi Sistem
+                                        </h4>
+                                        <p class="text-sm text-gray-700">Semua komponen bekerja bersama menciptakan pengalaman computing yang seamless.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-100 to-teal-100 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🚀 Tindak Lanjut</h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold mb-3">📖 Pembelajaran Selanjutnya:</h4>
+                                    <ul class="space-y-2 text-gray-700">
+                                        <li>• Sistem File dan Directory</li>
+                                        <li>• Keamanan Sistem Operasi</li>
+                                        <li>• Virtualisasi dan Cloud Computing</li>
+                                        <li>• Mobile Operating Systems</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold mb-3">💡 Praktik Mandiri:</h4>
+                                    <ul class="space-y-2 text-gray-700">
+                                        <li>• Eksplorasi Task Manager</li>
+                                        <li>• Coba Command Line Interface</li>
+                                        <li>• Install dan konfigurasi OS</li>
+                                        <li>• Optimasi performa komputer</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 text-center">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">🌟 Pesan Motivasi</h3>
+                            <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                                Selamat! Kamu telah menguasai konsep dasar sistem operasi. Pengetahuan ini adalah fondasi penting untuk menjadi teknisi komputer yang handal. Terus belajar, berlatih, dan jangan takut untuk bereksperimen!
+                            </p>
+                            <div class="text-4xl mb-4">🎓✨🚀</div>
+                            <p class="text-xl font-bold text-purple-600">
+                                "Setiap expert pernah menjadi pemula. Terus semangat belajar!"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('intro')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-xl font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                        🔄 Mulai Lagi dari Awal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all z-30 hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Global variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let studentName = '';
+        let selectedAnswers = [];
+        
+        // Quiz questions
+        const quizQuestions = [
+            {
+                question: "Apa fungsi utama dari sistem operasi?",
+                options: [
+                    "Hanya menjalankan aplikasi",
+                    "Mengelola sumber daya komputer dan menjadi penghubung antara user dengan hardware",
+                    "Menyimpan data saja",
+                    "Membuat program baru"
+                ],
+                correct: 1
+            },
+            {
+                question: "Perbedaan utama antara RAM dan Hard Disk adalah:",
+                options: [
+                    "RAM lebih lambat dari Hard Disk",
+                    "Hard Disk lebih mahal dari RAM",
+                    "RAM bersifat volatile (data hilang saat mati), Hard Disk non-volatile (data tetap ada)",
+                    "Tidak ada perbedaan"
+                ],
+                correct: 2
+            },
+            {
+                question: "Teknik virtual memory digunakan untuk:",
+                options: [
+                    "Mempercepat processor",
+                    "Menggunakan hard disk sebagai perpanjangan RAM ketika RAM penuh",
+                    "Menghapus virus",
+                    "Mengatur suara komputer"
+                ],
+                correct: 1
+            },
+            {
+                question: "Status proses 'Ready' dalam manajemen proses berarti:",
+                options: [
+                    "Proses sedang dieksekusi CPU",
+                    "Proses sudah selesai",
+                    "Proses siap dieksekusi, menunggu giliran dari CPU",
+                    "Proses mengalami error"
+                ],
+                correct: 2
+            },
+            {
+                question: "Algoritma penjadwalan Round Robin bekerja dengan cara:",
+                options: [
+                    "Proses terpendek dijalankan dulu",
+                    "Proses yang datang pertama dilayani pertama",
+                    "Setiap proses mendapat jatah waktu yang sama secara bergiliran",
+                    "Proses dengan prioritas tinggi dulu"
+                ],
+                correct: 2
+            },
+            {
+                question: "Kernel dalam sistem operasi berfungsi sebagai:",
+                options: [
+                    "Program antivirus",
+                    "Inti sistem operasi yang menghubungkan software dengan hardware",
+                    "Browser internet",
+                    "Media player"
+                ],
+                correct: 1
+            },
+            {
+                question: "Device driver diperlukan untuk:",
+                options: [
+                    "Menerjemahkan perintah OS ke bahasa yang dimengerti hardware",
+                    "Membuat dokumen",
+                    "Bermain game",
+                    "Mengirim email"
+                ],
+                correct: 0
+            },
+            {
+                question: "Perbedaan utama GUI dan CLI adalah:",
+                options: [
+                    "GUI lebih lambat dari CLI",
+                    "GUI menggunakan gambar dan ikon, CLI menggunakan perintah teks",
+                    "CLI lebih mudah dipelajari",
+                    "Tidak ada perbedaan"
+                ],
+                correct: 1
+            },
+            {
+                question: "Utilitas Task Manager digunakan untuk:",
+                options: [
+                    "Membuat presentasi",
+                    "Memantau dan mengelola proses yang berjalan di sistem",
+                    "Mengedit foto",
+                    "Browsing internet"
+                ],
+                correct: 1
+            },
+            {
+                question: "Manfaat utama dari disk cleanup utility adalah:",
+                options: [
+                    "Memperbaiki hardware",
+                    "Membersihkan file sampah untuk meningkatkan performa dan menghemat ruang storage",
+                    "Menginstall program baru",
+                    "Mengubah wallpaper"
+                ],
+                correct: 1
+            }
+        ];
+        
+        // Memory simulation
+        let memoryBlocks = Array(32).fill(false);
+        
+        // Process simulation
+        let processes = [];
+        let processCounter = 0;
+        
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('bg-purple-100', 'text-purple-700');
+            });
+            
+            // Find and highlight active nav link
+            const activeLink = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (activeLink) {
+                activeLink.classList.add('bg-purple-100', 'text-purple-700');
+            }
+            
+            // Scroll to top smoothly
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            
+            // Close mobile menu
+            closeMobileMenu();
+        }
+        
+        function nextSection(sectionId) {
+            // First scroll to top, then show section after a brief delay
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            
+            setTimeout(() => {
+                showSection(sectionId);
+            }, 300);
+        }
+        
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+        
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.add('-translate-x-full');
+        }
+        
+        // Memory simulation functions
+        function initializeMemory() {
+            const container = document.getElementById('memoryBlocks');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 32; i++) {
+                const block = document.createElement('div');
+                block.className = 'memory-block w-8 h-8 rounded border-2 border-gray-300 free';
+                block.id = `memory-${i}`;
+                container.appendChild(block);
+            }
+        }
+        
+        function allocateMemory() {
+            const freeBlocks = memoryBlocks.map((used, index) => used ? null : index).filter(x => x !== null);
+            if (freeBlocks.length > 0) {
+                const randomIndex = freeBlocks[Math.floor(Math.random() * freeBlocks.length)];
+                memoryBlocks[randomIndex] = true;
+                const block = document.getElementById(`memory-${randomIndex}`);
+                block.classList.remove('free');
+                block.classList.add('allocated');
+            }
+        }
+        
+        function deallocateMemory() {
+            const usedBlocks = memoryBlocks.map((used, index) => used ? index : null).filter(x => x !== null);
+            if (usedBlocks.length > 0) {
+                const randomIndex = usedBlocks[Math.floor(Math.random() * usedBlocks.length)];
+                memoryBlocks[randomIndex] = false;
+                const block = document.getElementById(`memory-${randomIndex}`);
+                block.classList.remove('allocated');
+                block.classList.add('free');
+            }
+        }
+        
+        function resetMemory() {
+            memoryBlocks.fill(false);
+            document.querySelectorAll('.memory-block').forEach(block => {
+                block.classList.remove('allocated');
+                block.classList.add('free');
+            });
+        }
+        
+        // Process simulation functions
+        function initializeProcesses() {
+            processes = [
+                { id: 1, name: 'System', status: 'running' },
+                { id: 2, name: 'Browser', status: 'waiting' },
+                { id: 3, name: 'Text Editor', status: 'running' }
+            ];
+            processCounter = 3;
+            updateProcessDisplay();
+        }
+        
+        function createProcess() {
+            processCounter++;
+            const processNames = ['Calculator', 'Music Player', 'File Manager', 'Image Viewer', 'Video Player'];
+            const randomName = processNames[Math.floor(Math.random() * processNames.length)];
+            const statuses = ['running', 'waiting'];
+            const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+            
+            processes.push({
+                id: processCounter,
+                name: randomName,
+                status: randomStatus
+            });
+            
+            updateProcessDisplay();
+        }
+        
+        function terminateProcess() {
+            if (processes.length > 1) {
+                const randomIndex = Math.floor(Math.random() * processes.length);
+                processes[randomIndex].status = 'terminated';
+                setTimeout(() => {
+                    processes.splice(randomIndex, 1);
+                    updateProcessDisplay();
+                }, 1000);
+                updateProcessDisplay();
+            }
+        }
+        
+        function resetProcesses() {
+            initializeProcesses();
+        }
+        
+        function updateProcessDisplay() {
+            const container = document.getElementById('processList');
+            container.innerHTML = '';
+            
+            processes.forEach(process => {
+                const processDiv = document.createElement('div');
+                processDiv.className = `process-item p-3 rounded-lg text-white font-medium ${getProcessClass(process.status)}`;
+                processDiv.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span>🔄 ${process.name} (PID: ${process.id})</span>
+                        <span class="text-sm">${process.status.toUpperCase()}</span>
+                    </div>
+                `;
+                container.appendChild(processDiv);
+            });
+        }
+        
+        function getProcessClass(status) {
+            switch (status) {
+                case 'running': return 'process-running';
+                case 'waiting': return 'process-waiting';
+                case 'terminated': return 'process-terminated';
+                default: return 'bg-gray-400';
+            }
+        }
+        
+        // Kernel simulation functions
+        function accessHardware(type) {
+            const responses = {
+                cpu: "🖥️ Kernel menerima permintaan akses CPU...\n✅ Mengalokasikan thread untuk proses\n⚡ Mengatur prioritas eksekusi\n📊 Memantau penggunaan CPU: 45%",
+                memory: "🧠 Kernel mengelola permintaan memori...\n📦 Mengalokasikan 256MB RAM\n🔄 Mengatur virtual memory\n📈 Status memori: 62% terpakai",
+                storage: "💾 Kernel mengakses storage device...\n📁 Membaca/menulis data ke disk\n🔍 Mengatur file system\n💿 Ruang tersedia: 2.5GB",
+                network: "🌐 Kernel mengelola koneksi jaringan...\n📡 Mengatur network interface\n🔒 Menerapkan protokol keamanan\n📶 Status: Terhubung ke WiFi"
+            };
+            
+            document.getElementById('kernelResponse').innerHTML = responses[type] || "Permintaan tidak dikenali...";
+        }
+        
+        // Interface simulation functions
+        function switchInterface(type) {
+            const guiInterface = document.getElementById('guiInterface');
+            const cliInterface = document.getElementById('cliInterface');
+            const cliReference = document.getElementById('cliReference');
+            const guiBtn = document.getElementById('guiBtn');
+            const cliBtn = document.getElementById('cliBtn');
+            
+            if (type === 'gui') {
+                guiInterface.classList.remove('hidden');
+                cliInterface.classList.add('hidden');
+                cliReference.classList.add('hidden');
+                guiBtn.classList.add('bg-blue-500');
+                guiBtn.classList.remove('bg-gray-500');
+                cliBtn.classList.add('bg-gray-500');
+                cliBtn.classList.remove('bg-blue-500');
+            } else {
+                guiInterface.classList.add('hidden');
+                cliInterface.classList.remove('hidden');
+                cliReference.classList.remove('hidden');
+                cliBtn.classList.add('bg-blue-500');
+                cliBtn.classList.remove('bg-gray-500');
+                guiBtn.classList.add('bg-gray-500');
+                guiBtn.classList.remove('bg-blue-500');
+                
+                // Focus on CLI input
+                setTimeout(() => {
+                    document.getElementById('cliInput').focus();
+                }, 100);
+            }
+        }
+        
+        function showMessage(message) {
+            const messageDiv = document.getElementById('interfaceMessage');
+            messageDiv.querySelector('p').textContent = message;
+            messageDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                messageDiv.classList.add('hidden');
+            }, 3000);
+        }
+        
+        function handleCliCommand(event) {
+            if (event.key === 'Enter') {
+                const input = event.target;
+                const command = input.value.trim();
+                const output = document.getElementById('cliOutput');
+                
+                let response = '';
+                const parts = command.toLowerCase().split(' ');
+                const cmd = parts[0];
+                const args = parts.slice(1);
+                
+                switch (cmd) {
+                    case 'ls':
+                        response = 'Documents  Pictures  music.mp3  report.pdf  project/';
+                        break;
+                    case 'pwd':
+                        response = '/home/user/Documents';
+                        break;
+                    case 'whoami':
+                        response = 'user';
+                        break;
+                    case 'date':
+                        response = new Date().toLocaleString('id-ID');
+                        break;
+                    case 'help':
+                        response = 'Available commands: ls, pwd, whoami, date, clear, help, mkdir, cat, echo, ps';
+                        break;
+                    case 'mkdir':
+                        if (args.length > 0) {
+                            response = `Directory '${args[0]}' created successfully`;
+                        } else {
+                            response = 'Usage: mkdir <directory_name>';
+                        }
+                        break;
+                    case 'cat':
+                        if (args.length > 0) {
+                            const filename = args[0];
+                            if (filename === 'report.pdf') {
+                                response = 'Error: Cannot display binary file';
+                            } else if (filename === 'music.mp3') {
+                                response = 'Error: Cannot display audio file';
+                            } else {
+                                response = `This is the content of ${filename}\nHello from ${filename}!`;
+                            }
+                        } else {
+                            response = 'Usage: cat <filename>';
+                        }
+                        break;
+                    case 'echo':
+                        if (args.length > 0) {
+                            response = args.join(' ');
+                        } else {
+                            response = '';
+                        }
+                        break;
+                    case 'ps':
+                        response = 'PID  COMMAND\n1234 bash\n5678 system\n9012 browser';
+                        break;
+                    case 'clear':
+                        output.innerHTML = '';
+                        input.value = '';
+                        return;
+                    case '':
+                        // Empty command, just show new prompt
+                        break;
+                    default:
+                        response = `bash: ${command}: command not found`;
+                }
+                
+                output.innerHTML += `<div class="text-green-400">user@computer:~/Documents$ ${command}</div>`;
+                if (response) {
+                    output.innerHTML += `<div class="text-white mb-2 whitespace-pre-line">${response}</div>`;
+                }
+                input.value = '';
+                
+                // Scroll to bottom
+                output.scrollTop = output.scrollHeight;
+            }
+        }
+        
+        // System stats simulation
+        function refreshStats() {
+            const cpuUsage = Math.floor(Math.random() * 100);
+            const memoryUsage = Math.floor(Math.random() * 100);
+            const diskUsage = Math.floor(Math.random() * 100);
+            
+            document.getElementById('cpuUsage').textContent = cpuUsage + '%';
+            document.getElementById('memoryUsage').textContent = memoryUsage + '%';
+            document.getElementById('diskUsage').textContent = diskUsage + '%';
+            
+            document.getElementById('cpuBar').style.width = cpuUsage + '%';
+            document.getElementById('memoryBar').style.width = memoryUsage + '%';
+            document.getElementById('diskBar').style.width = diskUsage + '%';
+        }
+        
+        // Auto refresh stats
+        setInterval(refreshStats, 5000);
+        
+        // Assignment functions
+        function submitTugas() {
+            const textareas = document.querySelectorAll('#tugas textarea');
+            let allFilled = true;
+            
+            textareas.forEach(textarea => {
+                if (textarea.value.trim() === '') {
+                    allFilled = false;
+                }
+            });
+            
+            if (!allFilled) {
+                alert('⚠️ Mohon lengkapi semua jawaban sebelum submit!');
+                return;
+            }
+            
+            alert('✅ Tugas berhasil disubmit! Terima kasih atas partisipasinya.');
+        }
+        
+        // Quiz functions
+        function startQuiz() {
+            const nameInput = document.getElementById('studentName');
+            if (nameInput.value.trim() === '') {
+                alert('⚠️ Mohon masukkan nama kamu terlebih dahulu!');
+                return;
+            }
+            
+            studentName = nameInput.value.trim();
+            document.getElementById('displayName').textContent = studentName;
+            document.getElementById('quizStart').classList.add('hidden');
+            document.getElementById('quizQuestions').classList.remove('hidden');
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswers = [];
+            
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            const question = quizQuestions[currentQuestionIndex];
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            
+            const progress = ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'quiz-option p-4 bg-white rounded-lg border-2 border-gray-200 cursor-pointer hover:border-purple-300';
+                optionDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="w-6 h-6 rounded-full border-2 border-gray-300 mr-3 flex items-center justify-center">
+                            <div class="w-3 h-3 rounded-full bg-purple-500 hidden option-selected"></div>
+                        </div>
+                        <span class="text-lg">${option}</span>
+                    </div>
+                `;
+                
+                optionDiv.onclick = () => selectOption(index, optionDiv);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            document.getElementById('nextQuestionBtn').disabled = true;
+        }
+        
+        function selectOption(index, element) {
+            // Remove previous selection
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('border-purple-500', 'bg-purple-50');
+                option.querySelector('.option-selected').classList.add('hidden');
+            });
+            
+            // Add selection to clicked option
+            element.classList.add('border-purple-500', 'bg-purple-50');
+            element.querySelector('.option-selected').classList.remove('hidden');
+            
+            selectedAnswers[currentQuestionIndex] = index;
+            document.getElementById('nextQuestionBtn').disabled = false;
+        }
+        
+        function nextQuestion() {
+            const question = quizQuestions[currentQuestionIndex];
+            const selectedAnswer = selectedAnswers[currentQuestionIndex];
+            
+            // Show correct/incorrect feedback
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach((option, index) => {
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedAnswer && index !== question.correct) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            // Check if answer is correct
+            if (selectedAnswer === question.correct) {
+                score += 10;
+            }
+            
+            setTimeout(() => {
+                currentQuestionIndex++;
+                
+                if (currentQuestionIndex < quizQuestions.length) {
+                    showQuestion();
+                } else {
+                    showResults();
+                }
+            }, 2000);
+        }
+        
+        function showResults() {
+            document.getElementById('quizQuestions').classList.add('hidden');
+            document.getElementById('quizResults').classList.remove('hidden');
+            
+            const correctCount = score / 10;
+            const wrongCount = quizQuestions.length - correctCount;
+            const percentage = (score / (quizQuestions.length * 10)) * 100;
+            
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = score + ' / ' + (quizQuestions.length * 10);
+            document.getElementById('correctAnswers').textContent = correctCount;
+            document.getElementById('wrongAnswers').textContent = wrongCount;
+            document.getElementById('percentage').textContent = Math.round(percentage) + '%';
+            
+            // Set result message and emoji
+            let message, emoji;
+            if (percentage >= 90) {
+                message = "Luar biasa! Kamu menguasai materi dengan sangat baik! 🌟";
+                emoji = "🏆";
+            } else if (percentage >= 80) {
+                message = "Bagus sekali! Pemahaman kamu sudah sangat baik! 👏";
+                emoji = "🎉";
+            } else if (percentage >= 70) {
+                message = "Baik! Kamu sudah memahami sebagian besar materi! 👍";
+                emoji = "😊";
+            } else if (percentage >= 60) {
+                message = "Cukup baik! Masih ada beberapa materi yang perlu dipelajari lagi! 📚";
+                emoji = "🤔";
+            } else {
+                message = "Semangat! Yuk belajar lagi untuk pemahaman yang lebih baik! 💪";
+                emoji = "📖";
+            }
+            
+            document.getElementById('resultMessage').textContent = message;
+            document.getElementById('resultEmoji').textContent = emoji;
+        }
+        
+        function restartQuiz() {
+            document.getElementById('quizResults').classList.add('hidden');
+            document.getElementById('quizStart').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+        }
+        
+        // Back to top functionality
+        function initBackToTop() {
+            const backToTopBtn = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('hidden');
+                } else {
+                    backToTopBtn.classList.add('hidden');
+                }
+            });
+            
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+        
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize simulations
+            initializeMemory();
+            initializeProcesses();
+            initBackToTop();
+            
+            // Mobile menu toggle
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(event) {
+                const sidebar = document.getElementById('sidebar');
+                const mobileBtn = document.getElementById('mobileMenuBtn');
+                
+                if (!sidebar.contains(event.target) && !mobileBtn.contains(event.target)) {
+                    closeMobileMenu();
+                }
+            });
+            
+            // Show intro section by default
+            showSection('intro');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'986129cf55f5c5f0',t:'MTc1OTA0MDcyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
