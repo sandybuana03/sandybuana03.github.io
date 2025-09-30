@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar Debugging - Materi Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .error-text {
+            color: #f56565;
+        }
+        
+        .success-text {
+            color: #48bb78;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-screen">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-purple-500 text-white p-3 rounded-full shadow-lg hover:bg-purple-600 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-xl transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 overflow-y-auto">
+        <div class="p-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+            <h1 class="text-2xl font-bold">🐛 Debugging</h1>
+            <p class="text-purple-100 mt-2">Materi Pembelajaran Interaktif</p>
+        </div>
+        
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li><a href="#" onclick="showSection('intro')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🚀</span>
+                    <span class="font-medium">Intro</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('pengenalan')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">📚</span>
+                    <span class="font-medium">Pengenalan</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('konsep-dasar')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🎯</span>
+                    <span class="font-medium">Konsep Dasar</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('jenis-error')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">⚠️</span>
+                    <span class="font-medium">Jenis-jenis Error</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('teknik-debugging')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🔧</span>
+                    <span class="font-medium">Teknik Debugging</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('tools-debugging')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🛠️</span>
+                    <span class="font-medium">Tools Debugging</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('praktik')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">💻</span>
+                    <span class="font-medium">Praktik Debugging</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('tugas')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">📝</span>
+                    <span class="font-medium">Tugas</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('kuis')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🎮</span>
+                    <span class="font-medium">Kuis</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('penutup')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🎉</span>
+                    <span class="font-medium">Penutup</span>
+                </a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Overlay -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-screen">
+        <div class="max-w-4xl mx-auto p-6 lg:p-8">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section fade-in">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4 bounce">🐛</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Selamat Datang di Dunia Debugging!</h1>
+                        <p class="text-xl text-gray-600">Mari belajar cara mengatasi bug dalam program</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4">🤔 Pertanyaan Pemantik</h3>
+                            <ul class="space-y-3 text-gray-700 text-lg">
+                                <li>• Pernahkah program kalian error atau tidak berjalan sesuai harapan?</li>
+                                <li>• Bagaimana cara kalian mengatasi masalah tersebut?</li>
+                                <li>• Apa yang kalian lakukan ketika menemukan bug?</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-100 to-cyan-100 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4">🎯 Apa yang Dipelajari</h3>
+                            <ul class="space-y-3 text-gray-700 text-lg">
+                                <li>• Konsep dasar debugging</li>
+                                <li>• Jenis-jenis error dalam programming</li>
+                                <li>• Teknik dan strategi debugging</li>
+                                <li>• Tools untuk debugging</li>
+                                <li>• Praktik debugging langsung</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-gradient-to-r from-green-100 to-emerald-100 p-6 rounded-xl">
+                        <h3 class="text-2xl font-bold text-green-800 mb-4">🏆 Tujuan Pembelajaran</h3>
+                        <p class="text-gray-700 mb-4 text-lg">Setelah mempelajari materi ini, kalian diharapkan dapat:</p>
+                        <ul class="grid md:grid-cols-2 gap-3 text-gray-700 text-lg">
+                            <li>• Memahami konsep debugging</li>
+                            <li>• Mengidentifikasi jenis-jenis error</li>
+                            <li>• Menerapkan teknik debugging</li>
+                            <li>• Menggunakan tools debugging</li>
+                            <li>• Menyelesaikan masalah program</li>
+                            <li>• Mencegah bug di masa depan</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mt-8 bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-xl">
+                        <h3 class="text-2xl font-bold text-orange-800 mb-4">💡 Pemahaman Bermakna</h3>
+                        <p class="text-gray-700 text-lg">
+                            Debugging adalah keterampilan penting yang akan kalian gunakan sepanjang karir sebagai programmer. 
+                            Seperti seorang detektif yang mencari petunjuk, programmer harus bisa melacak dan menyelesaikan masalah dalam kode.
+                        </p>
+                    </div>
+                    
+                    <div class="mt-8 bg-gradient-to-r from-pink-100 to-rose-100 p-6 rounded-xl">
+                        <h3 class="text-2xl font-bold text-pink-800 mb-4">🔥 Motivasi</h3>
+                        <p class="text-gray-700 text-lg mb-3">
+                            "Debugging adalah seperti menjadi detektif dalam cerita kriminal di mana kalian juga adalah pembunuhnya." - Filipe Fortes
+                        </p>
+                        <p class="text-gray-600 text-lg">
+                            Setiap programmer, bahkan yang paling berpengalaman, pasti menghadapi bug. Yang membedakan programmer hebat adalah kemampuan mereka dalam debugging!
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('pengenalan')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Mulai Belajar! 🚀
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden fade-in">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📚</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Pengenalan Debugging</h1>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4">🤖 Apa itu Debugging?</h3>
+                            <p class="text-gray-700 text-lg mb-4">
+                                Debugging adalah proses menemukan, menganalisis, dan memperbaiki kesalahan (bug) dalam program komputer. 
+                                Istilah "bug" pertama kali digunakan oleh Grace Hopper pada tahun 1947 ketika ia menemukan seekor ngengat yang terjebak dalam komputer!
+                            </p>
+                            <div class="bg-white p-4 rounded-lg border-l-4 border-blue-500">
+                                <p class="text-gray-600 italic text-lg">
+                                    💡 Fun Fact: Bug pertama dalam sejarah komputer adalah benar-benar seekor serangga (ngengat) yang menyebabkan komputer Harvard Mark II error!
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4">🎯 Mengapa Debugging Penting?</h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-green-700 mb-3 text-lg">Untuk Programmer:</h4>
+                                    <ul class="space-y-2 text-gray-700 text-lg">
+                                        <li>• Meningkatkan kualitas kode</li>
+                                        <li>• Menghemat waktu development</li>
+                                        <li>• Meningkatkan skill problem solving</li>
+                                        <li>• Memahami kode lebih dalam</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-green-700 mb-3 text-lg">Untuk Pengguna:</h4>
+                                    <ul class="space-y-2 text-gray-700 text-lg">
+                                        <li>• Aplikasi berjalan lancar</li>
+                                        <li>• Pengalaman pengguna yang baik</li>
+                                        <li>• Keamanan data terjaga</li>
+                                        <li>• Performa aplikasi optimal</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4">🔄 Siklus Debugging</h3>
+                            <div class="flex flex-wrap justify-center items-center gap-4">
+                                <div class="bg-white p-4 rounded-lg shadow-md text-center min-w-32">
+                                    <div class="text-3xl mb-2">🔍</div>
+                                    <p class="font-semibold text-purple-700">Identifikasi</p>
+                                    <p class="text-sm text-gray-600">Temukan bug</p>
+                                </div>
+                                <div class="text-2xl text-purple-500">→</div>
+                                <div class="bg-white p-4 rounded-lg shadow-md text-center min-w-32">
+                                    <div class="text-3xl mb-2">🧐</div>
+                                    <p class="font-semibold text-purple-700">Analisis</p>
+                                    <p class="text-sm text-gray-600">Cari penyebab</p>
+                                </div>
+                                <div class="text-2xl text-purple-500">→</div>
+                                <div class="bg-white p-4 rounded-lg shadow-md text-center min-w-32">
+                                    <div class="text-3xl mb-2">🔧</div>
+                                    <p class="font-semibold text-purple-700">Perbaikan</p>
+                                    <p class="text-sm text-gray-600">Fix the bug</p>
+                                </div>
+                                <div class="text-2xl text-purple-500">→</div>
+                                <div class="bg-white p-4 rounded-lg shadow-md text-center min-w-32">
+                                    <div class="text-3xl mb-2">✅</div>
+                                    <p class="font-semibold text-purple-700">Testing</p>
+                                    <p class="text-sm text-gray-600">Verifikasi fix</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('konsep-dasar')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Lanjut ke Konsep Dasar 🎯
+                    </button>
+                </div>
+            </div>
+
+            <!-- Konsep Dasar Section -->
+            <div id="konsep-dasar" class="section hidden fade-in">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎯</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Konsep Dasar Debugging</h1>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-red-800 mb-4">🐛 Apa itu Bug?</h3>
+                            <p class="text-gray-700 text-lg mb-4">
+                                Bug adalah kesalahan, cacat, atau kegagalan dalam program komputer yang menyebabkan hasil yang tidak diinginkan atau perilaku yang tidak benar.
+                            </p>
+                            
+                            <div class="grid md:grid-cols-3 gap-4 mt-6">
+                                <div class="bg-white p-4 rounded-lg border-l-4 border-red-400">
+                                    <h4 class="font-semibold text-red-700 mb-2">Syntax Error</h4>
+                                    <p class="text-sm text-gray-600">Kesalahan penulisan kode</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg border-l-4 border-orange-400">
+                                    <h4 class="font-semibold text-orange-700 mb-2">Logic Error</h4>
+                                    <p class="text-sm text-gray-600">Kesalahan logika program</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg border-l-4 border-yellow-400">
+                                    <h4 class="font-semibold text-yellow-700 mb-2">Runtime Error</h4>
+                                    <p class="text-sm text-gray-600">Error saat program berjalan</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4">🧠 Mindset Debugging</h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-blue-700 mb-3 text-lg">✅ Yang Harus Dilakukan:</h4>
+                                    <ul class="space-y-2 text-gray-700 text-lg">
+                                        <li>• Tetap tenang dan sabar</li>
+                                        <li>• Berpikir sistematis</li>
+                                        <li>• Dokumentasikan proses</li>
+                                        <li>• Belajar dari setiap bug</li>
+                                        <li>• Minta bantuan jika perlu</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-red-700 mb-3 text-lg">❌ Yang Harus Dihindari:</h4>
+                                    <ul class="space-y-2 text-gray-700 text-lg">
+                                        <li>• Panik atau frustrasi</li>
+                                        <li>• Menebak-nebak solusi</li>
+                                        <li>• Mengabaikan error message</li>
+                                        <li>• Tidak testing setelah fix</li>
+                                        <li>• Menyalahkan tools/compiler</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4">🔍 Prinsip Debugging</h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-semibold text-green-700 mb-2 text-lg">1. Reproduce the Bug</h4>
+                                    <p class="text-gray-600">Pastikan kamu bisa membuat bug terjadi lagi secara konsisten</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-semibold text-green-700 mb-2 text-lg">2. Isolate the Problem</h4>
+                                    <p class="text-gray-600">Temukan bagian kode mana yang menyebabkan masalah</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-semibold text-green-700 mb-2 text-lg">3. Understand the Root Cause</h4>
+                                    <p class="text-gray-600">Pahami mengapa bug tersebut terjadi</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-semibold text-green-700 mb-2 text-lg">4. Fix and Verify</h4>
+                                    <p class="text-gray-600">Perbaiki bug dan pastikan tidak ada efek samping</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('jenis-error')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Pelajari Jenis Error ⚠️
+                    </button>
+                </div>
+            </div>
+
+            <!-- Jenis Error Section -->
+            <div id="jenis-error" class="section hidden fade-in">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">⚠️</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Jenis-jenis Error</h1>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <!-- Syntax Error -->
+                        <div class="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-red-800 mb-4">🔴 Syntax Error</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Error yang terjadi karena penulisan kode yang tidak sesuai dengan aturan bahasa pemrograman.
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-red-700 mb-2">Contoh Syntax Error:</h4>
+                                <div class="code-block">
+                                    <div class="error-text">// Error: Missing semicolon</div>
+                                    <div>let name = "John"</div>
+                                    <div>console.log(name)</div>
+                                    <br>
+                                    <div class="error-text">// Error: Missing closing bracket</div>
+                                    <div>if (x > 5) {</div>
+                                    <div>&nbsp;&nbsp;console.log("Greater than 5")</div>
+                                    <div class="error-text">// Missing }</div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-green-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-green-700 mb-2">Cara Mengatasi:</h4>
+                                <ul class="text-gray-700 space-y-1 text-lg">
+                                    <li>• Perhatikan pesan error dari compiler/interpreter</li>
+                                    <li>• Gunakan code editor dengan syntax highlighting</li>
+                                    <li>• Periksa tanda kurung, titik koma, dan tanda kutip</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Runtime Error -->
+                        <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-orange-800 mb-4">🟠 Runtime Error</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Error yang terjadi saat program sedang berjalan, meskipun syntax-nya benar.
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-orange-700 mb-2">Contoh Runtime Error:</h4>
+                                <div class="code-block">
+                                    <div class="error-text">// Error: Division by zero</div>
+                                    <div>let result = 10 / 0;</div>
+                                    <br>
+                                    <div class="error-text">// Error: Accessing undefined property</div>
+                                    <div>let user = null;</div>
+                                    <div>console.log(user.name); // Cannot read property 'name' of null</div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-green-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-green-700 mb-2">Cara Mengatasi:</h4>
+                                <ul class="text-gray-700 space-y-1 text-lg">
+                                    <li>• Gunakan try-catch untuk menangani error</li>
+                                    <li>• Validasi input sebelum diproses</li>
+                                    <li>• Periksa nilai null/undefined sebelum digunakan</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Logic Error -->
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-yellow-800 mb-4">🟡 Logic Error</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Error yang paling sulit ditemukan. Program berjalan tanpa crash, tapi hasilnya salah.
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-yellow-700 mb-2">Contoh Logic Error:</h4>
+                                <div class="code-block">
+                                    <div class="error-text">// Error: Wrong condition (should be <=)</div>
+                                    <div>for (let i = 0; i < 10; i++) {</div>
+                                    <div>&nbsp;&nbsp;console.log(i); // Only prints 0-9, not 0-10</div>
+                                    <div>}</div>
+                                    <br>
+                                    <div class="error-text">// Error: Wrong calculation</div>
+                                    <div>let average = (a + b + c) / 2; // Should be divided by 3</div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-green-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-green-700 mb-2">Cara Mengatasi:</h4>
+                                <ul class="text-gray-700 space-y-1 text-lg">
+                                    <li>• Gunakan debugger untuk step-by-step execution</li>
+                                    <li>• Tambahkan console.log untuk tracking nilai</li>
+                                    <li>• Review logika program dengan teliti</li>
+                                    <li>• Buat test case untuk berbagai skenario</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Demo Interactive -->
+                        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4">🎮 Demo Interaktif: Temukan Error!</h3>
+                            <p class="text-gray-700 mb-4 text-lg">Coba temukan dan perbaiki error dalam kode berikut:</p>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <div class="code-block" id="buggyCode">
+                                    <div>function calculateArea(length, width) {</div>
+                                    <div>&nbsp;&nbsp;let area = length * width</div>
+                                    <div>&nbsp;&nbsp;return area</div>
+                                    <div>}</div>
+                                    <br>
+                                    <div>let result = calculateArea(5, 3)</div>
+                                    <div>console.log("Area is: " + result</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-4 mb-4">
+                                <button onclick="checkBug()" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors">
+                                    Cek Error 🔍
+                                </button>
+                                <button onclick="fixBug()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                                    Perbaiki Error 🔧
+                                </button>
+                            </div>
+                            
+                            <div id="bugResult" class="hidden bg-yellow-100 p-4 rounded-lg">
+                                <p class="text-yellow-800 font-semibold">Error ditemukan:</p>
+                                <ul class="text-yellow-700 mt-2 text-lg">
+                                    <li>• Baris 2: Missing semicolon setelah 'width'</li>
+                                    <li>• Baris 6: Missing closing parenthesis</li>
+                                </ul>
+                            </div>
+                            
+                            <div id="fixedCode" class="hidden bg-green-100 p-4 rounded-lg mt-4">
+                                <p class="text-green-800 font-semibold mb-2">Kode yang sudah diperbaiki:</p>
+                                <div class="code-block">
+                                    <div>function calculateArea(length, width) {</div>
+                                    <div>&nbsp;&nbsp;let area = length * width<span class="success-text">;</span></div>
+                                    <div>&nbsp;&nbsp;return area;</div>
+                                    <div>}</div>
+                                    <br>
+                                    <div>let result = calculateArea(5, 3);</div>
+                                    <div>console.log("Area is: " + result<span class="success-text">)</span>;</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('teknik-debugging')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Pelajari Teknik Debugging 🔧
+                    </button>
+                </div>
+            </div>
+
+            <!-- Teknik Debugging Section -->
+            <div id="teknik-debugging" class="section hidden fade-in">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🔧</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Teknik Debugging</h1>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <!-- Print/Console Debugging -->
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4">🖨️ Print/Console Debugging</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Teknik paling sederhana dan sering digunakan. Menambahkan output untuk melihat nilai variabel dan alur program.
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-blue-700 mb-2">Contoh Penggunaan:</h4>
+                                <div class="code-block">
+                                    <div>function processData(data) {</div>
+                                    <div>&nbsp;&nbsp;<span class="success-text">console.log("Input data:", data);</span></div>
+                                    <div>&nbsp;&nbsp;</div>
+                                    <div>&nbsp;&nbsp;let processed = data.map(item => {</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="success-text">console.log("Processing item:", item);</span></div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;return item * 2;</div>
+                                    <div>&nbsp;&nbsp;});</div>
+                                    <div>&nbsp;&nbsp;</div>
+                                    <div>&nbsp;&nbsp;<span class="success-text">console.log("Result:", processed);</span></div>
+                                    <div>&nbsp;&nbsp;return processed;</div>
+                                    <div>}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-green-100 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-green-700 mb-2">✅ Kelebihan:</h4>
+                                    <ul class="text-gray-700 space-y-1 text-lg">
+                                        <li>• Mudah dan cepat</li>
+                                        <li>• Tidak perlu tools khusus</li>
+                                        <li>• Bisa digunakan di semua bahasa</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-red-100 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-red-700 mb-2">❌ Kekurangan:</h4>
+                                    <ul class="text-gray-700 space-y-1 text-lg">
+                                        <li>• Bisa membuat kode berantakan</li>
+                                        <li>• Harus dihapus setelah debugging</li>
+                                        <li>• Tidak efisien untuk bug kompleks</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Rubber Duck Debugging -->
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-yellow-800 mb-4">🦆 Rubber Duck Debugging</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Teknik menjelaskan masalah secara detail kepada objek (seperti bebek karet) untuk membantu menemukan solusi.
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-yellow-700 mb-2">Cara Melakukan:</h4>
+                                <ol class="text-gray-700 space-y-2 text-lg">
+                                    <li>1. Siapkan "bebek karet" (bisa objek apapun atau bahkan bayangan)</li>
+                                    <li>2. Jelaskan masalah kamu secara detail kepada "bebek"</li>
+                                    <li>3. Jelaskan apa yang seharusnya terjadi vs apa yang terjadi</li>
+                                    <li>4. Jelaskan setiap baris kode yang relevan</li>
+                                    <li>5. Sering kali solusi akan muncul saat menjelaskan!</li>
+                                </ol>
+                            </div>
+                            
+                            <div class="bg-yellow-100 p-4 rounded-lg">
+                                <p class="text-yellow-800 italic text-lg">
+                                    💡 "Dalam proses menjelaskan masalah kepada bebek, kamu akan sering menemukan jawabannya sendiri!"
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Binary Search Debugging -->
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4">🔍 Binary Search Debugging</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Teknik membagi kode menjadi dua bagian untuk menemukan di mana bug berada, mirip dengan binary search.
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-green-700 mb-2">Langkah-langkah:</h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                                        <p class="text-gray-700 text-lg">Tentukan titik awal dan akhir di mana bug mungkin berada</p>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                                        <p class="text-gray-700 text-lg">Tambahkan checkpoint di tengah-tengah</p>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold">3</div>
+                                        <p class="text-gray-700 text-lg">Jalankan program dan lihat apakah bug terjadi sebelum atau sesudah checkpoint</p>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold">4</div>
+                                        <p class="text-gray-700 text-lg">Fokus pada bagian yang bermasalah dan ulangi proses</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Interactive Demo -->
+                        <div class="bg-gradient-to-r from-pink-50 to-rose-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-pink-800 mb-4">🎮 Demo: Simulasi Debugging</h3>
+                            <p class="text-gray-700 mb-4 text-lg">Mari simulasikan proses debugging dengan contoh sederhana:</p>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <div class="code-block">
+                                    <div>function findMax(numbers) {</div>
+                                    <div>&nbsp;&nbsp;let max = 0; // 🐛 Potential bug here!</div>
+                                    <div>&nbsp;&nbsp;for (let i = 0; i < numbers.length; i++) {</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;if (numbers[i] > max) {</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;max = numbers[i];</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+                                    <div>&nbsp;&nbsp;}</div>
+                                    <div>&nbsp;&nbsp;return max;</div>
+                                    <div>}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <button onclick="simulateDebug()" class="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition-colors">
+                                    Mulai Debugging Simulation 🔍
+                                </button>
+                                
+                                <div id="debugSteps" class="hidden space-y-3">
+                                    <div class="bg-yellow-100 p-3 rounded-lg">
+                                        <p class="text-yellow-800 text-lg"><strong>Step 1:</strong> Test dengan input [-5, -2, -10]</p>
+                                        <p class="text-yellow-700">Expected: -2, Actual: 0 ❌</p>
+                                    </div>
+                                    <div class="bg-blue-100 p-3 rounded-lg">
+                                        <p class="text-blue-800 text-lg"><strong>Step 2:</strong> Analisis - max diinisialisasi dengan 0</p>
+                                        <p class="text-blue-700">Semua angka negatif tidak akan lebih besar dari 0!</p>
+                                    </div>
+                                    <div class="bg-green-100 p-3 rounded-lg">
+                                        <p class="text-green-800 text-lg"><strong>Step 3:</strong> Solusi - Inisialisasi max dengan elemen pertama</p>
+                                        <p class="text-green-700">let max = numbers[0]; ✅</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('tools-debugging')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Pelajari Tools Debugging 🛠️
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tools Debugging Section -->
+            <div id="tools-debugging" class="section hidden fade-in">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🛠️</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Tools Debugging</h1>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <!-- Browser DevTools -->
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4">🌐 Browser Developer Tools</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Tools bawaan browser yang sangat powerful untuk debugging web applications.
+                            </p>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-blue-700 mb-3">Fitur Utama:</h4>
+                                    <ul class="space-y-2 text-gray-700 text-lg">
+                                        <li>• <strong>Console:</strong> Melihat log dan error</li>
+                                        <li>• <strong>Sources:</strong> Debugging JavaScript</li>
+                                        <li>• <strong>Network:</strong> Monitor HTTP requests</li>
+                                        <li>• <strong>Elements:</strong> Inspect HTML/CSS</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-blue-700 mb-3">Shortcut Penting:</h4>
+                                    <ul class="space-y-2 text-gray-700 text-lg">
+                                        <li>• <strong>F12:</strong> Buka DevTools</li>
+                                        <li>• <strong>Ctrl+Shift+I:</strong> Inspect Element</li>
+                                        <li>• <strong>Ctrl+Shift+J:</strong> Console</li>
+                                        <li>• <strong>F8:</strong> Resume/Pause execution</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 bg-white p-4 rounded-lg">
+                                <h4 class="font-semibold text-blue-700 mb-2">Demo Console Commands:</h4>
+                                <div class="code-block">
+                                    <div class="success-text">// Basic logging</div>
+                                    <div>console.log("Hello World");</div>
+                                    <div>console.error("This is an error");</div>
+                                    <div>console.warn("This is a warning");</div>
+                                    <br>
+                                    <div class="success-text">// Advanced logging</div>
+                                    <div>console.table([{name: "John", age: 25}, {name: "Jane", age: 30}]);</div>
+                                    <div>console.time("myTimer");</div>
+                                    <div>// ... some code ...</div>
+                                    <div>console.timeEnd("myTimer");</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- IDE Debuggers -->
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4">💻 IDE Debuggers</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Debugger yang terintegrasi dalam IDE seperti VS Code, IntelliJ, Eclipse, dll.
+                            </p>
+                            
+                            <div class="grid md:grid-cols-3 gap-4 mb-4">
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="text-3xl mb-2">🔴</div>
+                                    <h4 class="font-semibold text-green-700">Breakpoints</h4>
+                                    <p class="text-sm text-gray-600">Hentikan eksekusi di baris tertentu</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="text-3xl mb-2">👁️</div>
+                                    <h4 class="font-semibold text-green-700">Watch Variables</h4>
+                                    <p class="text-sm text-gray-600">Monitor nilai variabel</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="text-3xl mb-2">📚</div>
+                                    <h4 class="font-semibold text-green-700">Call Stack</h4>
+                                    <p class="text-sm text-gray-600">Lihat urutan pemanggilan function</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <h4 class="font-semibold text-green-700 mb-2">Cara Menggunakan (VS Code):</h4>
+                                <ol class="text-gray-700 space-y-2 text-lg">
+                                    <li>1. Klik di sebelah kiri nomor baris untuk set breakpoint</li>
+                                    <li>2. Tekan F5 atau klik "Start Debugging"</li>
+                                    <li>3. Program akan berhenti di breakpoint</li>
+                                    <li>4. Gunakan F10 (Step Over), F11 (Step Into), Shift+F11 (Step Out)</li>
+                                    <li>5. Lihat nilai variabel di panel Variables</li>
+                                </ol>
+                            </div>
+                        </div>
+                        
+                        <!-- Interactive Tool Demo -->
+                        <div class="bg-gradient-to-r from-pink-50 to-rose-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-pink-800 mb-4">🎮 Demo: Browser Console</h3>
+                            <p class="text-gray-700 mb-4 text-lg">Mari coba beberapa console commands yang berguna untuk debugging:</p>
+                            
+                            <div class="space-y-4">
+                                <button onclick="demoConsole()" class="bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition-colors">
+                                    Jalankan Demo Console 🖥️
+                                </button>
+                                
+                                <div id="consoleDemo" class="hidden bg-white p-4 rounded-lg">
+                                    <p class="text-pink-800 font-semibold mb-2">Buka Console (F12) untuk melihat output!</p>
+                                    <div class="code-block">
+                                        <div class="success-text">// Demo commands yang akan dijalankan:</div>
+                                        <div>console.log("🎉 Hello from debugging demo!");</div>
+                                        <div>console.table([{name: "Alice", score: 95}, {name: "Bob", score: 87}]);</div>
+                                        <div>console.time("Performance Test");</div>
+                                        <div>console.timeEnd("Performance Test");</div>
+                                        <div>console.group("User Data");</div>
+                                        <div>console.log("Name: John Doe");</div>
+                                        <div>console.log("Age: 25");</div>
+                                        <div>console.groupEnd();</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('praktik')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Praktik Debugging 💻
+                    </button>
+                </div>
+            </div>
+
+            <!-- Praktik Section -->
+            <div id="praktik" class="section hidden fade-in">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">💻</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Praktik Debugging</h1>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <!-- Case Study 1 -->
+                        <div class="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-red-800 mb-4">🔍 Case Study: Calculator Bug</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Sebuah kalkulator sederhana tidak memberikan hasil yang benar. Mari kita debug bersama!
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-red-700 mb-2">Kode Bermasalah:</h4>
+                                <div class="code-block">
+                                    <div>function calculator(a, b, operation) {</div>
+                                    <div>&nbsp;&nbsp;switch(operation) {</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;case 'add':</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return a + b;</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;case 'subtract':</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return a - b;</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;case 'multiply':</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return a * b;</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;case 'divide':</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return a / b;</div>
+                                    <div>&nbsp;&nbsp;}</div>
+                                    <div>}</div>
+                                    <br>
+                                    <div>// Test cases</div>
+                                    <div>console.log(calculator("5", "3", "add")); // Expected: 8, Actual: 53</div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <h4 class="font-semibold text-red-700 mb-2">🐛 Masalah yang Ditemukan:</h4>
+                                    <ul class="text-gray-700 space-y-1 text-lg">
+                                        <li>• Parameter berupa string, bukan number</li>
+                                        <li>• Tidak ada default case</li>
+                                        <li>• Tidak ada validasi input</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-green-700 mb-2">✅ Solusi:</h4>
+                                    <ul class="text-gray-700 space-y-1 text-lg">
+                                        <li>• Convert string ke number</li>
+                                        <li>• Tambahkan default case</li>
+                                        <li>• Validasi input dan operation</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <button onclick="showFixedCalculator()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                                    Lihat Kode yang Diperbaiki 🔧
+                                </button>
+                                
+                                <div id="fixedCalculator" class="hidden mt-4 bg-green-100 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-green-700 mb-2">Kode yang Sudah Diperbaiki:</h4>
+                                    <div class="code-block">
+                                        <div>function calculator(a, b, operation) {</div>
+                                        <div>&nbsp;&nbsp;<span class="success-text">// Convert to numbers</span></div>
+                                        <div>&nbsp;&nbsp;<span class="success-text">const numA = parseFloat(a);</span></div>
+                                        <div>&nbsp;&nbsp;<span class="success-text">const numB = parseFloat(b);</span></div>
+                                        <div>&nbsp;&nbsp;</div>
+                                        <div>&nbsp;&nbsp;<span class="success-text">// Validate inputs</span></div>
+                                        <div>&nbsp;&nbsp;<span class="success-text">if (isNaN(numA) || isNaN(numB)) {</span></div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="success-text">return "Error: Invalid numbers";</span></div>
+                                        <div>&nbsp;&nbsp;<span class="success-text">}</span></div>
+                                        <div>&nbsp;&nbsp;</div>
+                                        <div>&nbsp;&nbsp;switch(operation) {</div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;case 'add':</div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return <span class="success-text">numA + numB</span>;</div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;case 'subtract':</div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return <span class="success-text">numA - numB</span>;</div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;case 'multiply':</div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return <span class="success-text">numA * numB</span>;</div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;case 'divide':</div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="success-text">if (numB === 0) return "Error: Division by zero";</span></div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return <span class="success-text">numA / numB</span>;</div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="success-text">default:</span></div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="success-text">return "Error: Invalid operation";</span></div>
+                                        <div>&nbsp;&nbsp;}</div>
+                                        <div>}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Interactive Debugging Exercise -->
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4">🎮 Latihan Interaktif: Debug Array Function</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Coba debug function berikut yang seharusnya mengembalikan angka terbesar dalam array:
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <div class="code-block" id="buggyArrayCode">
+                                    <div>function findLargest(arr) {</div>
+                                    <div>&nbsp;&nbsp;let largest = 0;</div>
+                                    <div>&nbsp;&nbsp;for (let i = 1; i <= arr.length; i++) {</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;if (arr[i] > largest) {</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;largest = arr[i];</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+                                    <div>&nbsp;&nbsp;}</div>
+                                    <div>&nbsp;&nbsp;return largest;</div>
+                                    <div>}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="flex gap-4">
+                                    <button onclick="testBuggyArray()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">
+                                        Test Function 🧪
+                                    </button>
+                                    <button onclick="debugArrayStep()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                                        Debug Step by Step 🔍
+                                    </button>
+                                    <button onclick="fixArrayFunction()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                                        Lihat Solusi ✅
+                                    </button>
+                                </div>
+                                
+                                <div id="arrayTestResult" class="hidden bg-yellow-100 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-yellow-800 mb-2">Test Results:</h4>
+                                    <div id="testOutput" class="font-mono text-sm"></div>
+                                </div>
+                                
+                                <div id="arrayDebugSteps" class="hidden space-y-3">
+                                    <div class="bg-red-100 p-3 rounded-lg">
+                                        <p class="text-red-800 text-lg"><strong>Bug 1:</strong> largest diinisialisasi dengan 0</p>
+                                        <p class="text-red-700">Jika semua angka negatif, hasilnya akan salah!</p>
+                                    </div>
+                                    <div class="bg-red-100 p-3 rounded-lg">
+                                        <p class="text-red-800 text-lg"><strong>Bug 2:</strong> Loop dimulai dari index 1</p>
+                                        <p class="text-red-700">Elemen pertama (index 0) tidak pernah dicek!</p>
+                                    </div>
+                                    <div class="bg-red-100 p-3 rounded-lg">
+                                        <p class="text-red-800 text-lg"><strong>Bug 3:</strong> Kondisi i <= arr.length</p>
+                                        <p class="text-red-700">Akan mengakses index yang tidak ada (undefined)!</p>
+                                    </div>
+                                </div>
+                                
+                                <div id="arrayFixedCode" class="hidden bg-green-100 p-4 rounded-lg">
+                                    <h4 class="font-semibold text-green-700 mb-2">Kode yang Diperbaiki:</h4>
+                                    <div class="code-block">
+                                        <div>function findLargest(arr) {</div>
+                                        <div>&nbsp;&nbsp;<span class="success-text">if (arr.length === 0) return undefined;</span></div>
+                                        <div>&nbsp;&nbsp;<span class="success-text">let largest = arr[0]; // Start with first element</span></div>
+                                        <div>&nbsp;&nbsp;<span class="success-text">for (let i = 1; i < arr.length; i++) { // Start from index 1, use <</span></div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;if (arr[i] > largest) {</div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;largest = arr[i];</div>
+                                        <div>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+                                        <div>&nbsp;&nbsp;}</div>
+                                        <div>&nbsp;&nbsp;return largest;</div>
+                                        <div>}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tips -->
+                        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4">💡 Tips Debugging Praktis</h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="bg-white p-4 rounded-lg">
+                                        <h4 class="font-semibold text-purple-700 mb-2">🎯 Sebelum Debugging:</h4>
+                                        <ul class="text-gray-700 space-y-1 text-lg">
+                                            <li>• Pahami apa yang seharusnya terjadi</li>
+                                            <li>• Kumpulkan informasi error lengkap</li>
+                                            <li>• Reproduksi bug secara konsisten</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="bg-white p-4 rounded-lg">
+                                        <h4 class="font-semibold text-purple-700 mb-2">🔍 Saat Debugging:</h4>
+                                        <ul class="text-gray-700 space-y-1 text-lg">
+                                            <li>• Mulai dari yang sederhana</li>
+                                            <li>• Jangan asumsikan, selalu verifikasi</li>
+                                            <li>• Dokumentasikan temuan</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="bg-white p-4 rounded-lg">
+                                        <h4 class="font-semibold text-purple-700 mb-2">✅ Setelah Fix:</h4>
+                                        <ul class="text-gray-700 space-y-1 text-lg">
+                                            <li>• Test fix secara menyeluruh</li>
+                                            <li>• Pastikan tidak ada regression</li>
+                                            <li>• Belajar dari bug tersebut</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="bg-white p-4 rounded-lg">
+                                        <h4 class="font-semibold text-purple-700 mb-2">🚫 Hindari:</h4>
+                                        <ul class="text-gray-700 space-y-1 text-lg">
+                                            <li>• Mengubah banyak hal sekaligus</li>
+                                            <li>• Mengandalkan keberuntungan</li>
+                                            <li>• Skip testing setelah fix</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('tugas')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Kerjakan Tugas 📝
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tugas Section -->
+            <div id="tugas" class="section hidden fade-in">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📝</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Tugas Debugging</h1>
+                        <p class="text-gray-600 text-lg">Kerjakan tugas berikut untuk menguji pemahaman kalian tentang debugging</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <!-- Soal 1 -->
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4">📋 Soal 1: Analisis Error</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Perhatikan kode JavaScript berikut yang mengalami error. Identifikasi jenis error dan jelaskan cara memperbaikinya:
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <div class="code-block">
+                                    <div>function calculateDiscount(price, discountPercent) {</div>
+                                    <div>&nbsp;&nbsp;let discount = price * discountPercent / 100</div>
+                                    <div>&nbsp;&nbsp;let finalPrice = price - discount</div>
+                                    <div>&nbsp;&nbsp;return finalPrice</div>
+                                    <div>}</div>
+                                    <br>
+                                    <div>let result = calculateDiscount("100", "20")</div>
+                                    <div>console.log("Final price: " + result</div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-yellow-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-yellow-800 mb-2">Pertanyaan:</h4>
+                                <ol class="text-gray-700 space-y-2 text-lg">
+                                    <li>a) Sebutkan minimal 3 error yang ada dalam kode tersebut!</li>
+                                    <li>b) Klasifikasikan setiap error (Syntax Error, Runtime Error, atau Logic Error)!</li>
+                                    <li>c) Tuliskan kode yang sudah diperbaiki!</li>
+                                    <li>d) Jelaskan mengapa error tersebut terjadi!</li>
+                                </ol>
+                            </div>
+                            
+                            <textarea id="answer1" class="w-full h-32 p-4 border border-gray-300 rounded-lg mt-4 text-lg" placeholder="Tuliskan jawaban kalian di sini..."></textarea>
+                        </div>
+                        
+                        <!-- Soal 2 -->
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4">🔍 Soal 2: Strategi Debugging</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Kalian diminta untuk debug sebuah aplikasi web yang mengalami masalah. Aplikasi tersebut seharusnya menampilkan daftar produk, tetapi halaman menjadi blank (kosong).
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-green-700 mb-2">Informasi yang diketahui:</h4>
+                                <ul class="text-gray-700 space-y-1 text-lg">
+                                    <li>• Aplikasi menggunakan JavaScript untuk fetch data dari API</li>
+                                    <li>• Sebelumnya aplikasi berjalan normal</li>
+                                    <li>• Tidak ada error message yang terlihat di halaman</li>
+                                    <li>• API endpoint masih bisa diakses langsung via browser</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-yellow-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-yellow-800 mb-2">Pertanyaan:</h4>
+                                <ol class="text-gray-700 space-y-2 text-lg">
+                                    <li>a) Sebutkan 5 langkah debugging yang akan kalian lakukan secara berurutan!</li>
+                                    <li>b) Tools apa saja yang akan kalian gunakan untuk debugging masalah ini?</li>
+                                    <li>c) Sebutkan 3 kemungkinan penyebab masalah dan cara mengeceknya!</li>
+                                    <li>d) Bagaimana cara kalian memastikan fix yang dilakukan tidak menimbulkan masalah baru?</li>
+                                </ol>
+                            </div>
+                            
+                            <textarea id="answer2" class="w-full h-32 p-4 border border-gray-300 rounded-lg mt-4 text-lg" placeholder="Tuliskan jawaban kalian di sini..."></textarea>
+                        </div>
+                        
+                        <!-- Soal 3 -->
+                        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4">💻 Soal 3: Praktik Debugging</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Buatlah sebuah function sederhana yang mengandung bug, kemudian jelaskan proses debugging-nya!
+                            </p>
+                            
+                            <div class="bg-yellow-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-yellow-800 mb-2">Tugas:</h4>
+                                <ol class="text-gray-700 space-y-2 text-lg">
+                                    <li>a) Buat function JavaScript yang memiliki minimal 2 jenis error berbeda</li>
+                                    <li>b) Jelaskan apa yang seharusnya dilakukan function tersebut</li>
+                                    <li>c) Identifikasi dan jelaskan setiap error yang ada</li>
+                                    <li>d) Perbaiki function tersebut dan jelaskan proses debugging yang kalian lakukan</li>
+                                    <li>e) Berikan test case untuk membuktikan function sudah benar</li>
+                                </ol>
+                            </div>
+                            
+                            <textarea id="answer3" class="w-full h-40 p-4 border border-gray-300 rounded-lg mt-4 text-lg" placeholder="Tuliskan jawaban kalian di sini..."></textarea>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="text-center bg-gradient-to-r from-pink-50 to-rose-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-pink-800 mb-4">📤 Submit Tugas</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Pastikan semua jawaban sudah lengkap sebelum submit!
+                            </p>
+                            
+                            <button onclick="submitTugas()" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-pink-600 hover:to-rose-600 transition-all transform hover:scale-105 shadow-lg">
+                                Submit Tugas 🚀
+                            </button>
+                            
+                            <div id="submitResult" class="hidden mt-4 p-4 rounded-lg">
+                                <!-- Result will be shown here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('kuis')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Lanjut ke Kuis 🎮
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden fade-in">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎮</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Kuis Debugging</h1>
+                        <p class="text-gray-600 text-lg">Uji pemahaman kalian dengan 10 soal pilihan ganda</p>
+                    </div>
+                    
+                    <!-- Name Input -->
+                    <div id="nameInput" class="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-xl mb-8">
+                        <h3 class="text-2xl font-bold text-purple-800 mb-4">👤 Masukkan Nama</h3>
+                        <div class="flex gap-4">
+                            <input type="text" id="studentName" class="flex-1 p-3 border border-gray-300 rounded-lg text-lg" placeholder="Masukkan nama lengkap kalian...">
+                            <button onclick="startQuiz()" class="bg-purple-500 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:bg-purple-600 transition-colors">
+                                Mulai Kuis! 🚀
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quiz Container -->
+                    <div id="quizContainer" class="hidden">
+                        <div class="mb-6 bg-gray-100 rounded-full h-4">
+                            <div id="progressBar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        
+                        <div class="mb-4 text-center">
+                            <span id="questionNumber" class="text-lg font-semibold text-gray-600">Soal 1 dari 10</span>
+                        </div>
+                        
+                        <div id="questionContainer" class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl mb-6">
+                            <!-- Questions will be inserted here -->
+                        </div>
+                        
+                        <div class="text-center">
+                            <button id="nextButton" onclick="nextQuestion()" class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                Soal Selanjutnya ➡️
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Results -->
+                    <div id="quizResults" class="hidden">
+                        <div class="text-center mb-8">
+                            <div class="text-6xl mb-4">🎉</div>
+                            <h2 class="text-3xl font-bold text-gray-800 mb-4">Kuis Selesai!</h2>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-xl text-center">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4">Hasil Kuis</h3>
+                            <div class="text-4xl font-bold text-green-600 mb-2" id="finalScore">0/10</div>
+                            <div class="text-xl text-green-700 mb-4" id="finalPercentage">0%</div>
+                            <div class="text-lg text-gray-700" id="studentNameResult"></div>
+                            
+                            <div class="mt-6" id="scoreMessage">
+                                <!-- Score message will be inserted here -->
+                            </div>
+                            
+                            <button onclick="retakeQuiz()" class="mt-6 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all transform hover:scale-105 shadow-lg">
+                                Ulangi Kuis 🔄
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('penutup')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Ke Penutup 🎉
+                    </button>
+                </div>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden fade-in">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎉</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Selamat! Kalian Telah Menyelesaikan Pembelajaran Debugging</h1>
+                        <p class="text-xl text-gray-600">Mari refleksikan apa yang telah dipelajari</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <!-- Refleksi -->
+                        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4">🤔 Refleksi Pembelajaran</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Setelah mempelajari materi debugging, mari kita refleksikan pengalaman belajar kalian:
+                            </p>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-700 mb-2">💭 Pertanyaan Refleksi:</h4>
+                                    <ul class="text-gray-700 space-y-2 text-lg">
+                                        <li>• Apa konsep debugging yang paling menarik bagi kalian?</li>
+                                        <li>• Teknik debugging mana yang menurut kalian paling berguna?</li>
+                                        <li>• Bagaimana pemahaman kalian tentang error sebelum dan sesudah belajar?</li>
+                                        <li>• Apa tantangan terbesar dalam memahami debugging?</li>
+                                    </ul>
+                                </div>
+                                
+                                <textarea id="reflection" class="w-full h-32 p-4 border border-gray-300 rounded-lg text-lg" placeholder="Tuliskan refleksi kalian di sini..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Kesimpulan -->
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4">📚 Kesimpulan Pembelajaran</h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-green-700 mb-3">✅ Yang Telah Dipelajari:</h4>
+                                    <ul class="text-gray-700 space-y-2 text-lg">
+                                        <li>• Konsep dasar debugging dan pentingnya</li>
+                                        <li>• Jenis-jenis error (Syntax, Runtime, Logic)</li>
+                                        <li>• Teknik debugging yang efektif</li>
+                                        <li>• Tools debugging yang berguna</li>
+                                        <li>• Praktik debugging di dunia nyata</li>
+                                        <li>• Cara mencegah bug</li>
+                                    </ul>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-green-700 mb-3">🎯 Keterampilan yang Dikuasai:</h4>
+                                    <ul class="text-gray-700 space-y-2 text-lg">
+                                        <li>• Mengidentifikasi jenis error</li>
+                                        <li>• Menggunakan console untuk debugging</li>
+                                        <li>• Menerapkan teknik debugging sistematis</li>
+                                        <li>• Menggunakan browser DevTools</li>
+                                        <li>• Menulis kode yang lebih berkualitas</li>
+                                        <li>• Mindset problem solving</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 bg-white p-4 rounded-lg">
+                                <p class="text-gray-700 text-lg italic text-center">
+                                    "Debugging adalah keterampilan yang akan terus kalian gunakan sepanjang karir sebagai programmer. 
+                                    Semakin sering berlatih, semakin mahir kalian dalam menyelesaikan masalah!"
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Tindak Lanjut -->
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4">🚀 Tindak Lanjut</h3>
+                            <p class="text-gray-700 mb-4 text-lg">
+                                Untuk mengembangkan kemampuan debugging kalian lebih lanjut:
+                            </p>
+                            
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-blue-700 mb-2">📖 Belajar Lanjutan:</h4>
+                                    <ul class="text-gray-700 space-y-1 text-lg">
+                                        <li>• Advanced debugging techniques</li>
+                                        <li>• Performance debugging</li>
+                                        <li>• Memory leak debugging</li>
+                                        <li>• Debugging di production</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-blue-700 mb-2">💻 Praktik:</h4>
+                                    <ul class="text-gray-700 space-y-1 text-lg">
+                                        <li>• Debug project pribadi</li>
+                                        <li>• Kontribusi open source</li>
+                                        <li>• Code review dengan teman</li>
+                                        <li>• Ikut coding challenge</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-blue-700 mb-2">🛠️ Tools Lanjutan:</h4>
+                                    <ul class="text-gray-700 space-y-1 text-lg">
+                                        <li>• Profiler tools</li>
+                                        <li>• Static analysis tools</li>
+                                        <li>• Automated testing</li>
+                                        <li>• CI/CD debugging</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Motivasi Penutup -->
+                        <div class="bg-gradient-to-r from-pink-50 to-rose-50 p-6 rounded-xl text-center">
+                            <h3 class="text-2xl font-bold text-pink-800 mb-4">💪 Pesan Motivasi</h3>
+                            <div class="text-4xl mb-4">🌟</div>
+                            <p class="text-gray-700 text-lg mb-4">
+                                "Setiap bug yang kalian temukan dan perbaiki adalah langkah menuju menjadi programmer yang lebih baik. 
+                                Jangan takut dengan error - jadikan mereka sebagai guru terbaik kalian!"
+                            </p>
+                            <p class="text-gray-600 italic text-lg">
+                                Terus berlatih, terus belajar, dan ingat: setiap programmer hebat pernah mengalami bug yang membuat mereka frustasi. 
+                                Yang membedakan adalah ketekunan dalam belajar debugging! 🚀
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="restartLearning()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Mulai Ulang Pembelajaran 🔄
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-110 z-30 hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Global variables
+        let currentSection = 'intro';
+        let currentQuestionIndex = 0;
+        let quizScore = 0;
+        let studentName = '';
+        let userAnswers = [];
+        
+        // Quiz questions
+        const quizQuestions = [
+            {
+                question: "Apa yang dimaksud dengan debugging?",
+                options: [
+                    "Proses menulis kode program",
+                    "Proses menemukan dan memperbaiki kesalahan dalam program",
+                    "Proses menjalankan program",
+                    "Proses mengompilasi kode"
+                ],
+                correct: 1
+            },
+            {
+                question: "Manakah yang termasuk Syntax Error?",
+                options: [
+                    "Program crash saat runtime",
+                    "Hasil perhitungan yang salah",
+                    "Missing semicolon di akhir statement",
+                    "Infinite loop"
+                ],
+                correct: 2
+            },
+            {
+                question: "Apa yang dimaksud dengan Logic Error?",
+                options: [
+                    "Error yang terdeteksi saat kompilasi",
+                    "Error yang terjadi saat program berjalan",
+                    "Program berjalan tapi hasilnya salah",
+                    "Error karena syntax yang salah"
+                ],
+                correct: 2
+            },
+            {
+                question: "Teknik debugging mana yang paling sederhana?",
+                options: [
+                    "Using debugger",
+                    "Print/Console debugging",
+                    "Binary search debugging",
+                    "Unit testing"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa itu Rubber Duck Debugging?",
+                options: [
+                    "Debugging menggunakan tools khusus",
+                    "Debugging dengan menjelaskan masalah kepada objek",
+                    "Debugging menggunakan breakpoint",
+                    "Debugging dengan testing"
+                ],
+                correct: 1
+            },
+            {
+                question: "Shortcut untuk membuka Developer Tools di browser adalah:",
+                options: [
+                    "Ctrl+Alt+D",
+                    "F11",
+                    "F12",
+                    "Ctrl+Shift+D"
+                ],
+                correct: 2
+            },
+            {
+                question: "Manakah yang BUKAN termasuk jenis error?",
+                options: [
+                    "Syntax Error",
+                    "Runtime Error",
+                    "Logic Error",
+                    "Design Error"
+                ],
+                correct: 3
+            },
+            {
+                question: "Apa fungsi breakpoint dalam debugging?",
+                options: [
+                    "Menghentikan eksekusi program di titik tertentu",
+                    "Mempercepat eksekusi program",
+                    "Menghapus error dalam kode",
+                    "Mengoptimalkan performa program"
+                ],
+                correct: 0
+            },
+            {
+                question: "Manakah praktik terbaik untuk mencegah bug?",
+                options: [
+                    "Menulis kode secepat mungkin",
+                    "Tidak perlu testing",
+                    "Code review dan testing",
+                    "Mengabaikan error message"
+                ],
+                correct: 2
+            },
+            {
+                question: "Apa yang harus dilakukan setelah memperbaiki bug?",
+                options: [
+                    "Langsung deploy ke production",
+                    "Testing untuk memastikan fix bekerja",
+                    "Mengabaikan bug lainnya",
+                    "Menghapus semua console.log"
+                ],
+                correct: 1
+            }
+        ];
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.getElementById(sectionId).classList.add('fade-in');
+            
+            // Update current section
+            currentSection = sectionId;
+            
+            // Close mobile menu
+            closeMobileMenu();
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+            
+            // Update active nav link
+            updateActiveNavLink(sectionId);
+        }
+
+        function nextSection(sectionId) {
+            showSection(sectionId);
+        }
+
+        function updateActiveNavLink(sectionId) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('bg-purple-100', 'text-purple-700');
+            });
+            
+            const activeLink = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (activeLink) {
+                activeLink.classList.add('bg-purple-100', 'text-purple-700');
+            }
+        }
+
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        }
+
+        // Interactive demo functions
+        function checkBug() {
+            document.getElementById('bugResult').classList.remove('hidden');
+        }
+
+        function fixBug() {
+            document.getElementById('fixedCode').classList.remove('hidden');
+        }
+
+        function simulateDebug() {
+            document.getElementById('debugSteps').classList.remove('hidden');
+        }
+
+        function demoConsole() {
+            document.getElementById('consoleDemo').classList.remove('hidden');
+            
+            // Run console commands
+            console.log("🎉 Hello from debugging demo!");
+            console.table([{name: "Alice", score: 95}, {name: "Bob", score: 87}]);
+            console.time("Performance Test");
+            setTimeout(() => {
+                console.timeEnd("Performance Test");
+            }, 100);
+            console.group("User Data");
+            console.log("Name: John Doe");
+            console.log("Age: 25");
+            console.groupEnd();
+        }
+
+        // Praktik functions
+        function showFixedCalculator() {
+            document.getElementById('fixedCalculator').classList.remove('hidden');
+        }
+
+        function testBuggyArray() {
+            document.getElementById('arrayTestResult').classList.remove('hidden');
+            
+            // Simulate the buggy function
+            function findLargest(arr) {
+                let largest = 0;
+                for (let i = 1; i <= arr.length; i++) {
+                    if (arr[i] > largest) {
+                        largest = arr[i];
+                    }
+                }
+                return largest;
+            }
+            
+            const testCases = [
+                { input: [1, 5, 3, 9, 2], expected: 9 },
+                { input: [-5, -2, -10], expected: -2 },
+                { input: [0, 0, 0], expected: 0 }
+            ];
+            
+            let output = '';
+            testCases.forEach((test, index) => {
+                const result = findLargest(test.input);
+                const status = result === test.expected ? '✅' : '❌';
+                output += `Test ${index + 1}: Input [${test.input.join(', ')}] - Expected: ${test.expected}, Got: ${result} ${status}<br>`;
+            });
+            
+            document.getElementById('testOutput').innerHTML = output;
+        }
+
+        function debugArrayStep() {
+            document.getElementById('arrayDebugSteps').classList.remove('hidden');
+        }
+
+        function fixArrayFunction() {
+            document.getElementById('arrayFixedCode').classList.remove('hidden');
+        }
+
+        // Tugas functions
+        function submitTugas() {
+            const answer1 = document.getElementById('answer1').value.trim();
+            const answer2 = document.getElementById('answer2').value.trim();
+            const answer3 = document.getElementById('answer3').value.trim();
+            
+            if (!answer1 || !answer2 || !answer3) {
+                document.getElementById('submitResult').innerHTML = `
+                    <div class="bg-red-100 p-4 rounded-lg">
+                        <p class="text-red-800 font-semibold">❌ Tugas Belum Lengkap!</p>
+                        <p class="text-red-700">Harap isi semua jawaban sebelum submit.</p>
+                    </div>
+                `;
+                document.getElementById('submitResult').classList.remove('hidden');
+                return;
+            }
+            
+            document.getElementById('submitResult').innerHTML = `
+                <div class="bg-green-100 p-4 rounded-lg">
+                    <p class="text-green-800 font-semibold">✅ Tugas Berhasil Disubmit!</p>
+                    <p class="text-green-700">Terima kasih telah mengerjakan tugas debugging. Jawaban kalian telah tersimpan.</p>
+                </div>
+            `;
+            document.getElementById('submitResult').classList.remove('hidden');
+        }
+
+        // Quiz functions
+        function startQuiz() {
+            const name = document.getElementById('studentName').value.trim();
+            if (!name) {
+                alert('Harap masukkan nama terlebih dahulu!');
+                return;
+            }
+            
+            studentName = name;
+            currentQuestionIndex = 0;
+            quizScore = 0;
+            userAnswers = [];
+            
+            document.getElementById('nameInput').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizQuestions[currentQuestionIndex];
+            const progress = ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
+            
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('questionNumber').textContent = `Soal ${currentQuestionIndex + 1} dari ${quizQuestions.length}`;
+            
+            let optionsHtml = '';
+            question.options.forEach((option, index) => {
+                optionsHtml += `
+                    <label class="flex items-center p-3 bg-white rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                        <input type="radio" name="answer" value="${index}" class="mr-3" onchange="enableNextButton()">
+                        <span class="text-lg">${option}</span>
+                    </label>
+                `;
+            });
+            
+            document.getElementById('questionContainer').innerHTML = `
+                <h3 class="text-xl font-bold text-blue-800 mb-4">${question.question}</h3>
+                <div class="space-y-3">
+                    ${optionsHtml}
+                </div>
+            `;
+            
+            document.getElementById('nextButton').disabled = true;
+            
+            if (currentQuestionIndex === quizQuestions.length - 1) {
+                document.getElementById('nextButton').textContent = 'Selesai 🎯';
+            }
+        }
+
+        function enableNextButton() {
+            document.getElementById('nextButton').disabled = false;
+        }
+
+        function nextQuestion() {
+            const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+            if (!selectedAnswer) return;
+            
+            const answerIndex = parseInt(selectedAnswer.value);
+            userAnswers.push(answerIndex);
+            
+            if (answerIndex === quizQuestions[currentQuestionIndex].correct) {
+                quizScore++;
+            }
+            
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < quizQuestions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('quizResults').classList.remove('hidden');
+            
+            const percentage = Math.round((quizScore / quizQuestions.length) * 100);
+            
+            document.getElementById('finalScore').textContent = `${quizScore}/${quizQuestions.length}`;
+            document.getElementById('finalPercentage').textContent = `${percentage}%`;
+            document.getElementById('studentNameResult').textContent = `Nama: ${studentName}`;
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = `
+                    <div class="bg-green-100 p-4 rounded-lg">
+                        <p class="text-green-800 font-semibold">🏆 Excellent!</p>
+                        <p class="text-green-700">Kalian sangat memahami materi debugging!</p>
+                    </div>
+                `;
+            } else if (percentage >= 70) {
+                message = `
+                    <div class="bg-blue-100 p-4 rounded-lg">
+                        <p class="text-blue-800 font-semibold">👍 Good Job!</p>
+                        <p class="text-blue-700">Pemahaman kalian tentang debugging sudah baik!</p>
+                    </div>
+                `;
+            } else if (percentage >= 50) {
+                message = `
+                    <div class="bg-yellow-100 p-4 rounded-lg">
+                        <p class="text-yellow-800 font-semibold">📚 Keep Learning!</p>
+                        <p class="text-yellow-700">Kalian perlu belajar lebih banyak tentang debugging.</p>
+                    </div>
+                `;
+            } else {
+                message = `
+                    <div class="bg-red-100 p-4 rounded-lg">
+                        <p class="text-red-800 font-semibold">💪 Don't Give Up!</p>
+                        <p class="text-red-700">Ulangi materi dan coba lagi. Kalian pasti bisa!</p>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('scoreMessage').innerHTML = message;
+        }
+
+        function retakeQuiz() {
+            document.getElementById('quizResults').classList.add('hidden');
+            document.getElementById('nameInput').classList.remove('hidden');
+            document.getElementById('studentName').value = studentName;
+        }
+
+        // Penutup functions
+        function restartLearning() {
+            showSection('intro');
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+            document.getElementById('overlay').addEventListener('click', closeMobileMenu);
+            
+            // Back to top button
+            const backToTopBtn = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('hidden');
+                } else {
+                    backToTopBtn.classList.add('hidden');
+                }
+            });
+            
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            
+            // Initialize first section
+            updateActiveNavLink('intro');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'986fffda2704aa34',t:'MTc1OTE5NjI5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
