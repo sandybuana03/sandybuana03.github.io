@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praktik PHP - Game Tebak Angka</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .code-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .code-content {
+            background: #1a1a2e;
+            color: #eee;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .highlight-php { color: #ff6b6b; font-weight: bold; }
+        .highlight-string { color: #4ecdc4; }
+        .highlight-comment { color: #95a5a6; font-style: italic; }
+        .highlight-variable { color: #f39c12; font-weight: bold; }
+        .highlight-number { color: #e74c3c; font-weight: bold; }
+        .highlight-keyword { color: #9b59b6; font-weight: bold; }
+        .highlight-function { color: #3498db; font-weight: bold; }
+        .highlight-operator { color: #e67e22; font-weight: bold; }
+        .highlight-tag { color: #2ecc71; font-weight: bold; }
+        .highlight-attribute { color: #f1c40f; }
+        .highlight-value { color: #1abc9c; }
+        
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .shape:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .shape:nth-child(2) { top: 20%; right: 10%; animation-delay: 2s; }
+        .shape:nth-child(3) { bottom: 20%; left: 20%; animation-delay: 4s; }
+        .shape:nth-child(4) { bottom: 10%; right: 20%; animation-delay: 1s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .menu-item {
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            transform: translateX(8px);
+        }
+        
+        .menu-item.active-menu {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            color: white;
+            transform: translateX(8px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .menu-item.active-menu i {
+            color: white !important;
+        }
+        
+        .menu-item.active-menu span {
+            color: white !important;
+        }
+        
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-screen">
+    <!-- Floating Shapes -->
+    <div class="floating-shapes">
+        <div class="shape w-20 h-20 bg-yellow-300 rounded-full"></div>
+        <div class="shape w-16 h-16 bg-pink-300 rounded-lg transform rotate-45"></div>
+        <div class="shape w-24 h-24 bg-blue-300 rounded-full"></div>
+        <div class="shape w-18 h-18 bg-green-300 rounded-lg"></div>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-white rounded-lg p-3 shadow-lg">
+        <i class="fas fa-bars text-purple-600"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-2xl transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 overflow-y-auto">
+        <div class="p-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                    <i class="fas fa-code text-purple-500 text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold">PHP Game</h1>
+                    <p class="text-sm opacity-90">Tebak Angka</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="p-4">
+            <div class="space-y-2">
+                <div id="nav-pengenalan" class="menu-item bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 cursor-pointer border-l-4 border-blue-400 active-menu" onclick="showSection('pengenalan')">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-play-circle text-blue-500 text-xl"></i>
+                        <span class="font-semibold text-gray-700">Pengenalan</span>
+                    </div>
+                </div>
+                
+                <div id="nav-persiapan" class="menu-item bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 cursor-pointer border-l-4 border-green-400" onclick="showSection('persiapan')">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-tools text-green-500 text-xl"></i>
+                        <span class="font-semibold text-gray-700">Persiapan Project</span>
+                    </div>
+                </div>
+                
+                <div id="nav-struktur" class="menu-item bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-4 cursor-pointer border-l-4 border-yellow-400" onclick="showSection('struktur')">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-sitemap text-yellow-500 text-xl"></i>
+                        <span class="font-semibold text-gray-700">Struktur Dasar</span>
+                    </div>
+                </div>
+                
+                <div id="nav-logika" class="menu-item bg-gradient-to-r from-purple-50 to-violet-50 rounded-lg p-4 cursor-pointer border-l-4 border-purple-400" onclick="showSection('logika')">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-brain text-purple-500 text-xl"></i>
+                        <span class="font-semibold text-gray-700">Logika Game</span>
+                    </div>
+                </div>
+                
+                <div id="nav-tampilan" class="menu-item bg-gradient-to-r from-pink-50 to-rose-50 rounded-lg p-4 cursor-pointer border-l-4 border-pink-400" onclick="showSection('tampilan')">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-palette text-pink-500 text-xl"></i>
+                        <span class="font-semibold text-gray-700">Desain Tampilan</span>
+                    </div>
+                </div>
+                
+                <div id="nav-testing" class="menu-item bg-gradient-to-r from-indigo-50 to-blue-50 rounded-lg p-4 cursor-pointer border-l-4 border-indigo-400" onclick="showSection('testing')">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-check-circle text-indigo-500 text-xl"></i>
+                        <span class="font-semibold text-gray-700">Testing & Finishing</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-screen">
+        <div class="max-w-4xl mx-auto p-6 lg:p-8">
+            
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="content-section active">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-gamepad text-white text-3xl"></i>
+                        </div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Game Tebak Angka dengan PHP</h1>
+                        <p class="text-xl text-gray-600">Mari belajar membuat game interaktif pertama kamu!</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                                <i class="fas fa-target mr-3"></i>Apa yang akan kamu pelajari?
+                            </h3>
+                            <ul class="space-y-3 text-gray-700">
+                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-3"></i>Konsep dasar PHP</li>
+                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-3"></i>Session dan form handling</li>
+                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-3"></i>Logika pemrograman</li>
+                                <li class="flex items-center"><i class="fas fa-check text-green-500 mr-3"></i>Desain web interaktif</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                                <i class="fas fa-lightbulb mr-3"></i>Konsep Game
+                            </h3>
+                            <p class="text-gray-700 mb-4">Game tebak angka adalah permainan sederhana dimana:</p>
+                            <ul class="space-y-2 text-gray-700">
+                                <li>🎯 Komputer memilih angka rahasia (1-100)</li>
+                                <li>🤔 Pemain menebak angka tersebut</li>
+                                <li>💡 Sistem memberi petunjuk "terlalu besar" atau "terlalu kecil"</li>
+                                <li>🏆 Pemain menang jika berhasil menebak!</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 border-l-4 border-yellow-400">
+                        <h3 class="text-lg font-bold text-yellow-800 mb-3 flex items-center">
+                            <i class="fas fa-info-circle mr-3"></i>Prasyarat
+                        </h3>
+                        <p class="text-gray-700">Pastikan kamu sudah memahami dasar-dasar HTML dan memiliki web server (XAMPP/WAMP) yang sudah terinstall.</p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('persiapan')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                        Mulai Praktik <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Persiapan Section -->
+            <div id="persiapan" class="content-section">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-tools text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Persiapan Project</h2>
+                        <p class="text-gray-600">Mari siapkan semua yang dibutuhkan untuk membuat game kita!</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                                <i class="fas fa-folder mr-3"></i>Langkah 1: Buat Folder Project
+                            </h3>
+                            <ol class="space-y-3 text-gray-700 mb-4">
+                                <li class="flex items-start">
+                                    <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">1</span>
+                                    Buka folder <code class="bg-gray-200 px-2 py-1 rounded">htdocs</code> di XAMPP kamu
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">2</span>
+                                    Buat folder baru dengan nama <code class="bg-gray-200 px-2 py-1 rounded">game-tebak-angka</code>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">3</span>
+                                    Masuk ke folder tersebut dan siapkan text editor (VS Code/Notepad++)
+                                </li>
+                            </ol>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                                <i class="fas fa-server mr-3"></i>Langkah 2: Jalankan Web Server
+                            </h3>
+                            <ol class="space-y-3 text-gray-700 mb-4">
+                                <li class="flex items-start">
+                                    <span class="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">1</span>
+                                    Buka XAMPP Control Panel
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">2</span>
+                                    Klik tombol "Start" pada Apache
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">3</span>
+                                    Pastikan status Apache menjadi hijau (Running)
+                                </li>
+                            </ol>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                                <i class="fas fa-check-circle mr-3"></i>Langkah 3: Test Koneksi
+                            </h3>
+                            <p class="text-gray-700 mb-4">Buka browser dan ketik:</p>
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <span class="text-white text-sm font-semibold">🌐 URL Browser</span>
+                                </div>
+                                <div class="code-content">
+                                    <code>http://localhost/game-tebak-angka/</code>
+                                </div>
+                            </div>
+                            <p class="text-gray-700">Jika muncul halaman kosong atau error 404, itu normal karena kita belum membuat file apapun.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('struktur')" class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                        Lanjut ke Struktur Dasar <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Struktur Section -->
+            <div id="struktur" class="content-section">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-sitemap text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Struktur Dasar Game</h2>
+                        <p class="text-gray-600">Mari buat file utama dan struktur dasar game kita!</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                                <i class="fas fa-file-code mr-3"></i>Langkah 1: Buat File index.php
+                            </h3>
+                            <p class="text-gray-700 mb-4">Buat file baru bernama <code class="bg-gray-200 px-2 py-1 rounded">index.php</code> dan ketik kode berikut:</p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <span class="text-white text-sm font-semibold">📄 index.php</span>
+                                </div>
+                                <div class="code-content">
+<pre><code><span class="highlight-php">&lt;?php</span>
+<span class="highlight-comment">// Memulai session untuk menyimpan data game</span>
+<span class="highlight-function">session_start</span><span class="highlight-operator">()</span><span class="highlight-operator">;</span>
+
+<span class="highlight-comment">// Jika belum ada angka rahasia, buat yang baru</span>
+<span class="highlight-keyword">if</span> <span class="highlight-operator">(</span><span class="highlight-operator">!</span><span class="highlight-function">isset</span><span class="highlight-operator">(</span><span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'angka_rahasia'</span><span class="highlight-operator">]</span><span class="highlight-operator">)</span><span class="highlight-operator">)</span> <span class="highlight-operator">{</span>
+    <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'angka_rahasia'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-function">rand</span><span class="highlight-operator">(</span><span class="highlight-number">1</span><span class="highlight-operator">,</span> <span class="highlight-number">100</span><span class="highlight-operator">)</span><span class="highlight-operator">;</span>
+    <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'percobaan'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-number">0</span><span class="highlight-operator">;</span>
+    <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'pesan'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-string">'Selamat datang! Tebak angka antara 1-100'</span><span class="highlight-operator">;</span>
+<span class="highlight-operator">}</span>
+
+<span class="highlight-variable">$pesan</span> <span class="highlight-operator">=</span> <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'pesan'</span><span class="highlight-operator">]</span><span class="highlight-operator">;</span>
+<span class="highlight-variable">$percobaan</span> <span class="highlight-operator">=</span> <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'percobaan'</span><span class="highlight-operator">]</span><span class="highlight-operator">;</span>
+<span class="highlight-php">?&gt;</span></code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+                                <h4 class="font-bold text-yellow-800 mb-2">💡 Penjelasan Kode:</h4>
+                                <ul class="text-sm text-yellow-700 space-y-1">
+                                    <li><strong>session_start():</strong> Memulai session PHP untuk menyimpan data</li>
+                                    <li><strong>$_SESSION:</strong> Array untuk menyimpan data yang persisten</li>
+                                    <li><strong>rand(1, 100):</strong> Membuat angka acak antara 1-100</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                                <i class="fas fa-code mr-3"></i>Langkah 2: Tambahkan HTML Dasar
+                            </h3>
+                            <p class="text-gray-700 mb-4">Lanjutkan kode di file yang sama dengan HTML berikut:</p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <span class="text-white text-sm font-semibold">📄 index.php (lanjutan)</span>
+                                </div>
+                                <div class="code-content">
+<pre><code><span class="highlight-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="highlight-tag">&lt;html</span> <span class="highlight-attribute">lang</span><span class="highlight-operator">=</span><span class="highlight-value">"id"</span><span class="highlight-tag">&gt;</span>
+<span class="highlight-tag">&lt;head&gt;</span>
+    <span class="highlight-tag">&lt;meta</span> <span class="highlight-attribute">charset</span><span class="highlight-operator">=</span><span class="highlight-value">"UTF-8"</span><span class="highlight-tag">&gt;</span>
+    <span class="highlight-tag">&lt;meta</span> <span class="highlight-attribute">name</span><span class="highlight-operator">=</span><span class="highlight-value">"viewport"</span> <span class="highlight-attribute">content</span><span class="highlight-operator">=</span><span class="highlight-value">"width=device-width, initial-scale=1.0"</span><span class="highlight-tag">&gt;</span>
+    <span class="highlight-tag">&lt;title&gt;</span>Game Tebak Angka<span class="highlight-tag">&lt;/title&gt;</span>
+    <span class="highlight-tag">&lt;style&gt;</span>
+        <span class="highlight-keyword">body</span> <span class="highlight-operator">{</span> 
+            <span class="highlight-attribute">font-family</span><span class="highlight-operator">:</span> <span class="highlight-value">Arial, sans-serif</span><span class="highlight-operator">;</span> 
+            <span class="highlight-attribute">background</span><span class="highlight-operator">:</span> <span class="highlight-function">linear-gradient</span><span class="highlight-operator">(</span><span class="highlight-number">135deg</span><span class="highlight-operator">,</span> <span class="highlight-value">#667eea</span> <span class="highlight-number">0%</span><span class="highlight-operator">,</span> <span class="highlight-value">#764ba2</span> <span class="highlight-number">100%</span><span class="highlight-operator">)</span><span class="highlight-operator">;</span>
+            <span class="highlight-attribute">margin</span><span class="highlight-operator">:</span> <span class="highlight-number">0</span><span class="highlight-operator">;</span> <span class="highlight-attribute">padding</span><span class="highlight-operator">:</span> <span class="highlight-number">20px</span><span class="highlight-operator">;</span> <span class="highlight-attribute">min-height</span><span class="highlight-operator">:</span> <span class="highlight-number">100vh</span><span class="highlight-operator">;</span>
+        <span class="highlight-operator">}</span>
+        <span class="highlight-keyword">.container</span> <span class="highlight-operator">{</span> 
+            <span class="highlight-attribute">max-width</span><span class="highlight-operator">:</span> <span class="highlight-number">500px</span><span class="highlight-operator">;</span> <span class="highlight-attribute">margin</span><span class="highlight-operator">:</span> <span class="highlight-number">0</span> <span class="highlight-value">auto</span><span class="highlight-operator">;</span> 
+            <span class="highlight-attribute">background</span><span class="highlight-operator">:</span> <span class="highlight-value">white</span><span class="highlight-operator">;</span> <span class="highlight-attribute">padding</span><span class="highlight-operator">:</span> <span class="highlight-number">30px</span><span class="highlight-operator">;</span> 
+            <span class="highlight-attribute">border-radius</span><span class="highlight-operator">:</span> <span class="highlight-number">15px</span><span class="highlight-operator">;</span> <span class="highlight-attribute">box-shadow</span><span class="highlight-operator">:</span> <span class="highlight-number">0</span> <span class="highlight-number">10px</span> <span class="highlight-number">30px</span> <span class="highlight-function">rgba</span><span class="highlight-operator">(</span><span class="highlight-number">0,0,0,0.2</span><span class="highlight-operator">)</span><span class="highlight-operator">;</span>
+        <span class="highlight-operator">}</span>
+    <span class="highlight-tag">&lt;/style&gt;</span>
+<span class="highlight-tag">&lt;/head&gt;</span>
+<span class="highlight-tag">&lt;body&gt;</span>
+    <span class="highlight-tag">&lt;div</span> <span class="highlight-attribute">class</span><span class="highlight-operator">=</span><span class="highlight-value">"container"</span><span class="highlight-tag">&gt;</span>
+        <span class="highlight-tag">&lt;h1&gt;</span>🎯 Game Tebak Angka<span class="highlight-tag">&lt;/h1&gt;</span>
+        <span class="highlight-tag">&lt;p&gt;</span><span class="highlight-php">&lt;?php echo</span> <span class="highlight-variable">$pesan</span><span class="highlight-operator">;</span> <span class="highlight-php">?&gt;</span><span class="highlight-tag">&lt;/p&gt;</span>
+        <span class="highlight-tag">&lt;p&gt;</span>Percobaan: <span class="highlight-php">&lt;?php echo</span> <span class="highlight-variable">$percobaan</span><span class="highlight-operator">;</span> <span class="highlight-php">?&gt;</span><span class="highlight-tag">&lt;/p&gt;</span>
+    <span class="highlight-tag">&lt;/div&gt;</span>
+<span class="highlight-tag">&lt;/body&gt;</span>
+<span class="highlight-tag">&lt;/html&gt;</span></code></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                                <i class="fas fa-eye mr-3"></i>Langkah 3: Kode Lengkap Struktur Dasar
+                            </h3>
+                            <p class="text-gray-700 mb-4">Berikut adalah kode lengkap untuk file index.php versi dasar:</p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <span class="text-white text-sm font-semibold">📄 index.php (Kode Lengkap)</span>
+                                </div>
+                                <div class="code-content">
+<pre><code><span class="highlight-php">&lt;?php</span>
+<span class="highlight-function">session_start</span><span class="highlight-operator">()</span><span class="highlight-operator">;</span>
+
+<span class="highlight-keyword">if</span> <span class="highlight-operator">(</span><span class="highlight-operator">!</span><span class="highlight-function">isset</span><span class="highlight-operator">(</span><span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'angka_rahasia'</span><span class="highlight-operator">]</span><span class="highlight-operator">)</span><span class="highlight-operator">)</span> <span class="highlight-operator">{</span>
+    <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'angka_rahasia'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-function">rand</span><span class="highlight-operator">(</span><span class="highlight-number">1</span><span class="highlight-operator">,</span> <span class="highlight-number">100</span><span class="highlight-operator">)</span><span class="highlight-operator">;</span>
+    <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'percobaan'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-number">0</span><span class="highlight-operator">;</span>
+    <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'pesan'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-string">'Selamat datang! Tebak angka antara 1-100'</span><span class="highlight-operator">;</span>
+<span class="highlight-operator">}</span>
+
+<span class="highlight-variable">$pesan</span> <span class="highlight-operator">=</span> <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'pesan'</span><span class="highlight-operator">]</span><span class="highlight-operator">;</span>
+<span class="highlight-variable">$percobaan</span> <span class="highlight-operator">=</span> <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'percobaan'</span><span class="highlight-operator">]</span><span class="highlight-operator">;</span>
+<span class="highlight-php">?&gt;</span>
+<span class="highlight-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="highlight-tag">&lt;html</span> <span class="highlight-attribute">lang</span><span class="highlight-operator">=</span><span class="highlight-value">"id"</span><span class="highlight-tag">&gt;</span>
+<span class="highlight-tag">&lt;head&gt;</span>
+    <span class="highlight-tag">&lt;meta</span> <span class="highlight-attribute">charset</span><span class="highlight-operator">=</span><span class="highlight-value">"UTF-8"</span><span class="highlight-tag">&gt;</span>
+    <span class="highlight-tag">&lt;meta</span> <span class="highlight-attribute">name</span><span class="highlight-operator">=</span><span class="highlight-value">"viewport"</span> <span class="highlight-attribute">content</span><span class="highlight-operator">=</span><span class="highlight-value">"width=device-width, initial-scale=1.0"</span><span class="highlight-tag">&gt;</span>
+    <span class="highlight-tag">&lt;title&gt;</span>Game Tebak Angka<span class="highlight-tag">&lt;/title&gt;</span>
+    <span class="highlight-tag">&lt;style&gt;</span>
+        <span class="highlight-keyword">body</span> <span class="highlight-operator">{</span> 
+            <span class="highlight-attribute">font-family</span><span class="highlight-operator">:</span> <span class="highlight-value">Arial, sans-serif</span><span class="highlight-operator">;</span> 
+            <span class="highlight-attribute">background</span><span class="highlight-operator">:</span> <span class="highlight-function">linear-gradient</span><span class="highlight-operator">(</span><span class="highlight-number">135deg</span><span class="highlight-operator">,</span> <span class="highlight-value">#667eea</span> <span class="highlight-number">0%</span><span class="highlight-operator">,</span> <span class="highlight-value">#764ba2</span> <span class="highlight-number">100%</span><span class="highlight-operator">)</span><span class="highlight-operator">;</span>
+            <span class="highlight-attribute">margin</span><span class="highlight-operator">:</span> <span class="highlight-number">0</span><span class="highlight-operator">;</span> <span class="highlight-attribute">padding</span><span class="highlight-operator">:</span> <span class="highlight-number">20px</span><span class="highlight-operator">;</span> <span class="highlight-attribute">min-height</span><span class="highlight-operator">:</span> <span class="highlight-number">100vh</span><span class="highlight-operator">;</span>
+        <span class="highlight-operator">}</span>
+        <span class="highlight-keyword">.container</span> <span class="highlight-operator">{</span> 
+            <span class="highlight-attribute">max-width</span><span class="highlight-operator">:</span> <span class="highlight-number">500px</span><span class="highlight-operator">;</span> <span class="highlight-attribute">margin</span><span class="highlight-operator">:</span> <span class="highlight-number">0</span> <span class="highlight-value">auto</span><span class="highlight-operator">;</span> 
+            <span class="highlight-attribute">background</span><span class="highlight-operator">:</span> <span class="highlight-value">white</span><span class="highlight-operator">;</span> <span class="highlight-attribute">padding</span><span class="highlight-operator">:</span> <span class="highlight-number">30px</span><span class="highlight-operator">;</span> 
+            <span class="highlight-attribute">border-radius</span><span class="highlight-operator">:</span> <span class="highlight-number">15px</span><span class="highlight-operator">;</span> <span class="highlight-attribute">box-shadow</span><span class="highlight-operator">:</span> <span class="highlight-number">0</span> <span class="highlight-number">10px</span> <span class="highlight-number">30px</span> <span class="highlight-function">rgba</span><span class="highlight-operator">(</span><span class="highlight-number">0,0,0,0.2</span><span class="highlight-operator">)</span><span class="highlight-operator">;</span>
+        <span class="highlight-operator">}</span>
+    <span class="highlight-tag">&lt;/style&gt;</span>
+<span class="highlight-tag">&lt;/head&gt;</span>
+<span class="highlight-tag">&lt;body&gt;</span>
+    <span class="highlight-tag">&lt;div</span> <span class="highlight-attribute">class</span><span class="highlight-operator">=</span><span class="highlight-value">"container"</span><span class="highlight-tag">&gt;</span>
+        <span class="highlight-tag">&lt;h1&gt;</span>🎯 Game Tebak Angka<span class="highlight-tag">&lt;/h1&gt;</span>
+        <span class="highlight-tag">&lt;p&gt;</span><span class="highlight-php">&lt;?php echo</span> <span class="highlight-variable">$pesan</span><span class="highlight-operator">;</span> <span class="highlight-php">?&gt;</span><span class="highlight-tag">&lt;/p&gt;</span>
+        <span class="highlight-tag">&lt;p&gt;</span>Percobaan: <span class="highlight-php">&lt;?php echo</span> <span class="highlight-variable">$percobaan</span><span class="highlight-operator">;</span> <span class="highlight-php">?&gt;</span><span class="highlight-tag">&lt;/p&gt;</span>
+    <span class="highlight-tag">&lt;/div&gt;</span>
+<span class="highlight-tag">&lt;/body&gt;</span>
+<span class="highlight-tag">&lt;/html&gt;</span></code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-purple-50 border-l-4 border-purple-400 p-4 rounded">
+                                <h4 class="font-bold text-purple-800 mb-2">🧪 Test Langkah:</h4>
+                                <ol class="text-sm text-purple-700 space-y-1">
+                                    <li>1. Simpan kode di atas sebagai index.php</li>
+                                    <li>2. Akses: http://localhost/game-tebak-angka/</li>
+                                    <li>3. Pastikan muncul halaman dengan judul dan pesan</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('logika')" class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                        Lanjut ke Logika Game <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Logika Section -->
+            <div id="logika" class="content-section">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-violet-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-brain text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Logika Game</h2>
+                        <p class="text-gray-600">Sekarang mari tambahkan logika untuk menebak angka!</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                                <i class="fas fa-cogs mr-3"></i>Langkah 1: Tambahkan Logika PHP
+                            </h3>
+                            <p class="text-gray-700 mb-4">Ganti bagian PHP di awal file dengan kode berikut:</p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <span class="text-white text-sm font-semibold">📄 index.php (bagian PHP)</span>
+                                </div>
+                                <div class="code-content">
+<pre><code><span class="highlight-php">&lt;?php</span>
+<span class="highlight-function">session_start</span><span class="highlight-operator">()</span><span class="highlight-operator">;</span>
+
+<span class="highlight-comment">// Inisialisasi game baru</span>
+<span class="highlight-keyword">if</span> <span class="highlight-operator">(</span><span class="highlight-operator">!</span><span class="highlight-function">isset</span><span class="highlight-operator">(</span><span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'angka_rahasia'</span><span class="highlight-operator">]</span><span class="highlight-operator">)</span><span class="highlight-operator">)</span> <span class="highlight-operator">{</span>
+    <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'angka_rahasia'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-function">rand</span><span class="highlight-operator">(</span><span class="highlight-number">1</span><span class="highlight-operator">,</span> <span class="highlight-number">100</span><span class="highlight-operator">)</span><span class="highlight-operator">;</span>
+    <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'percobaan'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-number">0</span><span class="highlight-operator">;</span>
+    <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'pesan'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-string">'Selamat datang! Tebak angka antara 1-100'</span><span class="highlight-operator">;</span>
+    <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'status'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-string">'playing'</span><span class="highlight-operator">;</span>
+<span class="highlight-operator">}</span>
+
+<span class="highlight-comment">// Proses tebakan pemain</span>
+<span class="highlight-keyword">if</span> <span class="highlight-operator">(</span><span class="highlight-function">isset</span><span class="highlight-operator">(</span><span class="highlight-variable">$_POST</span><span class="highlight-operator">[</span><span class="highlight-string">'tebakan'</span><span class="highlight-operator">]</span><span class="highlight-operator">)</span> <span class="highlight-operator">&amp;&amp;</span> <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'status'</span><span class="highlight-operator">]</span> <span class="highlight-operator">==</span> <span class="highlight-string">'playing'</span><span class="highlight-operator">)</span> <span class="highlight-operator">{</span>
+    <span class="highlight-variable">$tebakan</span> <span class="highlight-operator">=</span> <span class="highlight-operator">(</span><span class="highlight-keyword">int</span><span class="highlight-operator">)</span><span class="highlight-variable">$_POST</span><span class="highlight-operator">[</span><span class="highlight-string">'tebakan'</span><span class="highlight-operator">]</span><span class="highlight-operator">;</span>
+    <span class="highlight-variable">$angka_rahasia</span> <span class="highlight-operator">=</span> <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'angka_rahasia'</span><span class="highlight-operator">]</span><span class="highlight-operator">;</span>
+    
+    <span class="highlight-comment">// Validasi input</span>
+    <span class="highlight-keyword">if</span> <span class="highlight-operator">(</span><span class="highlight-variable">$tebakan</span> <span class="highlight-operator">&lt;</span> <span class="highlight-number">1</span> <span class="highlight-operator">||</span> <span class="highlight-variable">$tebakan</span> <span class="highlight-operator">&gt;</span> <span class="highlight-number">100</span><span class="highlight-operator">)</span> <span class="highlight-operator">{</span>
+        <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'pesan'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-string">"❌ Masukkan angka antara 1-100!"</span><span class="highlight-operator">;</span>
+    <span class="highlight-operator">}</span> <span class="highlight-keyword">else</span> <span class="highlight-operator">{</span>
+        <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'percobaan'</span><span class="highlight-operator">]</span><span class="highlight-operator">++</span><span class="highlight-operator">;</span>
+        
+        <span class="highlight-keyword">if</span> <span class="highlight-operator">(</span><span class="highlight-variable">$tebakan</span> <span class="highlight-operator">==</span> <span class="highlight-variable">$angka_rahasia</span><span class="highlight-operator">)</span> <span class="highlight-operator">{</span>
+            <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'pesan'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-string">"🎉 Selamat! Kamu berhasil menebak angka "</span> <span class="highlight-operator">.</span> <span class="highlight-variable">$angka_rahasia</span> <span class="highlight-operator">.</span> <span class="highlight-string">" dalam "</span> <span class="highlight-operator">.</span> <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'percobaan'</span><span class="highlight-operator">]</span> <span class="highlight-operator">.</span> <span class="highlight-string">" percobaan!"</span><span class="highlight-operator">;</span>
+            <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'status'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-string">'won'</span><span class="highlight-operator">;</span>
+        <span class="highlight-operator">}</span> <span class="highlight-keyword">elseif</span> <span class="highlight-operator">(</span><span class="highlight-variable">$tebakan</span> <span class="highlight-operator">&lt;</span> <span class="highlight-variable">$angka_rahasia</span><span class="highlight-operator">)</span> <span class="highlight-operator">{</span>
+            <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'pesan'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-string">"📈 Terlalu kecil! Coba angka yang lebih besar."</span><span class="highlight-operator">;</span>
+        <span class="highlight-operator">}</span> <span class="highlight-keyword">else</span> <span class="highlight-operator">{</span>
+            <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'pesan'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-string">"📉 Terlalu besar! Coba angka yang lebih kecil."</span><span class="highlight-operator">;</span>
+        <span class="highlight-operator">}</span>
+    <span class="highlight-operator">}</span>
+<span class="highlight-operator">}</span>
+
+<span class="highlight-comment">// Reset game</span>
+<span class="highlight-keyword">if</span> <span class="highlight-operator">(</span><span class="highlight-function">isset</span><span class="highlight-operator">(</span><span class="highlight-variable">$_POST</span><span class="highlight-operator">[</span><span class="highlight-string">'reset'</span><span class="highlight-operator">]</span><span class="highlight-operator">)</span><span class="highlight-operator">)</span> <span class="highlight-operator">{</span>
+    <span class="highlight-function">session_destroy</span><span class="highlight-operator">()</span><span class="highlight-operator">;</span>
+    <span class="highlight-function">header</span><span class="highlight-operator">(</span><span class="highlight-string">'Location: index.php'</span><span class="highlight-operator">)</span><span class="highlight-operator">;</span>
+    <span class="highlight-function">exit</span><span class="highlight-operator">()</span><span class="highlight-operator">;</span>
+<span class="highlight-operator">}</span>
+
+<span class="highlight-variable">$pesan</span> <span class="highlight-operator">=</span> <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'pesan'</span><span class="highlight-operator">]</span><span class="highlight-operator">;</span>
+<span class="highlight-variable">$percobaan</span> <span class="highlight-operator">=</span> <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'percobaan'</span><span class="highlight-operator">]</span><span class="highlight-operator">;</span>
+<span class="highlight-variable">$status</span> <span class="highlight-operator">=</span> <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'status'</span><span class="highlight-operator">]</span><span class="highlight-operator">;</span>
+<span class="highlight-php">?&gt;</span></code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+                                <h4 class="font-bold text-yellow-800 mb-2">💡 Penjelasan Logika:</h4>
+                                <ul class="text-sm text-yellow-700 space-y-1">
+                                    <li><strong>Kondisi menang:</strong> Jika tebakan sama dengan angka rahasia</li>
+                                    <li><strong>Petunjuk:</strong> Memberikan clue "terlalu besar" atau "terlalu kecil"</li>
+                                    <li><strong>Counter:</strong> Menghitung jumlah percobaan</li>
+                                    <li><strong>Reset:</strong> Menghapus session untuk game baru</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                                <i class="fas fa-wpforms mr-3"></i>Langkah 2: Tambahkan Form Input
+                            </h3>
+                            <p class="text-gray-700 mb-4">Ganti bagian HTML body dengan kode berikut:</p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <span class="text-white text-sm font-semibold">📄 index.php (bagian body)</span>
+                                </div>
+                                <div class="code-content">
+<pre><code><span class="highlight-tag">&lt;body&gt;</span>
+    <span class="highlight-tag">&lt;div</span> <span class="highlight-attribute">class</span><span class="highlight-operator">=</span><span class="highlight-value">"container"</span><span class="highlight-tag">&gt;</span>
+        <span class="highlight-tag">&lt;h1&gt;</span>🎯 Game Tebak Angka<span class="highlight-tag">&lt;/h1&gt;</span>
+        
+        <span class="highlight-tag">&lt;div</span> <span class="highlight-attribute">class</span><span class="highlight-operator">=</span><span class="highlight-value">"info"</span><span class="highlight-tag">&gt;</span>
+            <span class="highlight-tag">&lt;p</span> <span class="highlight-attribute">class</span><span class="highlight-operator">=</span><span class="highlight-value">"message"</span><span class="highlight-tag">&gt;</span><span class="highlight-php">&lt;?php echo</span> <span class="highlight-variable">$pesan</span><span class="highlight-operator">;</span> <span class="highlight-php">?&gt;</span><span class="highlight-tag">&lt;/p&gt;</span>
+            <span class="highlight-tag">&lt;p&gt;</span>Percobaan: <span class="highlight-tag">&lt;strong&gt;</span><span class="highlight-php">&lt;?php echo</span> <span class="highlight-variable">$percobaan</span><span class="highlight-operator">;</span> <span class="highlight-php">?&gt;</span><span class="highlight-tag">&lt;/strong&gt;</span><span class="highlight-tag">&lt;/p&gt;</span>
+        <span class="highlight-tag">&lt;/div&gt;</span>
+        
+        <span class="highlight-php">&lt;?php if</span> <span class="highlight-operator">(</span><span class="highlight-variable">$status</span> <span class="highlight-operator">==</span> <span class="highlight-string">'playing'</span><span class="highlight-operator">)</span><span class="highlight-operator">:</span> <span class="highlight-php">?&gt;</span>
+        <span class="highlight-tag">&lt;form</span> <span class="highlight-attribute">method</span><span class="highlight-operator">=</span><span class="highlight-value">"POST"</span><span class="highlight-tag">&gt;</span>
+            <span class="highlight-tag">&lt;input</span> <span class="highlight-attribute">type</span><span class="highlight-operator">=</span><span class="highlight-value">"number"</span> <span class="highlight-attribute">name</span><span class="highlight-operator">=</span><span class="highlight-value">"tebakan"</span> <span class="highlight-attribute">min</span><span class="highlight-operator">=</span><span class="highlight-value">"1"</span> <span class="highlight-attribute">max</span><span class="highlight-operator">=</span><span class="highlight-value">"100"</span> 
+                   <span class="highlight-attribute">placeholder</span><span class="highlight-operator">=</span><span class="highlight-value">"Masukkan angka (1-100)"</span> <span class="highlight-attribute">required</span><span class="highlight-tag">&gt;</span>
+            <span class="highlight-tag">&lt;button</span> <span class="highlight-attribute">type</span><span class="highlight-operator">=</span><span class="highlight-value">"submit"</span><span class="highlight-tag">&gt;</span>🎯 Tebak!<span class="highlight-tag">&lt;/button&gt;</span>
+        <span class="highlight-tag">&lt;/form&gt;</span>
+        <span class="highlight-php">&lt;?php else: ?&gt;</span>
+        <span class="highlight-tag">&lt;form</span> <span class="highlight-attribute">method</span><span class="highlight-operator">=</span><span class="highlight-value">"POST"</span><span class="highlight-tag">&gt;</span>
+            <span class="highlight-tag">&lt;button</span> <span class="highlight-attribute">type</span><span class="highlight-operator">=</span><span class="highlight-value">"submit"</span> <span class="highlight-attribute">name</span><span class="highlight-operator">=</span><span class="highlight-value">"reset"</span><span class="highlight-tag">&gt;</span>🔄 Main Lagi<span class="highlight-tag">&lt;/button&gt;</span>
+        <span class="highlight-tag">&lt;/form&gt;</span>
+        <span class="highlight-php">&lt;?php endif; ?&gt;</span>
+    <span class="highlight-tag">&lt;/div&gt;</span>
+<span class="highlight-tag">&lt;/body&gt;</span></code></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                                <i class="fas fa-play mr-3"></i>Langkah 3: Test Game
+                            </h3>
+                            <ol class="space-y-3 text-gray-700">
+                                <li class="flex items-start">
+                                    <span class="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">1</span>
+                                    Simpan file dan refresh browser
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">2</span>
+                                    Coba masukkan angka dan klik "Tebak!"
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">3</span>
+                                    Perhatikan pesan yang muncul dan counter percobaan
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3 mt-0.5">4</span>
+                                    Terus coba sampai berhasil menebak!
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('tampilan')" class="bg-gradient-to-r from-purple-500 to-violet-500 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                        Lanjut ke Desain Tampilan <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tampilan Section -->
+            <div id="tampilan" class="content-section">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-palette text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Desain Tampilan</h2>
+                        <p class="text-gray-600">Mari buat tampilan game kita lebih menarik dan profesional!</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                                <i class="fas fa-paint-brush mr-3"></i>Langkah 1: Perbaiki CSS
+                            </h3>
+                            <p class="text-gray-700 mb-4">Ganti bagian CSS dengan kode yang lebih lengkap:</p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <span class="text-white text-sm font-semibold">📄 index.php (bagian CSS)</span>
+                                </div>
+                                <div class="code-content">
+<pre><code><span class="highlight-tag">&lt;style&gt;</span>
+    <span class="highlight-operator">*</span> <span class="highlight-operator">{</span> <span class="highlight-attribute">box-sizing</span><span class="highlight-operator">:</span> <span class="highlight-value">border-box</span><span class="highlight-operator">;</span> <span class="highlight-operator">}</span>
+    
+    <span class="highlight-keyword">body</span> <span class="highlight-operator">{</span> 
+        <span class="highlight-attribute">font-family</span><span class="highlight-operator">:</span> <span class="highlight-value">'Arial', sans-serif</span><span class="highlight-operator">;</span> 
+        <span class="highlight-attribute">background</span><span class="highlight-operator">:</span> <span class="highlight-function">linear-gradient</span><span class="highlight-operator">(</span><span class="highlight-number">135deg</span><span class="highlight-operator">,</span> <span class="highlight-value">#667eea</span> <span class="highlight-number">0%</span><span class="highlight-operator">,</span> <span class="highlight-value">#764ba2</span> <span class="highlight-number">100%</span><span class="highlight-operator">)</span><span class="highlight-operator">;</span>
+        <span class="highlight-attribute">margin</span><span class="highlight-operator">:</span> <span class="highlight-number">0</span><span class="highlight-operator">;</span> <span class="highlight-attribute">padding</span><span class="highlight-operator">:</span> <span class="highlight-number">20px</span><span class="highlight-operator">;</span> <span class="highlight-attribute">min-height</span><span class="highlight-operator">:</span> <span class="highlight-number">100vh</span><span class="highlight-operator">;</span>
+        <span class="highlight-attribute">display</span><span class="highlight-operator">:</span> <span class="highlight-value">flex</span><span class="highlight-operator">;</span> <span class="highlight-attribute">align-items</span><span class="highlight-operator">:</span> <span class="highlight-value">center</span><span class="highlight-operator">;</span> <span class="highlight-attribute">justify-content</span><span class="highlight-operator">:</span> <span class="highlight-value">center</span><span class="highlight-operator">;</span>
+    <span class="highlight-operator">}</span>
+    
+    <span class="highlight-keyword">.container</span> <span class="highlight-operator">{</span> 
+        <span class="highlight-attribute">max-width</span><span class="highlight-operator">:</span> <span class="highlight-number">500px</span><span class="highlight-operator">;</span> <span class="highlight-attribute">width</span><span class="highlight-operator">:</span> <span class="highlight-number">100%</span><span class="highlight-operator">;</span>
+        <span class="highlight-attribute">background</span><span class="highlight-operator">:</span> <span class="highlight-value">white</span><span class="highlight-operator">;</span> <span class="highlight-attribute">padding</span><span class="highlight-operator">:</span> <span class="highlight-number">40px</span><span class="highlight-operator">;</span> 
+        <span class="highlight-attribute">border-radius</span><span class="highlight-operator">:</span> <span class="highlight-number">20px</span><span class="highlight-operator">;</span> 
+        <span class="highlight-attribute">box-shadow</span><span class="highlight-operator">:</span> <span class="highlight-number">0</span> <span class="highlight-number">15px</span> <span class="highlight-number">35px</span> <span class="highlight-function">rgba</span><span class="highlight-operator">(</span><span class="highlight-number">0,0,0,0.1</span><span class="highlight-operator">)</span><span class="highlight-operator">;</span>
+        <span class="highlight-attribute">text-align</span><span class="highlight-operator">:</span> <span class="highlight-value">center</span><span class="highlight-operator">;</span>
+    <span class="highlight-operator">}</span>
+    
+    <span class="highlight-keyword">h1</span> <span class="highlight-operator">{</span> 
+        <span class="highlight-attribute">color</span><span class="highlight-operator">:</span> <span class="highlight-value">#333</span><span class="highlight-operator">;</span> <span class="highlight-attribute">margin-bottom</span><span class="highlight-operator">:</span> <span class="highlight-number">30px</span><span class="highlight-operator">;</span> 
+        <span class="highlight-attribute">font-size</span><span class="highlight-operator">:</span> <span class="highlight-number">2.5em</span><span class="highlight-operator">;</span> <span class="highlight-attribute">text-shadow</span><span class="highlight-operator">:</span> <span class="highlight-number">2px</span> <span class="highlight-number">2px</span> <span class="highlight-number">4px</span> <span class="highlight-function">rgba</span><span class="highlight-operator">(</span><span class="highlight-number">0,0,0,0.1</span><span class="highlight-operator">)</span><span class="highlight-operator">;</span>
+    <span class="highlight-operator">}</span>
+    
+    <span class="highlight-keyword">.info</span> <span class="highlight-operator">{</span> 
+        <span class="highlight-attribute">background</span><span class="highlight-operator">:</span> <span class="highlight-value">#f8f9fa</span><span class="highlight-operator">;</span> <span class="highlight-attribute">padding</span><span class="highlight-operator">:</span> <span class="highlight-number">20px</span><span class="highlight-operator">;</span> 
+        <span class="highlight-attribute">border-radius</span><span class="highlight-operator">:</span> <span class="highlight-number">15px</span><span class="highlight-operator">;</span> <span class="highlight-attribute">margin-bottom</span><span class="highlight-operator">:</span> <span class="highlight-number">30px</span><span class="highlight-operator">;</span>
+        <span class="highlight-attribute">border-left</span><span class="highlight-operator">:</span> <span class="highlight-number">5px</span> <span class="highlight-value">solid</span> <span class="highlight-value">#667eea</span><span class="highlight-operator">;</span>
+    <span class="highlight-operator">}</span>
+    
+    <span class="highlight-keyword">.message</span> <span class="highlight-operator">{</span> 
+        <span class="highlight-attribute">font-size</span><span class="highlight-operator">:</span> <span class="highlight-number">1.2em</span><span class="highlight-operator">;</span> <span class="highlight-attribute">margin-bottom</span><span class="highlight-operator">:</span> <span class="highlight-number">10px</span><span class="highlight-operator">;</span> 
+        <span class="highlight-attribute">color</span><span class="highlight-operator">:</span> <span class="highlight-value">#333</span><span class="highlight-operator">;</span> <span class="highlight-attribute">font-weight</span><span class="highlight-operator">:</span> <span class="highlight-value">bold</span><span class="highlight-operator">;</span>
+    <span class="highlight-operator">}</span>
+    
+    <span class="highlight-keyword">input</span><span class="highlight-operator">[</span><span class="highlight-attribute">type</span><span class="highlight-operator">=</span><span class="highlight-value">"number"</span><span class="highlight-operator">]</span> <span class="highlight-operator">{</span> 
+        <span class="highlight-attribute">width</span><span class="highlight-operator">:</span> <span class="highlight-number">100%</span><span class="highlight-operator">;</span> <span class="highlight-attribute">padding</span><span class="highlight-operator">:</span> <span class="highlight-number">15px</span><span class="highlight-operator">;</span> 
+        <span class="highlight-attribute">border</span><span class="highlight-operator">:</span> <span class="highlight-number">2px</span> <span class="highlight-value">solid</span> <span class="highlight-value">#ddd</span><span class="highlight-operator">;</span> <span class="highlight-attribute">border-radius</span><span class="highlight-operator">:</span> <span class="highlight-number">10px</span><span class="highlight-operator">;</span>
+        <span class="highlight-attribute">font-size</span><span class="highlight-operator">:</span> <span class="highlight-number">1.1em</span><span class="highlight-operator">;</span> <span class="highlight-attribute">margin-bottom</span><span class="highlight-operator">:</span> <span class="highlight-number">20px</span><span class="highlight-operator">;</span>
+        <span class="highlight-attribute">transition</span><span class="highlight-operator">:</span> <span class="highlight-value">border-color</span> <span class="highlight-number">0.3s</span><span class="highlight-operator">;</span>
+    <span class="highlight-operator">}</span>
+    
+    <span class="highlight-keyword">input</span><span class="highlight-operator">[</span><span class="highlight-attribute">type</span><span class="highlight-operator">=</span><span class="highlight-value">"number"</span><span class="highlight-operator">]</span><span class="highlight-operator">:</span><span class="highlight-keyword">focus</span> <span class="highlight-operator">{</span> 
+        <span class="highlight-attribute">outline</span><span class="highlight-operator">:</span> <span class="highlight-value">none</span><span class="highlight-operator">;</span> <span class="highlight-attribute">border-color</span><span class="highlight-operator">:</span> <span class="highlight-value">#667eea</span><span class="highlight-operator">;</span> 
+        <span class="highlight-attribute">box-shadow</span><span class="highlight-operator">:</span> <span class="highlight-number">0</span> <span class="highlight-number">0</span> <span class="highlight-number">10px</span> <span class="highlight-function">rgba</span><span class="highlight-operator">(</span><span class="highlight-number">102, 126, 234, 0.3</span><span class="highlight-operator">)</span><span class="highlight-operator">;</span>
+    <span class="highlight-operator">}</span>
+    
+    <span class="highlight-keyword">button</span> <span class="highlight-operator">{</span> 
+        <span class="highlight-attribute">background</span><span class="highlight-operator">:</span> <span class="highlight-function">linear-gradient</span><span class="highlight-operator">(</span><span class="highlight-number">135deg</span><span class="highlight-operator">,</span> <span class="highlight-value">#667eea</span> <span class="highlight-number">0%</span><span class="highlight-operator">,</span> <span class="highlight-value">#764ba2</span> <span class="highlight-number">100%</span><span class="highlight-operator">)</span><span class="highlight-operator">;</span>
+        <span class="highlight-attribute">color</span><span class="highlight-operator">:</span> <span class="highlight-value">white</span><span class="highlight-operator">;</span> <span class="highlight-attribute">border</span><span class="highlight-operator">:</span> <span class="highlight-value">none</span><span class="highlight-operator">;</span> <span class="highlight-attribute">padding</span><span class="highlight-operator">:</span> <span class="highlight-number">15px</span> <span class="highlight-number">30px</span><span class="highlight-operator">;</span>
+        <span class="highlight-attribute">border-radius</span><span class="highlight-operator">:</span> <span class="highlight-number">10px</span><span class="highlight-operator">;</span> <span class="highlight-attribute">font-size</span><span class="highlight-operator">:</span> <span class="highlight-number">1.1em</span><span class="highlight-operator">;</span> <span class="highlight-attribute">font-weight</span><span class="highlight-operator">:</span> <span class="highlight-value">bold</span><span class="highlight-operator">;</span>
+        <span class="highlight-attribute">cursor</span><span class="highlight-operator">:</span> <span class="highlight-value">pointer</span><span class="highlight-operator">;</span> <span class="highlight-attribute">transition</span><span class="highlight-operator">:</span> <span class="highlight-value">transform</span> <span class="highlight-number">0.3s</span><span class="highlight-operator">;</span>
+        <span class="highlight-attribute">width</span><span class="highlight-operator">:</span> <span class="highlight-number">100%</span><span class="highlight-operator">;</span>
+    <span class="highlight-operator">}</span>
+    
+    <span class="highlight-keyword">button</span><span class="highlight-operator">:</span><span class="highlight-keyword">hover</span> <span class="highlight-operator">{</span> 
+        <span class="highlight-attribute">transform</span><span class="highlight-operator">:</span> <span class="highlight-function">translateY</span><span class="highlight-operator">(</span><span class="highlight-number">-2px</span><span class="highlight-operator">)</span><span class="highlight-operator">;</span> 
+        <span class="highlight-attribute">box-shadow</span><span class="highlight-operator">:</span> <span class="highlight-number">0</span> <span class="highlight-number">5px</span> <span class="highlight-number">15px</span> <span class="highlight-function">rgba</span><span class="highlight-operator">(</span><span class="highlight-number">0,0,0,0.2</span><span class="highlight-operator">)</span><span class="highlight-operator">;</span>
+    <span class="highlight-operator">}</span>
+    
+    <span class="highlight-keyword">@media</span> <span class="highlight-operator">(</span><span class="highlight-attribute">max-width</span><span class="highlight-operator">:</span> <span class="highlight-number">600px</span><span class="highlight-operator">)</span> <span class="highlight-operator">{</span>
+        <span class="highlight-keyword">.container</span> <span class="highlight-operator">{</span> <span class="highlight-attribute">padding</span><span class="highlight-operator">:</span> <span class="highlight-number">20px</span><span class="highlight-operator">;</span> <span class="highlight-attribute">margin</span><span class="highlight-operator">:</span> <span class="highlight-number">10px</span><span class="highlight-operator">;</span> <span class="highlight-operator">}</span>
+        <span class="highlight-keyword">h1</span> <span class="highlight-operator">{</span> <span class="highlight-attribute">font-size</span><span class="highlight-operator">:</span> <span class="highlight-number">2em</span><span class="highlight-operator">;</span> <span class="highlight-operator">}</span>
+    <span class="highlight-operator">}</span>
+<span class="highlight-tag">&lt;/style&gt;</span></code></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                                <i class="fas fa-mobile-alt mr-3"></i>Langkah 2: Tambahkan Responsivitas
+                            </h3>
+                            <p class="text-gray-700 mb-4">Pastikan game terlihat bagus di semua perangkat dengan menambahkan meta viewport:</p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <span class="text-white text-sm font-semibold">📄 index.php (bagian head)</span>
+                                </div>
+                                <div class="code-content">
+<pre><code><span class="highlight-php">&lt;head&gt;</span>
+    <span class="highlight-php">&lt;meta charset="UTF-8"&gt;</span>
+    <span class="highlight-php">&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</span>
+    <span class="highlight-php">&lt;title&gt;</span>Game Tebak Angka - PHP<span class="highlight-php">&lt;/title&gt;</span>
+    <span class="highlight-comment">&lt;!-- CSS code here --&gt;</span>
+<span class="highlight-php">&lt;/head&gt;</span></code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded">
+                                <h4 class="font-bold text-green-800 mb-2">📱 Tips Responsif:</h4>
+                                <ul class="text-sm text-green-700 space-y-1">
+                                    <li>Gunakan unit relatif (%, em, rem) daripada pixel</li>
+                                    <li>Test di berbagai ukuran layar</li>
+                                    <li>Pastikan tombol mudah ditekan di mobile</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                                <i class="fas fa-star mr-3"></i>Langkah 3: Tambahkan Animasi
+                            </h3>
+                            <p class="text-gray-700 mb-4">Tambahkan CSS animasi untuk membuat game lebih hidup:</p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <span class="text-white text-sm font-semibold">📄 index.php (tambahan CSS)</span>
+                                </div>
+                                <div class="code-content">
+<pre><code><span class="highlight-comment">/* Tambahkan di dalam tag &lt;style&gt; */</span>
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.container {
+    animation: fadeIn 0.6s ease-out;
+}
+
+h1 {
+    animation: bounce 2s infinite;
+}
+
+.message {
+    transition: all 0.3s ease;
+}
+
+button:active {
+    transform: translateY(0);
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('testing')" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                        Lanjut ke Testing <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Testing Section -->
+            <div id="testing" class="content-section">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-check-circle text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Testing & Finishing</h2>
+                        <p class="text-gray-600">Mari test game kita dan tambahkan fitur finishing!</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-blue-800 mb-4 flex items-center">
+                                <i class="fas fa-bug mr-3"></i>Langkah 1: Testing Fungsionalitas
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg border-l-4 border-blue-400">
+                                    <h4 class="font-bold text-blue-800 mb-2">✅ Checklist Testing:</h4>
+                                    <ul class="space-y-2 text-gray-700">
+                                        <li class="flex items-center">
+                                            <input type="checkbox" class="mr-3 w-4 h-4">
+                                            Game bisa menebak angka dengan benar
+                                        </li>
+                                        <li class="flex items-center">
+                                            <input type="checkbox" class="mr-3 w-4 h-4">
+                                            Pesan "terlalu besar/kecil" muncul dengan tepat
+                                        </li>
+                                        <li class="flex items-center">
+                                            <input type="checkbox" class="mr-3 w-4 h-4">
+                                            Counter percobaan bertambah setiap tebakan
+                                        </li>
+                                        <li class="flex items-center">
+                                            <input type="checkbox" class="mr-3 w-4 h-4">
+                                            Tombol "Main Lagi" berfungsi
+                                        </li>
+                                        <li class="flex items-center">
+                                            <input type="checkbox" class="mr-3 w-4 h-4">
+                                            Tampilan responsif di mobile dan desktop
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                                <i class="fas fa-plus mr-3"></i>Langkah 2: Fitur Tambahan (Opsional)
+                            </h3>
+                            <p class="text-gray-700 mb-4">Tambahkan fitur-fitur menarik untuk membuat game lebih seru:</p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <span class="text-white text-sm font-semibold">📄 Fitur High Score</span>
+                                </div>
+                                <div class="code-content">
+<pre><code><span class="highlight-comment">// Tambahkan di bagian PHP</span>
+<span class="highlight-keyword">if</span> <span class="highlight-operator">(</span><span class="highlight-operator">!</span><span class="highlight-function">isset</span><span class="highlight-operator">(</span><span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'best_score'</span><span class="highlight-operator">]</span><span class="highlight-operator">)</span><span class="highlight-operator">)</span> <span class="highlight-operator">{</span>
+    <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'best_score'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-number">999</span><span class="highlight-operator">;</span>
+<span class="highlight-operator">}</span>
+
+<span class="highlight-keyword">if</span> <span class="highlight-operator">(</span><span class="highlight-variable">$status</span> <span class="highlight-operator">==</span> <span class="highlight-string">'won'</span> <span class="highlight-operator">&amp;&amp;</span> <span class="highlight-variable">$percobaan</span> <span class="highlight-operator">&lt;</span> <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'best_score'</span><span class="highlight-operator">]</span><span class="highlight-operator">)</span> <span class="highlight-operator">{</span>
+    <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'best_score'</span><span class="highlight-operator">]</span> <span class="highlight-operator">=</span> <span class="highlight-variable">$percobaan</span><span class="highlight-operator">;</span>
+<span class="highlight-operator">}</span>
+
+<span class="highlight-comment">// Tambahkan di HTML</span>
+<span class="highlight-tag">&lt;p&gt;</span>Rekor Terbaik: <span class="highlight-tag">&lt;strong&gt;</span><span class="highlight-php">&lt;?php echo</span> <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'best_score'</span><span class="highlight-operator">]</span> <span class="highlight-operator">==</span> <span class="highlight-number">999</span> <span class="highlight-operator">?</span> <span class="highlight-string">'-'</span> <span class="highlight-operator">:</span> <span class="highlight-variable">$_SESSION</span><span class="highlight-operator">[</span><span class="highlight-string">'best_score'</span><span class="highlight-operator">]</span><span class="highlight-operator">;</span> <span class="highlight-php">?&gt;</span><span class="highlight-tag">&lt;/strong&gt;</span><span class="highlight-tag">&lt;/p&gt;</span></code></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-purple-800 mb-4 flex items-center">
+                                <i class="fas fa-rocket mr-3"></i>Langkah 3: Troubleshooting & Tips
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-purple-800 mb-2">🔧 Masalah Umum & Solusi:</h4>
+                                    <div class="space-y-3 text-sm text-gray-700">
+                                        <div class="border-l-4 border-red-400 pl-3">
+                                            <strong>Error "session_start()":</strong><br>
+                                            Pastikan tidak ada output (echo/HTML) sebelum session_start()
+                                        </div>
+                                        <div class="border-l-4 border-yellow-400 pl-3">
+                                            <strong>Halaman blank/kosong:</strong><br>
+                                            Cek error di browser (F12 → Console) atau aktifkan error reporting PHP
+                                        </div>
+                                        <div class="border-l-4 border-blue-400 pl-3">
+                                            <strong>Form tidak submit:</strong><br>
+                                            Pastikan method="POST" dan name attribute sudah benar
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-purple-800 mb-2">🚀 Tips Optimasi:</h4>
+                                    <ul class="space-y-2 text-gray-700 text-sm">
+                                        <li>• Tambahkan validasi input untuk mencegah error</li>
+                                        <li>• Gunakan htmlspecialchars() untuk keamanan</li>
+                                        <li>• Tambahkan komentar pada kode untuk dokumentasi</li>
+                                        <li>• Test di berbagai browser dan perangkat</li>
+                                        <li>• Buat backup kode sebelum modifikasi besar</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-purple-800 mb-2">🌐 Cara Deploy:</h4>
+                                    <ol class="space-y-2 text-gray-700 text-sm">
+                                        <li>1. Pilih hosting yang support PHP (Hostinger, Niagahoster, dll)</li>
+                                        <li>2. Upload file via File Manager atau FTP</li>
+                                        <li>3. Pastikan PHP version 7.4+ tersedia</li>
+                                        <li>4. Test semua fungsi di server live</li>
+                                        <li>5. Share link game ke teman-teman!</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-yellow-50 to-orange-100 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-yellow-800 mb-4 flex items-center">
+                                <i class="fas fa-graduation-cap mr-3"></i>Selamat! 🎉
+                            </h3>
+                            <p class="text-gray-700 mb-4">Kamu telah berhasil membuat game tebak angka dengan PHP! Berikut yang sudah kamu pelajari:</p>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-yellow-800 mb-2">📚 Konsep PHP:</h4>
+                                    <ul class="text-sm text-gray-700 space-y-1">
+                                        <li>• Session management</li>
+                                        <li>• Form handling</li>
+                                        <li>• Conditional statements</li>
+                                        <li>• Random number generation</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-yellow-800 mb-2">🎨 Web Design:</h4>
+                                    <ul class="text-sm text-gray-700 space-y-1">
+                                        <li>• Responsive design</li>
+                                        <li>• CSS animations</li>
+                                        <li>• User experience</li>
+                                        <li>• Modern styling</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
+                        <h3 class="text-2xl font-bold text-green-800 mb-4">🏆 Misi Selesai!</h3>
+                        <p class="text-gray-700 mb-4">Game tebak angka PHP kamu sudah siap dimainkan! Sekarang kamu bisa:</p>
+                        <div class="flex flex-wrap justify-center gap-4">
+                            <span class="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold">✨ Kustomisasi tampilan</span>
+                            <span class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-semibold">🔧 Tambah fitur baru</span>
+                            <span class="bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-semibold">🚀 Deploy ke hosting</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Overlay for mobile menu -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        mobileMenuBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        });
+
+        overlay.addEventListener('click', function() {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        });
+
+        // Show section function
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all menu items
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.classList.remove('active-menu');
+            });
+            
+            // Add active class to current menu item
+            const currentMenuItem = document.getElementById('nav-' + sectionId);
+            if (currentMenuItem) {
+                currentMenuItem.classList.add('active-menu');
+            }
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Close mobile menu
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+            
+            // Scroll to top immediately
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        }
+
+        // Back to top function
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Show/hide back to top button
+        window.addEventListener('scroll', function() {
+            const backToTop = document.querySelector('.back-to-top');
+            if (window.pageYOffset > 300) {
+                backToTop.style.display = 'flex';
+            } else {
+                backToTop.style.display = 'none';
+            }
+        });
+
+        // Interactive checkboxes
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        this.parentElement.style.opacity = '0.7';
+                        this.parentElement.style.textDecoration = 'line-through';
+                    } else {
+                        this.parentElement.style.opacity = '1';
+                        this.parentElement.style.textDecoration = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987f0eacd53da620',t:'MTc1OTM1NDE4Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
