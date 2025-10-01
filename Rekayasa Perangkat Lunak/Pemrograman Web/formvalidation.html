@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar PHP Form Processing - Materi Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .code-block {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 0;
+            margin: 25px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: relative;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+        
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .code-content {
+            background: #f8fafc;
+            border-radius: 0 0 12px 12px;
+            padding: 25px;
+            margin-top: 45px;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            color: #1e293b;
+            font-size: 14px;
+            line-height: 1.8;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .filename {
+            position: absolute;
+            top: 12px;
+            left: 20px;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .sidebar {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+        
+        .step-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .highlight-box {
+            background: #f0f9ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #3b82f6;
+            border: 1px solid #bfdbfe;
+        }
+        
+        .nav-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+        
+        .nav-btn.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid #fbbf24;
+        }
+        
+        @media (max-width: 768px) {
+            .code-content {
+                font-size: 12px;
+            }
+            
+            .step-card {
+                padding: 20px;
+                margin: 15px 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 min-h-screen">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white p-3 rounded-lg shadow-lg transition-all duration-300">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar lg:translate-x-0 fixed left-0 top-0 h-full w-80 bg-gradient-to-b from-slate-800 to-slate-900 text-white z-40 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center mb-8 pb-4 border-b border-slate-700">
+                <div class="bg-gradient-to-r from-purple-500 to-pink-500 p-3 rounded-lg mr-3">
+                    <i class="fas fa-code text-xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white">PHP Form Processing</h1>
+                    <p class="text-slate-400 text-sm">Materi Pembelajaran</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <button onclick="showSection('pengenalan')" class="nav-btn w-full text-left p-4 rounded-lg text-slate-200 hover:text-white flex items-center active">
+                    <div class="bg-green-500 p-2 rounded-lg mr-3">
+                        <i class="fas fa-play text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium">Pengenalan</div>
+                        <div class="text-xs text-slate-400">Dasar form processing</div>
+                    </div>
+                </button>
+                
+                <button onclick="showSection('langkah1')" class="nav-btn w-full text-left p-4 rounded-lg text-slate-200 hover:text-white flex items-center">
+                    <div class="bg-blue-500 p-2 rounded-lg mr-3">
+                        <i class="fas fa-file-code text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium">Langkah 1: Form HTML</div>
+                        <div class="text-xs text-slate-400">Membuat struktur form</div>
+                    </div>
+                </button>
+                
+                <button onclick="showSection('langkah2')" class="nav-btn w-full text-left p-4 rounded-lg text-slate-200 hover:text-white flex items-center">
+                    <div class="bg-purple-500 p-2 rounded-lg mr-3">
+                        <i class="fas fa-server text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium">Langkah 2: PHP Processing</div>
+                        <div class="text-xs text-slate-400">Memproses data form</div>
+                    </div>
+                </button>
+                
+                <button onclick="showSection('langkah3')" class="nav-btn w-full text-left p-4 rounded-lg text-slate-200 hover:text-white flex items-center">
+                    <div class="bg-red-500 p-2 rounded-lg mr-3">
+                        <i class="fas fa-shield-alt text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium">Langkah 3: Validasi Input</div>
+                        <div class="text-xs text-slate-400">Keamanan data</div>
+                    </div>
+                </button>
+                
+                <button onclick="showSection('langkah4')" class="nav-btn w-full text-left p-4 rounded-lg text-slate-200 hover:text-white flex items-center">
+                    <div class="bg-amber-500 p-2 rounded-lg mr-3">
+                        <i class="fas fa-palette text-sm"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium">Langkah 4: Styling</div>
+                        <div class="text-xs text-slate-400">Finishing touches</div>
+                    </div>
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-screen">
+        <div class="max-w-4xl mx-auto p-6 lg:p-8">
+            
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="content-section active">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-purple-100 to-pink-100 rounded-full mb-4">
+                        <i class="fas fa-rocket text-3xl text-purple-600"></i>
+                    </div>
+                    <h1 class="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+                        PHP Form Processing
+                    </h1>
+                    <p class="text-xl text-slate-600">Belajar membuat form yang aman dan interaktif dengan mudah! 🚀</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-start">
+                        <div class="bg-yellow-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                            <i class="fas fa-lightbulb text-2xl text-yellow-600"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-3">Apa itu Form Processing? 🤔</h2>
+                            <p class="text-lg text-slate-600 leading-relaxed">
+                                Form Processing adalah proses mengolah data yang dikirim dari form HTML menggunakan PHP. 
+                                Bayangkan seperti kotak surat digital - user mengisi form (menulis surat), 
+                                lalu PHP yang bertugas membaca dan memproses surat tersebut! 📮
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 p-2 rounded-lg mr-3 flex-shrink-0">
+                            <i class="fas fa-star text-blue-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-3">Yang Akan Kita Pelajari:</h3>
+                            <div class="grid md:grid-cols-2 gap-3">
+                                <div class="flex items-center text-slate-700">
+                                    <i class="fas fa-check-circle mr-2 text-green-500"></i> 
+                                    Membuat form HTML yang cantik
+                                </div>
+                                <div class="flex items-center text-slate-700">
+                                    <i class="fas fa-check-circle mr-2 text-green-500"></i> 
+                                    Memproses data dengan PHP
+                                </div>
+                                <div class="flex items-center text-slate-700">
+                                    <i class="fas fa-check-circle mr-2 text-green-500"></i> 
+                                    Validasi input untuk keamanan
+                                </div>
+                                <div class="flex items-center text-slate-700">
+                                    <i class="fas fa-check-circle mr-2 text-green-500"></i> 
+                                    Menampilkan pesan error yang baik
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="showSection('langkah1')" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center">
+                        Mulai Praktik! 
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Langkah 1 Section -->
+            <div id="langkah1" class="content-section">
+                <div class="flex items-center mb-6">
+                    <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                        <i class="fas fa-file-code text-2xl text-blue-600"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Langkah 1: Membuat Form HTML</h1>
+                        <p class="text-slate-600">Membuat struktur form yang cantik dan fungsional</p>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-start">
+                        <div class="bg-green-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                            <i class="fas fa-target text-xl text-green-600"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-3">🎯 Tujuan Langkah Ini</h2>
+                            <p class="text-lg text-slate-600">
+                                Kita akan membuat form HTML yang cantik untuk mengumpulkan data dari user. 
+                                Form ini seperti formulir pendaftaran yang sering kamu lihat di website!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center">
+                        <i class="fas fa-list-ol mr-2 text-blue-600"></i>
+                        Langkah-langkah:
+                    </h3>
+                    <ol class="list-decimal list-inside space-y-2 text-slate-700 ml-6">
+                        <li>Buat file HTML baru</li>
+                        <li>Tambahkan struktur form</li>
+                        <li>Buat input fields yang dibutuhkan</li>
+                        <li>Tambahkan styling agar cantik</li>
+                    </ol>
+                </div>
+
+                <div class="code-block">
+                    <div class="filename">📄 index.html</div>
+                    <div class="code-content">&lt;!DOCTYPE html&gt;
+&lt;html lang="id"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Form Pendaftaran Siswa&lt;/title&gt;
+    &lt;style&gt;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            color: #334155;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .header h1 {
+            color: #1e293b;
+            font-size: 2em;
+            margin-bottom: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background-color: #ffffff;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        .btn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn:hover {
+            background-color: #2563eb;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container"&gt;
+        &lt;div class="header"&gt;
+            &lt;h1&gt;📚 Form Pendaftaran Siswa&lt;/h1&gt;
+            &lt;p&gt;Isi data dengan lengkap dan benar&lt;/p&gt;
+        &lt;/div&gt;
+        
+        &lt;form action="proses.php" method="POST"&gt;
+            &lt;div class="form-group"&gt;
+                &lt;label for="nama"&gt;👤 Nama Lengkap:&lt;/label&gt;
+                &lt;input type="text" id="nama" name="nama" required&gt;
+            &lt;/div&gt;
+            
+            &lt;div class="form-group"&gt;
+                &lt;label for="email"&gt;📧 Email:&lt;/label&gt;
+                &lt;input type="email" id="email" name="email" required&gt;
+            &lt;/div&gt;
+            
+            &lt;div class="form-group"&gt;
+                &lt;label for="umur"&gt;🎂 Umur:&lt;/label&gt;
+                &lt;input type="number" id="umur" name="umur" min="15" max="25" required&gt;
+            &lt;/div&gt;
+            
+            &lt;div class="form-group"&gt;
+                &lt;label for="jurusan"&gt;🎓 Jurusan:&lt;/label&gt;
+                &lt;select id="jurusan" name="jurusan" required&gt;
+                    &lt;option value=""&gt;Pilih Jurusan&lt;/option&gt;
+                    &lt;option value="RPL"&gt;Rekayasa Perangkat Lunak&lt;/option&gt;
+                    &lt;option value="TKJ"&gt;Teknik Komputer Jaringan&lt;/option&gt;
+                    &lt;option value="MM"&gt;Multimedia&lt;/option&gt;
+                &lt;/select&gt;
+            &lt;/div&gt;
+            
+            &lt;div class="form-group"&gt;
+                &lt;label for="pesan"&gt;💬 Pesan (Opsional):&lt;/label&gt;
+                &lt;textarea id="pesan" name="pesan" rows="4" placeholder="Tulis pesan atau motivasi kamu..."&gt;&lt;/textarea&gt;
+            &lt;/div&gt;
+            
+            &lt;button type="submit" class="btn"&gt;
+                🚀 Daftar Sekarang!
+            &lt;/button&gt;
+        &lt;/form&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center">
+                        <i class="fas fa-info-circle mr-2 text-blue-600"></i>
+                        Penjelasan Kode:
+                    </h3>
+                    <div class="space-y-3 text-slate-700">
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">action="proses.php"</span>
+                            <span>Menentukan file PHP yang akan memproses data</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">method="POST"</span>
+                            <span>Cara pengiriman data yang aman</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">required</span>
+                            <span>Membuat field wajib diisi</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">type="email"</span>
+                            <span>Validasi otomatis untuk format email</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="showSection('langkah2')" class="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center">
+                        Lanjut ke PHP Processing 
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Langkah 2 Section -->
+            <div id="langkah2" class="content-section">
+                <div class="flex items-center mb-6">
+                    <div class="bg-purple-100 p-3 rounded-lg mr-4">
+                        <i class="fas fa-server text-2xl text-purple-600"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Langkah 2: PHP Processing</h1>
+                        <p class="text-slate-600">Memproses data yang dikirim dari form</p>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-start">
+                        <div class="bg-green-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                            <i class="fas fa-target text-xl text-green-600"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-3">🎯 Tujuan Langkah Ini</h2>
+                            <p class="text-lg text-slate-600">
+                                Sekarang kita buat file PHP untuk menerima dan memproses data dari form. 
+                                PHP akan "menangkap" data yang dikirim user dan melakukan sesuatu dengannya!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="filename">🐘 proses.php</div>
+                    <div class="code-content">&lt;?php
+// Cek apakah form sudah di-submit
+if ($_POST) {
+    // Ambil data dari form
+    $nama = $_POST['nama'];
+    $email = $_POST['email'];
+    $umur = $_POST['umur'];
+    $jurusan = $_POST['jurusan'];
+    $pesan = $_POST['pesan'];
+    
+    // Tampilkan hasil
+    echo "&lt;!DOCTYPE html&gt;";
+    echo "&lt;html lang='id'&gt;";
+    echo "&lt;head&gt;";
+    echo "&lt;meta charset='UTF-8'&gt;";
+    echo "&lt;meta name='viewport' content='width=device-width, initial-scale=1.0'&gt;";
+    echo "&lt;title&gt;Hasil Pendaftaran&lt;/title&gt;";
+    echo "&lt;style&gt;";
+    echo "body { font-family: 'Segoe UI', sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; color: #334155; }";
+    echo ".container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; }";
+    echo ".success { background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #bbf7d0; }";
+    echo ".info-box { background: #f8fafc; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #3b82f6; }";
+    echo ".btn { background-color: #3b82f6; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; display: inline-block; margin-top: 20px; font-weight: 600; }";
+    echo ".btn:hover { background-color: #2563eb; }";
+    echo "&lt;/style&gt;";
+    echo "&lt;/head&gt;";
+    echo "&lt;body&gt;";
+    echo "&lt;div class='container'&gt;";
+    echo "&lt;h1 style='text-align: center; color: #1e293b; margin-bottom: 20px;'&gt;✅ Pendaftaran Berhasil!&lt;/h1&gt;";
+    
+    echo "&lt;div class='success'&gt;";
+    echo "&lt;strong&gt;🎉 Selamat! Data kamu sudah berhasil diterima.&lt;/strong&gt;";
+    echo "&lt;/div&gt;";
+    
+    echo "&lt;h2 style='color: #374151; margin-bottom: 15px;'&gt;📋 Data yang Diterima:&lt;/h2&gt;";
+    
+    echo "&lt;div class='info-box'&gt;";
+    echo "&lt;strong&gt;👤 Nama:&lt;/strong&gt; " . $nama;
+    echo "&lt;/div&gt;";
+    
+    echo "&lt;div class='info-box'&gt;";
+    echo "&lt;strong&gt;📧 Email:&lt;/strong&gt; " . $email;
+    echo "&lt;/div&gt;";
+    
+    echo "&lt;div class='info-box'&gt;";
+    echo "&lt;strong&gt;🎂 Umur:&lt;/strong&gt; " . $umur . " tahun";
+    echo "&lt;/div&gt;";
+    
+    echo "&lt;div class='info-box'&gt;";
+    echo "&lt;strong&gt;🎓 Jurusan:&lt;/strong&gt; " . $jurusan;
+    echo "&lt;/div&gt;";
+    
+    if (!empty($pesan)) {
+        echo "&lt;div class='info-box'&gt;";
+        echo "&lt;strong&gt;💬 Pesan:&lt;/strong&gt; " . $pesan;
+        echo "&lt;/div&gt;";
+    }
+    
+    echo "&lt;a href='index.html' class='btn'&gt;🔙 Kembali ke Form&lt;/a&gt;";
+    echo "&lt;/div&gt;";
+    echo "&lt;/body&gt;";
+    echo "&lt;/html&gt;";
+    
+} else {
+    // Jika tidak ada data POST, redirect ke form
+    header("Location: index.html");
+    exit();
+}
+?&gt;</div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center">
+                        <i class="fas fa-info-circle mr-2 text-blue-600"></i>
+                        Penjelasan Kode:
+                    </h3>
+                    <div class="space-y-3 text-slate-700">
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">$_POST</span>
+                            <span>Array yang berisi semua data dari form</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">$_POST['nama']</span>
+                            <span>Mengambil data dari input dengan name="nama"</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">if ($_POST)</span>
+                            <span>Cek apakah ada data yang dikirim</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">echo</span>
+                            <span>Menampilkan output HTML ke browser</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="showSection('langkah3')" class="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center">
+                        Lanjut ke Validasi 
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Langkah 3 Section -->
+            <div id="langkah3" class="content-section">
+                <div class="flex items-center mb-6">
+                    <div class="bg-red-100 p-3 rounded-lg mr-4">
+                        <i class="fas fa-shield-alt text-2xl text-red-600"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">Langkah 3: Validasi Input</h1>
+                        <p class="text-slate-600">Memastikan data yang masuk aman dan sesuai</p>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-start">
+                        <div class="bg-yellow-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                            <i class="fas fa-question-circle text-xl text-yellow-600"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-3">🎯 Mengapa Perlu Validasi?</h2>
+                            <p class="text-lg text-slate-600">
+                                Validasi itu seperti security guard di mall - mereka cek apakah yang masuk itu aman atau tidak. 
+                                Kita perlu validasi untuk memastikan data yang masuk sesuai dengan yang kita harapkan! 🛡️
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="filename">🔒 proses_validasi.php</div>
+                    <div class="code-content">&lt;?php
+// Cek apakah form sudah di-submit
+if ($_POST) {
+    // Array untuk menyimpan error
+    $errors = array();
+    
+    // Ambil dan bersihkan data
+    $nama = trim($_POST['nama']);
+    $email = trim($_POST['email']);
+    $umur = $_POST['umur'];
+    $jurusan = $_POST['jurusan'];
+    $pesan = trim($_POST['pesan']);
+    
+    // Validasi Nama
+    if (empty($nama)) {
+        $errors[] = "Nama tidak boleh kosong! 😅";
+    } elseif (strlen($nama) &lt; 3) {
+        $errors[] = "Nama minimal 3 karakter ya! 📝";
+    } elseif (strlen($nama) &gt; 50) {
+        $errors[] = "Nama maksimal 50 karakter! 📏";
+    }
+    
+    // Validasi Email
+    if (empty($email)) {
+        $errors[] = "Email tidak boleh kosong! 📧";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "Format email tidak valid! Contoh: nama@email.com 📮";
+    }
+    
+    // Validasi Umur
+    if (empty($umur)) {
+        $errors[] = "Umur tidak boleh kosong! 🎂";
+    } elseif ($umur &lt; 15 || $umur &gt; 25) {
+        $errors[] = "Umur harus antara 15-25 tahun! 📅";
+    }
+    
+    // Validasi Jurusan
+    $jurusan_valid = array('RPL', 'TKJ', 'MM');
+    if (empty($jurusan)) {
+        $errors[] = "Pilih jurusan dulu ya! 🎓";
+    } elseif (!in_array($jurusan, $jurusan_valid)) {
+        $errors[] = "Jurusan yang dipilih tidak valid! 🚫";
+    }
+    
+    // Validasi Pesan (opsional, tapi kalau diisi harus valid)
+    if (!empty($pesan) && strlen($pesan) &gt; 500) {
+        $errors[] = "Pesan maksimal 500 karakter! ✂️";
+    }
+    
+    // Tampilkan hasil
+    echo "&lt;!DOCTYPE html&gt;";
+    echo "&lt;html lang='id'&gt;";
+    echo "&lt;head&gt;";
+    echo "&lt;meta charset='UTF-8'&gt;";
+    echo "&lt;meta name='viewport' content='width=device-width, initial-scale=1.0'&gt;";
+    echo "&lt;title&gt;Hasil Validasi&lt;/title&gt;";
+    echo "&lt;style&gt;";
+    echo "body { font-family: 'Segoe UI', sans-serif; background-color: #f8fafc; margin: 0; padding: 20px; color: #334155; }";
+    echo ".container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; }";
+    echo ".success { background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #bbf7d0; }";
+    echo ".error { background: #fef2f2; color: #dc2626; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #fecaca; }";
+    echo ".info-box { background: #f8fafc; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #3b82f6; }";
+    echo ".btn { background-color: #3b82f6; color: white; padding: 12px 25px; text-decoration: none; border-radius: 8px; display: inline-block; margin-top: 20px; font-weight: 600; }";
+    echo ".btn:hover { background-color: #2563eb; }";
+    echo "&lt;/style&gt;";
+    echo "&lt;/head&gt;";
+    echo "&lt;body&gt;";
+    echo "&lt;div class='container'&gt;";
+    
+    // Jika ada error, tampilkan error
+    if (!empty($errors)) {
+        echo "&lt;h1 style='text-align: center; color: #1e293b;'&gt;❌ Oops! Ada Kesalahan&lt;/h1&gt;";
+        echo "&lt;div class='error'&gt;";
+        echo "&lt;strong&gt;🚨 Mohon perbaiki kesalahan berikut:&lt;/strong&gt;&lt;br&gt;&lt;br&gt;";
+        foreach ($errors as $error) {
+            echo "• " . $error . "&lt;br&gt;";
+        }
+        echo "&lt;/div&gt;";
+        echo "&lt;a href='index.html' class='btn'&gt;🔙 Perbaiki Data&lt;/a&gt;";
+    } else {
+        // Jika tidak ada error, tampilkan sukses
+        echo "&lt;h1 style='text-align: center; color: #1e293b;'&gt;✅ Pendaftaran Berhasil!&lt;/h1&gt;";
+        
+        echo "&lt;div class='success'&gt;";
+        echo "&lt;strong&gt;🎉 Selamat! Data kamu sudah berhasil divalidasi dan diterima.&lt;/strong&gt;";
+        echo "&lt;/div&gt;";
+        
+        echo "&lt;h2 style='color: #374151;'&gt;📋 Data yang Diterima:&lt;/h2&gt;";
+        
+        echo "&lt;div class='info-box'&gt;";
+        echo "&lt;strong&gt;👤 Nama:&lt;/strong&gt; " . htmlspecialchars($nama);
+        echo "&lt;/div&gt;";
+        
+        echo "&lt;div class='info-box'&gt;";
+        echo "&lt;strong&gt;📧 Email:&lt;/strong&gt; " . htmlspecialchars($email);
+        echo "&lt;/div&gt;";
+        
+        echo "&lt;div class='info-box'&gt;";
+        echo "&lt;strong&gt;🎂 Umur:&lt;/strong&gt; " . htmlspecialchars($umur) . " tahun";
+        echo "&lt;/div&gt;";
+        
+        echo "&lt;div class='info-box'&gt;";
+        echo "&lt;strong&gt;🎓 Jurusan:&lt;/strong&gt; " . htmlspecialchars($jurusan);
+        echo "&lt;/div&gt;";
+        
+        if (!empty($pesan)) {
+            echo "&lt;div class='info-box'&gt;";
+            echo "&lt;strong&gt;💬 Pesan:&lt;/strong&gt; " . htmlspecialchars($pesan);
+            echo "&lt;/div&gt;";
+        }
+        
+        echo "&lt;a href='index.html' class='btn'&gt;🔙 Kembali ke Form&lt;/a&gt;";
+    }
+    
+    echo "&lt;/div&gt;";
+    echo "&lt;/body&gt;";
+    echo "&lt;/html&gt;";
+    
+} else {
+    // Jika tidak ada data POST, redirect ke form
+    header("Location: index.html");
+    exit();
+}
+?&gt;</div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center">
+                        <i class="fas fa-tools mr-2 text-blue-600"></i>
+                        Fungsi Validasi Penting:
+                    </h3>
+                    <div class="grid md:grid-cols-2 gap-4 text-slate-700">
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">trim()</span>
+                            <span class="text-sm">Menghapus spasi di awal dan akhir</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">empty()</span>
+                            <span class="text-sm">Cek apakah variabel kosong</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">strlen()</span>
+                            <span class="text-sm">Menghitung panjang string</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">filter_var()</span>
+                            <span class="text-sm">Validasi format email</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">in_array()</span>
+                            <span class="text-sm">Cek nilai ada dalam array</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">htmlspecialchars()</span>
+                            <span class="text-sm">Mencegah XSS attack</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="showSection('langkah4')" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center">
+                        Finishing Touch! 
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Langkah 4 Section -->
+            <div id="langkah4" class="content-section">
+                <div class="flex items-center mb-6">
+                    <div class="bg-amber-100 p-3 rounded-lg mr-4">
+                        <i class="fas fa-palette text-2xl text-amber-600"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">Langkah 4: Styling & Finishing</h1>
+                        <p class="text-slate-600">Membuat form lebih cantik dan user-friendly</p>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-start">
+                        <div class="bg-purple-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                            <i class="fas fa-paint-brush text-xl text-purple-600"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-3">🎨 Membuat Form Lebih Cantik</h2>
+                            <p class="text-lg text-slate-600">
+                                Sekarang kita akan upgrade form kita dengan styling yang lebih keren dan fitur-fitur tambahan 
+                                yang membuat user experience jadi lebih menyenangkan! ✨
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center">
+                        <i class="fas fa-star mr-2 text-amber-600"></i>
+                        Fitur Tambahan yang Akan Kita Buat:
+                    </h3>
+                    <div class="grid md:grid-cols-2 gap-3">
+                        <div class="flex items-center text-slate-700">
+                            <i class="fas fa-check-circle mr-2 text-green-500"></i> 
+                            Validasi real-time saat mengetik
+                        </div>
+                        <div class="flex items-center text-slate-700">
+                            <i class="fas fa-check-circle mr-2 text-green-500"></i> 
+                            Animasi loading saat submit
+                        </div>
+                        <div class="flex items-center text-slate-700">
+                            <i class="fas fa-check-circle mr-2 text-green-500"></i> 
+                            Counter karakter untuk textarea
+                        </div>
+                        <div class="flex items-center text-slate-700">
+                            <i class="fas fa-check-circle mr-2 text-green-500"></i> 
+                            Responsive design yang sempurna
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="filename">✨ form_advanced.html</div>
+                    <div class="code-content">&lt;!DOCTYPE html&gt;
+&lt;html lang="id"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Form Pendaftaran Advanced&lt;/title&gt;
+    &lt;style&gt;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .input-valid {
+            border-color: #48bb78 !important;
+            background-color: #f0fff4;
+        }
+        
+        .input-invalid {
+            border-color: #f56565 !important;
+            background-color: #fff5f5;
+        }
+        
+        .error-message {
+            color: #f56565;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .success-message {
+            color: #48bb78;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .char-counter {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            font-size: 12px;
+            color: #a0aec0;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 35px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: #e2e8f0;
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container"&gt;
+        &lt;div class="header"&gt;
+            &lt;h1&gt;🚀 Form Advanced&lt;/h1&gt;
+            &lt;p&gt;Dengan validasi real-time dan animasi&lt;/p&gt;
+        &lt;/div&gt;
+        
+        &lt;div class="progress-bar"&gt;
+            &lt;div class="progress-fill" id="progressFill"&gt;&lt;/div&gt;
+        &lt;/div&gt;
+        
+        &lt;form id="registrationForm" action="proses_validasi.php" method="POST"&gt;
+            &lt;div class="form-group"&gt;
+                &lt;label for="nama"&gt;👤 Nama Lengkap&lt;/label&gt;
+                &lt;input type="text" id="nama" name="nama" required&gt;
+                &lt;div class="error-message" id="namaError"&gt;&lt;/div&gt;
+                &lt;div class="success-message" id="namaSuccess"&gt;&lt;/div&gt;
+            &lt;/div&gt;
+            
+            &lt;div class="form-group"&gt;
+                &lt;label for="email"&gt;📧 Email Address&lt;/label&gt;
+                &lt;input type="email" id="email" name="email" required&gt;
+                &lt;div class="error-message" id="emailError"&gt;&lt;/div&gt;
+                &lt;div class="success-message" id="emailSuccess"&gt;&lt;/div&gt;
+            &lt;/div&gt;
+            
+            &lt;div class="form-group"&gt;
+                &lt;label for="umur"&gt;🎂 Umur&lt;/label&gt;
+                &lt;input type="number" id="umur" name="umur" min="15" max="25" required&gt;
+                &lt;div class="error-message" id="umurError"&gt;&lt;/div&gt;
+                &lt;div class="success-message" id="umurSuccess"&gt;&lt;/div&gt;
+            &lt;/div&gt;
+            
+            &lt;div class="form-group"&gt;
+                &lt;label for="jurusan"&gt;🎓 Jurusan&lt;/label&gt;
+                &lt;select id="jurusan" name="jurusan" required&gt;
+                    &lt;option value=""&gt;Pilih Jurusan&lt;/option&gt;
+                    &lt;option value="RPL"&gt;Rekayasa Perangkat Lunak&lt;/option&gt;
+                    &lt;option value="TKJ"&gt;Teknik Komputer Jaringan&lt;/option&gt;
+                    &lt;option value="MM"&gt;Multimedia&lt;/option&gt;
+                &lt;/select&gt;
+                &lt;div class="error-message" id="jurusanError"&gt;&lt;/div&gt;
+                &lt;div class="success-message" id="jurusanSuccess"&gt;&lt;/div&gt;
+            &lt;/div&gt;
+            
+            &lt;div class="form-group" style="position: relative;"&gt;
+                &lt;label for="pesan"&gt;💬 Pesan (Opsional)&lt;/label&gt;
+                &lt;textarea id="pesan" name="pesan" rows="4" maxlength="500" placeholder="Tulis pesan atau motivasi kamu..."&gt;&lt;/textarea&gt;
+                &lt;div class="char-counter" id="charCounter"&gt;0/500&lt;/div&gt;
+            &lt;/div&gt;
+            
+            &lt;button type="submit" class="btn" id="submitBtn"&gt;
+                &lt;span id="btnText"&gt;🚀 Daftar Sekarang!&lt;/span&gt;
+            &lt;/button&gt;
+        &lt;/form&gt;
+    &lt;/div&gt;
+
+    &lt;script&gt;
+        const form = document.getElementById('registrationForm');
+        const progressFill = document.getElementById('progressFill');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const charCounter = document.getElementById('charCounter');
+        const pesanTextarea = document.getElementById('pesan');
+        
+        // Validasi real-time
+        const validators = {
+            nama: (value) =&gt; {
+                if (!value.trim()) return { valid: false, message: 'Nama tidak boleh kosong!' };
+                if (value.length &lt; 3) return { valid: false, message: 'Nama minimal 3 karakter!' };
+                if (value.length &gt; 50) return { valid: false, message: 'Nama maksimal 50 karakter!' };
+                return { valid: true, message: 'Nama sudah benar! ✓' };
+            },
+            
+            email: (value) =&gt; {
+                if (!value.trim()) return { valid: false, message: 'Email tidak boleh kosong!' };
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(value)) return { valid: false, message: 'Format email tidak valid!' };
+                return { valid: true, message: 'Email sudah benar! ✓' };
+            },
+            
+            umur: (value) =&gt; {
+                if (!value) return { valid: false, message: 'Umur tidak boleh kosong!' };
+                const age = parseInt(value);
+                if (age &lt; 15 || age &gt; 25) return { valid: false, message: 'Umur harus antara 15-25 tahun!' };
+                return { valid: true, message: 'Umur sudah benar! ✓' };
+            },
+            
+            jurusan: (value) =&gt; {
+                if (!value) return { valid: false, message: 'Pilih jurusan dulu ya!' };
+                return { valid: true, message: 'Jurusan sudah dipilih! ✓' };
+            }
+        };
+        
+        // Event listeners untuk validasi real-time
+        Object.keys(validators).forEach(fieldName =&gt; {
+            const field = document.getElementById(fieldName);
+            const errorDiv = document.getElementById(fieldName + 'Error');
+            const successDiv = document.getElementById(fieldName + 'Success');
+            
+            field.addEventListener('input', () =&gt; {
+                const result = validators[fieldName](field.value);
+                
+                if (result.valid) {
+                    field.classList.remove('input-invalid');
+                    field.classList.add('input-valid');
+                    errorDiv.style.display = 'none';
+                    successDiv.textContent = result.message;
+                    successDiv.style.display = 'block';
+                } else {
+                    field.classList.remove('input-valid');
+                    field.classList.add('input-invalid');
+                    successDiv.style.display = 'none';
+                    errorDiv.textContent = result.message;
+                    errorDiv.style.display = 'block';
+                }
+                
+                updateProgress();
+            });
+        });
+        
+        // Character counter untuk textarea
+        pesanTextarea.addEventListener('input', () =&gt; {
+            const length = pesanTextarea.value.length;
+            charCounter.textContent = `${length}/500`;
+            
+            if (length &gt; 450) {
+                charCounter.style.color = '#f56565';
+            } else if (length &gt; 300) {
+                charCounter.style.color = '#ed8936';
+            } else {
+                charCounter.style.color = '#a0aec0';
+            }
+        });
+        
+        // Update progress bar
+        function updateProgress() {
+            const fields = ['nama', 'email', 'umur', 'jurusan'];
+            let validFields = 0;
+            
+            fields.forEach(fieldName =&gt; {
+                const field = document.getElementById(fieldName);
+                if (field.classList.contains('input-valid')) {
+                    validFields++;
+                }
+            });
+            
+            const progress = (validFields / fields.length) * 100;
+            progressFill.style.width = progress + '%';
+        }
+        
+        // Form submission dengan loading animation
+        form.addEventListener('submit', (e) =&gt; {
+            submitBtn.classList.add('loading');
+            btnText.style.opacity = '0';
+        });
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center">
+                        <i class="fas fa-magic mr-2 text-purple-600"></i>
+                        Fitur-Fitur Keren yang Ditambahkan:
+                    </h3>
+                    <div class="space-y-3 text-slate-700">
+                        <div class="flex items-start">
+                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">Real-time Validation</span>
+                            <span>Form langsung cek input saat user mengetik</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">Progress Bar</span>
+                            <span>Menunjukkan seberapa lengkap form sudah diisi</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">Character Counter</span>
+                            <span>Menghitung karakter di textarea secara real-time</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-amber-100 text-amber-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">Loading Animation</span>
+                            <span>Animasi loading saat form di-submit</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="bg-pink-100 text-pink-800 px-2 py-1 rounded text-sm font-mono mr-3 flex-shrink-0">Gradient Design</span>
+                            <span>Desain modern dengan gradient dan glassmorphism</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                            <i class="fas fa-mobile-alt text-xl text-blue-600"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-3">📱 Responsive Design Tips</h2>
+                            <p class="text-lg text-slate-600 mb-4">
+                                Form kita sudah responsive! Ini artinya tampilan akan menyesuaikan dengan ukuran layar device yang digunakan.
+                            </p>
+                            <div class="space-y-2 text-slate-700">
+                                <div class="flex items-center">
+                                    <i class="fas fa-check mr-2 text-green-500"></i>
+                                    <span>Padding dan margin yang fleksibel</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-check mr-2 text-green-500"></i>
+                                    <span>Font size yang menyesuaikan layar</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-check mr-2 text-green-500"></i>
+                                    <span>Touch-friendly button size di mobile</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-start">
+                        <div class="bg-green-100 p-3 rounded-lg mr-4 flex-shrink-0">
+                            <i class="fas fa-trophy text-xl text-green-600"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-slate-800 mb-3">🎉 Selamat! Kamu Sudah Menguasai:</h2>
+                            <ul class="space-y-2 text-slate-700">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check mr-2 text-green-500"></i>
+                                    Membuat form HTML yang cantik dan fungsional
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check mr-2 text-green-500"></i>
+                                    Memproses data form dengan PHP
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check mr-2 text-green-500"></i>
+                                    Validasi input untuk keamanan
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check mr-2 text-green-500"></i>
+                                    Menampilkan pesan error yang user-friendly
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check mr-2 text-green-500"></i>
+                                    Membuat form dengan validasi real-time
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check mr-2 text-green-500"></i>
+                                    Menambahkan animasi dan efek interaktif
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3 class="text-xl font-bold text-slate-800 mb-3 flex items-center">
+                        <i class="fas fa-lightbulb mr-2 text-yellow-600"></i>
+                        Tips untuk Pengembangan Selanjutnya:
+                    </h3>
+                    <div class="space-y-3 text-slate-700">
+                        <div class="flex items-start">
+                            <i class="fas fa-database mr-3 text-blue-500 mt-1"></i>
+                            <div>
+                                <strong>Database Integration:</strong> Simpan data ke database MySQL untuk penyimpanan permanen
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-envelope mr-3 text-green-500 mt-1"></i>
+                            <div>
+                                <strong>Email Notification:</strong> Kirim email konfirmasi ke user setelah pendaftaran
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-upload mr-3 text-purple-500 mt-1"></i>
+                            <div>
+                                <strong>File Upload:</strong> Tambahkan fitur upload foto atau dokumen
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-shield-alt mr-3 text-red-500 mt-1"></i>
+                            <div>
+                                <strong>CSRF Protection:</strong> Tambahkan token keamanan untuk mencegah serangan CSRF
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-chart-line mr-3 text-indigo-500 mt-1"></i>
+                            <div>
+                                <strong>Analytics:</strong> Tambahkan tracking untuk melihat conversion rate form
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <i class="fas fa-language mr-3 text-pink-500 mt-1"></i>
+                            <div>
+                                <strong>Multi-language:</strong> Buat form yang mendukung berbagai bahasa
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-lg">
+                        <h3 class="text-2xl font-bold text-slate-800 mb-3">🎊 Kamu Hebat!</h3>
+                        <p class="text-lg text-slate-600 mb-4">
+                            Selamat! Kamu sudah berhasil menyelesaikan materi PHP Form Processing lengkap dengan styling advanced. 
+                            Sekarang kamu bisa membuat form yang aman, cantik, dan profesional!
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <button onclick="showSection('pengenalan')" class="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center justify-center">
+                                <i class="fas fa-redo mr-2"></i>
+                                Ulangi Materi
+                            </button>
+                            <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg inline-flex items-center justify-center">
+                                <i class="fas fa-arrow-up mr-2"></i>
+                                Ke Atas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="backToTop" class="floating-btn bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white p-4 rounded-full shadow-lg">
+        <i class="fas fa-arrow-up text-xl"></i>
+    </button>
+
+    <script>
+        let currentSection = 'pengenalan';
+        
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            
+            if (window.innerWidth < 1024 && !sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Show section function
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show target section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update navigation active state
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Find and activate the corresponding nav button
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => {
+                const onclickAttr = btn.getAttribute('onclick');
+                if (onclickAttr && onclickAttr.includes(`'${sectionId}'`)) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Close mobile menu first
+            if (window.innerWidth < 1024) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+            
+            // Scroll to top smoothly with a small delay to ensure content is loaded
+            setTimeout(() => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }, 100);
+            
+            currentSection = sectionId;
+        }
+
+        // Back to top button
+        const backToTopBtn = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.style.display = 'block';
+            } else {
+                backToTopBtn.style.display = 'none';
+            }
+        });
+
+        backToTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial active state for pengenalan section
+            const pengenalanBtn = document.querySelector('[onclick*="pengenalan"]');
+            if (pengenalanBtn) {
+                pengenalanBtn.classList.add('active');
+            }
+            
+            // Hide back to top button initially
+            backToTopBtn.style.display = 'none';
+        });
+
+        // Add some interactive effects
+        document.querySelectorAll('.step-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.12)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 2px 15px rgba(0,0,0,0.08)';
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987bd0f662f0a620',t:'MTc1OTMyMDIwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
