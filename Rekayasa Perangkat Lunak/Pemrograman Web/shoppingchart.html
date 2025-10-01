@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar PHP Shopping Cart - Materi Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .code-content {
+            background: #1a1a2e;
+            border-radius: 10px;
+            padding: 25px;
+            color: #00ff88;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            overflow-x: auto;
+            white-space: pre;
+            tab-size: 4;
+            border: 1px solid #333;
+        }
+        
+        .filename {
+            background: #ff6b6b;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+        }
+        
+        .step-card {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 3px solid #fff;
+        }
+        
+        .menu-item {
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            transform: translateX(10px);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .menu-item.active {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(255,107,107,0.3);
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(255,107,107,0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .floating-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .next-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(79,172,254,0.3);
+        }
+        
+        .next-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(79,172,254,0.4);
+        }
+        
+        .sidebar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            overflow-y: auto;
+            width: 320px;
+            display: block;
+        }
+        
+        .content-area {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh;
+            margin-left: 320px;
+            width: calc(100% - 320px);
+        }
+        
+        /* Desktop - sidebar selalu terlihat */
+        @media (min-width: 769px) {
+            .sidebar {
+                transform: translateX(0) !important;
+                display: block !important;
+                position: fixed !important;
+                width: 320px !important;
+            }
+            .content-area {
+                margin-left: 320px !important;
+                width: calc(100% - 320px) !important;
+            }
+            #mobileMenuBtn {
+                display: none !important;
+            }
+        }
+        
+        /* Mobile - sidebar bisa disembunyikan */
+        @media (max-width: 768px) {
+            .content-area {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 1rem;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                z-index: 999;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            #mobileMenuBtn {
+                display: block !important;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .code-content {
+                font-size: 12px;
+                padding: 15px;
+            }
+            
+            .content-area {
+                padding: 0.75rem;
+            }
+            
+            .step-card {
+                padding: 20px;
+                margin: 15px 0;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .content-area {
+                padding: 0.5rem;
+            }
+            
+            .code-content {
+                font-size: 11px;
+                padding: 12px;
+            }
+            
+            .step-card {
+                padding: 15px;
+                margin: 10px 0;
+            }
+            
+            .text-4xl {
+                font-size: 2rem;
+            }
+            
+            .text-3xl {
+                font-size: 1.5rem;
+            }
+            
+            .text-2xl {
+                font-size: 1.25rem;
+            }
+        }
+        
+        .highlight {
+            background: #ffeb3b;
+            padding: 2px 5px;
+            border-radius: 5px;
+            color: #333;
+        }
+        
+        .icon-bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+    </style>
+</head>
+<body class="font-sans">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="md:hidden fixed top-4 left-4 z-50 bg-purple-600 text-white p-3 rounded-full shadow-lg">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar w-80 p-6 text-white">
+            <div class="text-center mb-8">
+                <div class="text-4xl mb-4 icon-bounce">🛒</div>
+                <h1 class="text-2xl font-bold">PHP Shopping Cart</h1>
+                <p class="text-sm opacity-80">Materi Pembelajaran Interaktif</p>
+            </div>
+            
+            <nav class="space-y-3">
+                <div class="menu-item p-4 rounded-lg cursor-pointer" onclick="showSection('pengenalan')">
+                    <i class="fas fa-play-circle mr-3"></i>
+                    Pengenalan
+                </div>
+                <div class="menu-item p-4 rounded-lg cursor-pointer" onclick="showSection('persiapan')">
+                    <i class="fas fa-tools mr-3"></i>
+                    Langkah 1: Persiapan Project
+                </div>
+                <div class="menu-item p-4 rounded-lg cursor-pointer" onclick="showSection('database')">
+                    <i class="fas fa-database mr-3"></i>
+                    Langkah 2: Setup Database
+                </div>
+                <div class="menu-item p-4 rounded-lg cursor-pointer" onclick="showSection('produk')">
+                    <i class="fas fa-box mr-3"></i>
+                    Langkah 3: Tampil Produk
+                </div>
+                <div class="menu-item p-4 rounded-lg cursor-pointer" onclick="showSection('keranjang')">
+                    <i class="fas fa-shopping-cart mr-3"></i>
+                    Langkah 4: Fungsi Keranjang
+                </div>
+                <div class="menu-item p-4 rounded-lg cursor-pointer" onclick="showSection('checkout')">
+                    <i class="fas fa-credit-card mr-3"></i>
+                    Langkah 5: Proses Checkout
+                </div>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content-area flex-1 p-6 md:p-12">
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section">
+                <div class="text-center mb-12">
+                    <div class="text-6xl mb-6">🛍️</div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-purple-800 mb-4">
+                        Belajar PHP Shopping Cart
+                    </h1>
+                    <p class="text-xl text-gray-700 max-w-3xl mx-auto">
+                        Yuk belajar membuat sistem keranjang belanja sederhana dengan PHP! 
+                        Kita akan belajar step by step dari awal sampai jadi. 🚀
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mb-8 md:mb-12">
+                    <div class="step-card">
+                        <div class="text-3xl mb-4">🎯</div>
+                        <h3 class="text-2xl font-bold text-purple-800 mb-3">Tujuan Pembelajaran</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>✅ Memahami konsep shopping cart</li>
+                            <li>✅ Membuat database produk</li>
+                            <li>✅ Menampilkan daftar produk</li>
+                            <li>✅ Menambah produk ke keranjang</li>
+                            <li>✅ Menghitung total belanja</li>
+                        </ul>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="text-3xl mb-4">🛠️</div>
+                        <h3 class="text-2xl font-bold text-purple-800 mb-3">Yang Dibutuhkan</h3>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>💻 XAMPP atau server lokal</li>
+                            <li>📝 Text editor (VS Code)</li>
+                            <li>🌐 Web browser</li>
+                            <li>📚 Pengetahuan dasar PHP & HTML</li>
+                            <li>☕ Semangat belajar!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="text-3xl mb-4">🎨</div>
+                    <h3 class="text-2xl font-bold text-purple-800 mb-3">Apa itu Shopping Cart?</h3>
+                    <p class="text-lg text-gray-700 mb-4">
+                        Shopping Cart atau keranjang belanja adalah fitur di website toko online yang memungkinkan 
+                        pembeli untuk <span class="highlight">menyimpan produk sementara</span> sebelum melakukan pembelian.
+                    </p>
+                    <div class="bg-white p-6 rounded-lg border-l-4 border-blue-500">
+                        <h4 class="font-bold text-purple-800 mb-2">Analogi Sederhana:</h4>
+                        <p class="text-gray-700">
+                            Seperti keranjang di supermarket! Kamu ambil barang, masukkan ke keranjang, 
+                            bisa tambah atau kurangi, lalu bayar di kasir. 🛒
+                        </p>
+                    </div>
+                </div>
+
+                <div class="text-center mt-12">
+                    <button class="next-btn" onclick="showSection('persiapan')">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Mulai Praktik
+                    </button>
+                </div>
+            </div>
+
+            <!-- Persiapan Section -->
+            <div id="persiapan" class="section hidden">
+                <div class="text-center mb-8">
+                    <div class="text-5xl mb-4">🚀</div>
+                    <h2 class="text-3xl font-bold text-purple-800">Langkah 1: Persiapan Project</h2>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-folder mr-2"></i>
+                        Buat Struktur Folder
+                    </h3>
+                    <p class="text-lg mb-4">Pertama, kita buat folder project dan struktur file yang rapi:</p>
+                    
+                    <div class="code-block">
+                        <div class="filename">📁 Struktur Folder</div>
+                        <div class="code-content">
+shopping-cart/
+├── index.php          (halaman utama)
+├── cart.php           (halaman keranjang)
+├── config.php         (konfigurasi database)
+├── functions.php      (fungsi-fungsi PHP)
+├── css/
+│   └── style.css      (file CSS)
+└── images/            (folder gambar produk)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-code mr-2"></i>
+                        Buat File config.php
+                    </h3>
+                    <p class="text-lg mb-4">File ini untuk koneksi ke database MySQL:</p>
+                    
+                    <div class="code-block">
+                        <div class="filename">config.php</div>
+                        <div class="code-content">
+&lt;?php
+    // Konfigurasi database
+    $host = 'localhost';        // Server database
+    $username = 'root';         // Username MySQL
+    $password = '';             // Password MySQL (kosong di XAMPP)
+    $database = 'shopping_cart'; // Nama database
+
+    // Buat koneksi
+    $conn = new mysqli($host, $username, $password, $database);
+
+    // Cek koneksi
+    if ($conn->connect_error) {
+        die("Koneksi gagal: " . $conn->connect_error);
+    }
+
+    // Set charset UTF-8 untuk bahasa Indonesia
+    $conn->set_charset("utf8");
+
+    echo "Koneksi berhasil! 🎉";
+?&gt;
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-play mr-2"></i>
+                        Langkah Praktik
+                    </h3>
+                    <ol class="space-y-3 text-lg">
+                        <li class="flex items-start">
+                            <span class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 mt-1">1</span>
+                            Buka XAMPP dan nyalakan Apache + MySQL
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 mt-1">2</span>
+                            Buat folder "shopping-cart" di htdocs
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 mt-1">3</span>
+                            Buat file config.php dan copy kode di atas
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 mt-1">4</span>
+                            Test dengan buka: localhost/shopping-cart/config.php
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button class="next-btn" onclick="showSection('database')">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Lanjut: Setup Database
+                    </button>
+                </div>
+            </div>
+
+            <!-- Database Section -->
+            <div id="database" class="section hidden">
+                <div class="text-center mb-8">
+                    <div class="text-5xl mb-4">🗄️</div>
+                    <h2 class="text-3xl font-bold text-purple-800">Langkah 2: Setup Database</h2>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-database mr-2"></i>
+                        Buat Database dan Tabel
+                    </h3>
+                    <p class="text-lg mb-4">Kita perlu database untuk menyimpan data produk:</p>
+                    
+                    <div class="code-block">
+                        <div class="filename">database.sql</div>
+                        <div class="code-content">
+    -- Buat database baru
+    CREATE DATABASE shopping_cart;
+
+    -- Gunakan database
+    USE shopping_cart;
+
+    -- Buat tabel produk
+    CREATE TABLE products (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        price DECIMAL(10,2) NOT NULL,
+        image VARCHAR(255),
+        description TEXT,
+        stock INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    -- Insert data contoh produk
+    INSERT INTO products (name, price, image, description, stock) VALUES
+    ('Laptop Gaming', 15000000, 'laptop.jpg', 'Laptop gaming dengan spek tinggi', 10),
+    ('Mouse Wireless', 250000, 'mouse.jpg', 'Mouse wireless ergonomis', 25),
+    ('Keyboard Mechanical', 800000, 'keyboard.jpg', 'Keyboard mechanical RGB', 15),
+    ('Headset Gaming', 500000, 'headset.jpg', 'Headset gaming dengan mic', 20);
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-table mr-2"></i>
+                        Struktur Tabel Products
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full bg-white rounded-lg shadow-lg min-w-full">
+                            <thead class="bg-purple-600 text-white">
+                                <tr>
+                                    <th class="p-2 md:p-3 text-left text-sm md:text-base">Field</th>
+                                    <th class="p-2 md:p-3 text-left text-sm md:text-base">Type</th>
+                                    <th class="p-2 md:p-3 text-left text-sm md:text-base">Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b">
+                                    <td class="p-2 md:p-3 font-mono text-sm">id</td>
+                                    <td class="p-2 md:p-3 text-sm">INT</td>
+                                    <td class="p-2 md:p-3 text-sm">ID unik produk (auto increment)</td>
+                                </tr>
+                                <tr class="border-b bg-gray-50">
+                                    <td class="p-2 md:p-3 font-mono text-sm">name</td>
+                                    <td class="p-2 md:p-3 text-sm">VARCHAR(100)</td>
+                                    <td class="p-2 md:p-3 text-sm">Nama produk</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="p-2 md:p-3 font-mono text-sm">price</td>
+                                    <td class="p-2 md:p-3 text-sm">DECIMAL(10,2)</td>
+                                    <td class="p-2 md:p-3 text-sm">Harga produk</td>
+                                </tr>
+                                <tr class="border-b bg-gray-50">
+                                    <td class="p-2 md:p-3 font-mono text-sm">image</td>
+                                    <td class="p-2 md:p-3 text-sm">VARCHAR(255)</td>
+                                    <td class="p-2 md:p-3 text-sm">Nama file gambar</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="p-2 md:p-3 font-mono text-sm">stock</td>
+                                    <td class="p-2 md:p-3 text-sm">INT</td>
+                                    <td class="p-2 md:p-3 text-sm">Jumlah stok tersedia</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-play mr-2"></i>
+                        Langkah Praktik
+                    </h3>
+                    <ol class="space-y-3 text-lg">
+                        <li class="flex items-start">
+                            <span class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 mt-1">1</span>
+                            Buka phpMyAdmin di browser: localhost/phpmyadmin
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 mt-1">2</span>
+                            Klik tab "SQL" di phpMyAdmin
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 mt-1">3</span>
+                            Copy-paste kode SQL di atas
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 mt-1">4</span>
+                            Klik "Go" untuk menjalankan
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 mt-1">5</span>
+                            Cek apakah database dan tabel sudah terbuat
+                        </li>
+                    </ol>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button class="next-btn" onclick="showSection('produk')">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Lanjut: Tampil Produk
+                    </button>
+                </div>
+            </div>
+
+            <!-- Produk Section -->
+            <div id="produk" class="section hidden">
+                <div class="text-center mb-8">
+                    <div class="text-5xl mb-4">📦</div>
+                    <h2 class="text-3xl font-bold text-purple-800">Langkah 3: Tampil Produk</h2>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-code mr-2"></i>
+                        Buat File index.php
+                    </h3>
+                    <p class="text-lg mb-4">File utama untuk menampilkan daftar produk:</p>
+                    
+                    <div class="code-block">
+                        <div class="filename">index.php</div>
+                        <div class="code-content">
+&lt;?php
+    session_start();
+    include 'config.php';
+
+    // Ambil semua produk dari database
+    $query = "SELECT * FROM products WHERE stock > 0";
+    $result = $conn->query($query);
+?&gt;
+
+&lt;!DOCTYPE html&gt;
+&lt;html lang="id"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Toko Online - Shopping Cart&lt;/title&gt;
+    &lt;style&gt;
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 30px; 
+        }
+        .products { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 20px; 
+        }
+        .product-card { 
+            border: 1px solid #ddd; 
+            border-radius: 10px; 
+            padding: 20px; 
+            text-align: center; 
+        }
+        .btn { 
+            background: #007bff; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+        }
+        .cart-info { 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            background: #28a745; 
+            color: white; 
+            padding: 10px; 
+            border-radius: 5px; 
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container"&gt;
+        &lt;div class="header"&gt;
+            &lt;h1&gt;🛍️ Toko Online Kita&lt;/h1&gt;
+            &lt;p&gt;Pilih produk yang kamu suka!&lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;div class="cart-info"&gt;
+            🛒 Keranjang: &lt;span id="cart-count"&gt;0&lt;/span&gt; item
+        &lt;/div&gt;
+
+        &lt;div class="products"&gt;
+            &lt;?php while($product = $result-&gt;fetch_assoc()): ?&gt;
+                &lt;div class="product-card"&gt;
+                    &lt;h3&gt;&lt;?= $product['name'] ?&gt;&lt;/h3&gt;
+                    &lt;p&gt;&lt;?= $product['description'] ?&gt;&lt;/p&gt;
+                    &lt;p&gt;&lt;strong&gt;Rp &lt;?= number_format($product['price']) ?&gt;&lt;/strong&gt;&lt;/p&gt;
+                    &lt;p&gt;Stok: &lt;?= $product['stock'] ?&gt;&lt;/p&gt;
+                    &lt;button class="btn" onclick="addToCart(&lt;?= $product['id'] ?&gt;)"&gt;
+                        Tambah ke Keranjang
+                    &lt;/button&gt;
+                &lt;/div&gt;
+            &lt;?php endwhile; ?&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-lightbulb mr-2"></i>
+                        Penjelasan Kode
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="bg-white p-4 rounded-lg border-l-4 border-blue-500">
+                            <h4 class="font-bold text-purple-800">session_start()</h4>
+                            <p class="text-gray-700">Memulai session PHP untuk menyimpan data keranjang</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg border-l-4 border-green-500">
+                            <h4 class="font-bold text-purple-800">SELECT * FROM products</h4>
+                            <p class="text-gray-700">Mengambil semua data produk yang stoknya masih ada</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg border-l-4 border-yellow-500">
+                            <h4 class="font-bold text-purple-800">while($product = $result->fetch_assoc())</h4>
+                            <p class="text-gray-700">Loop untuk menampilkan setiap produk dalam bentuk card</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button class="next-btn" onclick="showSection('keranjang')">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Lanjut: Fungsi Keranjang
+                    </button>
+                </div>
+            </div>
+
+            <!-- Keranjang Section -->
+            <div id="keranjang" class="section hidden">
+                <div class="text-center mb-8">
+                    <div class="text-5xl mb-4">🛒</div>
+                    <h2 class="text-3xl font-bold text-purple-800">Langkah 4: Fungsi Keranjang</h2>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-code mr-2"></i>
+                        Buat File functions.php
+                    </h3>
+                    <p class="text-lg mb-4">File untuk fungsi-fungsi keranjang belanja:</p>
+                    
+                    <div class="code-block">
+                        <div class="filename">functions.php</div>
+                        <div class="code-content">
+&lt;?php
+    // Fungsi untuk menambah produk ke keranjang
+    function addToCart($product_id, $quantity = 1) {
+        // Jika keranjang belum ada, buat array kosong
+        if (!isset($_SESSION['cart'])) {
+            $_SESSION['cart'] = array();
+        }
+        
+        // Jika produk sudah ada di keranjang, tambah quantity
+        if (isset($_SESSION['cart'][$product_id])) {
+            $_SESSION['cart'][$product_id] += $quantity;
+        } else {
+            // Jika produk belum ada, tambah baru
+            $_SESSION['cart'][$product_id] = $quantity;
+        }
+        
+        return true;
+    }
+
+    // Fungsi untuk menghitung total item di keranjang
+    function getCartCount() {
+        if (!isset($_SESSION['cart'])) {
+            return 0;
+        }
+        
+        $count = 0;
+        foreach ($_SESSION['cart'] as $quantity) {
+            $count += $quantity;
+        }
+        
+        return $count;
+    }
+
+    // Fungsi untuk menghitung total harga
+    function getCartTotal($conn) {
+        if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
+            return 0;
+        }
+        
+        $total = 0;
+        $product_ids = implode(',', array_keys($_SESSION['cart']));
+        
+        $query = "SELECT id, price FROM products WHERE id IN ($product_ids)";
+        $result = $conn->query($query);
+        
+        while ($product = $result->fetch_assoc()) {
+            $quantity = $_SESSION['cart'][$product['id']];
+            $total += $product['price'] * $quantity;
+        }
+        
+        return $total;
+    }
+
+    // Fungsi untuk menghapus item dari keranjang
+    function removeFromCart($product_id) {
+        if (isset($_SESSION['cart'][$product_id])) {
+            unset($_SESSION['cart'][$product_id]);
+            return true;
+        }
+        return false;
+    }
+?&gt;
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-code mr-2"></i>
+                        Buat File add_to_cart.php
+                    </h3>
+                    <p class="text-lg mb-4">File untuk memproses penambahan produk ke keranjang:</p>
+                    
+                    <div class="code-block">
+                        <div class="filename">add_to_cart.php</div>
+                        <div class="code-content">
+&lt;?php
+    session_start();
+    include 'config.php';
+    include 'functions.php';
+
+    // Cek apakah ada data POST
+    if ($_POST['product_id']) {
+        $product_id = (int)$_POST['product_id'];
+        $quantity = isset($_POST['quantity']) ? (int)$_POST['quantity'] : 1;
+        
+        // Cek apakah produk ada dan stok cukup
+        $query = "SELECT * FROM products WHERE id = $product_id AND stock >= $quantity";
+        $result = $conn->query($query);
+        
+        if ($result->num_rows > 0) {
+            // Tambah ke keranjang
+            if (addToCart($product_id, $quantity)) {
+                $response = array(
+                    'success' => true,
+                    'message' => 'Produk berhasil ditambahkan ke keranjang!',
+                    'cart_count' => getCartCount()
+                );
+            } else {
+                $response = array(
+                    'success' => false,
+                    'message' => 'Gagal menambahkan produk ke keranjang!'
+                );
+            }
+        } else {
+            $response = array(
+                'success' => false,
+                'message' => 'Produk tidak tersedia atau stok tidak cukup!'
+            );
+        }
+    } else {
+        $response = array(
+            'success' => false,
+            'message' => 'Data tidak valid!'
+        );
+    }
+
+    // Return response dalam format JSON
+    header('Content-Type: application/json');
+    echo json_encode($response);
+?&gt;
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-javascript mr-2"></i>
+                        Tambah JavaScript di index.php
+                    </h3>
+                    <p class="text-lg mb-4">Tambahkan kode JavaScript ini sebelum &lt;/body&gt; di index.php:</p>
+                    
+                    <div class="code-block">
+                        <div class="filename">JavaScript untuk index.php</div>
+                        <div class="code-content">
+&lt;script&gt;
+    // Fungsi untuk menambah produk ke keranjang
+    function addToCart(productId) {
+        // Buat form data
+        const formData = new FormData();
+        formData.append('product_id', productId);
+        formData.append('quantity', 1);
+        
+        // Kirim request ke server
+        fetch('add_to_cart.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update jumlah item di keranjang
+                document.getElementById('cart-count').textContent = data.cart_count;
+                
+                // Tampilkan pesan sukses
+                alert('✅ ' + data.message);
+            } else {
+                // Tampilkan pesan error
+                alert('❌ ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('❌ Terjadi kesalahan!');
+        });
+    }
+
+    // Update jumlah keranjang saat halaman dimuat
+    window.onload = function() {
+        fetch('get_cart_count.php')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('cart-count').textContent = data.count;
+        });
+    }
+&lt;/script&gt;
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button class="next-btn" onclick="showSection('checkout')">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Lanjut: Proses Checkout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Checkout Section -->
+            <div id="checkout" class="section hidden">
+                <div class="text-center mb-8">
+                    <div class="text-5xl mb-4">💳</div>
+                    <h2 class="text-3xl font-bold text-purple-800">Langkah 5: Proses Checkout</h2>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-code mr-2"></i>
+                        Buat File cart.php
+                    </h3>
+                    <p class="text-lg mb-4">Halaman untuk melihat isi keranjang dan checkout:</p>
+                    
+                    <div class="code-block">
+                        <div class="filename">cart.php</div>
+                        <div class="code-content">
+&lt;?php
+    session_start();
+    include 'config.php';
+    include 'functions.php';
+
+    // Jika keranjang kosong
+    if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
+        echo "&lt;h2&gt;Keranjang belanja kosong! 🛒&lt;/h2&gt;";
+        echo "&lt;a href='index.php'&gt;Kembali berbelanja&lt;/a&gt;";
+        exit;
+    }
+
+    // Ambil data produk di keranjang
+    $product_ids = implode(',', array_keys($_SESSION['cart']));
+    $query = "SELECT * FROM products WHERE id IN ($product_ids)";
+    $result = $conn->query($query);
+?&gt;
+
+&lt;!DOCTYPE html&gt;
+&lt;html lang="id"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;title&gt;Keranjang Belanja&lt;/title&gt;
+    &lt;style&gt;
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+        }
+        .cart-item { 
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+        }
+        .total { 
+            background: #f8f9fa; 
+            padding: 20px; 
+            border-radius: 5px; 
+            text-align: center; 
+        }
+        .btn { 
+            background: #007bff; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin: 5px; 
+        }
+        .btn-danger { 
+            background: #dc3545; 
+        }
+        .btn-success { 
+            background: #28a745; 
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class="container"&gt;
+        &lt;h1&gt;🛒 Keranjang Belanja&lt;/h1&gt;
+        
+        &lt;?php 
+            $total = 0;
+            while($product = $result-&gt;fetch_assoc()): 
+                $quantity = $_SESSION['cart'][$product['id']];
+                $subtotal = $product['price'] * $quantity;
+                $total += $subtotal;
+        ?&gt;
+        
+        &lt;div class="cart-item"&gt;
+            &lt;h3&gt;&lt;?= $product['name'] ?&gt;&lt;/h3&gt;
+            &lt;p&gt;Harga: Rp &lt;?= number_format($product['price']) ?&gt;&lt;/p&gt;
+            &lt;p&gt;Jumlah: &lt;?= $quantity ?&gt;&lt;/p&gt;
+            &lt;p&gt;&lt;strong&gt;Subtotal: Rp &lt;?= number_format($subtotal) ?&gt;&lt;/strong&gt;&lt;/p&gt;
+            &lt;button class="btn btn-danger" onclick="removeItem(&lt;?= $product['id'] ?&gt;)"&gt;
+                Hapus dari Keranjang
+            &lt;/button&gt;
+        &lt;/div&gt;
+        
+        &lt;?php endwhile; ?&gt;
+        
+        &lt;div class="total"&gt;
+            &lt;h2&gt;Total Belanja: Rp &lt;?= number_format($total) ?&gt;&lt;/h2&gt;
+            &lt;button class="btn btn-success" onclick="checkout()"&gt;
+                💳 Checkout Sekarang
+            &lt;/button&gt;
+            &lt;a href="index.php"&gt;
+                &lt;button class="btn"&gt;🛍️ Lanjut Belanja&lt;/button&gt;
+            &lt;/a&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;script&gt;
+        function removeItem(productId) {
+            if (confirm('Yakin ingin menghapus item ini?')) {
+                window.location.href = 'remove_from_cart.php?id=' + productId;
+            }
+        }
+        
+        function checkout() {
+            alert('🎉 Terima kasih! Pesanan Anda sedang diproses.');
+            window.location.href = 'clear_cart.php';
+        }
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Selamat! 🎉
+                    </h3>
+                    <p class="text-lg mb-4">
+                        Kamu sudah berhasil membuat shopping cart sederhana dengan PHP! 
+                        Fitur yang sudah kita buat:
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <div class="bg-white p-6 rounded-lg border-l-4 border-green-500">
+                            <h4 class="font-bold text-purple-800 mb-2">✅ Yang Sudah Selesai:</h4>
+                            <ul class="space-y-1 text-gray-700">
+                                <li>• Database produk</li>
+                                <li>• Tampil daftar produk</li>
+                                <li>• Tambah ke keranjang</li>
+                                <li>• Lihat isi keranjang</li>
+                                <li>• Hitung total harga</li>
+                                <li>• Hapus dari keranjang</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-lg border-l-4 border-blue-500">
+                            <h4 class="font-bold text-purple-800 mb-2">🚀 Bisa Dikembangkan:</h4>
+                            <ul class="space-y-1 text-gray-700">
+                                <li>• Upload gambar produk</li>
+                                <li>• User login/register</li>
+                                <li>• Payment gateway</li>
+                                <li>• Riwayat pembelian</li>
+                                <li>• Admin panel</li>
+                                <li>• Responsive design</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <div class="text-4xl mb-4">🎊</div>
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        Kamu Hebat! Shopping Cart Sudah Jadi! 
+                    </h3>
+                    <p class="text-lg text-gray-700 mb-6">
+                        Sekarang coba test semua fiturnya dan kembangkan sesuai kreativitasmu!
+                    </p>
+                    <button class="next-btn" onclick="showSection('pengenalan')">
+                        <i class="fas fa-redo mr-2"></i>
+                        Ulangi Materi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button class="floating-btn" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        let currentSection = 'pengenalan';
+        
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            currentSection = sectionId;
+            
+            // Update active menu item
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to current menu item
+            const activeMenuItem = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (activeMenuItem) {
+                activeMenuItem.classList.add('active');
+            }
+            
+            // Close mobile menu
+            document.getElementById('sidebar').classList.remove('open');
+            
+            // Scroll to top with delay to ensure content is loaded
+            setTimeout(() => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        }
+        
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function(e) {
+            e.stopPropagation();
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            
+            if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+        
+        // Show floating button when scrolling
+        window.addEventListener('scroll', function() {
+            const floatingBtn = document.querySelector('.floating-btn');
+            if (window.scrollY > 300) {
+                floatingBtn.style.display = 'block';
+            } else {
+                floatingBtn.style.display = 'none';
+            }
+        });
+        
+        // Initialize active menu item on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const activeMenuItem = document.querySelector(`[onclick="showSection('${currentSection}')"]`);
+            if (activeMenuItem) {
+                activeMenuItem.classList.add('active');
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987e79581076a620',t:'MTc1OTM0ODA2OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
