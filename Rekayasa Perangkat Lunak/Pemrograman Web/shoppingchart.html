@@ -850,6 +850,29 @@ shopping-cart/
 
                 <div class="step-card">
                     <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-code mr-2"></i>
+                        Buat File get_cart_count.php
+                    </h3>
+                    <p class="text-lg mb-4">File untuk mengambil jumlah item di keranjang:</p>
+                    
+                    <div class="code-block">
+                        <div class="filename">get_cart_count.php</div>
+                        <div class="code-content">
+&lt;?php
+    session_start();
+    include 'functions.php';
+
+    $count = getCartCount();
+    
+    header('Content-Type: application/json');
+    echo json_encode(array('count' => $count));
+?&gt;
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
                         <i class="fas fa-javascript mr-2"></i>
                         Tambah JavaScript di index.php
                     </h3>
@@ -899,6 +922,25 @@ shopping-cart/
         });
     }
 &lt;/script&gt;
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-link mr-2"></i>
+                        Tambah Link ke Keranjang
+                    </h3>
+                    <p class="text-lg mb-4">Update bagian cart-info di index.php agar bisa diklik:</p>
+                    
+                    <div class="code-block">
+                        <div class="filename">Update cart-info di index.php</div>
+                        <div class="code-content">
+        &lt;div class="cart-info"&gt;
+            &lt;a href="cart.php" style="color: white; text-decoration: none;"&gt;
+                🛒 Keranjang: &lt;span id="cart-count"&gt;0&lt;/span&gt; item
+            &lt;/a&gt;
+        &lt;/div&gt;
                         </div>
                     </div>
                 </div>
@@ -1045,6 +1087,121 @@ shopping-cart/
 
                 <div class="step-card">
                     <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-code mr-2"></i>
+                        Buat File remove_from_cart.php
+                    </h3>
+                    <p class="text-lg mb-4">File untuk menghapus item dari keranjang:</p>
+                    
+                    <div class="code-block">
+                        <div class="filename">remove_from_cart.php</div>
+                        <div class="code-content">
+&lt;?php
+    session_start();
+    include 'functions.php';
+
+    if (isset($_GET['id'])) {
+        $product_id = (int)$_GET['id'];
+        
+        if (removeFromCart($product_id)) {
+            header('Location: cart.php?message=Item berhasil dihapus');
+        } else {
+            header('Location: cart.php?error=Gagal menghapus item');
+        }
+    } else {
+        header('Location: cart.php');
+    }
+?&gt;
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-code mr-2"></i>
+                        Buat File clear_cart.php
+                    </h3>
+                    <p class="text-lg mb-4">File untuk mengosongkan keranjang setelah checkout:</p>
+                    
+                    <div class="code-block">
+                        <div class="filename">clear_cart.php</div>
+                        <div class="code-content">
+&lt;?php
+    session_start();
+    
+    // Kosongkan keranjang
+    unset($_SESSION['cart']);
+    
+    // Redirect ke halaman utama dengan pesan sukses
+    header('Location: index.php?message=Terima kasih! Pesanan berhasil diproses');
+?&gt;
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
+                        <i class="fas fa-bug mr-2"></i>
+                        Perbaikan Bug di add_to_cart.php
+                    </h3>
+                    <p class="text-lg mb-4">Update kode untuk menangani error dengan benar:</p>
+                    
+                    <div class="code-block">
+                        <div class="filename">Perbaikan add_to_cart.php</div>
+                        <div class="code-content">
+&lt;?php
+    session_start();
+    include 'config.php';
+    include 'functions.php';
+
+    // Cek apakah ada data POST
+    if (isset($_POST['product_id'])) {  // Perbaikan: gunakan isset()
+        $product_id = (int)$_POST['product_id'];
+        $quantity = isset($_POST['quantity']) ? (int)$_POST['quantity'] : 1;
+        
+        // Cek apakah produk ada dan stok cukup
+        $query = "SELECT * FROM products WHERE id = ? AND stock >= ?";  // Perbaikan: gunakan prepared statement
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ii", $product_id, $quantity);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if ($result->num_rows > 0) {
+            // Tambah ke keranjang
+            if (addToCart($product_id, $quantity)) {
+                $response = array(
+                    'success' => true,
+                    'message' => 'Produk berhasil ditambahkan ke keranjang!',
+                    'cart_count' => getCartCount()
+                );
+            } else {
+                $response = array(
+                    'success' => false,
+                    'message' => 'Gagal menambahkan produk ke keranjang!'
+                );
+            }
+        } else {
+            $response = array(
+                'success' => false,
+                'message' => 'Produk tidak tersedia atau stok tidak cukup!'
+            );
+        }
+    } else {
+        $response = array(
+            'success' => false,
+            'message' => 'Data tidak valid!'
+        );
+    }
+
+    // Return response dalam format JSON
+    header('Content-Type: application/json');
+    echo json_encode($response);
+?&gt;
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-4">
                         <i class="fas fa-check-circle mr-2"></i>
                         Selamat! 🎉
                     </h3>
@@ -1055,7 +1212,21 @@ shopping-cart/
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                         <div class="bg-white p-6 rounded-lg border-l-4 border-green-500">
-                            <h4 class="font-bold text-purple-800 mb-2">✅ Yang Sudah Selesai:</h4>
+                            <h4 class="font-bold text-purple-800 mb-2">📁 File yang Dibuat:</h4>
+                            <ul class="space-y-1 text-gray-700 text-sm">
+                                <li>• config.php (koneksi database)</li>
+                                <li>• index.php (halaman utama)</li>
+                                <li>• functions.php (fungsi keranjang)</li>
+                                <li>• add_to_cart.php (tambah produk)</li>
+                                <li>• get_cart_count.php (hitung item)</li>
+                                <li>• cart.php (halaman keranjang)</li>
+                                <li>• remove_from_cart.php (hapus item)</li>
+                                <li>• clear_cart.php (kosongkan keranjang)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-lg border-l-4 border-green-500">
+                            <h4 class="font-bold text-purple-800 mb-2">✅ Fitur yang Sudah Jadi:</h4>
                             <ul class="space-y-1 text-gray-700">
                                 <li>• Database produk</li>
                                 <li>• Tampil daftar produk</li>
@@ -1063,6 +1234,7 @@ shopping-cart/
                                 <li>• Lihat isi keranjang</li>
                                 <li>• Hitung total harga</li>
                                 <li>• Hapus dari keranjang</li>
+                                <li>• Proses checkout</li>
                             </ul>
                         </div>
                         
@@ -1179,5 +1351,5 @@ shopping-cart/
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987e79581076a620',t:'MTc1OTM0ODA2OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987e7edc0119a620',t:'MTc1OTM0ODI5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
