@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar PHP & MySQL - CRUD Operations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            border-radius: 12px;
+            padding: 0;
+            margin: 16px 0;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #4a5568;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .code-header {
+            background: linear-gradient(90deg, #4a5568 0%, #2d3748 100%);
+            padding: 8px 16px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .code-content {
+            padding: 20px;
+        }
+        
+        .code-block code {
+            color: #e2e8f0;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+            display: block;
+            white-space: pre-wrap;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .step-card {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .menu-item {
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            transform: translateX(8px);
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        @media (max-width: 768px) {
+            .code-block code {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-screen">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="md:hidden fixed top-4 left-4 z-50 bg-gradient-to-r from-purple-400 to-pink-400 text-white p-3 rounded-full shadow-lg">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-gradient-to-b from-indigo-500 via-purple-500 to-pink-500 text-white transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-40 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center mb-8">
+                <div class="bg-white rounded-full p-3 mr-4">
+                    <i class="fas fa-database text-purple-500 text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold">PHP & MySQL</h1>
+                    <p class="text-purple-200 text-sm">CRUD Operations</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <div class="menu-item bg-white bg-opacity-20 rounded-lg p-3 cursor-pointer" onclick="showSection('pengenalan')">
+                    <i class="fas fa-play-circle mr-3"></i>
+                    <span class="font-medium">Pengenalan</span>
+                </div>
+                <div class="menu-item bg-white bg-opacity-10 rounded-lg p-3 cursor-pointer" onclick="showSection('koneksi')">
+                    <i class="fas fa-plug mr-3"></i>
+                    <span class="font-medium">Langkah 1: Koneksi Database</span>
+                </div>
+                <div class="menu-item bg-white bg-opacity-10 rounded-lg p-3 cursor-pointer" onclick="showSection('create')">
+                    <i class="fas fa-plus-circle mr-3"></i>
+                    <span class="font-medium">Langkah 2: Create (Tambah Data)</span>
+                </div>
+                <div class="menu-item bg-white bg-opacity-10 rounded-lg p-3 cursor-pointer" onclick="showSection('read')">
+                    <i class="fas fa-eye mr-3"></i>
+                    <span class="font-medium">Langkah 3: Read (Baca Data)</span>
+                </div>
+                <div class="menu-item bg-white bg-opacity-10 rounded-lg p-3 cursor-pointer" onclick="showSection('update')">
+                    <i class="fas fa-edit mr-3"></i>
+                    <span class="font-medium">Langkah 4: Update (Edit Data)</span>
+                </div>
+                <div class="menu-item bg-white bg-opacity-10 rounded-lg p-3 cursor-pointer" onclick="showSection('delete')">
+                    <i class="fas fa-trash mr-3"></i>
+                    <span class="font-medium">Langkah 5: Delete (Hapus Data)</span>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-80 min-h-screen">
+        <div class="max-w-4xl mx-auto p-6">
+            
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section">
+                <div class="bg-gradient-to-r from-yellow-200 via-pink-200 to-purple-200 rounded-3xl p-8 mb-8 text-center">
+                    <div class="text-6xl mb-4">🚀</div>
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">Selamat Datang di Dunia PHP & MySQL!</h1>
+                    <p class="text-xl text-gray-700">Mari belajar CRUD Operations dengan mudah dan menyenangkan!</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">🎯</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Apa itu CRUD?</h2>
+                    </div>
+                    <p class="text-xl text-gray-700 mb-4">CRUD adalah singkatan dari 4 operasi dasar dalam database:</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <div class="text-3xl mb-2">➕</div>
+                            <h3 class="font-bold text-green-600 text-lg">CREATE</h3>
+                            <p class="text-base text-gray-600">Menambah data baru</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <div class="text-3xl mb-2">👀</div>
+                            <h3 class="font-bold text-blue-600 text-lg">READ</h3>
+                            <p class="text-base text-gray-600">Membaca/menampilkan data</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <div class="text-3xl mb-2">✏️</div>
+                            <h3 class="font-bold text-yellow-600 text-lg">UPDATE</h3>
+                            <p class="text-base text-gray-600">Mengubah data yang ada</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <div class="text-3xl mb-2">🗑️</div>
+                            <h3 class="font-bold text-red-600 text-lg">DELETE</h3>
+                            <p class="text-base text-gray-600">Menghapus data</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">🛠️</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Yang Akan Kita Pelajari</h2>
+                    </div>
+                    <ul class="space-y-3 text-xl text-gray-700">
+                        <li class="flex items-center"><span class="text-2xl mr-3">🔌</span> Cara menghubungkan PHP dengan MySQL</li>
+                        <li class="flex items-center"><span class="text-2xl mr-3">📝</span> Membuat form untuk input data</li>
+                        <li class="flex items-center"><span class="text-2xl mr-3">📊</span> Menampilkan data dalam tabel</li>
+                        <li class="flex items-center"><span class="text-2xl mr-3">🔄</span> Mengupdate dan menghapus data</li>
+                    </ul>
+                </div>
+
+                <button onclick="showSection('koneksi')" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg">
+                    Mulai Belajar! 🎉
+                </button>
+            </div>
+
+            <!-- Koneksi Section -->
+            <div id="koneksi" class="section hidden">
+                <div class="bg-gradient-to-r from-blue-200 via-cyan-200 to-teal-200 rounded-3xl p-8 mb-8 text-center">
+                    <div class="text-6xl mb-4">🔌</div>
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">Langkah 1: Koneksi Database</h1>
+                    <p class="text-xl text-gray-700">Mari hubungkan PHP dengan MySQL!</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">📋</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Persiapan Database</h2>
+                    </div>
+                    <p class="text-xl text-gray-700 mb-4">Pertama, buat database dan tabel di MySQL:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <div class="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+                            <span class="text-white text-sm ml-2">SQL Query</span>
+                        </div>
+                        <div class="code-content">
+                            <code>CREATE DATABASE sekolah_db;
+
+USE sekolah_db;
+
+CREATE TABLE siswa (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nama VARCHAR(100) NOT NULL,
+    kelas VARCHAR(10) NOT NULL,
+    umur INT NOT NULL
+);</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">🔗</div>
+                        <h2 class="text-3xl font-bold text-gray-800">File Koneksi PHP</h2>
+                    </div>
+                    <p class="text-xl text-gray-700 mb-4">Buat file <strong>koneksi.php</strong> untuk menghubungkan ke database:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <div class="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+                            <span class="text-white text-sm ml-2">koneksi.php</span>
+                        </div>
+                        <div class="code-content">
+                            <code>&lt;?php
+$host = "localhost";
+$username = "root";
+$password = "";
+$database = "sekolah_db";
+
+// Membuat koneksi
+$conn = new mysqli($host, $username, $password, $database);
+
+// Cek koneksi
+if ($conn->connect_error) {
+    die("Koneksi gagal: " . $conn->connect_error);
+}
+
+echo "Koneksi berhasil! 🎉";
+?&gt;</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">✅</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Penjelasan Kode</h2>
+                    </div>
+                    <div class="space-y-4 text-xl text-gray-700">
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <strong class="text-blue-600">$host:</strong> Alamat server database (biasanya "localhost")
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <strong class="text-green-600">$username:</strong> Username MySQL (default: "root")
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <strong class="text-purple-600">$password:</strong> Password MySQL (kosong jika default)
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <strong class="text-orange-600">$database:</strong> Nama database yang akan digunakan
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="showSection('create')" class="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 shadow-lg">
+                    Lanjut ke CREATE 📝
+                </button>
+            </div>
+
+            <!-- Create Section -->
+            <div id="create" class="section hidden">
+                <div class="bg-gradient-to-r from-green-200 via-emerald-200 to-teal-200 rounded-3xl p-8 mb-8 text-center">
+                    <div class="text-6xl mb-4">➕</div>
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">Langkah 2: CREATE - Tambah Data</h1>
+                    <p class="text-xl text-gray-700">Belajar menambahkan data siswa baru!</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">📝</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Form Input Data</h2>
+                    </div>
+                    <p class="text-xl text-gray-700 mb-4">Buat file <strong>tambah_siswa.php</strong> untuk form input:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <div class="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+                            <span class="text-white text-sm ml-2">tambah_siswa.php</span>
+                        </div>
+                        <div class="code-content">
+                            <code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Tambah Siswa&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h2&gt;Form Tambah Siswa Baru&lt;/h2&gt;
+    
+    &lt;form method="POST" action=""&gt;
+        &lt;label&gt;Nama Siswa:&lt;/label&gt;&lt;br&gt;
+        &lt;input type="text" name="nama" required&gt;&lt;br&gt;&lt;br&gt;
+        
+        &lt;label&gt;Kelas:&lt;/label&gt;&lt;br&gt;
+        &lt;input type="text" name="kelas" required&gt;&lt;br&gt;&lt;br&gt;
+        
+        &lt;label&gt;Umur:&lt;/label&gt;&lt;br&gt;
+        &lt;input type="number" name="umur" required&gt;&lt;br&gt;&lt;br&gt;
+        
+        &lt;button type="submit" name="submit"&gt;Tambah Siswa&lt;/button&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">⚙️</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Proses PHP untuk Menyimpan Data</h2>
+                    </div>
+                    <p class="text-xl text-gray-700 mb-4">Tambahkan kode PHP di atas form HTML:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <div class="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+                            <span class="text-white text-sm ml-2">PHP Code</span>
+                        </div>
+                        <div class="code-content">
+                            <code>&lt;?php
+include 'koneksi.php';
+
+if (isset($_POST['submit'])) {
+    $nama = $_POST['nama'];
+    $kelas = $_POST['kelas'];
+    $umur = $_POST['umur'];
+    
+    $sql = "INSERT INTO siswa (nama, kelas, umur) 
+            VALUES ('$nama', '$kelas', '$umur')";
+    
+    if ($conn->query($sql) === TRUE) {
+        echo "Data siswa berhasil ditambahkan! 🎉";
+    } else {
+        echo "Error: " . $sql . "&lt;br&gt;" . $conn->error;
+    }
+}
+?&gt;</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">🔍</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Penjelasan Langkah demi Langkah</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <div class="flex items-center mb-2">
+                                <span class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">1</span>
+                                <strong class="text-gray-800 text-lg">Include koneksi.php</strong>
+                            </div>
+                            <p class="text-gray-600 ml-11 text-base">Menghubungkan file ini dengan database</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <div class="flex items-center mb-2">
+                                <span class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">2</span>
+                                <strong class="text-gray-800 text-lg">Cek tombol submit</strong>
+                            </div>
+                            <p class="text-gray-600 ml-11 text-base">Mengecek apakah form sudah dikirim</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <div class="flex items-center mb-2">
+                                <span class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</span>
+                                <strong class="text-gray-800 text-lg">Ambil data dari form</strong>
+                            </div>
+                            <p class="text-gray-600 ml-11 text-base">Mengambil nilai dari input nama, kelas, dan umur</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <div class="flex items-center mb-2">
+                                <span class="bg-orange-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">4</span>
+                                <strong class="text-gray-800 text-lg">Jalankan query INSERT</strong>
+                            </div>
+                            <p class="text-gray-600 ml-11 text-base">Menyimpan data ke tabel siswa</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="showSection('read')" class="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-green-600 hover:to-emerald-600 transition-all duration-300 shadow-lg">
+                    Lanjut ke READ 👀
+                </button>
+            </div>
+
+            <!-- Read Section -->
+            <div id="read" class="section hidden">
+                <div class="bg-gradient-to-r from-blue-200 via-indigo-200 to-purple-200 rounded-3xl p-8 mb-8 text-center">
+                    <div class="text-6xl mb-4">👀</div>
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">Langkah 3: READ - Baca Data</h1>
+                    <p class="text-xl text-gray-700">Menampilkan data siswa dalam tabel!</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">📊</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Menampilkan Data dalam Tabel</h2>
+                    </div>
+                    <p class="text-xl text-gray-700 mb-4">Buat file <strong>lihat_siswa.php</strong> untuk menampilkan data:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <div class="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+                            <span class="text-white text-sm ml-2">lihat_siswa.php</span>
+                        </div>
+                        <div class="code-content">
+                            <code>&lt;?php
+include 'koneksi.php';
+
+$sql = "SELECT * FROM siswa";
+$result = $conn->query($sql);
+?&gt;
+
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Data Siswa&lt;/title&gt;
+    &lt;style&gt;
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h2&gt;Data Siswa&lt;/h2&gt;
+    
+    &lt;table&gt;
+        &lt;tr&gt;
+            &lt;th&gt;ID&lt;/th&gt;
+            &lt;th&gt;Nama&lt;/th&gt;
+            &lt;th&gt;Kelas&lt;/th&gt;
+            &lt;th&gt;Umur&lt;/th&gt;
+        &lt;/tr&gt;</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">🔄</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Loop untuk Menampilkan Data</h2>
+                    </div>
+                    <p class="text-xl text-gray-700 mb-4">Lanjutkan kode di atas dengan loop PHP:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <div class="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+                            <span class="text-white text-sm ml-2">PHP Loop</span>
+                        </div>
+                        <div class="code-content">
+                            <code>        &lt;?php
+        if ($result->num_rows > 0) {
+            // Tampilkan data setiap baris
+            while($row = $result->fetch_assoc()) {
+                echo "&lt;tr&gt;";
+                echo "&lt;td&gt;" . $row["id"] . "&lt;/td&gt;";
+                echo "&lt;td&gt;" . $row["nama"] . "&lt;/td&gt;";
+                echo "&lt;td&gt;" . $row["kelas"] . "&lt;/td&gt;";
+                echo "&lt;td&gt;" . $row["umur"] . "&lt;/td&gt;";
+                echo "&lt;/tr&gt;";
+            }
+        } else {
+            echo "&lt;tr&gt;&lt;td colspan='4'&gt;Tidak ada data siswa&lt;/td&gt;&lt;/tr&gt;";
+        }
+        ?&gt;
+    &lt;/table&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">💡</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Penjelasan Kode READ</h2>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <strong class="text-blue-600 text-lg">SELECT * FROM siswa:</strong>
+                            <p class="text-gray-600 text-base">Mengambil semua data dari tabel siswa</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <strong class="text-green-600 text-lg">$result->num_rows:</strong>
+                            <p class="text-gray-600 text-base">Mengecek apakah ada data yang ditemukan</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <strong class="text-purple-600 text-lg">fetch_assoc():</strong>
+                            <p class="text-gray-600 text-base">Mengambil data satu per satu dalam bentuk array</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-md">
+                            <strong class="text-orange-600 text-lg">while loop:</strong>
+                            <p class="text-gray-600 text-base">Mengulangi proses untuk setiap baris data</p>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="showSection('update')" class="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 shadow-lg">
+                    Lanjut ke UPDATE ✏️
+                </button>
+            </div>
+
+            <!-- Update Section -->
+            <div id="update" class="section hidden">
+                <div class="bg-gradient-to-r from-yellow-200 via-orange-200 to-red-200 rounded-3xl p-8 mb-8 text-center">
+                    <div class="text-6xl mb-4">✏️</div>
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">Langkah 4: UPDATE - Edit Data</h1>
+                    <p class="text-xl text-gray-700">Mengubah data siswa yang sudah ada!</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">🔍</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Form Edit Data</h2>
+                    </div>
+                    <p class="text-xl text-gray-700 mb-4">Buat file <strong>edit_siswa.php</strong> untuk mengedit data:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <div class="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+                            <span class="text-white text-sm ml-2">edit_siswa.php</span>
+                        </div>
+                        <div class="code-content">
+                            <code>&lt;?php
+include 'koneksi.php';
+
+// Ambil ID siswa dari URL
+$id = $_GET['id'];
+
+// Ambil data siswa berdasarkan ID
+$sql = "SELECT * FROM siswa WHERE id = $id";
+$result = $conn->query($sql);
+$row = $result->fetch_assoc();
+
+// Proses update data
+if (isset($_POST['update'])) {
+    $nama = $_POST['nama'];
+    $kelas = $_POST['kelas'];
+    $umur = $_POST['umur'];
+    
+    $sql_update = "UPDATE siswa SET 
+                   nama='$nama', kelas='$kelas', umur='$umur' 
+                   WHERE id=$id";
+    
+    if ($conn->query($sql_update) === TRUE) {
+        echo "Data berhasil diupdate! 🎉";
+    } else {
+        echo "Error: " . $conn->error;
+    }
+}
+?&gt;</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">📝</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Form HTML untuk Edit</h2>
+                    </div>
+                    <p class="text-xl text-gray-700 mb-4">Lanjutkan kode di file <strong>edit_siswa.php</strong> yang sama dengan menambahkan HTML form di bawah kode PHP:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <div class="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+                            <span class="text-white text-sm ml-2">HTML Form</span>
+                        </div>
+                        <div class="code-content">
+                            <code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Edit Siswa&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h2&gt;Edit Data Siswa&lt;/h2&gt;
+    
+    &lt;form method="POST" action=""&gt;
+        &lt;label&gt;Nama Siswa:&lt;/label&gt;&lt;br&gt;
+        &lt;input type="text" name="nama" value="&lt;?php echo $row['nama']; ?&gt;" required&gt;&lt;br&gt;&lt;br&gt;
+        
+        &lt;label&gt;Kelas:&lt;/label&gt;&lt;br&gt;
+        &lt;input type="text" name="kelas" value="&lt;?php echo $row['kelas']; ?&gt;" required&gt;&lt;br&gt;&lt;br&gt;
+        
+        &lt;label&gt;Umur:&lt;/label&gt;&lt;br&gt;
+        &lt;input type="number" name="umur" value="&lt;?php echo $row['umur']; ?&gt;" required&gt;&lt;br&gt;&lt;br&gt;
+        
+        &lt;button type="submit" name="update"&gt;Update Data&lt;/button&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">🔗</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Menambahkan Link Edit di Tabel</h2>
+                    </div>
+                    <p class="text-xl text-gray-700 mb-4">Modifikasi file <strong>lihat_siswa.php</strong> untuk menambahkan tombol edit:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <div class="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+                            <span class="text-white text-sm ml-2">Tambahan di lihat_siswa.php</span>
+                        </div>
+                        <div class="code-content">
+                            <code>        &lt;tr&gt;
+            &lt;th&gt;ID&lt;/th&gt;
+            &lt;th&gt;Nama&lt;/th&gt;
+            &lt;th&gt;Kelas&lt;/th&gt;
+            &lt;th&gt;Umur&lt;/th&gt;
+            &lt;th&gt;Aksi&lt;/th&gt;
+        &lt;/tr&gt;
+        
+        &lt;?php
+        while($row = $result->fetch_assoc()) {
+            echo "&lt;tr&gt;";
+            echo "&lt;td&gt;" . $row["id"] . "&lt;/td&gt;";
+            echo "&lt;td&gt;" . $row["nama"] . "&lt;/td&gt;";
+            echo "&lt;td&gt;" . $row["kelas"] . "&lt;/td&gt;";
+            echo "&lt;td&gt;" . $row["umur"] . "&lt;/td&gt;";
+            echo "&lt;td&gt;&lt;a href='edit_siswa.php?id=" . $row["id"] . "'&gt;Edit&lt;/a&gt;&lt;/td&gt;";
+            echo "&lt;/tr&gt;";
+        }
+        ?&gt;</code>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="showSection('delete')" class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-yellow-600 hover:to-orange-600 transition-all duration-300 shadow-lg">
+                    Lanjut ke DELETE 🗑️
+                </button>
+            </div>
+
+            <!-- Delete Section -->
+            <div id="delete" class="section hidden">
+                <div class="bg-gradient-to-r from-red-200 via-pink-200 to-purple-200 rounded-3xl p-8 mb-8 text-center">
+                    <div class="text-6xl mb-4">🗑️</div>
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">Langkah 5: DELETE - Hapus Data</h1>
+                    <p class="text-xl text-gray-700">Menghapus data siswa dengan aman!</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">⚠️</div>
+                        <h2 class="text-2xl font-bold text-gray-800">File Hapus Data</h2>
+                    </div>
+                    <p class="text-lg text-gray-700 mb-4">Buat file <strong>hapus_siswa.php</strong> untuk menghapus data:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <div class="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+                            <span class="text-white text-sm ml-2">hapus_siswa.php</span>
+                        </div>
+                        <div class="code-content">
+                            <code>&lt;?php
+include 'koneksi.php';
+
+// Ambil ID siswa dari URL
+$id = $_GET['id'];
+
+// Query untuk menghapus data
+$sql = "DELETE FROM siswa WHERE id = $id";
+
+if ($conn->query($sql) === TRUE) {
+    echo "Data siswa berhasil dihapus! 🗑️";
+    echo "&lt;br&gt;&lt;a href='lihat_siswa.php'&gt;Kembali ke daftar siswa&lt;/a&gt;";
+} else {
+    echo "Error: " . $conn->error;
+}
+
+$conn->close();
+?&gt;</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">🔗</div>
+                        <h2 class="text-2xl font-bold text-gray-800">Menambahkan Link Hapus di Tabel</h2>
+                    </div>
+                    <p class="text-lg text-gray-700 mb-4">Update file <strong>lihat_siswa.php</strong> untuk menambahkan tombol hapus:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <div class="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full mr-2"></div>
+                            <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
+                            <span class="text-white text-sm ml-2">Update lihat_siswa.php</span>
+                        </div>
+                        <div class="code-content">
+                            <code>        &lt;?php
+        while($row = $result->fetch_assoc()) {
+            echo "&lt;tr&gt;";
+            echo "&lt;td&gt;" . $row["id"] . "&lt;/td&gt;";
+            echo "&lt;td&gt;" . $row["nama"] . "&lt;/td&gt;";
+            echo "&lt;td&gt;" . $row["kelas"] . "&lt;/td&gt;";
+            echo "&lt;td&gt;" . $row["umur"] . "&lt;/td&gt;";
+            echo "&lt;td&gt;";
+            echo "&lt;a href='edit_siswa.php?id=" . $row["id"] . "'&gt;Edit&lt;/a&gt; | ";
+            echo "&lt;a href='hapus_siswa.php?id=" . $row["id"] . "' onclick='return confirm(\"Yakin ingin menghapus data ini?\")'&gt;Hapus&lt;/a&gt;";
+            echo "&lt;/td&gt;";
+            echo "&lt;/tr&gt;";
+        }
+        ?&gt;</code>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="text-4xl mr-4">🎉</div>
+                        <h2 class="text-2xl font-bold text-gray-800">Selamat! Kamu Sudah Menguasai CRUD!</h2>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-white rounded-xl p-4 shadow-md text-center">
+                            <div class="text-3xl mb-2">✅</div>
+                            <h3 class="font-bold text-green-600">CREATE</h3>
+                            <p class="text-sm text-gray-600">Menambah data baru</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-md text-center">
+                            <div class="text-3xl mb-2">✅</div>
+                            <h3 class="font-bold text-blue-600">READ</h3>
+                            <p class="text-sm text-gray-600">Menampilkan data</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-md text-center">
+                            <div class="text-3xl mb-2">✅</div>
+                            <h3 class="font-bold text-yellow-600">UPDATE</h3>
+                            <p class="text-sm text-gray-600">Mengubah data</p>
+                        </div>
+                        <div class="bg-white rounded-xl p-4 shadow-md text-center">
+                            <div class="text-3xl mb-2">✅</div>
+                            <h3 class="font-bold text-red-600">DELETE</h3>
+                            <p class="text-sm text-gray-600">Menghapus data</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl">
+                        <p class="text-lg text-gray-700 text-center">
+                            <strong>Tips:</strong> Selalu backup database sebelum menghapus data penting! 
+                            Dan jangan lupa validasi input untuk keamanan yang lebih baik! 🔒
+                        </p>
+                    </div>
+                </div>
+
+                <button onclick="showSection('pengenalan')" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg">
+                    Kembali ke Awal 🔄
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <div class="floating-btn" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up text-white text-xl"></i>
+    </div>
+
+    <!-- Overlay for mobile menu -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        });
+
+        // Show section function
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+
+            // Update active menu item
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.classList.remove('bg-white', 'bg-opacity-30', 'shadow-lg');
+                item.classList.add('bg-white', 'bg-opacity-10');
+            });
+
+            // Find and highlight active menu by checking onclick attribute
+            menuItems.forEach(item => {
+                const onclickAttr = item.getAttribute('onclick');
+                if (onclickAttr && onclickAttr.includes(`'${sectionId}'`)) {
+                    item.classList.remove('bg-white', 'bg-opacity-10');
+                    item.classList.add('bg-white', 'bg-opacity-30', 'shadow-lg');
+                }
+            });
+
+            // Close mobile menu
+            if (window.innerWidth < 768) {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+
+            // Scroll to top smoothly
+            setTimeout(() => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }, 100);
+        }
+
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Initialize - show pengenalan section
+        showSection('pengenalan');
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987b152ea2616cf1',t:'MTc1OTMxMjUwOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
