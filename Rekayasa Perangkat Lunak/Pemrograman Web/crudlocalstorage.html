@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar PHP CRUD - Data Siswa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .code-header {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+        }
+        
+        .code-content {
+            background: #1a1a2e;
+            color: #eee;
+            padding: 25px;
+            font-family: 'Courier New', monospace;
+            font-size: 15px;
+            line-height: 1.7;
+            overflow-x: auto;
+        }
+        
+        /* Syntax highlighting */
+        .code-content .php-tag { color: #ff6b6b; font-weight: bold; }
+        .code-content .string { color: #a8e6cf; }
+        .code-content .comment { color: #95a5a6; font-style: italic; }
+        .code-content .keyword { color: #74b9ff; font-weight: bold; }
+        .code-content .function { color: #fdcb6e; }
+        .code-content .variable { color: #fd79a8; }
+        .code-content .html-tag { color: #00b894; }
+        .code-content .attribute { color: #e17055; }
+        .code-content .css-property { color: #6c5ce7; }
+        .code-content .css-value { color: #ffeaa7; }
+        .code-content .number { color: #fab1a0; }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+        
+        .floating-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .nav-item.active {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+            border-left: 4px solid #ffd700;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .code-content {
+                font-size: 13px;
+                padding: 20px;
+            }
+            
+            body {
+                font-size: 18px;
+            }
+            
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.75rem; }
+            h3 { font-size: 1.5rem; }
+            p, li { font-size: 1.1rem; }
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-100 min-h-screen">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="md:hidden fixed top-6 left-6 z-50 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-gradient-to-b from-purple-600 via-pink-500 to-rose-500 text-white transform -translate-x-full md:translate-x-0 sidebar-transition z-40 overflow-y-auto">
+        <div class="p-8">
+            <div class="flex items-center mb-10">
+                <div class="bg-white rounded-full p-4 mr-4 shadow-lg">
+                    <i class="fas fa-code text-purple-600 text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold">PHP CRUD</h1>
+                    <p class="text-purple-200 text-lg">Data Siswa 🎓</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-3">
+                <a href="#" onclick="showSection('pengenalan')" class="nav-item flex items-center p-4 rounded-xl hover:bg-white hover:bg-opacity-20 transition-all" data-section="pengenalan">
+                    <i class="fas fa-star mr-4 text-yellow-300 text-xl"></i>
+                    <span class="text-lg">Pengenalan</span>
+                </a>
+                <a href="#" onclick="showSection('persiapan')" class="nav-item flex items-center p-4 rounded-xl hover:bg-white hover:bg-opacity-20 transition-all" data-section="persiapan">
+                    <i class="fas fa-tools mr-4 text-blue-300 text-xl"></i>
+                    <span class="text-lg">Persiapan Project</span>
+                </a>
+                <a href="#" onclick="showSection('struktur')" class="nav-item flex items-center p-4 rounded-xl hover:bg-white hover:bg-opacity-20 transition-all" data-section="struktur">
+                    <i class="fas fa-folder mr-4 text-green-300 text-xl"></i>
+                    <span class="text-lg">Struktur File</span>
+                </a>
+                <a href="#" onclick="showSection('create')" class="nav-item flex items-center p-4 rounded-xl hover:bg-white hover:bg-opacity-20 transition-all" data-section="create">
+                    <i class="fas fa-plus mr-4 text-pink-300 text-xl"></i>
+                    <span class="text-lg">Create - Tambah Data</span>
+                </a>
+                <a href="#" onclick="showSection('read')" class="nav-item flex items-center p-4 rounded-xl hover:bg-white hover:bg-opacity-20 transition-all" data-section="read">
+                    <i class="fas fa-eye mr-4 text-cyan-300 text-xl"></i>
+                    <span class="text-lg">Read - Tampil Data</span>
+                </a>
+                <a href="#" onclick="showSection('update')" class="nav-item flex items-center p-4 rounded-xl hover:bg-white hover:bg-opacity-20 transition-all" data-section="update">
+                    <i class="fas fa-edit mr-4 text-lime-300 text-xl"></i>
+                    <span class="text-lg">Update - Edit Data</span>
+                </a>
+                <a href="#" onclick="showSection('delete')" class="nav-item flex items-center p-4 rounded-xl hover:bg-white hover:bg-opacity-20 transition-all" data-section="delete">
+                    <i class="fas fa-trash mr-4 text-red-300 text-xl"></i>
+                    <span class="text-lg">Delete - Hapus Data</span>
+                </a>
+                <a href="#" onclick="showSection('testing')" class="nav-item flex items-center p-4 rounded-xl hover:bg-white hover:bg-opacity-20 transition-all" data-section="testing">
+                    <i class="fas fa-check-circle mr-4 text-emerald-300 text-xl"></i>
+                    <span class="text-lg">Testing & Demo</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-80 min-h-screen">
+        <div class="max-w-5xl mx-auto p-6 md:p-10">
+            
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="content-section fade-in">
+                <div class="bg-white rounded-3xl shadow-2xl p-10 mb-10 card-hover">
+                    <div class="text-center mb-10">
+                        <div class="inline-block bg-gradient-to-r from-purple-500 to-pink-500 rounded-full p-6 mb-6 shadow-lg">
+                            <i class="fas fa-graduation-cap text-white text-4xl"></i>
+                        </div>
+                        <h1 class="text-5xl font-bold gradient-text mb-6">Praktik PHP CRUD</h1>
+                        <h2 class="text-3xl text-purple-600 mb-6">Data Siswa dengan Local Storage</h2>
+                        <p class="text-gray-600 text-xl">Mari belajar membuat aplikasi pengelolaan data siswa yang keren! 🚀</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-8 mb-10">
+                        <div class="bg-gradient-to-r from-blue-100 to-blue-200 rounded-2xl p-8 card-hover">
+                            <div class="flex items-center mb-6">
+                                <i class="fas fa-lightbulb text-yellow-500 text-3xl mr-4"></i>
+                                <h3 class="text-2xl font-bold text-gray-800">Apa itu CRUD?</h3>
+                            </div>
+                            <p class="text-gray-700 text-xl leading-relaxed">
+                                CRUD adalah singkatan dari <strong>Create, Read, Update, Delete</strong> - empat operasi dasar untuk mengelola data. Seperti menulis, membaca, mengedit, dan menghapus catatan di buku! 📚
+                            </p>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-100 to-green-200 rounded-2xl p-8 card-hover">
+                            <div class="flex items-center mb-6">
+                                <i class="fas fa-target text-red-500 text-3xl mr-4"></i>
+                                <h3 class="text-2xl font-bold text-gray-800">Tujuan Pembelajaran</h3>
+                            </div>
+                            <ul class="text-gray-700 text-xl space-y-3">
+                                <li>✅ Membuat form input data siswa</li>
+                                <li>✅ Menampilkan daftar siswa</li>
+                                <li>✅ Mengedit data siswa</li>
+                                <li>✅ Menghapus data siswa</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-8 card-hover">
+                        <div class="flex items-center mb-6">
+                            <i class="fas fa-magic text-purple-500 text-3xl mr-4"></i>
+                            <h3 class="text-2xl font-bold text-gray-800">Yang Akan Kita Buat</h3>
+                        </div>
+                        <p class="text-gray-700 text-xl leading-relaxed mb-6">
+                            Kita akan membuat aplikasi web untuk mengelola data siswa dengan fitur lengkap! Aplikasi ini akan menyimpan data di browser menggunakan Local Storage, jadi data tidak akan hilang meski browser ditutup. 🎯
+                        </p>
+                        <div class="grid md:grid-cols-4 gap-6 text-center">
+                            <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+                                <i class="fas fa-plus-circle text-green-500 text-3xl mb-3"></i>
+                                <p class="font-semibold text-gray-800 text-lg">Tambah</p>
+                            </div>
+                            <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+                                <i class="fas fa-list text-blue-500 text-3xl mb-3"></i>
+                                <p class="font-semibold text-gray-800 text-lg">Lihat</p>
+                            </div>
+                            <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+                                <i class="fas fa-edit text-orange-500 text-3xl mb-3"></i>
+                                <p class="font-semibold text-gray-800 text-lg">Edit</p>
+                            </div>
+                            <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+                                <i class="fas fa-trash text-red-500 text-3xl mb-3"></i>
+                                <p class="font-semibold text-gray-800 text-lg">Hapus</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('persiapan')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-10 py-5 rounded-full text-xl font-semibold hover:shadow-2xl transform hover:scale-105 transition-all">
+                        Mulai Belajar! <i class="fas fa-arrow-right ml-3"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Persiapan Section -->
+            <div id="persiapan" class="content-section hidden">
+                <div class="bg-white rounded-3xl shadow-2xl p-10 mb-10 card-hover">
+                    <div class="flex items-center mb-8">
+                        <div class="bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full p-4 mr-6">
+                            <i class="fas fa-tools text-white text-3xl"></i>
+                        </div>
+                        <h1 class="text-4xl font-bold text-gray-800">Persiapan Project</h1>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-8 card-hover">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-exclamation-triangle text-yellow-500 mr-4"></i>
+                                Yang Perlu Disiapkan
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white rounded-xl p-6 shadow-lg">
+                                    <h4 class="font-semibold text-gray-800 mb-4 text-xl">💻 Software</h4>
+                                    <ul class="text-gray-700 space-y-2 text-lg">
+                                        <li>• XAMPP atau WAMP</li>
+                                        <li>• Text Editor (VS Code)</li>
+                                        <li>• Browser (Chrome/Firefox)</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white rounded-xl p-6 shadow-lg">
+                                    <h4 class="font-semibold text-gray-800 mb-4 text-xl">🧠 Pengetahuan Dasar</h4>
+                                    <ul class="text-gray-700 space-y-2 text-lg">
+                                        <li>• HTML & CSS</li>
+                                        <li>• JavaScript dasar</li>
+                                        <li>• PHP dasar</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-8 card-hover">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-play-circle text-green-500 mr-4"></i>
+                                Langkah 1: Aktifkan XAMPP
+                            </h3>
+                            <div class="bg-white rounded-xl p-6 shadow-lg">
+                                <div class="space-y-4 text-lg">
+                                    <p class="text-gray-700">1. Buka XAMPP Control Panel</p>
+                                    <p class="text-gray-700">2. Klik tombol <span class="bg-green-200 px-3 py-1 rounded-lg font-semibold">Start</span> pada Apache</p>
+                                    <p class="text-gray-700">3. Pastikan status Apache menjadi hijau ✅</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-8 card-hover">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-folder-plus text-purple-500 mr-4"></i>
+                                Langkah 2: Buat Folder Project
+                            </h3>
+                            <div class="bg-white rounded-xl p-6 shadow-lg">
+                                <div class="space-y-4 text-lg">
+                                    <p class="text-gray-700">1. Buka folder <code class="bg-gray-200 px-3 py-1 rounded-lg">C:\xampp\htdocs</code></p>
+                                    <p class="text-gray-700">2. Buat folder baru dengan nama <code class="bg-blue-200 px-3 py-1 rounded-lg">crud-siswa</code></p>
+                                    <p class="text-gray-700">3. Buka folder tersebut dengan VS Code</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('struktur')" class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-10 py-5 rounded-full text-xl font-semibold hover:shadow-2xl transform hover:scale-105 transition-all">
+                        Lanjut ke Struktur File <i class="fas fa-arrow-right ml-3"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Struktur File Section -->
+            <div id="struktur" class="content-section hidden">
+                <div class="bg-white rounded-3xl shadow-2xl p-10 mb-10 card-hover">
+                    <div class="flex items-center mb-8">
+                        <div class="bg-gradient-to-r from-green-500 to-emerald-500 rounded-full p-4 mr-6">
+                            <i class="fas fa-folder text-white text-3xl"></i>
+                        </div>
+                        <h1 class="text-4xl font-bold text-gray-800">Struktur File Project</h1>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-2xl p-8 card-hover">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-sitemap text-blue-500 mr-4"></i>
+                                Struktur Folder yang Akan Dibuat
+                            </h3>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <i class="fas fa-folder text-white mr-3"></i>
+                                    <span class="text-white font-semibold text-lg">📁 Struktur Project</span>
+                                </div>
+                                <div class="code-content">
+<pre><span class="comment">crud-siswa/</span>
+├── <span class="html-tag">📁 css/</span>
+│   └── <span class="string">style.css</span>
+├── <span class="html-tag">📁 js/</span>
+│   └── <span class="string">script.js</span>
+├── <span class="php-tag">📄 index.php</span>
+├── <span class="php-tag">📄 config.php</span>
+└── <span class="php-tag">📄 functions.php</span></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-8 card-hover">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-info-circle text-purple-500 mr-4"></i>
+                                Penjelasan Setiap File
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+                                        <h4 class="font-semibold text-gray-800 mb-3 text-xl">📄 index.php</h4>
+                                        <p class="text-gray-700 text-lg">Halaman utama aplikasi dengan semua fitur CRUD</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+                                        <h4 class="font-semibold text-gray-800 mb-3 text-xl">📄 config.php</h4>
+                                        <p class="text-gray-700 text-lg">Konfigurasi dan pengaturan aplikasi</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+                                        <h4 class="font-semibold text-gray-800 mb-3 text-xl">📄 functions.php</h4>
+                                        <p class="text-gray-700 text-lg">Fungsi-fungsi PHP untuk CRUD</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+                                        <h4 class="font-semibold text-gray-800 mb-3 text-xl">📁 css/style.css</h4>
+                                        <p class="text-gray-700 text-lg">File styling CSS untuk tampilan cantik</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
+                                        <h4 class="font-semibold text-gray-800 mb-3 text-xl">📁 js/script.js</h4>
+                                        <p class="text-gray-700 text-lg">JavaScript untuk interaksi dan Local Storage</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('create')" class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-10 py-5 rounded-full text-xl font-semibold hover:shadow-2xl transform hover:scale-105 transition-all">
+                        Lanjut ke Create Data <i class="fas fa-arrow-right ml-3"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Create Section -->
+            <div id="create" class="content-section hidden">
+                <div class="bg-white rounded-3xl shadow-2xl p-10 mb-10 card-hover">
+                    <div class="flex items-center mb-8">
+                        <div class="bg-gradient-to-r from-pink-500 to-rose-500 rounded-full p-4 mr-6">
+                            <i class="fas fa-plus text-white text-3xl"></i>
+                        </div>
+                        <h1 class="text-4xl font-bold text-gray-800">Create - Tambah Data Siswa</h1>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-8 card-hover">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-info-circle text-green-500 mr-4"></i>
+                                Langkah 1: Buat File config.php
+                            </h3>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <i class="fas fa-file-code text-white mr-3"></i>
+                                    <span class="text-white font-semibold text-lg">📄 config.php</span>
+                                </div>
+                                <div class="code-content">
+<pre><span class="php-tag">&lt;?php</span>
+<span class="comment">// Konfigurasi aplikasi CRUD Data Siswa</span>
+<span class="function">define</span>(<span class="string">'APP_NAME'</span>, <span class="string">'CRUD Data Siswa'</span>);
+<span class="function">define</span>(<span class="string">'APP_VERSION'</span>, <span class="string">'1.0'</span>);
+
+<span class="comment">// Set timezone Indonesia</span>
+<span class="function">date_default_timezone_set</span>(<span class="string">'Asia/Jakarta'</span>);
+
+<span class="comment">// Fungsi untuk membuat ID unik</span>
+<span class="keyword">function</span> <span class="function">generateId</span>() {
+    <span class="keyword">return</span> <span class="string">'siswa_'</span> . <span class="function">time</span>() . <span class="string">'_'</span> . <span class="function">rand</span>(<span class="number">1000</span>, <span class="number">9999</span>);
+}
+
+<span class="comment">// Fungsi untuk format tanggal Indonesia</span>
+<span class="keyword">function</span> <span class="function">formatTanggal</span>(<span class="variable">$tanggal</span>) {
+    <span class="variable">$bulan</span> = [
+        <span class="number">1</span> => <span class="string">'Januari'</span>, <span class="string">'Februari'</span>, <span class="string">'Maret'</span>, <span class="string">'April'</span>, 
+        <span class="string">'Mei'</span>, <span class="string">'Juni'</span>, <span class="string">'Juli'</span>, <span class="string">'Agustus'</span>, <span class="string">'September'</span>, 
+        <span class="string">'Oktober'</span>, <span class="string">'November'</span>, <span class="string">'Desember'</span>
+    ];
+    
+    <span class="variable">$pecah</span> = <span class="function">explode</span>(<span class="string">'-'</span>, <span class="variable">$tanggal</span>);
+    <span class="keyword">return</span> <span class="variable">$pecah</span>[<span class="number">2</span>] . <span class="string">' '</span> . <span class="variable">$bulan</span>[(<span class="keyword">int</span>)<span class="variable">$pecah</span>[<span class="number">1</span>]] . <span class="string">' '</span> . <span class="variable">$pecah</span>[<span class="number">0</span>];
+}
+<span class="php-tag">?&gt;</span></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-2xl p-8 card-hover">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-palette text-blue-500 mr-4"></i>
+                                Langkah 2: Buat File CSS
+                            </h3>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <i class="fas fa-paint-brush text-white mr-3"></i>
+                                    <span class="text-white font-semibold text-lg">📄 css/style.css</span>
+                                </div>
+                                <div class="code-content">
+<pre><span class="comment">/* CSS untuk aplikasi CRUD Siswa */</span>
+<span class="html-tag">*</span> {
+    <span class="css-property">margin</span>: <span class="css-value">0</span>;
+    <span class="css-property">padding</span>: <span class="css-value">0</span>;
+    <span class="css-property">box-sizing</span>: <span class="css-value">border-box</span>;
+}
+
+<span class="html-tag">body</span> {
+    <span class="css-property">font-family</span>: <span class="css-value">'Segoe UI', Tahoma, Geneva, Verdana, sans-serif</span>;
+    <span class="css-property">background</span>: <span class="css-value">linear-gradient(135deg, #667eea 0%, #764ba2 100%)</span>;
+    <span class="css-property">min-height</span>: <span class="css-value">100vh</span>;
+    <span class="css-property">padding</span>: <span class="css-value">20px</span>;
+}
+
+<span class="html-tag">.container</span> {
+    <span class="css-property">max-width</span>: <span class="css-value">1200px</span>;
+    <span class="css-property">margin</span>: <span class="css-value">0 auto</span>;
+    <span class="css-property">background</span>: <span class="css-value">white</span>;
+    <span class="css-property">border-radius</span>: <span class="css-value">20px</span>;
+    <span class="css-property">box-shadow</span>: <span class="css-value">0 20px 40px rgba(0,0,0,0.1)</span>;
+    <span class="css-property">overflow</span>: <span class="css-value">hidden</span>;
+}
+
+<span class="html-tag">.header</span> {
+    <span class="css-property">background</span>: <span class="css-value">linear-gradient(135deg, #ff6b6b, #feca57)</span>;
+    <span class="css-property">color</span>: <span class="css-value">white</span>;
+    <span class="css-property">padding</span>: <span class="css-value">30px</span>;
+    <span class="css-property">text-align</span>: <span class="css-value">center</span>;
+}
+
+<span class="html-tag">.form-group</span> {
+    <span class="css-property">margin-bottom</span>: <span class="css-value">20px</span>;
+}
+
+<span class="html-tag">.form-control</span> {
+    <span class="css-property">width</span>: <span class="css-value">100%</span>;
+    <span class="css-property">padding</span>: <span class="css-value">15px</span>;
+    <span class="css-property">border</span>: <span class="css-value">2px solid #e9ecef</span>;
+    <span class="css-property">border-radius</span>: <span class="css-value">10px</span>;
+    <span class="css-property">font-size</span>: <span class="css-value">16px</span>;
+    <span class="css-property">transition</span>: <span class="css-value">all 0.3s ease</span>;
+}
+
+<span class="html-tag">.form-control:focus</span> {
+    <span class="css-property">outline</span>: <span class="css-value">none</span>;
+    <span class="css-property">border-color</span>: <span class="css-value">#007bff</span>;
+    <span class="css-property">box-shadow</span>: <span class="css-value">0 0 0 3px rgba(0,123,255,0.25)</span>;
+}
+
+<span class="html-tag">.btn</span> {
+    <span class="css-property">padding</span>: <span class="css-value">15px 30px</span>;
+    <span class="css-property">border</span>: <span class="css-value">none</span>;
+    <span class="css-property">border-radius</span>: <span class="css-value">10px</span>;
+    <span class="css-property">font-size</span>: <span class="css-value">16px</span>;
+    <span class="css-property">font-weight</span>: <span class="css-value">600</span>;
+    <span class="css-property">cursor</span>: <span class="css-value">pointer</span>;
+    <span class="css-property">transition</span>: <span class="css-value">all 0.3s ease</span>;
+}
+
+<span class="html-tag">.btn-primary</span> {
+    <span class="css-property">background</span>: <span class="css-value">linear-gradient(135deg, #007bff, #0056b3)</span>;
+    <span class="css-property">color</span>: <span class="css-value">white</span>;
+}
+
+<span class="html-tag">.btn-primary:hover</span> {
+    <span class="css-property">transform</span>: <span class="css-value">translateY(-2px)</span>;
+    <span class="css-property">box-shadow</span>: <span class="css-value">0 10px 20px rgba(0,123,255,0.3)</span>;
+}
+
+<span class="html-tag">@keyframes slideIn</span> {
+    <span class="css-property">from</span> {
+        <span class="css-property">opacity</span>: <span class="css-value">0</span>;
+        <span class="css-property">transform</span>: <span class="css-value">translateY(-20px)</span>;
+    }
+    <span class="css-property">to</span> {
+        <span class="css-property">opacity</span>: <span class="css-value">1</span>;
+        <span class="css-property">transform</span>: <span class="css-value">translateY(0)</span>;
+    }
+}
+
+<span class="html-tag">.table-responsive</span> {
+    <span class="css-property">overflow-x</span>: <span class="css-value">auto</span>;
+    <span class="css-property">border-radius</span>: <span class="css-value">10px</span>;
+}
+
+<span class="html-tag">@media (max-width: 768px)</span> {
+    <span class="html-tag">.container</span> {
+        <span class="css-property">margin</span>: <span class="css-value">10px</span>;
+        <span class="css-property">border-radius</span>: <span class="css-value">15px</span>;
+    }
+    
+    <span class="html-tag">table</span> {
+        <span class="css-property">font-size</span>: <span class="css-value">14px</span>;
+    }
+    
+    <span class="html-tag">th, td</span> {
+        <span class="css-property">padding</span>: <span class="css-value">10px 8px</span> !<span class="css-value">important</span>;
+    }
+    
+    <span class="html-tag">.btn</span> {
+        <span class="css-property">padding</span>: <span class="css-value">6px 12px</span>;
+        <span class="css-property">font-size</span>: <span class="css-value">14px</span>;
+    }
+}</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-orange-100 to-red-100 rounded-2xl p-8 card-hover">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-file-code text-orange-500 mr-4"></i>
+                                Langkah 3: Buat File index.php (File Utama)
+                            </h3>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <i class="fas fa-file-code text-white mr-3"></i>
+                                    <span class="text-white font-semibold text-lg">📄 index.php</span>
+                                </div>
+                                <div class="code-content">
+<pre><span class="php-tag">&lt;?php</span>
+<span class="keyword">require_once</span> <span class="string">'config.php'</span>;
+<span class="php-tag">?&gt;</span>
+<span class="html-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="html-tag">&lt;html</span> <span class="attribute">lang</span>=<span class="string">"id"</span><span class="html-tag">&gt;</span>
+<span class="html-tag">&lt;head&gt;</span>
+    <span class="html-tag">&lt;meta</span> <span class="attribute">charset</span>=<span class="string">"UTF-8"</span><span class="html-tag">&gt;</span>
+    <span class="html-tag">&lt;meta</span> <span class="attribute">name</span>=<span class="string">"viewport"</span> <span class="attribute">content</span>=<span class="string">"width=device-width, initial-scale=1.0"</span><span class="html-tag">&gt;</span>
+    <span class="html-tag">&lt;title&gt;</span><span class="php-tag">&lt;?php</span> <span class="keyword">echo</span> <span class="variable">APP_NAME</span>; <span class="php-tag">?&gt;</span><span class="html-tag">&lt;/title&gt;</span>
+    <span class="html-tag">&lt;link</span> <span class="attribute">rel</span>=<span class="string">"stylesheet"</span> <span class="attribute">href</span>=<span class="string">"css/style.css"</span><span class="html-tag">&gt;</span>
+    <span class="html-tag">&lt;link</span> <span class="attribute">href</span>=<span class="string">"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"</span> <span class="attribute">rel</span>=<span class="string">"stylesheet"</span><span class="html-tag">&gt;</span>
+<span class="html-tag">&lt;/head&gt;</span>
+<span class="html-tag">&lt;body&gt;</span>
+    <span class="html-tag">&lt;div</span> <span class="attribute">class</span>=<span class="string">"container"</span><span class="html-tag">&gt;</span>
+        <span class="comment">&lt;!-- Header --&gt;</span>
+        <span class="html-tag">&lt;div</span> <span class="attribute">class</span>=<span class="string">"header"</span><span class="html-tag">&gt;</span>
+            <span class="html-tag">&lt;h1&gt;</span><span class="html-tag">&lt;i</span> <span class="attribute">class</span>=<span class="string">"fas fa-graduation-cap"</span><span class="html-tag">&gt;&lt;/i&gt;</span> CRUD Data Siswa<span class="html-tag">&lt;/h1&gt;</span>
+            <span class="html-tag">&lt;p&gt;</span>Aplikasi Pengelolaan Data Siswa dengan PHP & Local Storage<span class="html-tag">&lt;/p&gt;</span>
+        <span class="html-tag">&lt;/div&gt;</span>
+
+        <span class="comment">&lt;!-- Alert Container --&gt;</span>
+        <span class="html-tag">&lt;div</span> <span class="attribute">id</span>=<span class="string">"alertContainer"</span><span class="html-tag">&gt;&lt;/div&gt;</span>
+
+        <span class="comment">&lt;!-- Form Input --&gt;</span>
+        <span class="html-tag">&lt;div</span> <span class="attribute">style</span>=<span class="string">"padding: 30px;"</span><span class="html-tag">&gt;</span>
+            <span class="html-tag">&lt;h2&gt;</span><span class="html-tag">&lt;i</span> <span class="attribute">class</span>=<span class="string">"fas fa-plus-circle"</span><span class="html-tag">&gt;&lt;/i&gt;</span> Tambah Data Siswa<span class="html-tag">&lt;/h2&gt;</span>
+            
+            <span class="html-tag">&lt;form</span> <span class="attribute">id</span>=<span class="string">"createForm"</span><span class="html-tag">&gt;</span>
+                <span class="html-tag">&lt;div</span> <span class="attribute">style</span>=<span class="string">"display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;"</span><span class="html-tag">&gt;</span>
+                    <span class="html-tag">&lt;div</span> <span class="attribute">class</span>=<span class="string">"form-group"</span><span class="html-tag">&gt;</span>
+                        <span class="html-tag">&lt;label&gt;</span><span class="html-tag">&lt;i</span> <span class="attribute">class</span>=<span class="string">"fas fa-user"</span><span class="html-tag">&gt;&lt;/i&gt;</span> Nama Lengkap *<span class="html-tag">&lt;/label&gt;</span>
+                        <span class="html-tag">&lt;input</span> <span class="attribute">type</span>=<span class="string">"text"</span> <span class="attribute">name</span>=<span class="string">"nama"</span> <span class="attribute">class</span>=<span class="string">"form-control"</span> <span class="attribute">placeholder</span>=<span class="string">"Masukkan nama lengkap"</span> <span class="attribute">required</span><span class="html-tag">&gt;</span>
+                    <span class="html-tag">&lt;/div&gt;</span>
+                    
+                    <span class="html-tag">&lt;div</span> <span class="attribute">class</span>=<span class="string">"form-group"</span><span class="html-tag">&gt;</span>
+                        <span class="html-tag">&lt;label&gt;</span><span class="html-tag">&lt;i</span> <span class="attribute">class</span>=<span class="string">"fas fa-school"</span><span class="html-tag">&gt;&lt;/i&gt;</span> Kelas *<span class="html-tag">&lt;/label&gt;</span>
+                        <span class="html-tag">&lt;select</span> <span class="attribute">name</span>=<span class="string">"kelas"</span> <span class="attribute">class</span>=<span class="string">"form-control"</span> <span class="attribute">required</span><span class="html-tag">&gt;</span>
+                            <span class="html-tag">&lt;option</span> <span class="attribute">value</span>=<span class="string">""</span><span class="html-tag">&gt;</span>Pilih Kelas<span class="html-tag">&lt;/option&gt;</span>
+                            <span class="html-tag">&lt;option</span> <span class="attribute">value</span>=<span class="string">"X"</span><span class="html-tag">&gt;</span>X (Sepuluh)<span class="html-tag">&lt;/option&gt;</span>
+                            <span class="html-tag">&lt;option</span> <span class="attribute">value</span>=<span class="string">"XI"</span><span class="html-tag">&gt;</span>XI (Sebelas)<span class="html-tag">&lt;/option&gt;</span>
+                            <span class="html-tag">&lt;option</span> <span class="attribute">value</span>=<span class="string">"XII"</span><span class="html-tag">&gt;</span>XII (Dua Belas)<span class="html-tag">&lt;/option&gt;</span>
+                        <span class="html-tag">&lt;/select&gt;</span>
+                    <span class="html-tag">&lt;/div&gt;</span>
+                    
+                    <span class="html-tag">&lt;div</span> <span class="attribute">class</span>=<span class="string">"form-group"</span><span class="html-tag">&gt;</span>
+                        <span class="html-tag">&lt;label&gt;</span><span class="html-tag">&lt;i</span> <span class="attribute">class</span>=<span class="string">"fas fa-book"</span><span class="html-tag">&gt;&lt;/i&gt;</span> Jurusan *<span class="html-tag">&lt;/label&gt;</span>
+                        <span class="html-tag">&lt;select</span> <span class="attribute">name</span>=<span class="string">"jurusan"</span> <span class="attribute">class</span>=<span class="string">"form-control"</span> <span class="attribute">required</span><span class="html-tag">&gt;</span>
+                            <span class="html-tag">&lt;option</span> <span class="attribute">value</span>=<span class="string">""</span><span class="html-tag">&gt;</span>Pilih Jurusan<span class="html-tag">&lt;/option&gt;</span>
+                            <span class="html-tag">&lt;option</span> <span class="attribute">value</span>=<span class="string">"IPA"</span><span class="html-tag">&gt;</span>IPA (Ilmu Pengetahuan Alam)<span class="html-tag">&lt;/option&gt;</span>
+                            <span class="html-tag">&lt;option</span> <span class="attribute">value</span>=<span class="string">"IPS"</span><span class="html-tag">&gt;</span>IPS (Ilmu Pengetahuan Sosial)<span class="html-tag">&lt;/option&gt;</span>
+                            <span class="html-tag">&lt;option</span> <span class="attribute">value</span>=<span class="string">"Bahasa"</span><span class="html-tag">&gt;</span>Bahasa<span class="html-tag">&lt;/option&gt;</span>
+                            <span class="html-tag">&lt;option</span> <span class="attribute">value</span>=<span class="string">"TKJ"</span><span class="html-tag">&gt;</span>TKJ (Teknik Komputer Jaringan)<span class="html-tag">&lt;/option&gt;</span>
+                            <span class="html-tag">&lt;option</span> <span class="attribute">value</span>=<span class="string">"RPL"</span><span class="html-tag">&gt;</span>RPL (Rekayasa Perangkat Lunak)<span class="html-tag">&lt;/option&gt;</span>
+                        <span class="html-tag">&lt;/select&gt;</span>
+                    <span class="html-tag">&lt;/div&gt;</span>
+                    
+                    <span class="html-tag">&lt;div</span> <span class="attribute">class</span>=<span class="string">"form-group"</span><span class="html-tag">&gt;</span>
+                        <span class="html-tag">&lt;label&gt;</span><span class="html-tag">&lt;i</span> <span class="attribute">class</span>=<span class="string">"fas fa-home"</span><span class="html-tag">&gt;&lt;/i&gt;</span> Alamat<span class="html-tag">&lt;/label&gt;</span>
+                        <span class="html-tag">&lt;textarea</span> <span class="attribute">name</span>=<span class="string">"alamat"</span> <span class="attribute">class</span>=<span class="string">"form-control"</span> <span class="attribute">rows</span>=<span class="string">"3"</span> <span class="attribute">placeholder</span>=<span class="string">"Masukkan alamat lengkap"</span><span class="html-tag">&gt;&lt;/textarea&gt;</span>
+                    <span class="html-tag">&lt;/div&gt;</span>
+                <span class="html-tag">&lt;/div&gt;</span>
+                
+                <span class="html-tag">&lt;div</span> <span class="attribute">style</span>=<span class="string">"text-align: center; margin-top: 30px;"</span><span class="html-tag">&gt;</span>
+                    <span class="html-tag">&lt;button</span> <span class="attribute">type</span>=<span class="string">"submit"</span> <span class="attribute">class</span>=<span class="string">"btn btn-primary"</span><span class="html-tag">&gt;</span>
+                        <span class="html-tag">&lt;i</span> <span class="attribute">class</span>=<span class="string">"fas fa-save"</span><span class="html-tag">&gt;&lt;/i&gt;</span> Simpan Data Siswa
+                    <span class="html-tag">&lt;/button&gt;</span>
+                <span class="html-tag">&lt;/div&gt;</span>
+            <span class="html-tag">&lt;/form&gt;</span>
+        <span class="html-tag">&lt;/div&gt;</span>
+
+        <span class="comment">&lt;!-- Data Table --&gt;</span>
+        <span class="html-tag">&lt;div</span> <span class="attribute">style</span>=<span class="string">"padding: 0 30px 30px;"</span><span class="html-tag">&gt;</span>
+            <span class="html-tag">&lt;h2&gt;</span><span class="html-tag">&lt;i</span> <span class="attribute">class</span>=<span class="string">"fas fa-list"</span><span class="html-tag">&gt;&lt;/i&gt;</span> Daftar Siswa<span class="html-tag">&lt;/h2&gt;</span>
+            
+            <span class="html-tag">&lt;div</span> <span class="attribute">class</span>=<span class="string">"table-responsive"</span><span class="html-tag">&gt;</span>
+                <span class="html-tag">&lt;table</span> <span class="attribute">id</span>=<span class="string">"siswaTable"</span> <span class="attribute">style</span>=<span class="string">"width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1);"</span><span class="html-tag">&gt;</span>
+                    <span class="html-tag">&lt;thead</span> <span class="attribute">style</span>=<span class="string">"background: linear-gradient(135deg, #667eea, #764ba2); color: white;"</span><span class="html-tag">&gt;</span>
+                        <span class="html-tag">&lt;tr&gt;</span>
+                            <span class="html-tag">&lt;th</span> <span class="attribute">style</span>=<span class="string">"padding: 15px; text-align: center;"</span><span class="html-tag">&gt;</span>No<span class="html-tag">&lt;/th&gt;</span>
+                            <span class="html-tag">&lt;th</span> <span class="attribute">style</span>=<span class="string">"padding: 15px;"</span><span class="html-tag">&gt;</span>Nama<span class="html-tag">&lt;/th&gt;</span>
+                            <span class="html-tag">&lt;th</span> <span class="attribute">style</span>=<span class="string">"padding: 15px; text-align: center;"</span><span class="html-tag">&gt;</span>Kelas<span class="html-tag">&lt;/th&gt;</span>
+                            <span class="html-tag">&lt;th</span> <span class="attribute">style</span>=<span class="string">"padding: 15px;"</span><span class="html-tag">&gt;</span>Jurusan<span class="html-tag">&lt;/th&gt;</span>
+                            <span class="html-tag">&lt;th</span> <span class="attribute">style</span>=<span class="string">"padding: 15px;"</span><span class="html-tag">&gt;</span>Alamat<span class="html-tag">&lt;/th&gt;</span>
+                            <span class="html-tag">&lt;th</span> <span class="attribute">style</span>=<span class="string">"padding: 15px; text-align: center;"</span><span class="html-tag">&gt;</span>Aksi<span class="html-tag">&lt;/th&gt;</span>
+                        <span class="html-tag">&lt;/tr&gt;</span>
+                    <span class="html-tag">&lt;/thead&gt;</span>
+                    <span class="html-tag">&lt;tbody</span> <span class="attribute">id</span>=<span class="string">"siswaTableBody"</span><span class="html-tag">&gt;</span>
+                        <span class="html-tag">&lt;tr&gt;</span>
+                            <span class="html-tag">&lt;td</span> <span class="attribute">colspan</span>=<span class="string">"6"</span> <span class="attribute">style</span>=<span class="string">"padding: 30px; text-align: center; color: #666;"</span><span class="html-tag">&gt;</span>
+                                <span class="html-tag">&lt;i</span> <span class="attribute">class</span>=<span class="string">"fas fa-inbox fa-3x"</span> <span class="attribute">style</span>=<span class="string">"margin-bottom: 15px; opacity: 0.3;"</span><span class="html-tag">&gt;&lt;/i&gt;</span><span class="html-tag">&lt;br&gt;</span>
+                                Belum ada data siswa. Silakan tambah data baru!
+                            <span class="html-tag">&lt;/td&gt;</span>
+                        <span class="html-tag">&lt;/tr&gt;</span>
+                    <span class="html-tag">&lt;/tbody&gt;</span>
+                <span class="html-tag">&lt;/table&gt;</span>
+            <span class="html-tag">&lt;/div&gt;</span>
+        <span class="html-tag">&lt;/div&gt;</span>
+    <span class="html-tag">&lt;/div&gt;</span>
+
+    <span class="html-tag">&lt;script</span> <span class="attribute">src</span>=<span class="string">"js/script.js"</span><span class="html-tag">&gt;&lt;/script&gt;</span>
+    <span class="html-tag">&lt;script&gt;</span>
+        <span class="comment">// Inisialisasi aplikasi</span>
+        <span class="keyword">const</span> <span class="variable">siswaManager</span> = <span class="keyword">new</span> <span class="function">SiswaManager</span>();
+    <span class="html-tag">&lt;/script&gt;</span>
+<span class="html-tag">&lt;/body&gt;</span>
+<span class="html-tag">&lt;/html&gt;</span></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-8 card-hover">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-code text-purple-500 mr-4"></i>
+                                Langkah 4: Buat File JavaScript Lengkap
+                            </h3>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <i class="fab fa-js-square text-white mr-3"></i>
+                                    <span class="text-white font-semibold text-lg">📄 js/script.js</span>
+                                </div>
+                                <div class="code-content">
+<pre><span class="comment">// JavaScript untuk CRUD Data Siswa dengan Local Storage</span>
+<span class="keyword">class</span> <span class="function">SiswaManager</span> {
+    <span class="function">constructor</span>() {
+        <span class="keyword">this</span>.<span class="variable">storageKey</span> = <span class="string">'data_siswa'</span>;
+        <span class="keyword">this</span>.<span class="function">init</span>();
+    }
+
+    <span class="function">init</span>() {
+        <span class="keyword">this</span>.<span class="function">loadData</span>();
+        <span class="keyword">this</span>.<span class="function">bindEvents</span>();
+    }
+
+    <span class="comment">// Ambil data dari Local Storage</span>
+    <span class="function">getData</span>() {
+        <span class="keyword">const</span> <span class="variable">data</span> = <span class="variable">localStorage</span>.<span class="function">getItem</span>(<span class="keyword">this</span>.<span class="variable">storageKey</span>);
+        <span class="keyword">return</span> <span class="variable">data</span> ? <span class="variable">JSON</span>.<span class="function">parse</span>(<span class="variable">data</span>) : [];
+    }
+
+    <span class="comment">// Simpan data ke Local Storage</span>
+    <span class="function">saveData</span>(<span class="variable">data</span>) {
+        <span class="variable">localStorage</span>.<span class="function">setItem</span>(<span class="keyword">this</span>.<span class="variable">storageKey</span>, <span class="variable">JSON</span>.<span class="function">stringify</span>(<span class="variable">data</span>));
+    }
+
+    <span class="comment">// Generate ID unik</span>
+    <span class="function">generateId</span>() {
+        <span class="keyword">return</span> <span class="string">'siswa_'</span> + <span class="variable">Date</span>.<span class="function">now</span>() + <span class="string">'_'</span> + <span class="variable">Math</span>.<span class="function">random</span>().<span class="function">toString</span>(<span class="number">36</span>).<span class="function">substr</span>(<span class="number">2</span>, <span class="number">9</span>);
+    }
+
+    <span class="comment">// Bind event listeners</span>
+    <span class="function">bindEvents</span>() {
+        <span class="keyword">const</span> <span class="variable">createForm</span> = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'createForm'</span>);
+        <span class="keyword">if</span> (<span class="variable">createForm</span>) {
+            <span class="variable">createForm</span>.<span class="function">addEventListener</span>(<span class="string">'submit'</span>, (<span class="variable">e</span>) => {
+                <span class="variable">e</span>.<span class="function">preventDefault</span>();
+                <span class="keyword">this</span>.<span class="function">createSiswa</span>();
+            });
+        }
+    }
+
+    <span class="comment">// Tampilkan data dalam tabel</span>
+    <span class="function">loadData</span>() {
+        <span class="keyword">const</span> <span class="variable">data</span> = <span class="keyword">this</span>.<span class="function">getData</span>();
+        <span class="keyword">const</span> <span class="variable">tbody</span> = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'siswaTableBody'</span>);
+        
+        <span class="keyword">if</span> (<span class="variable">data</span>.<span class="variable">length</span> === <span class="number">0</span>) {
+            <span class="variable">tbody</span>.<span class="variable">innerHTML</span> = <span class="string">`
+                &lt;tr&gt;
+                    &lt;td colspan="6" style="padding: 30px; text-align: center; color: #666;"&gt;
+                        &lt;i class="fas fa-inbox fa-3x" style="margin-bottom: 15px; opacity: 0.3;"&gt;&lt;/i&gt;&lt;br&gt;
+                        Belum ada data siswa. Silakan tambah data baru!
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+            `</span>;
+            <span class="keyword">return</span>;
+        }
+
+        <span class="keyword">let</span> <span class="variable">html</span> = <span class="string">''</span>;
+        <span class="variable">data</span>.<span class="function">forEach</span>((<span class="variable">siswa</span>, <span class="variable">index</span>) => {
+            <span class="variable">html</span> += <span class="string">`
+                &lt;tr style="border-bottom: 1px solid #eee;"&gt;
+                    &lt;td style="padding: 15px; text-align: center; font-weight: bold;"&gt;${index + 1}&lt;/td&gt;
+                    &lt;td style="padding: 15px;"&gt;
+                        &lt;div style="font-weight: 600; color: #333;"&gt;${siswa.nama}&lt;/div&gt;
+                    &lt;/td&gt;
+                    &lt;td style="padding: 15px; text-align: center;"&gt;
+                        &lt;span style="background: #007bff; color: white; padding: 5px 10px; border-radius: 15px; font-size: 12px;"&gt;${siswa.kelas}&lt;/span&gt;
+                    &lt;/td&gt;
+                    &lt;td style="padding: 15px;"&gt;${siswa.jurusan}&lt;/td&gt;
+                    &lt;td style="padding: 15px;"&gt;${siswa.alamat || '-'}&lt;/td&gt;
+                    &lt;td style="padding: 15px; text-align: center;"&gt;
+                        &lt;button onclick="siswaManager.editSiswa('${siswa.id}')" 
+                                style="background: #28a745; color: white; border: none; padding: 8px 12px; border-radius: 5px; margin-right: 5px; cursor: pointer;"&gt;
+                            &lt;i class="fas fa-edit"&gt;&lt;/i&gt; Edit
+                        &lt;/button&gt;
+                        &lt;button onclick="siswaManager.deleteSiswa('${siswa.id}')" 
+                                style="background: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer;"&gt;
+                            &lt;i class="fas fa-trash"&gt;&lt;/i&gt; Hapus
+                        &lt;/button&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+            `</span>;
+        });
+        
+        <span class="variable">tbody</span>.<span class="variable">innerHTML</span> = <span class="variable">html</span>;
+    }
+
+    <span class="comment">// Tambah siswa baru</span>
+    <span class="function">createSiswa</span>() {
+        <span class="keyword">const</span> <span class="variable">form</span> = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'createForm'</span>);
+        <span class="keyword">const</span> <span class="variable">formData</span> = <span class="keyword">new</span> <span class="function">FormData</span>(<span class="variable">form</span>);
+        
+        <span class="keyword">const</span> <span class="variable">siswa</span> = {
+            <span class="variable">id</span>: <span class="keyword">this</span>.<span class="function">generateId</span>(),
+            <span class="variable">nama</span>: <span class="variable">formData</span>.<span class="function">get</span>(<span class="string">'nama'</span>),
+            <span class="variable">kelas</span>: <span class="variable">formData</span>.<span class="function">get</span>(<span class="string">'kelas'</span>),
+            <span class="variable">jurusan</span>: <span class="variable">formData</span>.<span class="function">get</span>(<span class="string">'jurusan'</span>),
+            <span class="variable">alamat</span>: <span class="variable">formData</span>.<span class="function">get</span>(<span class="string">'alamat'</span>),
+            <span class="variable">tanggal_dibuat</span>: <span class="keyword">new</span> <span class="function">Date</span>().<span class="function">toISOString</span>().<span class="function">split</span>(<span class="string">'T'</span>)[<span class="number">0</span>]
+        };
+
+        <span class="comment">// Validasi</span>
+        <span class="keyword">if</span> (!<span class="variable">siswa</span>.<span class="variable">nama</span> || !<span class="variable">siswa</span>.<span class="variable">kelas</span> || !<span class="variable">siswa</span>.<span class="variable">jurusan</span>) {
+            <span class="keyword">this</span>.<span class="function">showAlert</span>(<span class="string">'Mohon lengkapi semua field yang wajib!'</span>, <span class="string">'danger'</span>);
+            <span class="keyword">return</span>;
+        }
+
+        <span class="comment">// Simpan data</span>
+        <span class="keyword">const</span> <span class="variable">data</span> = <span class="keyword">this</span>.<span class="function">getData</span>();
+        <span class="variable">data</span>.<span class="function">push</span>(<span class="variable">siswa</span>);
+        <span class="keyword">this</span>.<span class="function">saveData</span>(<span class="variable">data</span>);
+
+        <span class="comment">// Reset form dan tampilkan pesan</span>
+        <span class="variable">form</span>.<span class="function">reset</span>();
+        <span class="keyword">this</span>.<span class="function">showAlert</span>(<span class="string">'Data siswa berhasil ditambahkan! 🎉'</span>, <span class="string">'success'</span>);
+        <span class="keyword">this</span>.<span class="function">loadData</span>();
+    }
+
+    <span class="comment">// Edit siswa</span>
+    <span class="function">editSiswa</span>(<span class="variable">id</span>) {
+        <span class="keyword">const</span> <span class="variable">data</span> = <span class="keyword">this</span>.<span class="function">getData</span>();
+        <span class="keyword">const</span> <span class="variable">siswa</span> = <span class="variable">data</span>.<span class="function">find</span>(<span class="variable">s</span> => <span class="variable">s</span>.<span class="variable">id</span> === <span class="variable">id</span>);
+        
+        <span class="keyword">if</span> (!<span class="variable">siswa</span>) {
+            <span class="keyword">this</span>.<span class="function">showAlert</span>(<span class="string">'Data siswa tidak ditemukan!'</span>, <span class="string">'danger'</span>);
+            <span class="keyword">return</span>;
+        }
+
+        <span class="keyword">const</span> <span class="variable">editForm</span> = <span class="string">`
+            &lt;div id="editModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                 background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;"&gt;
+                &lt;div style="background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;"&gt;
+                    &lt;h3 style="margin-bottom: 20px; color: #333;"&gt;&lt;i class="fas fa-edit"&gt;&lt;/i&gt; Edit Data Siswa&lt;/h3&gt;
+                    &lt;form id="updateForm"&gt;
+                        &lt;input type="hidden" name="id" value="${siswa.id}"&gt;
+                        &lt;div class="form-group"&gt;
+                            &lt;label&gt;Nama Lengkap *&lt;/label&gt;
+                            &lt;input type="text" name="nama" class="form-control" value="${siswa.nama}" required&gt;
+                        &lt;/div&gt;
+                        &lt;div class="form-group"&gt;
+                            &lt;label&gt;Kelas *&lt;/label&gt;
+                            &lt;select name="kelas" class="form-control" required&gt;
+                                &lt;option value="X" ${siswa.kelas === 'X' ? 'selected' : ''}&gt;X (Sepuluh)&lt;/option&gt;
+                                &lt;option value="XI" ${siswa.kelas === 'XI' ? 'selected' : ''}&gt;XI (Sebelas)&lt;/option&gt;
+                                &lt;option value="XII" ${siswa.kelas === 'XII' ? 'selected' : ''}&gt;XII (Dua Belas)&lt;/option&gt;
+                            &lt;/select&gt;
+                        &lt;/div&gt;
+                        &lt;div class="form-group"&gt;
+                            &lt;label&gt;Jurusan *&lt;/label&gt;
+                            &lt;select name="jurusan" class="form-control" required&gt;
+                                &lt;option value="IPA" ${siswa.jurusan === 'IPA' ? 'selected' : ''}&gt;IPA&lt;/option&gt;
+                                &lt;option value="IPS" ${siswa.jurusan === 'IPS' ? 'selected' : ''}&gt;IPS&lt;/option&gt;
+                                &lt;option value="Bahasa" ${siswa.jurusan === 'Bahasa' ? 'selected' : ''}&gt;Bahasa&lt;/option&gt;
+                                &lt;option value="TKJ" ${siswa.jurusan === 'TKJ' ? 'selected' : ''}&gt;TKJ&lt;/option&gt;
+                                &lt;option value="RPL" ${siswa.jurusan === 'RPL' ? 'selected' : ''}&gt;RPL&lt;/option&gt;
+                            &lt;/select&gt;
+                        &lt;/div&gt;
+                        &lt;div class="form-group"&gt;
+                            &lt;label&gt;Alamat&lt;/label&gt;
+                            &lt;textarea name="alamat" class="form-control" rows="3"&gt;${siswa.alamat || ''}&lt;/textarea&gt;
+                        &lt;/div&gt;
+                        &lt;div style="text-align: center; margin-top: 20px;"&gt;
+                            &lt;button type="submit" class="btn btn-primary"&gt;&lt;i class="fas fa-save"&gt;&lt;/i&gt; Update Data&lt;/button&gt;
+                            &lt;button type="button" onclick="siswaManager.closeEditModal()" 
+                                    style="background: #6c757d; color: white; border: none; padding: 15px 30px; border-radius: 10px; margin-left: 10px; cursor: pointer;"&gt;
+                                &lt;i class="fas fa-times"&gt;&lt;/i&gt; Batal
+                            &lt;/button&gt;
+                        &lt;/div&gt;
+                    &lt;/form&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        `</span>;
+
+        <span class="variable">document</span>.<span class="variable">body</span>.<span class="function">insertAdjacentHTML</span>(<span class="string">'beforeend'</span>, <span class="variable">editForm</span>);
+        
+        <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'updateForm'</span>).<span class="function">addEventListener</span>(<span class="string">'submit'</span>, (<span class="variable">e</span>) => {
+            <span class="variable">e</span>.<span class="function">preventDefault</span>();
+            <span class="keyword">this</span>.<span class="function">updateSiswa</span>();
+        });
+    }
+
+    <span class="comment">// Update siswa</span>
+    <span class="function">updateSiswa</span>() {
+        <span class="keyword">const</span> <span class="variable">form</span> = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'updateForm'</span>);
+        <span class="keyword">const</span> <span class="variable">formData</span> = <span class="keyword">new</span> <span class="function">FormData</span>(<span class="variable">form</span>);
+        
+        <span class="keyword">const</span> <span class="variable">updatedSiswa</span> = {
+            <span class="variable">id</span>: <span class="variable">formData</span>.<span class="function">get</span>(<span class="string">'id'</span>),
+            <span class="variable">nama</span>: <span class="variable">formData</span>.<span class="function">get</span>(<span class="string">'nama'</span>),
+            <span class="variable">kelas</span>: <span class="variable">formData</span>.<span class="function">get</span>(<span class="string">'kelas'</span>),
+            <span class="variable">jurusan</span>: <span class="variable">formData</span>.<span class="function">get</span>(<span class="string">'jurusan'</span>),
+            <span class="variable">alamat</span>: <span class="variable">formData</span>.<span class="function">get</span>(<span class="string">'alamat'</span>),
+            <span class="variable">tanggal_diupdate</span>: <span class="keyword">new</span> <span class="function">Date</span>().<span class="function">toISOString</span>().<span class="function">split</span>(<span class="string">'T'</span>)[<span class="number">0</span>]
+        };
+
+        <span class="keyword">const</span> <span class="variable">data</span> = <span class="keyword">this</span>.<span class="function">getData</span>();
+        <span class="keyword">const</span> <span class="variable">index</span> = <span class="variable">data</span>.<span class="function">findIndex</span>(<span class="variable">s</span> => <span class="variable">s</span>.<span class="variable">id</span> === <span class="variable">updatedSiswa</span>.<span class="variable">id</span>);
+        
+        <span class="keyword">if</span> (<span class="variable">index</span> !== -<span class="number">1</span>) {
+            <span class="variable">data</span>[<span class="variable">index</span>] = <span class="variable">updatedSiswa</span>;
+            <span class="keyword">this</span>.<span class="function">saveData</span>(<span class="variable">data</span>);
+            
+            <span class="keyword">this</span>.<span class="function">showAlert</span>(<span class="string">'Data siswa berhasil diupdate! 🎉'</span>, <span class="string">'success'</span>);
+            <span class="keyword">this</span>.<span class="function">loadData</span>();
+            <span class="keyword">this</span>.<span class="function">closeEditModal</span>();
+        }
+    }
+
+    <span class="comment">// Tutup modal edit</span>
+    <span class="function">closeEditModal</span>() {
+        <span class="keyword">const</span> <span class="variable">modal</span> = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'editModal'</span>);
+        <span class="keyword">if</span> (<span class="variable">modal</span>) {
+            <span class="variable">modal</span>.<span class="function">remove</span>();
+        }
+    }
+
+    <span class="comment">// Hapus siswa</span>
+    <span class="function">deleteSiswa</span>(<span class="variable">id</span>) {
+        <span class="keyword">const</span> <span class="variable">confirmDelete</span> = <span class="function">confirm</span>(<span class="string">'🗑️ Apakah Anda yakin ingin menghapus data siswa ini?\n\n⚠️ Data yang dihapus tidak dapat dikembalikan!'</span>);
+        
+        <span class="keyword">if</span> (!<span class="variable">confirmDelete</span>) {
+            <span class="keyword">return</span>;
+        }
+
+        <span class="keyword">const</span> <span class="variable">data</span> = <span class="keyword">this</span>.<span class="function">getData</span>();
+        <span class="keyword">const</span> <span class="variable">siswaIndex</span> = <span class="variable">data</span>.<span class="function">findIndex</span>(<span class="variable">s</span> => <span class="variable">s</span>.<span class="variable">id</span> === <span class="variable">id</span>);
+        
+        <span class="keyword">if</span> (<span class="variable">siswaIndex</span> === -<span class="number">1</span>) {
+            <span class="keyword">this</span>.<span class="function">showAlert</span>(<span class="string">'Data siswa tidak ditemukan!'</span>, <span class="string">'danger'</span>);
+            <span class="keyword">return</span>;
+        }
+
+        <span class="keyword">const</span> <span class="variable">namaSiswa</span> = <span class="variable">data</span>[<span class="variable">siswaIndex</span>].<span class="variable">nama</span>;
+        <span class="variable">data</span>.<span class="function">splice</span>(<span class="variable">siswaIndex</span>, <span class="number">1</span>);
+        <span class="keyword">this</span>.<span class="function">saveData</span>(<span class="variable">data</span>);
+        <span class="keyword">this</span>.<span class="function">loadData</span>();
+        
+        <span class="keyword">this</span>.<span class="function">showAlert</span>(<span class="string">`Data siswa "${namaSiswa}" berhasil dihapus! 🗑️`</span>, <span class="string">'success'</span>);
+    }
+
+    <span class="comment">// Tampilkan alert</span>
+    <span class="function">showAlert</span>(<span class="variable">message</span>, <span class="variable">type</span> = <span class="string">'info'</span>) {
+        <span class="keyword">const</span> <span class="variable">alertContainer</span> = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'alertContainer'</span>);
+        <span class="keyword">const</span> <span class="variable">alertId</span> = <span class="string">'alert_'</span> + <span class="variable">Date</span>.<span class="function">now</span>();
+        
+        <span class="keyword">const</span> <span class="variable">colors</span> = {
+            <span class="variable">success</span>: <span class="string">'#28a745'</span>,
+            <span class="variable">danger</span>: <span class="string">'#dc3545'</span>,
+            <span class="variable">info</span>: <span class="string">'#17a2b8'</span>
+        };
+
+        <span class="keyword">const</span> <span class="variable">alertHtml</span> = <span class="string">`
+            &lt;div id="${alertId}" style="
+                background: ${colors[type]}; 
+                color: white; 
+                padding: 15px 20px; 
+                margin: 10px 30px; 
+                border-radius: 10px; 
+                animation: slideIn 0.3s ease-out;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            "&gt;
+                &lt;i class="fas fa-${type === 'success' ? 'check-circle' : type === 'danger' ? 'exclamation-triangle' : 'info-circle'}"&gt;&lt;/i&gt;
+                ${message}
+            &lt;/div&gt;
+        `</span>;
+
+        <span class="variable">alertContainer</span>.<span class="function">insertAdjacentHTML</span>(<span class="string">'beforeend'</span>, <span class="variable">alertHtml</span>);
+
+        <span class="function">setTimeout</span>(() => {
+            <span class="keyword">const</span> <span class="variable">alert</span> = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="variable">alertId</span>);
+            <span class="keyword">if</span> (<span class="variable">alert</span>) {
+                <span class="variable">alert</span>.<span class="function">remove</span>();
+            }
+        }, <span class="number">4000</span>);
+    }
+}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('read')" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-10 py-5 rounded-full text-xl font-semibold hover:shadow-2xl transform hover:scale-105 transition-all">
+                        Lanjut ke Read Data <i class="fas fa-arrow-right ml-3"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Read Section -->
+            <div id="read" class="content-section hidden">
+                <div class="bg-white rounded-3xl shadow-2xl p-10 mb-10 card-hover">
+                    <div class="flex items-center mb-8">
+                        <div class="bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full p-4 mr-6">
+                            <i class="fas fa-eye text-white text-3xl"></i>
+                        </div>
+                        <h1 class="text-4xl font-bold text-gray-800">Read - Tampilkan Data</h1>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-2xl p-8 card-hover">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-info-circle text-blue-500 mr-4"></i>
+                                Cara Kerja Read Data
+                            </h3>
+                            <div class="bg-white rounded-xl p-6 shadow-lg">
+                                <p class="text-gray-700 text-xl leading-relaxed mb-6">
+                                    Fungsi <strong>Read</strong> bertugas mengambil data dari Local Storage dan menampilkannya dalam bentuk tabel yang rapi. Data akan otomatis dimuat saat halaman dibuka! 📊
+                                </p>
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800 mb-3 text-lg">Proses Read:</h4>
+                                        <ul class="text-gray-700 space-y-2">
+                                            <li>1️⃣ Ambil data dari Local Storage</li>
+                                            <li>2️⃣ Cek apakah ada data</li>
+                                            <li>3️⃣ Tampilkan dalam tabel</li>
+                                            <li>4️⃣ Tambahkan tombol aksi</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800 mb-3 text-lg">Yang ditampilkan:</h4>
+                                        <ul class="text-gray-700 space-y-2">
+                                            <li>📋 Nomor urut</li>
+                                            <li>👤 Nama siswa</li>
+                                            <li>🏫 Kelas dan jurusan</li>
+                                            <li>🏠 Alamat siswa</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-8 card-hover">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-play-circle text-green-500 mr-4"></i>
+                                Test Aplikasi Sekarang!
+                            </h3>
+                            <div class="bg-white rounded-xl p-6 shadow-lg">
+                                <h4 class="font-semibold text-gray-800 mb-4 text-xl">Langkah Testing:</h4>
+                                <ol class="text-gray-700 space-y-3 text-lg">
+                                    <li>1. Buka browser, ketik: <code class="bg-blue-200 px-3 py-1 rounded-lg">localhost/crud-siswa</code></li>
+                                    <li>2. Isi form dengan data siswa (nama, kelas, jurusan)</li>
+                                    <li>3. Klik tombol "Simpan Data Siswa"</li>
+                                    <li>4. Data akan muncul di tabel di bawah form! ✨</li>
+                                    <li>5. Coba tambah beberapa data lagi</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('update')" class="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-10 py-5 rounded-full text-xl font-semibold hover:shadow-2xl transform hover:scale-105 transition-all">
+                        Lanjut ke Update Data <i class="fas fa-arrow-right ml-3"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Update Section -->
+            <div id="update" class="content-section hidden">
+                <div class="bg-white rounded-3xl shadow-2xl p-10 mb-10 card-hover">
+                    <div class="flex items-center mb-8">
+                        <div class="bg-gradient-to-r from-lime-500 to-green-500 rounded-full p-4 mr-6">
+                            <i class="fas fa-edit text-white text-3xl"></i>
+                        </div>
+                        <h1 class="text-4xl font-bold text-gray-800">Update - Edit Data</h1>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-8 card-hover">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-code text-green-500 mr-4"></i>
+                                Tambahkan Fungsi Update ke JavaScript
+                            </h3>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <i class="fab fa-js-square text-white mr-3"></i>
+                                    <span class="text-white font-semibold text-lg">📄 js/script.js (tambahan)</span>
+                                </div>
+                                <div class="code-content">
+<pre><span class="comment">// Tambahkan fungsi ini ke dalam class SiswaManager</span>
+
+<span class="comment">// Edit siswa - isi form dengan data yang dipilih</span>
+<span class="function">editSiswa</span>(<span class="variable">id</span>) {
+    <span class="keyword">const</span> <span class="variable">data</span> = <span class="keyword">this</span>.<span class="function">getData</span>();
+    <span class="keyword">const</span> <span class="variable">siswa</span> = <span class="variable">data</span>.<span class="function">find</span>(<span class="variable">s</span> => <span class="variable">s</span>.<span class="variable">id</span> === <span class="variable">id</span>);
+    
+    <span class="keyword">if</span> (!<span class="variable">siswa</span>) {
+        <span class="keyword">this</span>.<span class="function">showAlert</span>(<span class="string">'Data siswa tidak ditemukan!'</span>, <span class="string">'danger'</span>);
+        <span class="keyword">return</span>;
+    }
+
+    <span class="comment">// Buat form edit</span>
+    <span class="keyword">const</span> <span class="variable">editForm</span> = <span class="string">`
+        &lt;div id="editModal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+             background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;"&gt;
+            &lt;div style="background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px;"&gt;
+                &lt;h3&gt;Edit Data Siswa&lt;/h3&gt;
+                &lt;form id="updateForm"&gt;
+                    &lt;input type="hidden" name="id" value="${siswa.id}"&gt;
+                    &lt;div class="form-group"&gt;
+                        &lt;label&gt;Nama Lengkap *&lt;/label&gt;
+                        &lt;input type="text" name="nama" class="form-control" value="${siswa.nama}" required&gt;
+                    &lt;/div&gt;
+                    &lt;div class="form-group"&gt;
+                        &lt;label&gt;Kelas *&lt;/label&gt;
+                        &lt;select name="kelas" class="form-control" required&gt;
+                            &lt;option value="X" ${siswa.kelas === 'X' ? 'selected' : ''}&gt;X (Sepuluh)&lt;/option&gt;
+                            &lt;option value="XI" ${siswa.kelas === 'XI' ? 'selected' : ''}&gt;XI (Sebelas)&lt;/option&gt;
+                            &lt;option value="XII" ${siswa.kelas === 'XII' ? 'selected' : ''}&gt;XII (Dua Belas)&lt;/option&gt;
+                        &lt;/select&gt;
+                    &lt;/div&gt;
+                    &lt;button type="submit" class="btn btn-primary"&gt;Update Data&lt;/button&gt;
+                    &lt;button type="button" class="btn" onclick="siswaManager.closeEditModal()" 
+                            style="background: #6c757d; color: white; margin-left: 10px;"&gt;Batal&lt;/button&gt;
+                &lt;/form&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    `</span>;
+
+    <span class="variable">document</span>.<span class="variable">body</span>.<span class="function">insertAdjacentHTML</span>(<span class="string">'beforeend'</span>, <span class="variable">editForm</span>);
+    
+    <span class="comment">// Bind event untuk form update</span>
+    <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'updateForm'</span>).<span class="function">addEventListener</span>(<span class="string">'submit'</span>, (<span class="variable">e</span>) => {
+        <span class="variable">e</span>.<span class="function">preventDefault</span>();
+        <span class="keyword">this</span>.<span class="function">updateSiswa</span>();
+    });
+}
+
+<span class="comment">// Update siswa</span>
+<span class="function">updateSiswa</span>() {
+    <span class="keyword">const</span> <span class="variable">form</span> = <span class="variable">document</span>.<span class="function">getElementById</span>(<span class="string">'updateForm'</span>);
+    <span class="keyword">const</span> <span class="variable">formData</span> = <span class="keyword">new</span> <span class="function">FormData</span>(<span class="variable">form</span>);
+    
+    <span class="keyword">const</span> <span class="variable">updatedSiswa</span> = {
+        <span class="variable">id</span>: <span class="variable">formData</span>.<span class="function">get</span>(<span class="string">'id'</span>),
+        <span class="variable">nama</span>: <span class="variable">formData</span>.<span class="function">get</span>(<span class="string">'nama'</span>),
+        <span class="variable">kelas</span>: <span class="variable">formData</span>.<span class="function">get</span>(<span class="string">'kelas'</span>),
+        <span class="variable">jurusan</span>: <span class="variable">formData</span>.<span class="function">get</span>(<span class="string">'jurusan'</span>),
+        <span class="variable">alamat</span>: <span class="variable">formData</span>.<span class="function">get</span>(<span class="string">'alamat'</span>),
+        <span class="variable">tanggal_diupdate</span>: <span class="keyword">new</span> <span class="function">Date</span>().<span class="function">toISOString</span>().<span class="function">split</span>(<span class="string">'T'</span>)[<span class="number">0</span>]
+    };
+
+    <span class="comment">// Update data</span>
+    <span class="keyword">const</span> <span class="variable">data</span> = <span class="keyword">this</span>.<span class="function">getData</span>();
+    <span class="keyword">const</span> <span class="variable">index</span> = <span class="variable">data</span>.<span class="function">findIndex</span>(<span class="variable">s</span> => <span class="variable">s</span>.<span class="variable">id</span> === <span class="variable">updatedSiswa</span>.<span class="variable">id</span>);
+    
+    <span class="keyword">if</span> (<span class="variable">index</span> !== -<span class="number">1</span>) {
+        <span class="variable">data</span>[<span class="variable">index</span>] = <span class="variable">updatedSiswa</span>;
+        <span class="keyword">this</span>.<span class="function">saveData</span>(<span class="variable">data</span>);
+        
+        <span class="keyword">this</span>.<span class="function">showAlert</span>(<span class="string">'Data siswa berhasil diupdate! 🎉'</span>, <span class="string">'success'</span>);
+        <span class="keyword">this</span>.<span class="function">loadData</span>();
+        <span class="keyword">this</span>.<span class="function">closeEditModal</span>();
+    }
+}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('delete')" class="bg-gradient-to-r from-lime-500 to-green-500 text-white px-10 py-5 rounded-full text-xl font-semibold hover:shadow-2xl transform hover:scale-105 transition-all">
+                        Lanjut ke Delete Data <i class="fas fa-arrow-right ml-3"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Delete Section -->
+            <div id="delete" class="content-section hidden">
+                <div class="bg-white rounded-3xl shadow-2xl p-10 mb-10 card-hover">
+                    <div class="flex items-center mb-8">
+                        <div class="bg-gradient-to-r from-red-500 to-pink-500 rounded-full p-4 mr-6">
+                            <i class="fas fa-trash text-white text-3xl"></i>
+                        </div>
+                        <h1 class="text-4xl font-bold text-gray-800">Delete - Hapus Data</h1>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-red-100 to-pink-100 rounded-2xl p-8 card-hover">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-code text-red-500 mr-4"></i>
+                                Tambahkan Fungsi Delete ke JavaScript
+                            </h3>
+                            <div class="code-block">
+                                <div class="code-header">
+                                    <i class="fab fa-js-square text-white mr-3"></i>
+                                    <span class="text-white font-semibold text-lg">📄 js/script.js (tambahan)</span>
+                                </div>
+                                <div class="code-content">
+<pre><span class="comment">// Tambahkan fungsi ini ke dalam class SiswaManager</span>
+
+<span class="comment">// Hapus siswa dengan konfirmasi</span>
+<span class="function">deleteSiswa</span>(<span class="variable">id</span>) {
+    <span class="comment">// Tampilkan konfirmasi yang menarik</span>
+    <span class="keyword">const</span> <span class="variable">confirmDelete</span> = <span class="function">confirm</span>(<span class="string">'🗑️ Apakah Anda yakin ingin menghapus data siswa ini?\n\n⚠️ Data yang dihapus tidak dapat dikembalikan!'</span>);
+    
+    <span class="keyword">if</span> (!<span class="variable">confirmDelete</span>) {
+        <span class="keyword">return</span>; <span class="comment">// Batalkan jika user klik Cancel</span>
+    }
+
+    <span class="comment">// Ambil data dari Local Storage</span>
+    <span class="keyword">const</span> <span class="variable">data</span> = <span class="keyword">this</span>.<span class="function">getData</span>();
+    
+    <span class="comment">// Cari siswa yang akan dihapus</span>
+    <span class="keyword">const</span> <span class="variable">siswaIndex</span> = <span class="variable">data</span>.<span class="function">findIndex</span>(<span class="variable">s</span> => <span class="variable">s</span>.<span class="variable">id</span> === <span class="variable">id</span>);
+    
+    <span class="keyword">if</span> (<span class="variable">siswaIndex</span> === -<span class="number">1</span>) {
+        <span class="keyword">this</span>.<span class="function">showAlert</span>(<span class="string">'Data siswa tidak ditemukan!'</span>, <span class="string">'danger'</span>);
+        <span class="keyword">return</span>;
+    }
+
+    <span class="comment">// Simpan nama siswa untuk pesan</span>
+    <span class="keyword">const</span> <span class="variable">namaSiswa</span> = <span class="variable">data</span>[<span class="variable">siswaIndex</span>].<span class="variable">nama</span>;
+    
+    <span class="comment">// Hapus siswa dari array</span>
+    <span class="variable">data</span>.<span class="function">splice</span>(<span class="variable">siswaIndex</span>, <span class="number">1</span>);
+    
+    <span class="comment">// Simpan kembali ke Local Storage</span>
+    <span class="keyword">this</span>.<span class="function">saveData</span>(<span class="variable">data</span>);
+    
+    <span class="comment">// Refresh tampilan tabel</span>
+    <span class="keyword">this</span>.<span class="function">loadData</span>();
+    
+    <span class="comment">// Tampilkan pesan sukses</span>
+    <span class="keyword">this</span>.<span class="function">showAlert</span>(<span class="string">`Data siswa "${namaSiswa}" berhasil dihapus! 🗑️`</span>, <span class="string">'success'</span>);
+}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('testing')" class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-10 py-5 rounded-full text-xl font-semibold hover:shadow-2xl transform hover:scale-105 transition-all">
+                        Lanjut ke Testing & Demo <i class="fas fa-arrow-right ml-3"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Testing Section -->
+            <div id="testing" class="content-section hidden">
+                <div class="bg-white rounded-3xl shadow-2xl p-10 mb-10 card-hover">
+                    <div class="flex items-center mb-8">
+                        <div class="bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full p-4 mr-6">
+                            <i class="fas fa-check-circle text-white text-3xl"></i>
+                        </div>
+                        <h1 class="text-4xl font-bold text-gray-800">Testing & Demo Aplikasi</h1>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-green-100 to-emerald-100 rounded-2xl p-8 card-hover">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                                <i class="fas fa-trophy text-yellow-500 mr-4"></i>
+                                Selamat! Aplikasi CRUD Sudah Selesai! 🎉
+                            </h3>
+                            <div class="bg-white rounded-xl p-6 shadow-lg">
+                                <p class="text-gray-700 text-xl leading-relaxed mb-6">
+                                    Kamu telah berhasil membuat aplikasi CRUD Data Siswa yang lengkap dengan fitur Create, Read, Update, dan Delete menggunakan PHP dan Local Storage! 🚀
+                                </p>
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800 mb-3 text-lg">✅ Fitur yang Sudah Dibuat:</h4>
+                                        <ul class="text-gray-700 space-y-2">
+                                            <li>📝 Tambah data siswa baru</li>
+                                            <li>👀 Tampilkan daftar siswa</li>
+                                            <li>✏️ Edit data siswa</li>
+                                            <li>🗑️ Hapus data siswa</li>
+                                            <li>💾 Penyimpanan Local Storage</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-800 mb-3 text-lg">🎨 Kelebihan Aplikasi:</h4>
+                                        <ul class="text-gray-700 space-y-2">
+                                            <li>📱 Responsive (HP & Desktop)</li>
+                                            <li>🎯 Validasi form lengkap</li>
+                                            <li>⚡ Real-time update</li>
+                                            <li>🛡️ Konfirmasi hapus data</li>
+                                            <li>✨ Tampilan menarik</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="showSection('pengenalan')" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-10 py-5 rounded-full text-xl font-semibold hover:shadow-2xl transform hover:scale-105 transition-all">
+                        Kembali ke Awal <i class="fas fa-home ml-3"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="backToTop" class="floating-btn bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-2xl hidden">
+        <i class="fas fa-arrow-up text-xl"></i>
+    </button>
+
+    <script>
+        // Global variables
+        let currentSection = 'pengenalan';
+        const sections = ['pengenalan', 'persiapan', 'struktur', 'create', 'read', 'update', 'delete', 'testing'];
+
+        // Show specific section
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Show selected section
+            const targetSection = document.getElementById(sectionName);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                targetSection.classList.add('fade-in');
+                currentSection = sectionName;
+                
+                // Update active nav item
+                updateActiveNav(sectionName);
+                
+                // Force scroll to top immediately
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+                
+                // Close mobile menu
+                closeMobileMenu();
+            }
+        }
+
+        // Next section navigation
+        function nextSection(nextSectionName) {
+            // Scroll to top first, then show section
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            
+            // Small delay to ensure scroll completes
+            setTimeout(() => {
+                showSection(nextSectionName);
+            }, 50);
+        }
+
+        // Update active navigation item
+        function updateActiveNav(sectionName) {
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to current section
+            const activeItem = document.querySelector(`[data-section="${sectionName}"]`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+            }
+        }
+
+        // Mobile menu functionality
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.add('-translate-x-full');
+        }
+
+        // Back to top functionality
+        function initBackToTop() {
+            const backToTopBtn = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('hidden');
+                } else {
+                    backToTopBtn.classList.add('hidden');
+                }
+            });
+
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu button
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(e) {
+                const sidebar = document.getElementById('sidebar');
+                const mobileBtn = document.getElementById('mobileMenuBtn');
+                
+                if (!sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                    closeMobileMenu();
+                }
+            });
+
+            // Initialize back to top
+            initBackToTop();
+
+            // Show initial section and set active nav
+            showSection('pengenalan');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987ee8dff330a620',t:'MTc1OTM1MjYzNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
