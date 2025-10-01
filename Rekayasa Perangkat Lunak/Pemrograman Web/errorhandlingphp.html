@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error Handling PHP - Try-Catch & Debugging</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            color: #e2e8f0;
+            border-radius: 16px;
+            padding: 24px;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            line-height: 1.8;
+            font-size: 15px;
+            border: 1px solid #4a5568;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: linear-gradient(90deg, #4299e1 0%, #9f7aea 50%, #ed64a6 100%);
+            border-radius: 16px 16px 0 0;
+            opacity: 0.1;
+        }
+        
+        .code-block code {
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 15px;
+            line-height: 1.8;
+        }
+        
+        /* Syntax highlighting colors */
+        .php-tag { color: #81c784; font-weight: bold; }
+        .php-keyword { color: #bb86fc; font-weight: bold; }
+        .php-string { color: #ffab91; }
+        .php-comment { color: #90a4ae; font-style: italic; }
+        .php-variable { color: #64b5f6; }
+        .php-function { color: #ffd54f; }
+        .php-number { color: #f48fb1; }
+        
+        .code-header {
+            background: #374151;
+            color: #d1d5db;
+            padding: 12px 20px;
+            border-radius: 12px 12px 0 0;
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 2px solid #4b5563;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .code-with-header {
+            border-radius: 0 0 12px 12px;
+            margin-top: 0;
+        }
+        
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e2e8f0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .line-numbers {
+            color: #6b7280;
+            user-select: none;
+            margin-right: 16px;
+            text-align: right;
+            min-width: 30px;
+            display: inline-block;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar-transition {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar-transition.open {
+                transform: translateX(0);
+            }
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .quiz-option:hover {
+            background: #e0f2fe;
+            transform: translateX(5px);
+        }
+        
+        .quiz-option.selected {
+            background: #4fc3f7;
+            color: white;
+        }
+        
+        .quiz-option.correct {
+            background: #66bb6a;
+            color: white;
+        }
+        
+        .quiz-option.incorrect {
+            background: #ef5350;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-screen">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="md:hidden fixed top-4 left-4 z-50 bg-white p-3 rounded-full shadow-lg">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar-transition fixed left-0 top-0 h-full w-80 bg-white shadow-2xl z-40 overflow-y-auto">
+        <div class="p-6 gradient-bg text-white">
+            <h1 class="text-2xl font-bold mb-2">🐛 Error Handling PHP</h1>
+            <p class="text-sm opacity-90">Try-Catch & Debugging</p>
+        </div>
+        
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li><a href="#" onclick="showSection('intro')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">🚀</span>
+                    <span class="font-medium">Intro</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('pengenalan')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">📚</span>
+                    <span class="font-medium">Pengenalan</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('try-catch')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">🎯</span>
+                    <span class="font-medium">Try-Catch</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('jenis-error')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">⚠️</span>
+                    <span class="font-medium">Jenis Error</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('debugging')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">🔍</span>
+                    <span class="font-medium">Debugging</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('praktik')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">💻</span>
+                    <span class="font-medium">Praktik</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('tugas')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">📝</span>
+                    <span class="font-medium">Tugas</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('kuis')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">🎮</span>
+                    <span class="font-medium">Kuis</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('penutup')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">🎉</span>
+                    <span class="font-medium">Penutup</span>
+                </a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-80 min-h-screen">
+        <div class="max-w-4xl mx-auto p-6 md:p-8">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🐛</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Error Handling PHP</h1>
+                        <p class="text-xl text-gray-600">Try-Catch & Debugging untuk Pemula</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="bg-gradient-to-r from-pink-100 to-purple-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-purple-800">🤔 Pertanyaan Pemantik</h3>
+                            <ul class="space-y-3 text-lg">
+                                <li>• Pernah program PHP kamu error?</li>
+                                <li>• Bagaimana cara menangani error?</li>
+                                <li>• Apa itu debugging?</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-100 to-cyan-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-blue-800">🎯 Tujuan Pembelajaran</h3>
+                            <ul class="space-y-3 text-lg">
+                                <li>• Memahami konsep error handling</li>
+                                <li>• Menguasai try-catch statement</li>
+                                <li>• Mampu melakukan debugging</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-2xl">
+                        <h3 class="text-2xl font-bold mb-4 text-orange-800">💡 Pemahaman Bermakna</h3>
+                        <p class="text-lg leading-relaxed">
+                            Error handling adalah seperti <span class="highlight">sistem keamanan</span> dalam program. 
+                            Bayangkan kamu sedang mengendarai mobil - kamu butuh rem untuk berhenti saat ada bahaya. 
+                            Begitu juga program, butuh cara untuk menangani masalah yang muncul!
+                        </p>
+                    </div>
+                    
+                    <div class="mt-8 text-center">
+                        <div class="text-4xl mb-4">🌟</div>
+                        <h3 class="text-2xl font-bold text-purple-800 mb-4">Motivasi</h3>
+                        <p class="text-lg text-gray-700">
+                            "Programmer yang hebat bukan yang tidak pernah membuat error, 
+                            tapi yang tahu cara menangani error dengan baik!"
+                        </p>
+                    </div>
+                </div>
+                
+                <button onclick="nextSection('pengenalan')" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105">
+                    Mulai Belajar! 🚀
+                </button>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">
+                        <span class="text-4xl">📚</span> Pengenalan Error Handling
+                    </h2>
+                    
+                    <div class="space-y-8 mb-8">
+                        <div class="bg-red-50 p-6 rounded-2xl border-l-4 border-red-400">
+                            <h3 class="text-2xl font-bold mb-4 text-red-700">❌ Tanpa Error Handling</h3>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">❌ Tanpa Error Handling</span>
+                            </div>
+                            <div class="code-block code-with-header mb-4">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-variable">$angka</span> = <span class="php-number">10</span>;
+<span class="php-variable">$pembagi</span> = <span class="php-number">0</span>;
+<span class="php-variable">$hasil</span> = <span class="php-variable">$angka</span> / <span class="php-variable">$pembagi</span>; <span class="php-comment">// Error!</span>
+<span class="php-keyword">echo</span> <span class="php-string">"Hasil: "</span> . <span class="php-variable">$hasil</span>;
+<span class="php-tag">?&gt;</span></div>
+                            <p class="text-red-600 font-medium">Program akan crash dan berhenti!</p>
+                        </div>
+                        
+                        <div class="bg-green-50 p-6 rounded-2xl border-l-4 border-green-400">
+                            <h3 class="text-2xl font-bold mb-4 text-green-700">✅ Dengan Error Handling</h3>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">✅ Dengan Error Handling</span>
+                            </div>
+                            <div class="code-block code-with-header mb-4">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-keyword">try</span> {
+    <span class="php-variable">$angka</span> = <span class="php-number">10</span>;
+    <span class="php-variable">$pembagi</span> = <span class="php-number">0</span>;
+    
+    <span class="php-keyword">if</span> (<span class="php-variable">$pembagi</span> == <span class="php-number">0</span>) {
+        <span class="php-keyword">throw new</span> <span class="php-function">Exception</span>(<span class="php-string">"Tidak bisa bagi nol!"</span>);
+    }
+    
+    <span class="php-variable">$hasil</span> = <span class="php-variable">$angka</span> / <span class="php-variable">$pembagi</span>;
+    <span class="php-keyword">echo</span> <span class="php-string">"Hasil: "</span> . <span class="php-variable">$hasil</span>;
+    
+} <span class="php-keyword">catch</span> (<span class="php-function">Exception</span> <span class="php-variable">$e</span>) {
+    <span class="php-keyword">echo</span> <span class="php-string">"Error: "</span> . <span class="php-variable">$e</span>-><span class="php-function">getMessage</span>();
+}
+<span class="php-tag">?&gt;</span></div>
+                            <p class="text-green-600 font-medium">Program tetap berjalan dengan pesan error yang jelas!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-blue-100 to-purple-100 p-6 rounded-2xl">
+                        <h3 class="text-2xl font-bold mb-4 text-purple-800">🎯 Apa itu Error Handling?</h3>
+                        <p class="text-lg leading-relaxed mb-4">
+                            Error handling adalah teknik untuk <span class="highlight">menangani kesalahan</span> 
+                            yang mungkin terjadi saat program berjalan. Tujuannya adalah:
+                        </p>
+                        <ul class="space-y-2 text-lg">
+                            <li class="flex items-center"><span class="text-2xl mr-3">🛡️</span> Mencegah program crash</li>
+                            <li class="flex items-center"><span class="text-2xl mr-3">📝</span> Memberikan pesan error yang jelas</li>
+                            <li class="flex items-center"><span class="text-2xl mr-3">🔄</span> Memungkinkan program tetap berjalan</li>
+                            <li class="flex items-center"><span class="text-2xl mr-3">🎯</span> Meningkatkan user experience</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <button onclick="nextSection('try-catch')" class="w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105">
+                    Lanjut ke Try-Catch! 🎯
+                </button>
+            </div>
+
+            <!-- Try-Catch Section -->
+            <div id="try-catch" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">
+                        <span class="text-4xl">🎯</span> Try-Catch Statement
+                    </h2>
+                    
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-2xl mb-8">
+                        <h3 class="text-2xl font-bold mb-4 text-orange-800">📖 Struktur Dasar</h3>
+                        <div class="code-header">
+                            <span>🔴</span>
+                            <span>🟡</span>
+                            <span>🟢</span>
+                            <span class="ml-2">📖 Struktur Try-Catch</span>
+                        </div>
+                        <div class="code-block code-with-header">
+                            <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-keyword">try</span> {
+    <span class="php-comment">// Kode yang mungkin error</span>
+    <span class="php-comment">// Jika ada error, akan loncat ke catch</span>
+} <span class="php-keyword">catch</span> (<span class="php-function">Exception</span> <span class="php-variable">$e</span>) {
+    <span class="php-comment">// Kode untuk menangani error</span>
+    <span class="php-comment">// $e berisi informasi error</span>
+} <span class="php-keyword">finally</span> {
+    <span class="php-comment">// Kode yang selalu dijalankan (opsional)</span>
+}</div>
+                    </div>
+                    
+                    <div class="space-y-8 mb-8">
+                        <div class="bg-blue-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-blue-700">🔍 Try Block</h3>
+                            <p class="text-lg mb-4">Tempat kode yang <span class="highlight">mungkin error</span></p>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">🔍 Try Block Example</span>
+                            </div>
+                            <div class="code-block code-with-header">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-keyword">try</span> {
+    <span class="php-variable">$file</span> = <span class="php-function">fopen</span>(<span class="php-string">"data.txt"</span>, <span class="php-string">"r"</span>);
+    <span class="php-variable">$content</span> = <span class="php-function">fread</span>(<span class="php-variable">$file</span>, <span class="php-number">100</span>);
+    <span class="php-function">fclose</span>(<span class="php-variable">$file</span>);
+}</div>
+                        </div>
+                        
+                        <div class="bg-red-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-red-700">🚨 Catch Block</h3>
+                            <p class="text-lg mb-4">Tempat <span class="highlight">menangani error</span></p>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">🚨 Catch Block Example</span>
+                            </div>
+                            <div class="code-block code-with-header">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-keyword">catch</span> (<span class="php-function">Exception</span> <span class="php-variable">$e</span>) {
+    <span class="php-keyword">echo</span> <span class="php-string">"Error: "</span> . <span class="php-variable">$e</span>-><span class="php-function">getMessage</span>();
+    
+    <span class="php-comment">// Log error ke file</span>
+    <span class="php-function">error_log</span>(<span class="php-variable">$e</span>-><span class="php-function">getMessage</span>());
+}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-6 rounded-2xl mb-8">
+                        <h3 class="text-2xl font-bold mb-4 text-purple-700">🎮 Demo Interaktif</h3>
+                        <p class="text-lg mb-4">Coba masukkan angka untuk pembagian:</p>
+                        <div class="flex gap-4 mb-4">
+                            <input type="number" id="angka1" placeholder="Angka 1" class="px-4 py-2 border rounded-lg text-lg">
+                            <input type="number" id="angka2" placeholder="Angka 2" class="px-4 py-2 border rounded-lg text-lg">
+                            <button onclick="demoBagi()" class="bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600">Bagi</button>
+                        </div>
+                        <div id="hasilDemo" class="p-4 bg-gray-100 rounded-lg text-lg font-medium"></div>
+                    </div>
+                    
+                    <div class="bg-green-50 p-6 rounded-2xl">
+                        <h3 class="text-2xl font-bold mb-4 text-green-700">✨ Finally Block</h3>
+                        <p class="text-lg mb-4">Kode yang <span class="highlight">selalu dijalankan</span>, error atau tidak</p>
+                        <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">✨ Finally Block Example</span>
+                            </div>
+                            <div class="code-block code-with-header">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-keyword">try</span> {
+    <span class="php-variable">$db</span> = <span class="php-keyword">new</span> <span class="php-function">PDO</span>(<span class="php-string">"mysql:host=localhost;dbname=test"</span>, <span class="php-variable">$user</span>, <span class="php-variable">$pass</span>);
+    <span class="php-comment">// Query database</span>
+    
+} <span class="php-keyword">catch</span> (<span class="php-function">Exception</span> <span class="php-variable">$e</span>) {
+    <span class="php-keyword">echo</span> <span class="php-string">"Database error: "</span> . <span class="php-variable">$e</span>-><span class="php-function">getMessage</span>();
+    
+} <span class="php-keyword">finally</span> {
+    <span class="php-comment">// Tutup koneksi database</span>
+    <span class="php-variable">$db</span> = <span class="php-keyword">null</span>;
+    <span class="php-keyword">echo</span> <span class="php-string">"Koneksi ditutup"</span>;
+}</div>
+                    </div>
+                </div>
+                
+                <button onclick="nextSection('jenis-error')" class="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-green-600 hover:to-blue-600 transition-all transform hover:scale-105">
+                    Pelajari Jenis Error! ⚠️
+                </button>
+            </div>
+
+            <!-- Jenis Error Section -->
+            <div id="jenis-error" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">
+                        <span class="text-4xl">⚠️</span> Jenis-Jenis Error
+                    </h2>
+                    
+                    <div class="space-y-8 mb-8">
+                        <div class="bg-red-50 p-6 rounded-2xl border-l-4 border-red-400">
+                            <h3 class="text-2xl font-bold mb-4 text-red-700">🔥 Fatal Error</h3>
+                            <p class="text-lg mb-4">Error yang <span class="highlight">menghentikan program</span></p>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">🔥 Fatal Error Example</span>
+                            </div>
+                            <div class="code-block code-with-header mb-4">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-comment">// Memanggil function yang tidak ada</span>
+<span class="php-function">nonExistentFunction</span>(); <span class="php-comment">// Fatal error!</span>
+<span class="php-tag">?&gt;</span></div>
+                            <p class="text-red-600">Program berhenti total!</p>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-6 rounded-2xl border-l-4 border-yellow-400">
+                            <h3 class="text-2xl font-bold mb-4 text-yellow-700">⚠️ Warning</h3>
+                            <p class="text-lg mb-4">Error yang <span class="highlight">tidak menghentikan program</span></p>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">⚠️ Warning Example</span>
+                            </div>
+                            <div class="code-block code-with-header mb-4">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-comment">// Membuka file yang tidak ada</span>
+<span class="php-variable">$file</span> = <span class="php-function">fopen</span>(<span class="php-string">"tidak_ada.txt"</span>, <span class="php-string">"r"</span>); <span class="php-comment">// Warning</span>
+<span class="php-keyword">echo</span> <span class="php-string">"Program tetap jalan"</span>;
+<span class="php-tag">?&gt;</span></div>
+                            <p class="text-yellow-600">Program tetap berjalan!</p>
+                        </div>
+                        
+                        <div class="bg-blue-50 p-6 rounded-2xl border-l-4 border-blue-400">
+                            <h3 class="text-2xl font-bold mb-4 text-blue-700">ℹ️ Notice</h3>
+                            <p class="text-lg mb-4">Peringatan <span class="highlight">ringan</span></p>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">ℹ️ Notice Example</span>
+                            </div>
+                            <div class="code-block code-with-header mb-4">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-comment">// Menggunakan variabel yang belum didefinisi</span>
+<span class="php-keyword">echo</span> <span class="php-variable">$variabel_belum_ada</span>; <span class="php-comment">// Notice</span>
+<span class="php-tag">?&gt;</span></div>
+                            <p class="text-blue-600">Hanya peringatan kecil</p>
+                        </div>
+                        
+                        <div class="bg-purple-50 p-6 rounded-2xl border-l-4 border-purple-400">
+                            <h3 class="text-2xl font-bold mb-4 text-purple-700">🎯 Exception</h3>
+                            <p class="text-lg mb-4">Error yang bisa <span class="highlight">ditangani dengan try-catch</span></p>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">🎯 Exception Example</span>
+                            </div>
+                            <div class="code-block code-with-header mb-4">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-keyword">try</span> {
+    <span class="php-keyword">throw new</span> <span class="php-function">Exception</span>(<span class="php-string">"Custom error!"</span>);
+    
+} <span class="php-keyword">catch</span> (<span class="php-function">Exception</span> <span class="php-variable">$e</span>) {
+    <span class="php-keyword">echo</span> <span class="php-variable">$e</span>-><span class="php-function">getMessage</span>();
+}
+<span class="php-tag">?&gt;</span></div>
+                            <p class="text-purple-600">Bisa ditangani dengan baik!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-pink-100 to-purple-100 p-6 rounded-2xl">
+                        <h3 class="text-2xl font-bold mb-4 text-purple-800">🛠️ Custom Exception</h3>
+                        <p class="text-lg mb-4">Kamu bisa membuat exception sendiri!</p>
+                        <div class="code-header">
+                            <span>🔴</span>
+                            <span>🟡</span>
+                            <span>🟢</span>
+                            <span class="ml-2">🛠️ Custom Exception</span>
+                        </div>
+                        <div class="code-block code-with-header">
+                            <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-keyword">class</span> <span class="php-function">CustomException</span> <span class="php-keyword">extends</span> <span class="php-function">Exception</span> {
+    <span class="php-keyword">public function</span> <span class="php-function">errorMessage</span>() {
+        <span class="php-keyword">return</span> <span class="php-string">"Error di baris "</span> . <span class="php-variable">$this</span>-><span class="php-function">getLine</span>() . 
+               <span class="php-string">" file "</span> . <span class="php-variable">$this</span>-><span class="php-function">getFile</span>() . <span class="php-string">": "</span> . <span class="php-variable">$this</span>-><span class="php-function">getMessage</span>();
+    }
+}
+
+<span class="php-keyword">try</span> {
+    <span class="php-keyword">throw new</span> <span class="php-function">CustomException</span>(<span class="php-string">"Ini error custom!"</span>);
+    
+} <span class="php-keyword">catch</span> (<span class="php-function">CustomException</span> <span class="php-variable">$e</span>) {
+    <span class="php-keyword">echo</span> <span class="php-variable">$e</span>-><span class="php-function">errorMessage</span>();
+}
+<span class="php-tag">?&gt;</span></div>
+                    </div>
+                </div>
+                
+                <button onclick="nextSection('debugging')" class="w-full bg-gradient-to-r from-red-500 to-pink-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-red-600 hover:to-pink-600 transition-all transform hover:scale-105">
+                    Belajar Debugging! 🔍
+                </button>
+            </div>
+
+            <!-- Debugging Section -->
+            <div id="debugging" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">
+                        <span class="text-4xl">🔍</span> Debugging PHP
+                    </h2>
+                    
+                    <div class="bg-gradient-to-r from-blue-100 to-cyan-100 p-6 rounded-2xl mb-8">
+                        <h3 class="text-2xl font-bold mb-4 text-blue-800">🎯 Apa itu Debugging?</h3>
+                        <p class="text-lg leading-relaxed">
+                            Debugging adalah proses <span class="highlight">mencari dan memperbaiki bug</span> 
+                            (kesalahan) dalam program. Seperti detektif yang mencari petunjuk!
+                        </p>
+                    </div>
+                    
+                    <div class="space-y-8 mb-8">
+                        <div class="bg-green-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-green-700">🖨️ var_dump()</h3>
+                            <p class="text-lg mb-4">Menampilkan <span class="highlight">detail variabel</span></p>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">🖨️ var_dump() Example</span>
+                            </div>
+                            <div class="code-block code-with-header mb-4">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-variable">$data</span> = [<span class="php-string">"nama"</span> => <span class="php-string">"Budi"</span>, <span class="php-string">"umur"</span> => <span class="php-number">17</span>];
+<span class="php-function">var_dump</span>(<span class="php-variable">$data</span>);
+
+<span class="php-comment">// Output: array(2) { ["nama"]=> string(4) "Budi" ...</span>
+<span class="php-tag">?&gt;</span></div>
+                            <button onclick="demoVarDump()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Coba Demo</button>
+                            <div id="varDumpResult" class="mt-4 p-3 bg-gray-100 rounded-lg hidden"></div>
+                        </div>
+                        
+                        <div class="bg-blue-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-blue-700">📝 print_r()</h3>
+                            <p class="text-lg mb-4">Menampilkan variabel <span class="highlight">lebih rapi</span></p>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">📝 print_r() Example</span>
+                            </div>
+                            <div class="code-block code-with-header mb-4">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-variable">$data</span> = [<span class="php-string">"nama"</span> => <span class="php-string">"Budi"</span>, <span class="php-string">"umur"</span> => <span class="php-number">17</span>];
+<span class="php-function">print_r</span>(<span class="php-variable">$data</span>);
+
+<span class="php-comment">// Output: Array ( [nama] => Budi [umur] => 17 )</span>
+<span class="php-tag">?&gt;</span></div>
+                            <button onclick="demoPrintR()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Coba Demo</button>
+                            <div id="printRResult" class="mt-4 p-3 bg-gray-100 rounded-lg hidden"></div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-yellow-700">📋 error_log()</h3>
+                            <p class="text-lg mb-4">Menyimpan error ke <span class="highlight">file log</span></p>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">📋 error_log() Example</span>
+                            </div>
+                            <div class="code-block code-with-header">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-function">error_log</span>(<span class="php-string">"Debug: Nilai x = "</span> . <span class="php-variable">$x</span>);
+<span class="php-function">error_log</span>(<span class="php-string">"Error terjadi di function login()"</span>);
+<span class="php-tag">?&gt;</span></div>
+                        </div>
+                        
+                        <div class="bg-purple-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-purple-700">⚙️ error_reporting()</h3>
+                            <p class="text-lg mb-4">Mengatur <span class="highlight">level error</span> yang ditampilkan</p>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">⚙️ error_reporting() Example</span>
+                            </div>
+                            <div class="code-block code-with-header">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-comment">// Tampilkan semua error</span>
+<span class="php-function">error_reporting</span>(<span class="php-keyword">E_ALL</span>);
+
+<span class="php-comment">// Sembunyikan semua error</span>
+<span class="php-function">error_reporting</span>(<span class="php-number">0</span>);
+<span class="php-tag">?&gt;</span></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-orange-100 to-red-100 p-6 rounded-2xl">
+                        <h3 class="text-2xl font-bold mb-4 text-red-800">🎮 Debug Simulator</h3>
+                        <p class="text-lg mb-4">Coba debug kode bermasalah ini:</p>
+                        <div class="code-header">
+                            <span>🔴</span>
+                            <span>🟡</span>
+                            <span>🟢</span>
+                            <span class="ml-2">🎮 Debug Challenge</span>
+                        </div>
+                        <div class="code-block code-with-header mb-4">
+                            <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-variable">$users</span> = [<span class="php-string">"Budi"</span>, <span class="php-string">"Siti"</span>, <span class="php-string">"Andi"</span>];
+
+<span class="php-keyword">for</span> (<span class="php-variable">$i</span> = <span class="php-number">0</span>; <span class="php-variable">$i</span> <= <span class="php-function">count</span>(<span class="php-variable">$users</span>); <span class="php-variable">$i</span>++) {
+    <span class="php-keyword">echo</span> <span class="php-variable">$users</span>[<span class="php-variable">$i</span>] . <span class="php-string">"&lt;br&gt;"</span>;
+}
+<span class="php-tag">?&gt;</span>
+                        </div>
+                        <button onclick="debugSimulator()" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 mb-4">Jalankan & Debug</button>
+                        <div id="debugResult" class="p-4 bg-gray-100 rounded-lg hidden"></div>
+                    </div>
+                </div>
+                
+                <button onclick="nextSection('praktik')" class="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-purple-600 hover:to-indigo-600 transition-all transform hover:scale-105">
+                    Waktunya Praktik! 💻
+                </button>
+            </div>
+
+            <!-- Praktik Section -->
+            <div id="praktik" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">
+                        <span class="text-4xl">💻</span> Praktik Error Handling
+                    </h2>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-green-800">📋 Langkah 1: Persiapan</h3>
+                            <ol class="space-y-3 text-lg">
+                                <li class="flex items-start"><span class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 mt-1 text-sm font-bold">1</span>Buka text editor (VS Code, Notepad++, dll)</li>
+                                <li class="flex items-start"><span class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 mt-1 text-sm font-bold">2</span>Buat file baru dengan nama "error_handling.php"</li>
+                                <li class="flex items-start"><span class="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 mt-1 text-sm font-bold">3</span>Pastikan XAMPP/server PHP sudah berjalan</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-100 to-purple-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-blue-800">🔧 Langkah 2: Kode Dasar</h3>
+                            <p class="text-lg mb-4">Copy kode ini ke file PHP kamu:</p>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">🔧 Praktik Error Handling</span>
+                            </div>
+                            <div class="code-block code-with-header mb-4">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-keyword">echo</span> <span class="php-string">"&lt;h2&gt;Praktik Error Handling PHP&lt;/h2&gt;"</span>;
+
+<span class="php-comment">// Praktik 1: Pembagian dengan nol</span>
+<span class="php-keyword">echo</span> <span class="php-string">"&lt;h3&gt;Praktik 1: Pembagian&lt;/h3&gt;"</span>;
+<span class="php-keyword">try</span> {
+    <span class="php-variable">$a</span> = <span class="php-number">10</span>;
+    <span class="php-variable">$b</span> = <span class="php-number">0</span>;
+    
+    <span class="php-keyword">if</span> (<span class="php-variable">$b</span> == <span class="php-number">0</span>) {
+        <span class="php-keyword">throw new</span> <span class="php-function">Exception</span>(<span class="php-string">"Tidak bisa membagi dengan nol!"</span>);
+    }
+    
+    <span class="php-variable">$hasil</span> = <span class="php-variable">$a</span> / <span class="php-variable">$b</span>;
+    <span class="php-keyword">echo</span> <span class="php-string">"Hasil: "</span> . <span class="php-variable">$hasil</span>;
+    
+} <span class="php-keyword">catch</span> (<span class="php-function">Exception</span> <span class="php-variable">$e</span>) {
+    <span class="php-keyword">echo</span> <span class="php-string">"&lt;p style='color: red;'&gt;Error: "</span> . <span class="php-variable">$e</span>-><span class="php-function">getMessage</span>() . <span class="php-string">"&lt;/p&gt;"</span>;
+}
+
+<span class="php-keyword">echo</span> <span class="php-string">"&lt;hr&gt;"</span>;
+
+<span class="php-comment">// Praktik 2: File handling</span>
+<span class="php-keyword">echo</span> <span class="php-string">"&lt;h3&gt;Praktik 2: Baca File&lt;/h3&gt;"</span>;
+<span class="php-keyword">try</span> {
+    <span class="php-variable">$namaFile</span> = <span class="php-string">"data.txt"</span>;
+    
+    <span class="php-keyword">if</span> (!<span class="php-function">file_exists</span>(<span class="php-variable">$namaFile</span>)) {
+        <span class="php-keyword">throw new</span> <span class="php-function">Exception</span>(<span class="php-string">"File $namaFile tidak ditemukan!"</span>);
+    }
+    
+    <span class="php-variable">$isi</span> = <span class="php-function">file_get_contents</span>(<span class="php-variable">$namaFile</span>);
+    <span class="php-keyword">echo</span> <span class="php-string">"&lt;p&gt;Isi file: "</span> . <span class="php-variable">$isi</span> . <span class="php-string">"&lt;/p&gt;"</span>;
+    
+} <span class="php-keyword">catch</span> (<span class="php-function">Exception</span> <span class="php-variable">$e</span>) {
+    <span class="php-keyword">echo</span> <span class="php-string">"&lt;p style='color: red;'&gt;Error: "</span> . <span class="php-variable">$e</span>-><span class="php-function">getMessage</span>() . <span class="php-string">"&lt;/p&gt;"</span>;
+}
+<span class="php-tag">?&gt;</span></div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-purple-800">🎯 Langkah 3: Eksperimen</h3>
+                            <p class="text-lg mb-4">Coba modifikasi kode dengan:</p>
+                            <ul class="space-y-3 text-lg">
+                                <li class="flex items-center"><span class="text-2xl mr-3">🔄</span>Ubah nilai pembagi menjadi angka lain</li>
+                                <li class="flex items-center"><span class="text-2xl mr-3">📁</span>Buat file "data.txt" dengan isi bebas</li>
+                                <li class="flex items-center"><span class="text-2xl mr-3">🎨</span>Tambahkan CSS untuk mempercantik tampilan</li>
+                                <li class="flex items-center"><span class="text-2xl mr-3">🔍</span>Gunakan var_dump() untuk debug</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-orange-800">🚀 Langkah 4: Challenge</h3>
+                            <p class="text-lg mb-4">Buat program kalkulator sederhana dengan error handling:</p>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">🚀 Kalkulator Challenge</span>
+                            </div>
+                            <div class="code-block code-with-header">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-comment">// Challenge: Kalkulator dengan Error Handling</span>
+<span class="php-keyword">echo</span> <span class="php-string">"&lt;h3&gt;🧮 Kalkulator PHP&lt;/h3&gt;"</span>;
+
+<span class="php-comment">// Simulasi input (dalam praktik nyata bisa dari form)</span>
+<span class="php-variable">$angka1</span> = <span class="php-number">15</span>;
+<span class="php-variable">$angka2</span> = <span class="php-number">3</span>;
+<span class="php-variable">$operator</span> = <span class="php-string">"/"</span>;
+
+<span class="php-keyword">echo</span> <span class="php-string">"&lt;p&gt;&lt;strong&gt;Input:&lt;/strong&gt; $angka1 $operator $angka2&lt;/p&gt;"</span>;
+
+<span class="php-keyword">try</span> {
+    <span class="php-comment">// Validasi input angka</span>
+    <span class="php-keyword">if</span> (!<span class="php-function">is_numeric</span>(<span class="php-variable">$angka1</span>) || !<span class="php-function">is_numeric</span>(<span class="php-variable">$angka2</span>)) {
+        <span class="php-keyword">throw new</span> <span class="php-function">Exception</span>(<span class="php-string">"Input harus berupa angka!"</span>);
+    }
+    
+    <span class="php-comment">// Validasi operator</span>
+    <span class="php-variable">$operatorValid</span> = [<span class="php-string">'+'</span>, <span class="php-string">'-'</span>, <span class="php-string">'*'</span>, <span class="php-string">'/'</span>];
+    <span class="php-keyword">if</span> (!<span class="php-function">in_array</span>(<span class="php-variable">$operator</span>, <span class="php-variable">$operatorValid</span>)) {
+        <span class="php-keyword">throw new</span> <span class="php-function">Exception</span>(<span class="php-string">"Operator tidak valid! Gunakan: +, -, *, /"</span>);
+    }
+    
+    <span class="php-comment">// Operasi kalkulator</span>
+    <span class="php-keyword">switch</span> (<span class="php-variable">$operator</span>) {
+        <span class="php-keyword">case</span> <span class="php-string">'+'</span>:
+            <span class="php-variable">$hasil</span> = <span class="php-variable">$angka1</span> + <span class="php-variable">$angka2</span>;
+            <span class="php-keyword">break</span>;
+        <span class="php-keyword">case</span> <span class="php-string">'-'</span>:
+            <span class="php-variable">$hasil</span> = <span class="php-variable">$angka1</span> - <span class="php-variable">$angka2</span>;
+            <span class="php-keyword">break</span>;
+        <span class="php-keyword">case</span> <span class="php-string">'*'</span>:
+            <span class="php-variable">$hasil</span> = <span class="php-variable">$angka1</span> * <span class="php-variable">$angka2</span>;
+            <span class="php-keyword">break</span>;
+        <span class="php-keyword">case</span> <span class="php-string">'/'</span>:
+            <span class="php-keyword">if</span> (<span class="php-variable">$angka2</span> == <span class="php-number">0</span>) {
+                <span class="php-keyword">throw new</span> <span class="php-function">Exception</span>(<span class="php-string">"Tidak bisa membagi dengan nol!"</span>);
+            }
+            <span class="php-variable">$hasil</span> = <span class="php-variable">$angka1</span> / <span class="php-variable">$angka2</span>;
+            <span class="php-keyword">break</span>;
+    }
+    
+    <span class="php-keyword">echo</span> <span class="php-string">"&lt;p style='color: green;'&gt;&lt;strong&gt;✅ Hasil:&lt;/strong&gt; $hasil&lt;/p&gt;"</span>;
+    
+} <span class="php-keyword">catch</span> (<span class="php-function">Exception</span> <span class="php-variable">$e</span>) {
+    <span class="php-keyword">echo</span> <span class="php-string">"&lt;p style='color: red;'&gt;&lt;strong&gt;❌ Error:&lt;/strong&gt; "</span> . <span class="php-variable">$e</span>-><span class="php-function">getMessage</span>() . <span class="php-string">"&lt;/p&gt;"</span>;
+    
+    <span class="php-comment">// Log error untuk debugging</span>
+    <span class="php-function">error_log</span>(<span class="php-string">"Kalkulator Error: "</span> . <span class="php-variable">$e</span>-><span class="php-function">getMessage</span>());
+    
+} <span class="php-keyword">finally</span> {
+    <span class="php-keyword">echo</span> <span class="php-string">"&lt;p&gt;&lt;em&gt;Operasi kalkulator selesai.&lt;/em&gt;&lt;/p&gt;"</span>;
+}
+
+<span class="php-comment">// Bonus: Function kalkulator yang bisa digunakan ulang</span>
+<span class="php-keyword">function</span> <span class="php-function">kalkulator</span>(<span class="php-variable">$a</span>, <span class="php-variable">$b</span>, <span class="php-variable">$op</span>) {
+    <span class="php-keyword">try</span> {
+        <span class="php-keyword">if</span> (!<span class="php-function">is_numeric</span>(<span class="php-variable">$a</span>) || !<span class="php-function">is_numeric</span>(<span class="php-variable">$b</span>)) {
+            <span class="php-keyword">throw new</span> <span class="php-function">Exception</span>(<span class="php-string">"Input harus angka!"</span>);
+        }
+        
+        <span class="php-keyword">switch</span> (<span class="php-variable">$op</span>) {
+            <span class="php-keyword">case</span> <span class="php-string">'+'</span>: <span class="php-keyword">return</span> <span class="php-variable">$a</span> + <span class="php-variable">$b</span>;
+            <span class="php-keyword">case</span> <span class="php-string">'-'</span>: <span class="php-keyword">return</span> <span class="php-variable">$a</span> - <span class="php-variable">$b</span>;
+            <span class="php-keyword">case</span> <span class="php-string">'*'</span>: <span class="php-keyword">return</span> <span class="php-variable">$a</span> * <span class="php-variable">$b</span>;
+            <span class="php-keyword">case</span> <span class="php-string">'/'</span>: 
+                <span class="php-keyword">if</span> (<span class="php-variable">$b</span> == <span class="php-number">0</span>) <span class="php-keyword">throw new</span> <span class="php-function">Exception</span>(<span class="php-string">"Pembagian nol!"</span>);
+                <span class="php-keyword">return</span> <span class="php-variable">$a</span> / <span class="php-variable">$b</span>;
+            <span class="php-keyword">default</span>: 
+                <span class="php-keyword">throw new</span> <span class="php-function">Exception</span>(<span class="php-string">"Operator tidak valid!"</span>);
+        }
+    } <span class="php-keyword">catch</span> (<span class="php-function">Exception</span> <span class="php-variable">$e</span>) {
+        <span class="php-keyword">return</span> <span class="php-string">"Error: "</span> . <span class="php-variable">$e</span>-><span class="php-function">getMessage</span>();
+    }
+}
+
+<span class="php-comment">// Test function</span>
+<span class="php-keyword">echo</span> <span class="php-string">"&lt;hr&gt;&lt;h4&gt;Test Function:&lt;/h4&gt;"</span>;
+<span class="php-keyword">echo</span> <span class="php-string">"kalkulator(10, 2, '*') = "</span> . <span class="php-function">kalkulator</span>(<span class="php-number">10</span>, <span class="php-number">2</span>, <span class="php-string">'*'</span>) . <span class="php-string">"&lt;br&gt;"</span>;
+<span class="php-keyword">echo</span> <span class="php-string">"kalkulator(10, 0, '/') = "</span> . <span class="php-function">kalkulator</span>(<span class="php-number">10</span>, <span class="php-number">0</span>, <span class="php-string">'/'</span>) . <span class="php-string">"&lt;br&gt;"</span>;
+<span class="php-tag">?&gt;</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="nextSection('tugas')" class="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-105">
+                    Kerjakan Tugas! 📝
+                </button>
+            </div>
+
+            <!-- Tugas Section -->
+            <div id="tugas" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">
+                        <span class="text-4xl">📝</span> Tugas Error Handling
+                    </h2>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-blue-100 to-purple-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-blue-800">📋 Soal 1: Analisis Kode</h3>
+                            <p class="text-lg mb-4">Perhatikan kode berikut dan jawab pertanyaan:</p>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">📋 Kode Bermasalah</span>
+                            </div>
+                            <div class="code-block code-with-header mb-4">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-variable">$data</span> = [<span class="php-string">"apel"</span>, <span class="php-string">"jeruk"</span>, <span class="php-string">"mangga"</span>];
+<span class="php-keyword">for</span> (<span class="php-variable">$i</span> = <span class="php-number">0</span>; <span class="php-variable">$i</span> &lt; <span class="php-number">5</span>; <span class="php-variable">$i</span>++) {
+    <span class="php-keyword">echo</span> <span class="php-variable">$data</span>[<span class="php-variable">$i</span>] . <span class="php-string">"&lt;br&gt;"</span>;
+}
+<span class="php-tag">?&gt;</span></div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="font-bold mb-2">Pertanyaan:</p>
+                                <ol class="space-y-2">
+                                    <li>a) Apa masalah dengan kode di atas?</li>
+                                    <li>b) Error apa yang akan muncul?</li>
+                                    <li>c) Bagaimana cara memperbaikinya dengan try-catch?</li>
+                                </ol>
+                                <textarea class="w-full mt-4 p-3 border rounded-lg h-32" placeholder="Tulis jawaban kamu di sini..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-100 to-teal-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-green-800">💻 Soal 2: Praktik Coding</h3>
+                            <p class="text-lg mb-4">Buat program PHP dengan ketentuan:</p>
+                            <ul class="space-y-2 text-lg mb-4">
+                                <li>• Form input untuk nama dan umur</li>
+                                <li>• Validasi: nama tidak boleh kosong, umur harus angka</li>
+                                <li>• Gunakan try-catch untuk error handling</li>
+                                <li>• Tampilkan pesan error yang user-friendly</li>
+                            </ul>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="font-bold mb-2">Upload file PHP kamu atau tulis kode di sini:</p>
+                                <textarea class="w-full mt-2 p-3 border rounded-lg h-40" placeholder="Tulis kode PHP kamu di sini..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-purple-800">🎯 Soal 3: Studi Kasus</h3>
+                            <p class="text-lg mb-4">Kamu diminta membuat sistem login sederhana. Jelaskan:</p>
+                            <ol class="space-y-3 text-lg mb-4">
+                                <li>1. Error apa saja yang mungkin terjadi?</li>
+                                <li>2. Bagaimana cara menangani setiap error?</li>
+                                <li>3. Mengapa error handling penting untuk sistem login?</li>
+                            </ol>
+                            <div class="bg-white p-4 rounded-lg">
+                                <textarea class="w-full p-3 border rounded-lg h-32" placeholder="Tulis analisis kamu di sini..."></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-orange-800">🔍 Soal 4: Debugging</h3>
+                            <p class="text-lg mb-4">Debug kode berikut dan perbaiki semua error:</p>
+                            <div class="code-header">
+                                <span>🔴</span>
+                                <span>🟡</span>
+                                <span>🟢</span>
+                                <span class="ml-2">🔍 Kode untuk Debug</span>
+                            </div>
+                            <div class="code-block code-with-header mb-4">
+                                <button class="copy-btn" onclick="copyCodeBlock(this)">📋 Copy</button>
+<span class="php-tag">&lt;?php</span>
+<span class="php-keyword">function</span> <span class="php-function">bagi</span>(<span class="php-variable">$a</span>, <span class="php-variable">$b</span>) {
+    <span class="php-keyword">return</span> <span class="php-variable">$a</span> / <span class="php-variable">$b</span>;
+}
+
+<span class="php-variable">$angka1</span> = <span class="php-string">"10"</span>;
+<span class="php-variable">$angka2</span> = <span class="php-string">"0"</span>;
+<span class="php-variable">$hasil</span> = <span class="php-function">bagi</span>(<span class="php-variable">$angka1</span>, <span class="php-variable">$angka2</span>);
+<span class="php-keyword">echo</span> <span class="php-string">"Hasil: "</span> . <span class="php-variable">$hasil</span>;
+
+<span class="php-variable">$array</span> = [<span class="php-number">1</span>, <span class="php-number">2</span>, <span class="php-number">3</span>];
+<span class="php-keyword">echo</span> <span class="php-variable">$array</span>[<span class="php-number">5</span>];
+<span class="php-tag">?&gt;</span></div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="font-bold mb-2">Kode yang sudah diperbaiki:</p>
+                                <textarea class="w-full p-3 border rounded-lg h-32" placeholder="Tulis kode yang sudah diperbaiki..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 text-center">
+                        <button onclick="submitTugas()" class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-3 px-8 rounded-2xl text-lg font-bold hover:from-green-600 hover:to-blue-600 transition-all transform hover:scale-105">
+                            Submit Tugas 📤
+                        </button>
+                    </div>
+                </div>
+                
+                <button onclick="nextSection('kuis')" class="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-pink-600 hover:to-purple-600 transition-all transform hover:scale-105">
+                    Main Kuis! 🎮
+                </button>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">
+                        <span class="text-4xl">🎮</span> Kuis Error Handling
+                    </h2>
+                    
+                    <!-- Input Nama -->
+                    <div id="namaInput" class="text-center mb-8">
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl mb-6">
+                            <h3 class="text-2xl font-bold mb-4 text-purple-800">Siapa nama kamu?</h3>
+                            <input type="text" id="namaSiswa" placeholder="Masukkan nama kamu" class="px-6 py-3 text-xl border-2 border-purple-300 rounded-2xl w-full max-w-md mx-auto block mb-4">
+                            <button onclick="mulaiKuis()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-8 rounded-2xl text-lg font-bold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105">
+                                Mulai Kuis! 🚀
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Kuis Content -->
+                    <div id="kuisContent" class="hidden">
+                        <div class="mb-6 text-center">
+                            <div class="bg-gradient-to-r from-blue-500 to-purple-500 text-white py-2 px-6 rounded-full inline-block">
+                                <span class="text-lg font-bold">Soal <span id="nomorSoal">1</span> dari 10</span>
+                            </div>
+                        </div>
+                        
+                        <div id="soalContainer" class="mb-8">
+                            <!-- Soal akan dimuat di sini -->
+                        </div>
+                        
+                        <div class="text-center">
+                            <button id="nextBtn" onclick="nextSoal()" class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-3 px-8 rounded-2xl text-lg font-bold hover:from-green-600 hover:to-blue-600 transition-all transform hover:scale-105 hidden">
+                                Soal Berikutnya ➡️
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Hasil Kuis -->
+                    <div id="hasilKuis" class="hidden text-center">
+                        <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-8 rounded-2xl">
+                            <div class="text-6xl mb-4">🎉</div>
+                            <h3 class="text-3xl font-bold mb-4 text-orange-800">Selamat!</h3>
+                            <p class="text-xl mb-4">Hai <span id="namaHasil" class="font-bold text-purple-600"></span>!</p>
+                            <p class="text-2xl font-bold mb-6">Skor kamu: <span id="skorAkhir" class="text-green-600"></span>/10</p>
+                            <div id="pesanHasil" class="text-lg mb-6"></div>
+                            <button onclick="ulangiKuis()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-8 rounded-2xl text-lg font-bold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105">
+                                Ulangi Kuis 🔄
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="nextSection('penutup')" class="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-indigo-600 hover:to-purple-600 transition-all transform hover:scale-105">
+                    Selesai! 🎉
+                </button>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎉</div>
+                        <h2 class="text-4xl font-bold text-gray-800 mb-4">Selamat!</h2>
+                        <p class="text-xl text-gray-600">Kamu telah menyelesaikan pembelajaran Error Handling PHP!</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-gradient-to-r from-green-100 to-teal-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-green-800">🤔 Refleksi</h3>
+                            <ul class="space-y-3 text-lg">
+                                <li>• Apa yang paling menarik dari materi ini?</li>
+                                <li>• Bagian mana yang masih perlu diperdalam?</li>
+                                <li>• Bagaimana kamu akan menerapkannya?</li>
+                            </ul>
+                            <textarea class="w-full mt-4 p-3 border rounded-lg h-24" placeholder="Tulis refleksi kamu..."></textarea>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-100 to-purple-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-blue-800">📚 Kesimpulan</h3>
+                            <ul class="space-y-3 text-lg">
+                                <li class="flex items-center"><span class="text-2xl mr-3">✅</span>Try-catch untuk menangani error</li>
+                                <li class="flex items-center"><span class="text-2xl mr-3">✅</span>Berbagai jenis error di PHP</li>
+                                <li class="flex items-center"><span class="text-2xl mr-3">✅</span>Teknik debugging yang efektif</li>
+                                <li class="flex items-center"><span class="text-2xl mr-3">✅</span>Best practices error handling</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-2xl mb-8">
+                        <h3 class="text-2xl font-bold mb-4 text-orange-800">🚀 Tindak Lanjut</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="text-xl font-bold mb-3 text-orange-700">Materi Selanjutnya:</h4>
+                                <ul class="space-y-2 text-lg">
+                                    <li>• OOP (Object Oriented Programming)</li>
+                                    <li>• Database dengan PDO</li>
+                                    <li>• Session dan Cookie</li>
+                                    <li>• Security di PHP</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-bold mb-3 text-orange-700">Latihan Tambahan:</h4>
+                                <ul class="space-y-2 text-lg">
+                                    <li>• Buat sistem login dengan error handling</li>
+                                    <li>• Upload file dengan validasi</li>
+                                    <li>• API dengan exception handling</li>
+                                    <li>• Custom error pages</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-purple-800">💪 Motivasi Penutup</h3>
+                            <p class="text-lg leading-relaxed">
+                                "Error bukan musuh, tapi guru terbaik dalam programming. 
+                                Setiap error yang kamu tangani dengan baik akan membuatmu menjadi programmer yang lebih handal!"
+                            </p>
+                            <div class="text-4xl mt-4">🌟</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('intro')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105">
+                        Kembali ke Awal 🔄
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="backToTop" class="floating-btn bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Global variables
+        let currentSection = 'intro';
+        let kuisData = [];
+        let currentSoal = 0;
+        let skor = 0;
+        let jawabanUser = [];
+        
+        // Soal kuis
+        const soalKuis = [
+            {
+                soal: "Apa fungsi utama dari try-catch dalam PHP?",
+                pilihan: ["Mempercepat program", "Menangani error", "Membuat variabel", "Menghapus file"],
+                jawaban: 1
+            },
+            {
+                soal: "Blok kode mana yang selalu dijalankan dalam try-catch-finally?",
+                pilihan: ["try", "catch", "finally", "throw"],
+                jawaban: 2
+            },
+            {
+                soal: "Error apa yang menghentikan program secara total?",
+                pilihan: ["Notice", "Warning", "Fatal Error", "Exception"],
+                jawaban: 2
+            },
+            {
+                soal: "Function mana yang digunakan untuk menampilkan detail variabel saat debugging?",
+                pilihan: ["echo", "print", "var_dump", "printf"],
+                jawaban: 2
+            },
+            {
+                soal: "Bagaimana cara membuat exception custom di PHP?",
+                pilihan: ["new Error()", "throw new Exception()", "create_exception()", "make_error()"],
+                jawaban: 1
+            },
+            {
+                soal: "Apa yang terjadi jika tidak ada catch block untuk menangani exception?",
+                pilihan: ["Program tetap jalan", "Muncul warning", "Program berhenti", "Error diabaikan"],
+                jawaban: 2
+            },
+            {
+                soal: "Function mana yang digunakan untuk menyimpan error ke file log?",
+                pilihan: ["log_error()", "error_log()", "write_log()", "save_error()"],
+                jawaban: 1
+            },
+            {
+                soal: "Kapan sebaiknya menggunakan error handling?",
+                pilihan: ["Hanya saat ada error", "Di semua operasi berisiko", "Hanya di production", "Tidak perlu"],
+                jawaban: 1
+            },
+            {
+                soal: "Apa perbedaan antara Warning dan Notice?",
+                pilihan: ["Tidak ada beda", "Warning lebih serius", "Notice lebih serius", "Keduanya sama"],
+                jawaban: 1
+            },
+            {
+                soal: "Mengapa error handling penting dalam web development?",
+                pilihan: ["Membuat kode lebih panjang", "Meningkatkan user experience", "Memperlambat program", "Tidak penting"],
+                jawaban: 1
+            }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('intro');
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Mobile menu toggle
+            document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('open');
+            });
+
+            // Back to top button
+            const backToTopBtn = document.getElementById('backToTop');
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('hidden');
+                } else {
+                    backToTopBtn.classList.add('hidden');
+                }
+            });
+
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(e) {
+                const sidebar = document.getElementById('sidebar');
+                const mobileBtn = document.getElementById('mobileMenuBtn');
+                
+                if (window.innerWidth < 768 && 
+                    !sidebar.contains(e.target) && 
+                    !mobileBtn.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.add('hidden'));
+            
+            // Show target section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update navigation
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => link.classList.remove('bg-purple-200'));
+            
+            // Highlight current nav
+            const currentNav = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (currentNav) {
+                currentNav.classList.add('bg-purple-200');
+            }
+            
+            // Close mobile menu
+            document.getElementById('sidebar').classList.remove('open');
+            
+            // Force scroll to top immediately
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+            
+            // Also use smooth scroll as backup
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 50);
+            
+            currentSection = sectionId;
+        }
+
+        function nextSection(sectionId) {
+            showSection(sectionId);
+            // Ensure page scrolls to top
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+        }
+
+        // Demo functions
+        function demoBagi() {
+            const angka1 = document.getElementById('angka1').value;
+            const angka2 = document.getElementById('angka2').value;
+            const hasil = document.getElementById('hasilDemo');
+            
+            try {
+                if (angka2 == 0) {
+                    throw new Error("Tidak bisa membagi dengan nol!");
+                }
+                if (angka1 === '' || angka2 === '') {
+                    throw new Error("Mohon isi kedua angka!");
+                }
+                
+                const hasilBagi = angka1 / angka2;
+                hasil.innerHTML = `<span class="text-green-600">✅ Hasil: ${angka1} ÷ ${angka2} = ${hasilBagi}</span>`;
+                hasil.className = "p-4 bg-green-100 rounded-lg text-lg font-medium";
+            } catch (error) {
+                hasil.innerHTML = `<span class="text-red-600">❌ Error: ${error.message}</span>`;
+                hasil.className = "p-4 bg-red-100 rounded-lg text-lg font-medium";
+            }
+        }
+
+        function demoVarDump() {
+            const result = document.getElementById('varDumpResult');
+            const data = {nama: "Budi", umur: 17, hobi: ["coding", "gaming"]};
+            result.innerHTML = `<strong>var_dump() output:</strong><br><pre>object {
+  "nama": string(4) "Budi"
+  "umur": number 17
+  "hobi": array(2) {
+    [0]: string(6) "coding"
+    [1]: string(6) "gaming"
+  }
+}</pre>`;
+            result.classList.remove('hidden');
+        }
+
+        function demoPrintR() {
+            const result = document.getElementById('printRResult');
+            result.innerHTML = `<strong>print_r() output:</strong><br><pre>Array
+(
+    [nama] => Budi
+    [umur] => 17
+    [hobi] => Array
+        (
+            [0] => coding
+            [1] => gaming
+        )
+)</pre>`;
+            result.classList.remove('hidden');
+        }
+
+        function debugSimulator() {
+            const result = document.getElementById('debugResult');
+            result.innerHTML = `<div class="space-y-4">
+                <div class="text-red-600 font-bold">🚨 Error ditemukan:</div>
+                <div class="bg-red-50 p-3 rounded">
+                    <strong>Line 3:</strong> Array index out of bounds - mencoba akses $users[3] padahal array hanya sampai index 2
+                </div>
+                <div class="text-green-600 font-bold">✅ Solusi:</div>
+                <div class="bg-green-50 p-3 rounded">
+                    Ubah kondisi loop dari <code>$i <= count($users)</code> menjadi <code>$i < count($users)</code>
+                </div>
+                <div class="code-block text-sm">
+// Kode yang benar:
+for ($i = 0; $i < count($users); $i++) {
+    echo $users[$i] . "&lt;br&gt;";
+}
+                </div>
+            </div>`;
+            result.classList.remove('hidden');
+        }
+
+        function copyCode(button) {
+            const codeBlock = button.previousElementSibling;
+            const text = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(text).then(function() {
+                button.innerHTML = '✅ Copied!';
+                button.classList.add('bg-green-500');
+                setTimeout(() => {
+                    button.innerHTML = '📋 Copy Kode';
+                    button.classList.remove('bg-green-500');
+                }, 2000);
+            });
+        }
+
+        function copyCodeBlock(button) {
+            const codeBlock = button.parentElement;
+            // Get text content and clean up the formatting
+            let text = codeBlock.textContent;
+            // Remove the copy button text
+            text = text.replace('📋 Copy', '').trim();
+            
+            navigator.clipboard.writeText(text).then(function() {
+                const originalText = button.innerHTML;
+                button.innerHTML = '✅ Copied!';
+                button.style.background = 'rgba(34, 197, 94, 0.8)';
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.style.background = 'rgba(255, 255, 255, 0.1)';
+                }, 2000);
+            }).catch(function() {
+                button.innerHTML = '❌ Failed';
+                setTimeout(() => {
+                    button.innerHTML = '📋 Copy';
+                }, 2000);
+            });
+        }
+
+        function submitTugas() {
+            alert('🎉 Tugas berhasil dikumpulkan! Guru akan mengoreksi dan memberikan feedback.');
+        }
+
+        // Kuis functions
+        function mulaiKuis() {
+            const nama = document.getElementById('namaSiswa').value.trim();
+            if (!nama) {
+                alert('Mohon masukkan nama kamu dulu! 😊');
+                return;
+            }
+            
+            document.getElementById('namaInput').classList.add('hidden');
+            document.getElementById('kuisContent').classList.remove('hidden');
+            
+            // Reset kuis
+            currentSoal = 0;
+            skor = 0;
+            jawabanUser = [];
+            
+            tampilkanSoal();
+        }
+
+        function tampilkanSoal() {
+            const soal = soalKuis[currentSoal];
+            const container = document.getElementById('soalContainer');
+            
+            container.innerHTML = `
+                <div class="bg-gradient-to-r from-blue-100 to-purple-100 p-6 rounded-2xl">
+                    <h3 class="text-xl font-bold mb-6 text-gray-800">${soal.soal}</h3>
+                    <div class="space-y-3">
+                        ${soal.pilihan.map((pilihan, index) => `
+                            <div class="quiz-option p-4 bg-white rounded-lg border-2 border-gray-200" onclick="pilihJawaban(${index})">
+                                <span class="font-medium">${String.fromCharCode(65 + index)}. ${pilihan}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('nomorSoal').textContent = currentSoal + 1;
+            document.getElementById('nextBtn').classList.add('hidden');
+        }
+
+        function pilihJawaban(index) {
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            // Mark selected answer
+            options[index].classList.add('selected');
+            
+            // Show correct answer
+            const soal = soalKuis[currentSoal];
+            options[soal.jawaban].classList.add('correct');
+            
+            if (index !== soal.jawaban) {
+                options[index].classList.add('incorrect');
+            }
+            
+            // Save answer
+            jawabanUser[currentSoal] = index;
+            if (index === soal.jawaban) {
+                skor++;
+            }
+            
+            // Show next button
+            setTimeout(() => {
+                document.getElementById('nextBtn').classList.remove('hidden');
+            }, 1000);
+        }
+
+        function nextSoal() {
+            currentSoal++;
+            
+            if (currentSoal < soalKuis.length) {
+                tampilkanSoal();
+            } else {
+                tampilkanHasil();
+            }
+        }
+
+        function tampilkanHasil() {
+            document.getElementById('kuisContent').classList.add('hidden');
+            document.getElementById('hasilKuis').classList.remove('hidden');
+            
+            const nama = document.getElementById('namaSiswa').value;
+            document.getElementById('namaHasil').textContent = nama;
+            document.getElementById('skorAkhir').textContent = skor;
+            
+            let pesan = '';
+            if (skor >= 9) {
+                pesan = '🌟 Luar biasa! Kamu sangat menguasai materi!';
+            } else if (skor >= 7) {
+                pesan = '👍 Bagus! Kamu sudah memahami sebagian besar materi!';
+            } else if (skor >= 5) {
+                pesan = '📚 Cukup baik! Masih perlu belajar lagi ya!';
+            } else {
+                pesan = '💪 Jangan menyerah! Coba baca materi lagi dan ulangi kuis!';
+            }
+            
+            document.getElementById('pesanHasil').textContent = pesan;
+        }
+
+        function ulangiKuis() {
+            document.getElementById('hasilKuis').classList.add('hidden');
+            document.getElementById('namaInput').classList.remove('hidden');
+            document.getElementById('namaSiswa').value = '';
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987a9704d518a620',t:'MTc1OTMwNzM0MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
