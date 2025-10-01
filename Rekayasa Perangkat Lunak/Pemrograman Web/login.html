@@ -65,7 +65,7 @@
         .sidebar {
             background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
             transition: transform 0.3s ease;
-            z-index: 1000;
+            z-index: 1001;
         }
         
         .content-section {
@@ -144,7 +144,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
+            z-index: 1000;
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease;
@@ -168,7 +168,10 @@
                 transform: translateX(-100%);
                 width: 280px;
                 position: fixed;
-                z-index: 1000;
+                z-index: 1001;
+                height: 100vh;
+                top: 0;
+                left: 0;
             }
             
             .sidebar.open {
@@ -289,6 +292,10 @@
             .sidebar {
                 position: fixed;
                 transform: translateX(0);
+                z-index: 1001;
+                height: 100vh;
+                top: 0;
+                left: 0;
             }
             
             #mainContent {
@@ -305,7 +312,7 @@
 </head>
 <body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-screen">
     <!-- Mobile Menu Button -->
-    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-3 rounded-full shadow-lg">
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-3 rounded-full shadow-lg" style="z-index: 1002;">
         <i class="fas fa-bars"></i>
     </button>
 
@@ -313,7 +320,7 @@
     <div id="sidebarOverlay" class="sidebar-overlay lg:hidden"></div>
 
     <!-- Sidebar -->
-    <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-80 text-white p-6 z-40 lg:translate-x-0">
+    <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-80 text-white p-6 lg:translate-x-0">
         <div class="flex items-center mb-8">
             <div class="bg-white p-3 rounded-full mr-4">
                 <i class="fas fa-code text-purple-600 text-2xl"></i>
@@ -493,6 +500,10 @@ USE login_system;</div>
                         Kita buat file khusus untuk koneksi database yang bisa digunakan di semua file PHP:
                     </p>
                     
+                    <div class="bg-yellow-100 border-l-4 border-yellow-500 p-4 mb-4 rounded">
+                        <p class="text-yellow-800"><strong>📁 Struktur Folder:</strong> Buat folder <code>config</code> di root project Anda terlebih dahulu!</p>
+                    </div>
+                    
                     <div class="code-block">
                         <div class="filename">config/database.php</div>
                         <div class="code-content">&lt;?php
@@ -504,15 +515,16 @@ $password = '';
 
 try {
     // Membuat koneksi PDO
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
     
     // Set error mode ke exception
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
-    // Set charset ke utf8
-    $pdo->setAttribute(PDO::MYSQL_ATTR_INIT_COMMAND, "SET NAMES utf8");
+    // Set default fetch mode
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     
-    echo "Koneksi berhasil!";
+    // Jangan tampilkan pesan "Koneksi berhasil" di production
+    // echo "Koneksi berhasil!";
     
 } catch(PDOException $e) {
     die("Koneksi gagal: " . $e->getMessage());
@@ -532,6 +544,31 @@ try {
 
                 <div class="step-card">
                     <h2 class="text-2xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-folder mr-3 text-orange-300"></i>
+                        Struktur Folder Project
+                    </h2>
+                    <p class="text-lg mb-4">
+                        Sebelum lanjut, pastikan struktur folder project Anda seperti ini:
+                    </p>
+                    
+                    <div class="code-block">
+                        <div class="filename">Struktur Folder</div>
+                        <div class="code-content">login_system/
+├── config/
+│   └── database.php
+├── includes/
+│   ├── auth_check.php
+│   └── session_timeout.php
+├── register.php
+├── login.php
+├── dashboard.php
+├── logout.php
+└── test_connection.php</div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <h2 class="text-2xl font-bold mb-4 flex items-center">
                         <i class="fas fa-test-tube mr-3 text-purple-300"></i>
                         Langkah 4: Test Koneksi
                     </h2>
@@ -546,10 +583,21 @@ require_once 'config/database.php';
 
 // Test query sederhana
 try {
-    $stmt = $pdo->query("SELECT 1");
-    echo "&lt;h2 style='color: green;'&gt;✅ Database siap digunakan!&lt;/h2&gt;";
+    $stmt = $pdo->query("SELECT 1 as test");
+    $result = $stmt->fetch();
+    
+    if ($result['test'] == 1) {
+        echo "&lt;h2 style='color: green;'&gt;✅ Database siap digunakan!&lt;/h2&gt;";
+        echo "&lt;p&gt;Koneksi ke database '$dbname' berhasil!&lt;/p&gt;";
+    }
 } catch(PDOException $e) {
     echo "&lt;h2 style='color: red;'&gt;❌ Error: " . $e->getMessage() . "&lt;/h2&gt;";
+    echo "&lt;p&gt;Pastikan:&lt;/p&gt;";
+    echo "&lt;ul&gt;";
+    echo "&lt;li&gt;XAMPP/WAMP sudah running&lt;/li&gt;";
+    echo "&lt;li&gt;Database 'login_system' sudah dibuat&lt;/li&gt;";
+    echo "&lt;li&gt;Username dan password database benar&lt;/li&gt;";
+    echo "&lt;/ul&gt;";
 }
 ?&gt;</div>
                     </div>
@@ -627,6 +675,7 @@ try {
             border-radius: 10px;
             font-size: 16px;
             transition: border-color 0.3s;
+            box-sizing: border-box;
         }
         input:focus {
             outline: none;
@@ -761,6 +810,8 @@ try {
                             <li><strong>Validasi Input:</strong> Cek field kosong dan panjang password</li>
                             <li><strong>Cek Duplikasi:</strong> Mencegah username/email yang sama</li>
                             <li><strong>Prepared Statement:</strong> Mencegah SQL Injection</li>
+                            <li><strong>Trim Input:</strong> Menghapus spasi di awal/akhir</li>
+                            <li><strong>Email Validation:</strong> Menggunakan type="email" di HTML</li>
                         </ul>
                     </div>
                 </div>
@@ -790,8 +841,7 @@ try {
                     
                     <div class="code-block">
                         <div class="filename">login.php</div>
-                        <div class="code-content">
-&lt;?php
+                        <div class="code-content">&lt;?php
 session_start();
 
 // Jika sudah login, redirect ke dashboard
@@ -849,6 +899,7 @@ if (isset($_SESSION['user_id'])) {
             border-radius: 10px;
             font-size: 16px;
             transition: border-color 0.3s;
+            box-sizing: border-box;
         }
         input:focus {
             outline: none;
@@ -974,6 +1025,10 @@ if (isset($_SESSION['user_id'])) {
                     <p class="text-lg mb-4">
                         Kita buat file khusus untuk mengecek apakah user sudah login atau belum:
                     </p>
+                    
+                    <div class="bg-blue-100 border-l-4 border-blue-500 p-4 mb-4 rounded">
+                        <p class="text-blue-800"><strong>📁 Catatan:</strong> Buat folder <code>includes</code> terlebih dahulu di root project!</p>
+                    </div>
                     
                     <div class="code-block">
                         <div class="filename">includes/auth_check.php</div>
@@ -1345,9 +1400,22 @@ if (isset($_GET['timeout']) && $_GET['timeout'] == '1') {
                         <h3 class="font-bold mb-2">🚀 Langkah Selanjutnya:</h3>
                         <ul class="list-disc list-inside space-y-1">
                             <li>Tambahkan fitur "Remember Me"</li>
-                            <li>Buat sistem reset password</li>
+                            <li>Buat sistem reset password via email</li>
                             <li>Tambahkan role user (admin, user biasa)</li>
                             <li>Implementasikan CSRF protection</li>
+                            <li>Tambahkan rate limiting untuk login</li>
+                            <li>Buat log aktivitas user</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-red-100 border-l-4 border-red-500 p-4 rounded mt-4">
+                        <h3 class="font-bold mb-2 text-red-800">⚠️ Tips Keamanan Penting:</h3>
+                        <ul class="list-disc list-inside space-y-1 text-red-700">
+                            <li>Jangan pernah simpan password dalam bentuk plain text</li>
+                            <li>Selalu gunakan HTTPS di production</li>
+                            <li>Buat backup database secara berkala</li>
+                            <li>Update PHP dan MySQL ke versi terbaru</li>
+                            <li>Gunakan environment variables untuk config database</li>
                         </ul>
                     </div>
                 </div>
@@ -1480,5 +1548,5 @@ if (isset($_GET['timeout']) && $_GET['timeout'] == '1') {
             showSection('pengenalan');
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987e983c607461bc',t:'MTc1OTM0OTMzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'987e9e9c32d1a620',t:'MTc1OTM0OTU5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
