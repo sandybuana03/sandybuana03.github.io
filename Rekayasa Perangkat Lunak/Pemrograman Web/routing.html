@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar PHP Routing & Request/Response</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .code-block {
+            background: #2d3748;
+            border-radius: 8px;
+            padding: 1rem;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-screen">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-white p-3 rounded-full shadow-lg">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-xl transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 overflow-y-auto">
+        <div class="p-6 gradient-bg text-white">
+            <h1 class="text-2xl font-bold mb-2">🚀 PHP Routing</h1>
+            <p class="text-sm opacity-90">Request & Response</p>
+        </div>
+        
+        <nav class="p-4">
+            <ul class="space-y-2">
+                <li><a href="#" onclick="showSection('intro')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🎯</span>
+                    <span class="font-medium">Intro</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('pengenalan')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">📚</span>
+                    <span class="font-medium">Pengenalan</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('routing')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🛣️</span>
+                    <span class="font-medium">Konsep Routing</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('request')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">📤</span>
+                    <span class="font-medium">Request</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('response')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">📥</span>
+                    <span class="font-medium">Response</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('praktik')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">⚡</span>
+                    <span class="font-medium">Praktik</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('tugas')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">📝</span>
+                    <span class="font-medium">Tugas</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('kuis')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🎮</span>
+                    <span class="font-medium">Kuis</span>
+                </a></li>
+                <li><a href="#" onclick="showSection('penutup')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                    <span class="text-2xl mr-3">🎊</span>
+                    <span class="font-medium">Penutup</span>
+                </a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-screen">
+        <div class="max-w-4xl mx-auto p-6 lg:p-8">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section slide-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4 bounce">🚀</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Selamat Datang!</h1>
+                        <p class="text-xl text-gray-600">Mari belajar PHP Routing & Request/Response dengan cara yang menyenangkan!</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gradient-to-r from-pink-100 to-purple-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold mb-3 text-purple-800">🤔 Pertanyaan Pemantik</h3>
+                            <p class="text-gray-700 text-lg leading-relaxed">Pernahkah kamu bertanya-tanya bagaimana website tahu halaman mana yang harus ditampilkan ketika kamu mengetik alamat di browser? Atau bagaimana data yang kamu kirim melalui form bisa sampai ke server?</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-100 to-cyan-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold mb-3 text-blue-800">📖 Apa yang Dipelajari</h3>
+                            <ul class="text-gray-700 text-lg space-y-2">
+                                <li>• Konsep dasar routing PHP</li>
+                                <li>• Cara kerja request dan response</li>
+                                <li>• Implementasi praktis</li>
+                                <li>• Best practices</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold mb-3 text-orange-800">🎯 Tujuan Pembelajaran</h3>
+                        <p class="text-gray-700 text-lg leading-relaxed">Setelah mempelajari materi ini, kamu akan mampu memahami dan mengimplementasikan sistem routing sederhana dalam PHP, serta memahami bagaimana request dan response bekerja dalam aplikasi web.</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-green-100 to-teal-100 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold mb-3 text-green-800">💡 Pemahaman Bermakna</h3>
+                        <p class="text-gray-700 text-lg leading-relaxed">Routing adalah jantung dari aplikasi web modern. Dengan memahami konsep ini, kamu akan bisa membuat aplikasi web yang lebih terstruktur dan mudah dikembangkan.</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold mb-3 text-purple-800">🔥 Motivasi</h3>
+                        <p class="text-gray-700 text-lg leading-relaxed">Setiap website besar seperti Facebook, Instagram, dan YouTube menggunakan sistem routing yang canggih. Dengan mempelajari ini, kamu selangkah lebih dekat menjadi web developer profesional!</p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('pengenalan')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Mulai Belajar! 🚀
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden slide-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📚</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Pengenalan Materi</h1>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl border-l-4 border-blue-400">
+                            <h3 class="text-2xl font-bold mb-4 text-blue-800">🌐 Apa itu Web Application?</h3>
+                            <p class="text-gray-700 text-lg leading-relaxed mb-4">Web application adalah program yang berjalan di server dan dapat diakses melalui browser. Ketika kamu membuka Facebook, Instagram, atau website sekolah, kamu sedang menggunakan web application!</p>
+                            
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h4 class="font-semibold text-gray-800 mb-2">Contoh Web Application:</h4>
+                                <ul class="text-gray-600 space-y-1">
+                                    <li>🌟 Media sosial (Facebook, Instagram, Twitter)</li>
+                                    <li>🛒 E-commerce (Shopee, Tokopedia, Bukalapak)</li>
+                                    <li>📧 Email (Gmail, Yahoo Mail)</li>
+                                    <li>🎵 Streaming (Spotify, YouTube)</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-2xl border-l-4 border-green-400">
+                            <h3 class="text-2xl font-bold mb-4 text-green-800">🔄 Bagaimana Web Application Bekerja?</h3>
+                            <p class="text-gray-700 text-lg leading-relaxed mb-4">Bayangkan web application seperti restoran:</p>
+                            
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="text-3xl mb-2">👤</div>
+                                    <h4 class="font-semibold text-gray-800">Client (Kamu)</h4>
+                                    <p class="text-sm text-gray-600">Seperti pelanggan yang memesan makanan</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="text-3xl mb-2">🍽️</div>
+                                    <h4 class="font-semibold text-gray-800">Server</h4>
+                                    <p class="text-sm text-gray-600">Seperti dapur yang memasak pesanan</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="text-3xl mb-2">🥘</div>
+                                    <h4 class="font-semibold text-gray-800">Response</h4>
+                                    <p class="text-sm text-gray-600">Seperti makanan yang disajikan</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl border-l-4 border-purple-400">
+                            <h3 class="text-2xl font-bold mb-4 text-purple-800">🛣️ Mengapa Perlu Routing?</h3>
+                            <p class="text-gray-700 text-lg leading-relaxed mb-4">Routing adalah sistem yang menentukan halaman mana yang harus ditampilkan berdasarkan URL yang diminta. Tanpa routing, website hanya bisa menampilkan satu halaman saja!</p>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-2">Contoh URL dan Halaman:</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="bg-blue-100 px-2 py-1 rounded text-blue-800 font-mono">/home</span>
+                                        <span class="text-gray-600">→ Halaman beranda</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="bg-green-100 px-2 py-1 rounded text-green-800 font-mono">/about</span>
+                                        <span class="text-gray-600">→ Halaman tentang kami</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="bg-purple-100 px-2 py-1 rounded text-purple-800 font-mono">/contact</span>
+                                        <span class="text-gray-600">→ Halaman kontak</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('routing')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Lanjut ke Routing! 🛣️
+                    </button>
+                </div>
+            </div>
+
+            <!-- Routing Section -->
+            <div id="routing" class="section hidden slide-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🛣️</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Konsep Routing</h1>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-orange-800">🎯 Apa itu Routing?</h3>
+                            <p class="text-gray-700 text-lg leading-relaxed mb-4">Routing adalah proses menentukan bagaimana aplikasi merespons permintaan client untuk endpoint tertentu. Endpoint adalah kombinasi dari path (jalur URL) dan method HTTP tertentu.</p>
+                            
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <h4 class="font-semibold text-gray-800 mb-2">Analogi Sederhana:</h4>
+                                <p class="text-gray-600">Routing seperti <span class="highlight">peta jalan</span> yang memberitahu aplikasi web kemana harus pergi ketika user mengklik link atau mengetik URL tertentu.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold mb-4 text-blue-800">🔧 Routing Sederhana di PHP</h3>
+                            <p class="text-gray-700 text-lg mb-4">Mari kita lihat contoh routing sederhana menggunakan PHP:</p>
+                            
+                            <div class="code-block mb-4">
+<pre>&lt;?php
+// index.php - Router sederhana
+$request = $_SERVER['REQUEST_URI'];
+
+switch ($request) {
+    case '/':
+    case '/home':
+        echo "Selamat datang di halaman beranda! 🏠";
+        break;
+    case '/about':
+        echo "Ini halaman tentang kami 📖";
+        break;
+    case '/contact':
+        echo "Hubungi kami di sini 📞";
+        break;
+    default:
+        echo "Halaman tidak ditemukan 😢";
+        break;
+}
+?&gt;</pre>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg">
+                <h4 class="font-semibold text-gray-800 mb-2">Penjelasan Kode:</h4>
+                <ul class="text-gray-600 space-y-1 text-sm">
+                    <li>• <code class="bg-gray-100 px-1 rounded">$_SERVER['REQUEST_URI']</code> mengambil URL yang diminta</li>
+                    <li>• <code class="bg-gray-100 px-1 rounded">switch</code> statement untuk mencocokkan URL</li>
+                    <li>• Setiap <code class="bg-gray-100 px-1 rounded">case</code> menangani URL yang berbeda</li>
+                    <li>• <code class="bg-gray-100 px-1 rounded">default</code> untuk halaman yang tidak ditemukan</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-green-800">🎮 Demo Interaktif</h3>
+            <p class="text-gray-700 text-lg mb-4">Coba klik tombol di bawah untuk melihat bagaimana routing bekerja:</p>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                <button onclick="simulateRoute('/')" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">Home</button>
+                <button onclick="simulateRoute('/about')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">About</button>
+                <button onclick="simulateRoute('/contact')" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors">Contact</button>
+                <button onclick="simulateRoute('/unknown')" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">404</button>
+            </div>
+            
+            <div id="routeResult" class="bg-white p-4 rounded-lg border-2 border-dashed border-gray-300 text-center text-gray-500">
+                Klik salah satu tombol untuk melihat hasil routing
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-purple-800">⚡ Routing dengan Function</h3>
+            <p class="text-gray-700 text-lg mb-4">Untuk aplikasi yang lebih besar, kita bisa menggunakan function:</p>
+            
+            <div class="code-block">
+<pre>&lt;?php
+// Definisi function untuk setiap halaman
+function homePage() {
+    return "Selamat datang di beranda! 🏠";
+}
+
+function aboutPage() {
+    return "Tentang perusahaan kami 📖";
+}
+
+function contactPage() {
+    return "Kontak: email@example.com 📧";
+}
+
+// Router dengan function
+$request = $_SERVER['REQUEST_URI'];
+$routes = [
+    '/' =&gt; 'homePage',
+    '/home' =&gt; 'homePage',
+    '/about' =&gt; 'aboutPage',
+    '/contact' =&gt; 'contactPage'
+];
+
+if (array_key_exists($request, $routes)) {
+    echo $routes[$request]();
+} else {
+    echo "Halaman tidak ditemukan 😢";
+}
+?&gt;</pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center">
+    <button onclick="nextSection('request')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+        Pelajari Request! 📤
+    </button>
+</div>
+</div>
+
+<!-- Request Section -->
+<div id="request" class="section hidden slide-in">
+<div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+    <div class="text-center mb-8">
+        <div class="text-6xl mb-4">📤</div>
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">HTTP Request</h1>
+    </div>
+    
+    <div class="space-y-8">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-blue-800">🤔 Apa itu Request?</h3>
+            <p class="text-gray-700 text-lg leading-relaxed mb-4">Request adalah permintaan yang dikirim dari browser (client) ke server. Setiap kali kamu mengklik link, submit form, atau mengetik URL, kamu mengirim request!</p>
+            
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <h4 class="font-semibold text-gray-800 mb-2">Komponen Request:</h4>
+                <ul class="text-gray-600 space-y-2">
+                    <li>🎯 <strong>Method:</strong> GET, POST, PUT, DELETE</li>
+                    <li>🌐 <strong>URL:</strong> Alamat yang dituju</li>
+                    <li>📋 <strong>Headers:</strong> Informasi tambahan</li>
+                    <li>📦 <strong>Body:</strong> Data yang dikirim (untuk POST)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-green-800">🔍 Method HTTP</h3>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-blue-600 mb-2">GET Method 📖</h4>
+                    <p class="text-gray-600 text-sm mb-2">Digunakan untuk mengambil data dari server</p>
+                    <div class="bg-gray-100 p-2 rounded text-xs font-mono">
+                        GET /products HTTP/1.1<br>
+                        Host: example.com
+                    </div>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-green-600 mb-2">POST Method 📝</h4>
+                    <p class="text-gray-600 text-sm mb-2">Digunakan untuk mengirim data ke server</p>
+                    <div class="bg-gray-100 p-2 rounded text-xs font-mono">
+                        POST /login HTTP/1.1<br>
+                        Content-Type: application/json
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-orange-800">💻 Mengakses Request di PHP</h3>
+            
+            <div class="code-block mb-4">
+<pre>&lt;?php
+// Mengambil method HTTP
+$method = $_SERVER['REQUEST_METHOD'];
+echo "Method: " . $method;
+
+// Mengambil URL
+$url = $_SERVER['REQUEST_URI'];
+echo "URL: " . $url;
+
+// Mengambil data GET
+if (isset($_GET['name'])) {
+    echo "Nama: " . $_GET['name'];
+}
+
+// Mengambil data POST
+if (isset($_POST['email'])) {
+    echo "Email: " . $_POST['email'];
+}
+
+// Mengambil semua headers
+$headers = getallheaders();
+foreach ($headers as $key =&gt; $value) {
+    echo "$key: $value\n";
+}
+?&gt;</pre>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-purple-800">🎮 Demo Request</h3>
+            <p class="text-gray-700 text-lg mb-4">Coba form di bawah untuk melihat bagaimana data dikirim:</p>
+            
+            <form id="demoForm" class="space-y-4">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Nama:</label>
+                        <input type="text" id="demoName" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Masukkan nama kamu">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Email:</label>
+                        <input type="email" id="demoEmail" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="email@example.com">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Method:</label>
+                    <select id="demoMethod" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all">
+                    Kirim Request 🚀
+                </button>
+            </form>
+            
+            <div id="requestResult" class="mt-4 p-4 bg-gray-100 rounded-lg hidden">
+                <h4 class="font-semibold mb-2">Hasil Request:</h4>
+                <div id="requestData" class="text-sm font-mono"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center">
+    <button onclick="nextSection('response')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+        Pelajari Response! 📥
+    </button>
+</div>
+</div>
+
+<!-- Response Section -->
+<div id="response" class="section hidden slide-in">
+<div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+    <div class="text-center mb-8">
+        <div class="text-6xl mb-4">📥</div>
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">HTTP Response</h1>
+    </div>
+    
+    <div class="space-y-8">
+        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-green-800">🎯 Apa itu Response?</h3>
+            <p class="text-gray-700 text-lg leading-relaxed mb-4">Response adalah jawaban yang dikirim server kembali ke browser setelah menerima request. Ini seperti pelayan restoran yang membawa pesanan kamu ke meja!</p>
+            
+            <div class="bg-white p-4 rounded-lg shadow-sm">
+                <h4 class="font-semibold text-gray-800 mb-2">Komponen Response:</h4>
+                <ul class="text-gray-600 space-y-2">
+                    <li>🔢 <strong>Status Code:</strong> 200 (OK), 404 (Not Found), 500 (Error)</li>
+                    <li>📋 <strong>Headers:</strong> Informasi tentang response</li>
+                    <li>📄 <strong>Body:</strong> Konten yang ditampilkan (HTML, JSON, dll)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-blue-800">📊 Status Code HTTP</h3>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="space-y-3">
+                    <div class="bg-green-100 p-3 rounded-lg">
+                        <h4 class="font-semibold text-green-800">2xx - Sukses ✅</h4>
+                        <p class="text-sm text-green-600">200: OK - Request berhasil</p>
+                        <p class="text-sm text-green-600">201: Created - Data berhasil dibuat</p>
+                    </div>
+                    
+                    <div class="bg-yellow-100 p-3 rounded-lg">
+                        <h4 class="font-semibold text-yellow-800">3xx - Redirect 🔄</h4>
+                        <p class="text-sm text-yellow-600">301: Moved Permanently</p>
+                        <p class="text-sm text-yellow-600">302: Found (Temporary)</p>
+                    </div>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="bg-red-100 p-3 rounded-lg">
+                        <h4 class="font-semibold text-red-800">4xx - Client Error ❌</h4>
+                        <p class="text-sm text-red-600">400: Bad Request</p>
+                        <p class="text-sm text-red-600">404: Not Found</p>
+                    </div>
+                    
+                    <div class="bg-purple-100 p-3 rounded-lg">
+                        <h4 class="font-semibold text-purple-800">5xx - Server Error 💥</h4>
+                        <p class="text-sm text-purple-600">500: Internal Server Error</p>
+                        <p class="text-sm text-purple-600">503: Service Unavailable</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-purple-800">💻 Membuat Response di PHP</h3>
+            
+            <div class="code-block mb-4">
+<pre>&lt;?php
+// Set status code
+http_response_code(200);
+
+// Set headers
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+
+// Kirim response JSON
+$response = [
+    'status' =&gt; 'success',
+    'message' =&gt; 'Data berhasil diambil',
+    'data' =&gt; [
+        'name' =&gt; 'John Doe',
+        'email' =&gt; 'john@example.com'
+    ]
+];
+
+echo json_encode($response);
+
+// Atau response HTML sederhana
+echo "&lt;h1&gt;Selamat datang!&lt;/h1&gt;";
+echo "&lt;p&gt;Request kamu berhasil diproses&lt;/p&gt;";
+?&gt;</pre>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-orange-800">🎮 Demo Response</h3>
+            <p class="text-gray-700 text-lg mb-4">Klik tombol untuk melihat berbagai jenis response:</p>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                <button onclick="simulateResponse(200)" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm">200 OK</button>
+                <button onclick="simulateResponse(404)" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm">404 Error</button>
+                <button onclick="simulateResponse(500)" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors text-sm">500 Error</button>
+                <button onclick="simulateResponse('json')" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm">JSON</button>
+            </div>
+            
+            <div id="responseResult" class="bg-white p-4 rounded-lg border-2 border-dashed border-gray-300">
+                <div class="text-center text-gray-500">Klik salah satu tombol untuk melihat response</div>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-indigo-800">🔄 Request-Response Cycle</h3>
+            <p class="text-gray-700 text-lg mb-4">Mari lihat siklus lengkap request-response:</p>
+            
+            <div class="grid md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-lg text-center">
+                    <div class="text-3xl mb-2">👤</div>
+                    <h4 class="font-semibold text-gray-800 text-sm">1. User</h4>
+                    <p class="text-xs text-gray-600">Klik link atau submit form</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg text-center">
+                    <div class="text-3xl mb-2">📤</div>
+                    <h4 class="font-semibold text-gray-800 text-sm">2. Request</h4>
+                    <p class="text-xs text-gray-600">Browser kirim request ke server</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg text-center">
+                    <div class="text-3xl mb-2">⚙️</div>
+                    <h4 class="font-semibold text-gray-800 text-sm">3. Process</h4>
+                    <p class="text-xs text-gray-600">Server proses request</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg text-center">
+                    <div class="text-3xl mb-2">📥</div>
+                    <h4 class="font-semibold text-gray-800 text-sm">4. Response</h4>
+                    <p class="text-xs text-gray-600">Server kirim response</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center">
+    <button onclick="nextSection('praktik')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+        Mulai Praktik! ⚡
+    </button>
+</div>
+</div>
+
+<!-- Praktik Section -->
+<div id="praktik" class="section hidden slide-in">
+<div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+    <div class="text-center mb-8">
+        <div class="text-6xl mb-4">⚡</div>
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">Praktik Langsung</h1>
+        <p class="text-xl text-gray-600">Mari buat aplikasi web sederhana dengan routing!</p>
+    </div>
+    
+    <div class="space-y-8">
+        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-green-800">🎯 Tujuan Praktik</h3>
+            <p class="text-gray-700 text-lg mb-4">Kita akan membuat aplikasi web sederhana dengan fitur:</p>
+            <ul class="text-gray-700 space-y-2">
+                <li>✅ Routing untuk multiple halaman</li>
+                <li>✅ Form handling dengan POST method</li>
+                <li>✅ Response dalam format JSON dan HTML</li>
+                <li>✅ Error handling untuk halaman tidak ditemukan</li>
+            </ul>
+        </div>
+        
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-blue-800">📝 Langkah 1: Buat File index.php</h3>
+            
+            <div class="code-block mb-4">
+<pre>&lt;?php
+// index.php
+session_start();
+
+// Ambil URL yang diminta
+$request = $_SERVER['REQUEST_URI'];
+$method = $_SERVER['REQUEST_METHOD'];
+
+// Definisi routes
+$routes = [
+    'GET' =&gt; [
+        '/' =&gt; 'homePage',
+        '/home' =&gt; 'homePage',
+        '/about' =&gt; 'aboutPage',
+        '/contact' =&gt; 'contactPage',
+        '/users' =&gt; 'usersPage'
+    ],
+    'POST' =&gt; [
+        '/contact' =&gt; 'handleContact',
+        '/users' =&gt; 'createUser'
+    ]
+];
+
+// Function untuk setiap halaman
+function homePage() {
+    return "
+    &lt;h1&gt;🏠 Selamat Datang!&lt;/h1&gt;
+    &lt;p&gt;Ini adalah halaman beranda aplikasi kita.&lt;/p&gt;
+    &lt;nav&gt;
+        &lt;a href='/about'&gt;Tentang Kami&lt;/a&gt; | 
+        &lt;a href='/contact'&gt;Kontak&lt;/a&gt; | 
+        &lt;a href='/users'&gt;Users&lt;/a&gt;
+    &lt;/nav&gt;
+    ";
+}
+
+function aboutPage() {
+    return "
+    &lt;h1&gt;📖 Tentang Kami&lt;/h1&gt;
+    &lt;p&gt;Kami adalah tim developer yang passionate!&lt;/p&gt;
+    &lt;a href='/'&gt;← Kembali ke Beranda&lt;/a&gt;
+    ";
+}
+
+function contactPage() {
+    return "
+    &lt;h1&gt;📞 Kontak Kami&lt;/h1&gt;
+    &lt;form method='POST' action='/contact'&gt;
+        &lt;input type='text' name='name' placeholder='Nama' required&gt;&lt;br&gt;&lt;br&gt;
+        &lt;input type='email' name='email' placeholder='Email' required&gt;&lt;br&gt;&lt;br&gt;
+        &lt;textarea name='message' placeholder='Pesan' required&gt;&lt;/textarea&gt;&lt;br&gt;&lt;br&gt;
+        &lt;button type='submit'&gt;Kirim Pesan&lt;/button&gt;
+    &lt;/form&gt;
+    &lt;a href='/'&gt;← Kembali ke Beranda&lt;/a&gt;
+    ";
+}
+
+function usersPage() {
+    $users = $_SESSION['users'] ?? [];
+    $html = "&lt;h1&gt;👥 Daftar Users&lt;/h1&gt;";
+    
+    if (empty($users)) {
+        $html .= "&lt;p&gt;Belum ada user yang terdaftar.&lt;/p&gt;";
+    } else {
+        $html .= "&lt;ul&gt;";
+        foreach ($users as $user) {
+            $html .= "&lt;li&gt;{$user['name']} - {$user['email']}&lt;/li&gt;";
+        }
+        $html .= "&lt;/ul&gt;";
+    }
+    
+    $html .= "
+    &lt;h3&gt;Tambah User Baru:&lt;/h3&gt;
+    &lt;form method='POST' action='/users'&gt;
+        &lt;input type='text' name='name' placeholder='Nama' required&gt;&lt;br&gt;&lt;br&gt;
+        &lt;input type='email' name='email' placeholder='Email' required&gt;&lt;br&gt;&lt;br&gt;
+        &lt;button type='submit'&gt;Tambah User&lt;/button&gt;
+    &lt;/form&gt;
+    &lt;a href='/'&gt;← Kembali ke Beranda&lt;/a&gt;
+    ";
+    
+    return $html;
+}
+
+function handleContact() {
+    $name = $_POST['name'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $message = $_POST['message'] ?? '';
+    
+    // Simpan pesan (dalam aplikasi nyata, simpan ke database)
+    $_SESSION['messages'][] = [
+        'name' =&gt; $name,
+        'email' =&gt; $email,
+        'message' =&gt; $message,
+        'time' =&gt; date('Y-m-d H:i:s')
+    ];
+    
+    return "
+    &lt;h1&gt;✅ Pesan Terkirim!&lt;/h1&gt;
+    &lt;p&gt;Terima kasih &lt;strong&gt;$name&lt;/strong&gt;, pesan kamu sudah kami terima!&lt;/p&gt;
+    &lt;a href='/contact'&gt;← Kirim Pesan Lagi&lt;/a&gt; | 
+    &lt;a href='/'&gt;Ke Beranda&lt;/a&gt;
+    ";
+}
+
+function createUser() {
+    $name = $_POST['name'] ?? '';
+    $email = $_POST['email'] ?? '';
+    
+    if (!isset($_SESSION['users'])) {
+        $_SESSION['users'] = [];
+    }
+    
+    $_SESSION['users'][] = [
+        'name' =&gt; $name,
+        'email' =&gt; $email,
+        'created_at' =&gt; date('Y-m-d H:i:s')
+    ];
+    
+    return "
+    &lt;h1&gt;✅ User Berhasil Ditambahkan!&lt;/h1&gt;
+    &lt;p&gt;User &lt;strong&gt;$name&lt;/strong&gt; telah ditambahkan ke sistem.&lt;/p&gt;
+    &lt;a href='/users'&gt;← Lihat Semua Users&lt;/a&gt; | 
+    &lt;a href='/'&gt;Ke Beranda&lt;/a&gt;
+    ";
+}
+
+// Router logic
+if (isset($routes[$method][$request])) {
+    $handler = $routes[$method][$request];
+    $content = $handler();
+} else {
+    http_response_code(404);
+    $content = "
+    &lt;h1&gt;😢 Halaman Tidak Ditemukan&lt;/h1&gt;
+    &lt;p&gt;Maaf, halaman yang kamu cari tidak ada.&lt;/p&gt;
+    &lt;a href='/'&gt;← Kembali ke Beranda&lt;/a&gt;
+    ";
+}
+
+// Template HTML
+echo "
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Aplikasi PHP Routing&lt;/title&gt;
+    &lt;style&gt;
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        input, textarea, button { 
+            padding: 10px; margin: 5px 0; 
+            border: 1px solid #ddd; border-radius: 5px; 
+        }
+        button { background: #007cba; color: white; cursor: pointer; }
+        a { color: #007cba; text-decoration: none; }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    $content
+&lt;/body&gt;
+&lt;/html&gt;
+";
+?&gt;</pre>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-purple-800">🚀 Langkah 2: Jalankan Aplikasi</h3>
+            
+            <div class="space-y-4">
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">Cara Menjalankan:</h4>
+                    <ol class="text-gray-600 space-y-1 text-sm">
+                        <li>1. Simpan kode di atas sebagai <code class="bg-gray-100 px-1 rounded">index.php</code></li>
+                        <li>2. Buka terminal/command prompt</li>
+                        <li>3. Navigasi ke folder tempat file disimpan</li>
+                        <li>4. Jalankan: <code class="bg-gray-100 px-1 rounded">php -S localhost:8000</code></li>
+                        <li>5. Buka browser dan akses: <code class="bg-gray-100 px-1 rounded">http://localhost:8000</code></li>
+                    </ol>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">URL yang Bisa Diakses:</h4>
+                    <ul class="text-gray-600 space-y-1 text-sm">
+                        <li>• <code class="bg-blue-100 px-1 rounded text-blue-800">http://localhost:8000/</code> - Halaman beranda</li>
+                        <li>• <code class="bg-green-100 px-1 rounded text-green-800">http://localhost:8000/about</code> - Halaman tentang</li>
+                        <li>• <code class="bg-purple-100 px-1 rounded text-purple-800">http://localhost:8000/contact</code> - Halaman kontak</li>
+                        <li>• <code class="bg-orange-100 px-1 rounded text-orange-800">http://localhost:8000/users</code> - Halaman users</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-orange-800">🧪 Langkah 3: Testing</h3>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">Test GET Requests:</h4>
+                    <ul class="text-gray-600 space-y-1 text-sm">
+                        <li>✅ Akses semua halaman</li>
+                        <li>✅ Coba URL yang tidak ada</li>
+                        <li>✅ Periksa navigation links</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">Test POST Requests:</h4>
+                    <ul class="text-gray-600 space-y-1 text-sm">
+                        <li>✅ Submit form kontak</li>
+                        <li>✅ Tambah user baru</li>
+                        <li>✅ Periksa data tersimpan</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-indigo-800">💡 Tips Pengembangan</h3>
+            
+            <div class="space-y-3">
+                <div class="bg-white p-3 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 text-sm">🔧 Tambahan Fitur:</h4>
+                    <p class="text-gray-600 text-sm">Coba tambahkan middleware untuk authentication, logging, atau validation</p>
+                </div>
+                
+                <div class="bg-white p-3 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 text-sm">📊 Database Integration:</h4>
+                    <p class="text-gray-600 text-sm">Ganti session storage dengan database MySQL atau SQLite</p>
+                </div>
+                
+                <div class="bg-white p-3 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 text-sm">🎨 Styling:</h4>
+                    <p class="text-gray-600 text-sm">Tambahkan CSS framework seperti Bootstrap atau Tailwind</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center">
+    <button onclick="nextSection('tugas')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+        Kerjakan Tugas! 📝
+    </button>
+</div>
+</div>
+
+<!-- Tugas Section -->
+<div id="tugas" class="section hidden slide-in">
+<div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+    <div class="text-center mb-8">
+        <div class="text-6xl mb-4">📝</div>
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">Tugas Praktik</h1>
+        <p class="text-xl text-gray-600">Kerjakan tugas berikut untuk menguji pemahamanmu!</p>
+    </div>
+    
+    <div class="space-y-6">
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-blue-800">📋 Tugas 1: Analisis Kode</h3>
+            <p class="text-gray-700 text-lg mb-4">Perhatikan kode routing berikut dan jawab pertanyaan:</p>
+            
+            <div class="code-block mb-4">
+<pre>&lt;?php
+$request = $_SERVER['REQUEST_URI'];
+$method = $_SERVER['REQUEST_METHOD'];
+
+if ($method === 'GET' && $request === '/products') {
+    echo "Menampilkan daftar produk";
+} elseif ($method === 'POST' && $request === '/products') {
+    echo "Menambah produk baru";
+} elseif ($method === 'GET' && $request === '/products/1') {
+    echo "Menampilkan produk dengan ID 1";
+} else {
+    echo "Halaman tidak ditemukan";
+}
+?&gt;</pre>
+            </div>
+            
+            <div class="bg-white p-4 rounded-lg">
+                <h4 class="font-semibold text-gray-800 mb-3">Pertanyaan:</h4>
+                <textarea id="tugas1" class="w-full h-32 p-3 border border-gray-300 rounded-lg resize-none" placeholder="1. Apa yang terjadi jika user mengakses GET /products?
+2. Apa yang terjadi jika user mengakses POST /products?
+3. Apa yang terjadi jika user mengakses GET /about?
+4. Jelaskan perbedaan antara GET dan POST method!"></textarea>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-green-800">🛠️ Tugas 2: Modifikasi Kode</h3>
+            <p class="text-gray-700 text-lg mb-4">Modifikasi aplikasi praktik dengan menambahkan fitur berikut:</p>
+            
+            <div class="space-y-4">
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">A. Tambahkan halaman "Blog" (/blog)</h4>
+                    <p class="text-gray-600 text-sm mb-2">Buat halaman yang menampilkan daftar artikel blog</p>
+                    <textarea id="tugas2a" class="w-full h-20 p-3 border border-gray-300 rounded-lg resize-none" placeholder="Tulis kode untuk menambahkan route /blog..."></textarea>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">B. Tambahkan form untuk menambah artikel</h4>
+                    <p class="text-gray-600 text-sm mb-2">Buat form POST untuk menambahkan artikel baru</p>
+                    <textarea id="tugas2b" class="w-full h-20 p-3 border border-gray-300 rounded-lg resize-none" placeholder="Tulis kode HTML untuk form tambah artikel..."></textarea>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">C. Implementasi handler untuk POST /blog</h4>
+                    <p class="text-gray-600 text-sm mb-2">Buat function untuk memproses data artikel baru</p>
+                    <textarea id="tugas2c" class="w-full h-20 p-3 border border-gray-300 rounded-lg resize-none" placeholder="Tulis function untuk handle POST /blog..."></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-purple-800">🎯 Tugas 3: Studi Kasus</h3>
+            <p class="text-gray-700 text-lg mb-4">Kamu diminta membuat aplikasi perpustakaan sederhana. Rancang routing untuk fitur berikut:</p>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">Fitur yang Dibutuhkan:</h4>
+                    <ul class="text-gray-600 text-sm space-y-1">
+                        <li>• Halaman daftar buku</li>
+                        <li>• Halaman detail buku</li>
+                        <li>• Form tambah buku baru</li>
+                        <li>• Form pencarian buku</li>
+                        <li>• Halaman peminjaman</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">Rancang URL Structure:</h4>
+                    <textarea id="tugas3" class="w-full h-32 p-3 border border-gray-300 rounded-lg resize-none" placeholder="Contoh:
+GET /books - Daftar semua buku
+GET /books/1 - Detail buku ID 1
+POST /books - Tambah buku baru
+...
+
+Lanjutkan untuk fitur lainnya!"></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-orange-800">💭 Tugas 4: Refleksi</h3>
+            <p class="text-gray-700 text-lg mb-4">Jawab pertanyaan refleksi berikut:</p>
+            
+            <div class="space-y-4">
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">1. Apa keuntungan menggunakan sistem routing?</h4>
+                    <textarea id="tugas4a" class="w-full h-20 p-3 border border-gray-300 rounded-lg resize-none" placeholder="Jelaskan keuntungan sistem routing..."></textarea>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">2. Kapan sebaiknya menggunakan GET vs POST?</h4>
+                    <textarea id="tugas4b" class="w-full h-20 p-3 border border-gray-300 rounded-lg resize-none" placeholder="Jelaskan perbedaan penggunaan GET dan POST..."></textarea>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">3. Bagaimana cara menangani error 404 dengan baik?</h4>
+                    <textarea id="tugas4c" class="w-full h-20 p-3 border border-gray-300 rounded-lg resize-none" placeholder="Jelaskan cara menangani halaman tidak ditemukan..."></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-2xl">
+            <h3 class="text-xl font-bold mb-4 text-indigo-800">📤 Submit Tugas</h3>
+            <p class="text-gray-700 mb-4">Setelah selesai mengerjakan, klik tombol di bawah untuk menyimpan jawaban:</p>
+            <button onclick="submitTugas()" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-indigo-600 hover:to-purple-600 transition-all transform hover:scale-105">
+                💾 Simpan Jawaban
+            </button>
+            <div id="tugasResult" class="mt-4 hidden"></div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center">
+    <button onclick="nextSection('kuis')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+        Ikuti Kuis! 🎮
+    </button>
+</div>
+</div>
+
+<!-- Kuis Section -->
+<div id="kuis" class="section hidden slide-in">
+<div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+    <div class="text-center mb-8">
+        <div class="text-6xl mb-4">🎮</div>
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">Kuis Interaktif</h1>
+        <p class="text-xl text-gray-600">Uji pemahamanmu dengan 10 soal pilihan ganda!</p>
+    </div>
+    
+    <!-- Form Input Nama -->
+    <div id="kuisStart" class="text-center">
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-8 rounded-2xl max-w-md mx-auto">
+            <h3 class="text-2xl font-bold mb-4 text-purple-800">Siap Memulai Kuis? 🚀</h3>
+            <div class="space-y-4">
+                <input type="text" id="studentName" class="w-full p-4 border border-gray-300 rounded-lg text-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder="Masukkan nama kamu...">
+                <button onclick="startKuis()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 rounded-lg text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105">
+                    Mulai Kuis! 🎯
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Kuis Questions -->
+    <div id="kuisQuestions" class="hidden">
+        <div class="mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Halo, <span id="displayName" class="text-purple-600"></span>! 👋</h3>
+                <div class="text-sm text-gray-600">
+                    Soal <span id="currentQuestion">1</span> dari <span id="totalQuestions">10</span>
+                </div>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div id="progressBar" class="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all duration-300" style="width: 10%"></div>
+            </div>
+        </div>
+        
+        <div id="questionContainer" class="space-y-6">
+            <!-- Questions will be inserted here -->
+        </div>
+        
+        <div class="flex justify-between mt-8">
+            <button id="prevBtn" onclick="prevQuestion()" class="bg-gray-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                ← Sebelumnya
+            </button>
+            <button id="nextBtn" onclick="nextQuestion()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all">
+                Selanjutnya →
+            </button>
+        </div>
+    </div>
+    
+    <!-- Hasil Kuis -->
+    <div id="kuisResult" class="hidden text-center">
+        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-8 rounded-2xl">
+            <div class="text-6xl mb-4">🎉</div>
+            <h3 class="text-3xl font-bold mb-4 text-green-800">Kuis Selesai!</h3>
+            <div class="text-xl mb-6">
+                <p class="mb-2">Nama: <span id="finalName" class="font-bold text-purple-600"></span></p>
+                <p class="mb-2">Skor: <span id="finalScore" class="font-bold text-green-600"></span>/10</p>
+                <p class="text-lg text-gray-600">Persentase: <span id="finalPercentage" class="font-bold"></span>%</p>
+            </div>
+            
+            <div id="scoreMessage" class="text-lg mb-6 p-4 rounded-lg"></div>
+            
+            <button onclick="restartKuis()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105">
+                Ulangi Kuis 🔄
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="text-center">
+    <button onclick="nextSection('penutup')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+        Ke Penutup! 🎊
+    </button>
+</div>
+</div>
+
+<!-- Penutup Section -->
+<div id="penutup" class="section hidden slide-in">
+<div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+    <div class="text-center mb-8">
+        <div class="text-6xl mb-4">🎊</div>
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">Penutup</h1>
+        <p class="text-xl text-gray-600">Selamat! Kamu telah menyelesaikan pembelajaran PHP Routing & Request/Response!</p>
+    </div>
+    
+    <div class="space-y-8">
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-purple-800">🤔 Refleksi Pembelajaran</h3>
+            <p class="text-gray-700 text-lg mb-4">Mari kita refleksikan apa yang telah kamu pelajari hari ini:</p>
+            
+            <div class="space-y-4">
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">1. Apa hal paling menarik yang kamu pelajari hari ini?</h4>
+                    <textarea id="refleksi1" class="w-full h-20 p-3 border border-gray-300 rounded-lg resize-none" placeholder="Tulis refleksimu di sini..."></textarea>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">2. Bagian mana yang masih perlu kamu pelajari lebih dalam?</h4>
+                    <textarea id="refleksi2" class="w-full h-20 p-3 border border-gray-300 rounded-lg resize-none" placeholder="Tulis refleksimu di sini..."></textarea>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">3. Bagaimana kamu akan menerapkan ilmu ini dalam project?</h4>
+                    <textarea id="refleksi3" class="w-full h-20 p-3 border border-gray-300 rounded-lg resize-none" placeholder="Tulis refleksimu di sini..."></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-blue-800">📚 Kesimpulan Pembelajaran</h3>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <h4 class="font-semibold text-gray-800">✅ Yang Telah Kamu Kuasai:</h4>
+                    <ul class="text-gray-700 space-y-2">
+                        <li>• Memahami konsep dasar routing</li>
+                        <li>• Membedakan GET dan POST method</li>
+                        <li>• Membuat router sederhana dengan PHP</li>
+                        <li>• Menangani request dan response</li>
+                        <li>• Implementasi form handling</li>
+                        <li>• Error handling untuk 404</li>
+                    </ul>
+                </div>
+                
+                <div class="space-y-4">
+                    <h4 class="font-semibold text-gray-800">🎯 Skill yang Dikembangkan:</h4>
+                    <ul class="text-gray-700 space-y-2">
+                        <li>• Problem solving</li>
+                        <li>• Logical thinking</li>
+                        <li>• Code organization</li>
+                        <li>• Debugging skills</li>
+                        <li>• Web development basics</li>
+                        <li>• Best practices awareness</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-green-800">🚀 Tindak Lanjut</h3>
+            
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded-lg text-center">
+                    <div class="text-3xl mb-2">📖</div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Pelajari Lebih Lanjut</h4>
+                    <ul class="text-gray-600 text-sm space-y-1">
+                        <li>• PHP Framework (Laravel)</li>
+                        <li>• Database Integration</li>
+                        <li>• RESTful API</li>
+                        <li>• Authentication</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg text-center">
+                    <div class="text-3xl mb-2">💻</div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Praktik Mandiri</h4>
+                    <ul class="text-gray-600 text-sm space-y-1">
+                        <li>• Buat blog sederhana</li>
+                        <li>• Sistem manajemen data</li>
+                        <li>• Portfolio website</li>
+                        <li>• E-commerce mini</li>
+                    </ul>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg text-center">
+                    <div class="text-3xl mb-2">🤝</div>
+                    <h4 class="font-semibold text-gray-800 mb-2">Berbagi & Kolaborasi</h4>
+                    <ul class="text-gray-600 text-sm space-y-1">
+                        <li>• Join komunitas developer</li>
+                        <li>• Share project di GitHub</li>
+                        <li>• Ikut coding bootcamp</li>
+                        <li>• Mentoring junior</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-orange-800">🌟 Motivasi Penutup</h3>
+            <div class="text-center">
+                <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                    "Setiap expert pernah menjadi beginner. Setiap pro pernah menjadi amateur. Setiap ikon pernah menjadi unknown."
+                </p>
+                <p class="text-gray-700 text-lg leading-relaxed mb-6">
+                    Kamu sudah mengambil langkah pertama yang penting dalam journey menjadi web developer. 
+                    Terus berlatih, terus belajar, dan jangan pernah menyerah! 💪
+                </p>
+                
+                <div class="flex justify-center space-x-4">
+                    <div class="bg-white p-4 rounded-lg text-center">
+                        <div class="text-2xl mb-1">🎯</div>
+                        <p class="text-sm font-semibold text-gray-800">Keep Learning</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg text-center">
+                        <div class="text-2xl mb-1">💪</div>
+                        <p class="text-sm font-semibold text-gray-800">Keep Practicing</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg text-center">
+                        <div class="text-2xl mb-1">🚀</div>
+                        <p class="text-sm font-semibold text-gray-800">Keep Growing</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center bg-gradient-to-r from-indigo-50 to-purple-50 p-8 rounded-2xl">
+            <h3 class="text-2xl font-bold mb-4 text-indigo-800">🎉 Terima Kasih!</h3>
+            <p class="text-gray-700 text-lg mb-6">
+                Terima kasih telah mengikuti pembelajaran ini dengan antusias. 
+                Semoga ilmu yang kamu dapatkan bermanfaat untuk masa depanmu sebagai developer!
+            </p>
+            
+            <button onclick="saveRefleksi()" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:from-indigo-600 hover:to-purple-600 transition-all transform hover:scale-105 mb-4">
+                💾 Simpan Refleksi
+            </button>
+            
+            <div id="refleksiResult" class="mt-4 hidden"></div>
+            
+            <p class="text-gray-600 text-sm mt-4">
+                Sampai jumpa di pembelajaran selanjutnya! 👋
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="text-center">
+    <button onclick="showSection('intro')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+        Kembali ke Awal 🔄
+    </button>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- Floating Back to Top Button -->
+<button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-110 z-30 hidden">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+</svg>
+</button>
+
+<!-- Overlay for mobile menu -->
+<div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+
+<script>
+// Global variables
+let currentSection = 'intro';
+let currentQuestionIndex = 0;
+let kuisAnswers = [];
+let studentName = '';
+
+// Quiz questions
+const kuisQuestions = [
+{
+    question: "Apa itu routing dalam konteks web development?",
+    options: [
+        "Proses mengirim email",
+        "Sistem yang menentukan halaman mana yang ditampilkan berdasarkan URL",
+        "Cara mengatur database",
+        "Metode untuk styling CSS"
+    ],
+    correct: 1
+},
+{
+    question: "Method HTTP mana yang digunakan untuk mengambil data dari server?",
+    options: ["POST", "PUT", "GET", "DELETE"],
+    correct: 2
+},
+{
+    question: "Variabel PHP mana yang digunakan untuk mengambil URL yang diminta?",
+    options: ["$_GET['url']", "$_SERVER['REQUEST_URI']", "$_POST['path']", "$_SESSION['route']"],
+    correct: 1
+},
+{
+    question: "Apa perbedaan utama antara GET dan POST method?",
+    options: [
+        "GET lebih cepat dari POST",
+        "POST lebih aman dari GET",
+        "GET untuk mengambil data, POST untuk mengirim data",
+        "Tidak ada perbedaan"
+    ],
+    correct: 2
+},
+{
+    question: "Status code HTTP 404 menunjukkan apa?",
+    options: [
+        "Request berhasil",
+        "Server error",
+        "Halaman tidak ditemukan",
+        "Redirect"
+    ],
+    correct: 2
+},
+{
+    question: "Bagaimana cara mengakses data form yang dikirim dengan method POST di PHP?",
+    options: ["$_GET", "$_POST", "$_REQUEST", "$_SERVER"],
+    correct: 1
+},
+{
+    question: "Apa fungsi dari http_response_code() di PHP?",
+    options: [
+        "Mengambil kode response",
+        "Mengatur status code response",
+        "Mengirim request",
+        "Mengatur header"
+    ],
+    correct: 1
+},
+{
+    question: "Dalam routing, apa yang dimaksud dengan 'endpoint'?",
+    options: [
+        "Akhir dari kode program",
+        "Kombinasi dari path URL dan method HTTP",
+        "Server database",
+        "File CSS"
+    ],
+    correct: 1
+},
+{
+    question: "Method HTTP mana yang biasanya digunakan untuk mengirim data form?",
+    options: ["GET", "POST", "PUT", "PATCH"],
+    correct: 1
+},
+{
+    question: "Apa yang terjadi jika route yang diminta tidak ditemukan dalam sistem routing?",
+    options: [
+        "Server crash",
+        "Redirect ke homepage",
+        "Menampilkan halaman 404",
+        "Tidak terjadi apa-apa"
+    ],
+    correct: 2
+}
+];
+
+// Navigation functions
+function showSection(sectionId) {
+document.querySelectorAll('.section').forEach(section => {
+    section.classList.add('hidden');
+});
+document.getElementById(sectionId).classList.remove('hidden');
+document.getElementById(sectionId).classList.add('slide-in');
+
+// Update active nav link - perbaikan untuk semua cara navigasi
+updateActiveNavLink(sectionId);
+
+currentSection = sectionId;
+scrollToTop();
+closeMobileMenu();
+}
+
+function updateActiveNavLink(sectionId) {
+// Remove active class from all nav links
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.classList.remove('bg-purple-100', 'text-purple-800');
+});
+
+// Find and activate the correct nav link based on section
+const navLinks = document.querySelectorAll('.nav-link');
+navLinks.forEach(link => {
+    const onclick = link.getAttribute('onclick');
+    if (onclick && onclick.includes(`'${sectionId}'`)) {
+        link.classList.add('bg-purple-100', 'text-purple-800');
+    }
+});
+}
+
+function nextSection(sectionId) {
+showSection(sectionId);
+// Pastikan scroll ke atas dengan delay untuk animasi
+setTimeout(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}, 100);
+}
+
+function scrollToTop() {
+// Scroll ke atas dengan lebih reliable
+setTimeout(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Fallback untuk browser yang tidak support smooth scroll
+    if (window.pageYOffset > 0) {
+        setTimeout(() => {
+            window.scrollTo(0, 0);
+        }, 300);
+    }
+}, 50);
+}
+
+// Mobile menu functions
+function toggleMobileMenu() {
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+
+if (sidebar.classList.contains('-translate-x-full')) {
+    sidebar.classList.remove('-translate-x-full');
+    overlay.classList.remove('hidden');
+} else {
+    sidebar.classList.add('-translate-x-full');
+    overlay.classList.add('hidden');
+}
+}
+
+function closeMobileMenu() {
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+sidebar.classList.add('-translate-x-full');
+overlay.classList.add('hidden');
+}
+
+// Routing simulation
+function simulateRoute(route) {
+const resultDiv = document.getElementById('routeResult');
+let message = '';
+
+switch(route) {
+    case '/':
+        message = '🏠 <strong>Halaman Beranda</strong><br>Selamat datang di website kami!';
+        resultDiv.className = 'bg-green-100 border-green-400 text-green-800 p-4 rounded-lg border-2';
+        break;
+    case '/about':
+        message = '📖 <strong>Halaman Tentang</strong><br>Informasi tentang perusahaan kami.';
+        resultDiv.className = 'bg-blue-100 border-blue-400 text-blue-800 p-4 rounded-lg border-2';
+        break;
+    case '/contact':
+        message = '📞 <strong>Halaman Kontak</strong><br>Hubungi kami untuk informasi lebih lanjut.';
+        resultDiv.className = 'bg-purple-100 border-purple-400 text-purple-800 p-4 rounded-lg border-2';
+        break;
+    default:
+        message = '😢 <strong>404 - Halaman Tidak Ditemukan</strong><br>Maaf, halaman yang Anda cari tidak ada.';
+        resultDiv.className = 'bg-red-100 border-red-400 text-red-800 p-4 rounded-lg border-2';
+}
+
+resultDiv.innerHTML = message;
+}
+
+// Request demo
+document.getElementById('demoForm').addEventListener('submit', function(e) {
+e.preventDefault();
+
+const name = document.getElementById('demoName').value;
+const email = document.getElementById('demoEmail').value;
+const method = document.getElementById('demoMethod').value;
+
+const resultDiv = document.getElementById('requestResult');
+const dataDiv = document.getElementById('requestData');
+
+let requestData = '';
+if (method === 'GET') {
+    requestData = `GET /submit?name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)} HTTP/1.1
+Host: example.com
+User-Agent: Mozilla/5.0
+Accept: text/html,application/json`;
+} else {
+    requestData = `POST /submit HTTP/1.1
+Host: example.com
+Content-Type: application/x-www-form-urlencoded
+Content-Length: ${(name + email).length + 12}
+
+name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`;
+}
+
+dataDiv.textContent = requestData;
+resultDiv.classList.remove('hidden');
+});
+
+// Response simulation
+function simulateResponse(type) {
+const resultDiv = document.getElementById('responseResult');
+let content = '';
+
+switch(type) {
+    case 200:
+        content = `
+            <div class="text-green-600 font-semibold mb-2">✅ 200 OK</div>
+            <div class="text-sm font-mono bg-gray-100 p-2 rounded">
+                HTTP/1.1 200 OK<br>
+                Content-Type: text/html<br>
+                Content-Length: 45<br><br>
+                &lt;h1&gt;Selamat datang!&lt;/h1&gt;
+            </div>
+        `;
+        break;
+    case 404:
+        content = `
+            <div class="text-red-600 font-semibold mb-2">❌ 404 Not Found</div>
+            <div class="text-sm font-mono bg-gray-100 p-2 rounded">
+                HTTP/1.1 404 Not Found<br>
+                Content-Type: text/html<br>
+                Content-Length: 38<br><br>
+                &lt;h1&gt;Halaman tidak ditemukan&lt;/h1&gt;
+            </div>
+        `;
+        break;
+    case 500:
+        content = `
+            <div class="text-purple-600 font-semibold mb-2">💥 500 Internal Server Error</div>
+            <div class="text-sm font-mono bg-gray-100 p-2 rounded">
+                HTTP/1.1 500 Internal Server Error<br>
+                Content-Type: text/html<br>
+                Content-Length: 32<br><br>
+                &lt;h1&gt;Server Error&lt;/h1&gt;
+            </div>
+        `;
+        break;
+    case 'json':
+        content = `
+            <div class="text-blue-600 font-semibold mb-2">📄 JSON Response</div>
+            <div class="text-sm font-mono bg-gray-100 p-2 rounded">
+                HTTP/1.1 200 OK<br>
+                Content-Type: application/json<br><br>
+                {<br>
+                &nbsp;&nbsp;"status": "success",<br>
+                &nbsp;&nbsp;"data": {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;"message": "Hello World!"<br>
+                &nbsp;&nbsp;}<br>
+                }
+            </div>
+        `;
+        break;
+}
+
+resultDiv.innerHTML = content;
+}
+
+// Tugas functions
+function submitTugas() {
+const tugas1 = document.getElementById('tugas1').value;
+const tugas2a = document.getElementById('tugas2a').value;
+const tugas2b = document.getElementById('tugas2b').value;
+const tugas2c = document.getElementById('tugas2c').value;
+const tugas3 = document.getElementById('tugas3').value;
+const tugas4a = document.getElementById('tugas4a').value;
+const tugas4b = document.getElementById('tugas4b').value;
+const tugas4c = document.getElementById('tugas4c').value;
+
+const resultDiv = document.getElementById('tugasResult');
+
+if (!tugas1 || !tugas2a || !tugas2b || !tugas2c || !tugas3 || !tugas4a || !tugas4b || !tugas4c) {
+    resultDiv.innerHTML = `
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            ❌ Mohon lengkapi semua jawaban sebelum submit!
+        </div>
+    `;
+    resultDiv.classList.remove('hidden');
+    return;
+}
+
+// Simulate saving
+setTimeout(() => {
+    resultDiv.innerHTML = `
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+            ✅ Tugas berhasil disimpan! Jawaban kamu sudah tercatat dalam sistem.
+        </div>
+    `;
+    resultDiv.classList.remove('hidden');
+}, 1000);
+}
+
+// Kuis functions
+function startKuis() {
+const name = document.getElementById('studentName').value.trim();
+if (!name) {
+    alert('Mohon masukkan nama kamu terlebih dahulu!');
+    return;
+}
+
+studentName = name;
+document.getElementById('displayName').textContent = name;
+document.getElementById('kuisStart').classList.add('hidden');
+document.getElementById('kuisQuestions').classList.remove('hidden');
+
+currentQuestionIndex = 0;
+kuisAnswers = new Array(kuisQuestions.length).fill(null);
+displayQuestion();
+}
+
+function displayQuestion() {
+const question = kuisQuestions[currentQuestionIndex];
+const container = document.getElementById('questionContainer');
+
+container.innerHTML = `
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+        <h4 class="text-xl font-bold mb-4 text-blue-800">
+            ${currentQuestionIndex + 1}. ${question.question}
+        </h4>
+        <div class="space-y-3">
+            ${question.options.map((option, index) => `
+                <label class="flex items-center p-3 bg-white rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                    <input type="radio" name="question${currentQuestionIndex}" value="${index}" 
+                           ${kuisAnswers[currentQuestionIndex] === index ? 'checked' : ''}
+                           onchange="saveAnswer(${index})" class="mr-3">
+                    <span class="text-gray-700">${option}</span>
+                </label>
+            `).join('')}
+        </div>
+    </div>
+`;
+
+// Update progress
+document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+document.getElementById('progressBar').style.width = `${((currentQuestionIndex + 1) / kuisQuestions.length) * 100}%`;
+
+// Update buttons
+document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+const nextBtn = document.getElementById('nextBtn');
+if (currentQuestionIndex === kuisQuestions.length - 1) {
+    nextBtn.textContent = 'Selesai 🎯';
+    nextBtn.onclick = finishKuis;
+} else {
+    nextBtn.textContent = 'Selanjutnya →';
+    nextBtn.onclick = nextQuestion;
+}
+}
+
+function saveAnswer(answerIndex) {
+kuisAnswers[currentQuestionIndex] = answerIndex;
+}
+
+function nextQuestion() {
+if (currentQuestionIndex < kuisQuestions.length - 1) {
+    currentQuestionIndex++;
+    displayQuestion();
+}
+}
+
+function prevQuestion() {
+if (currentQuestionIndex > 0) {
+    currentQuestionIndex--;
+    displayQuestion();
+}
+}
+
+function finishKuis() {
+// Calculate score
+let score = 0;
+kuisAnswers.forEach((answer, index) => {
+    if (answer === kuisQuestions[index].correct) {
+        score++;
+    }
+});
+
+const percentage = Math.round((score / kuisQuestions.length) * 100);
+
+// Show results
+document.getElementById('kuisQuestions').classList.add('hidden');
+document.getElementById('kuisResult').classList.remove('hidden');
+
+document.getElementById('finalName').textContent = studentName;
+document.getElementById('finalScore').textContent = score;
+document.getElementById('finalPercentage').textContent = percentage;
+
+// Score message
+const messageDiv = document.getElementById('scoreMessage');
+let message = '';
+let messageClass = '';
+
+if (percentage >= 90) {
+    message = '🌟 Luar biasa! Kamu sangat menguasai materi ini!';
+    messageClass = 'bg-green-100 text-green-800';
+} else if (percentage >= 80) {
+    message = '👏 Bagus sekali! Pemahaman kamu sudah sangat baik!';
+    messageClass = 'bg-blue-100 text-blue-800';
+} else if (percentage >= 70) {
+    message = '👍 Cukup baik! Terus belajar untuk hasil yang lebih optimal!';
+    messageClass = 'bg-yellow-100 text-yellow-800';
+} else if (percentage >= 60) {
+    message = '📚 Perlu belajar lebih giat lagi. Jangan menyerah!';
+    messageClass = 'bg-orange-100 text-orange-800';
+} else {
+    message = '💪 Jangan berkecil hati! Ulangi materi dan coba lagi!';
+    messageClass = 'bg-red-100 text-red-800';
+}
+
+messageDiv.textContent = message;
+messageDiv.className = `text-lg mb-6 p-4 rounded-lg ${messageClass}`;
+}
+
+function restartKuis() {
+document.getElementById('kuisResult').classList.add('hidden');
+document.getElementById('kuisStart').classList.remove('hidden');
+document.getElementById('studentName').value = '';
+currentQuestionIndex = 0;
+kuisAnswers = [];
+studentName = '';
+}
+
+// Refleksi function
+function saveRefleksi() {
+const refleksi1 = document.getElementById('refleksi1').value;
+const refleksi2 = document.getElementById('refleksi2').value;
+const refleksi3 = document.getElementById('refleksi3').value;
+
+const resultDiv = document.getElementById('refleksiResult');
+
+if (!refleksi1 || !refleksi2 || !refleksi3) {
+    resultDiv.innerHTML = `
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            ❌ Mohon lengkapi semua refleksi sebelum menyimpan!
+        </div>
+    `;
+    resultDiv.classList.remove('hidden');
+    return;
+}
+
+// Simulate saving
+setTimeout(() => {
+    resultDiv.innerHTML = `
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+            ✅ Refleksi berhasil disimpan! Terima kasih atas partisipasimu dalam pembelajaran ini.
+        </div>
+    `;
+    resultDiv.classList.remove('hidden');
+}, 1000);
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+// Set initial active nav link
+updateActiveNavLink('intro');
+
+// Mobile menu button
+document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+
+// Overlay click to close menu
+document.getElementById('overlay').addEventListener('click', closeMobileMenu);
+
+// Back to top button
+const backToTopBtn = document.getElementById('backToTop');
+window.addEventListener('scroll', function() {
+    if (window.pageYOffset > 300) {
+        backToTopBtn.classList.remove('hidden');
+    } else {
+        backToTopBtn.classList.add('hidden');
+    }
+});
+
+backToTopBtn.addEventListener('click', scrollToTop);
+
+// Close mobile menu when clicking nav links
+document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', closeMobileMenu);
+});
+});
+</script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'988256e654d9aa09',t:'MTc1OTM4ODYwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
