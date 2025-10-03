@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modularitas Java - Pembelajaran Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #fef7ff 0%, #f0f9ff 25%, #f0fdf4 50%, #fefce8 75%, #fef2f2 100%);
+        }
+        
+        .sidebar {
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        
+        .content-shift {
+            margin-left: 280px;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 16px;
+            padding: 24px;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            position: relative;
+            overflow-x: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            width: 12px;
+            height: 12px;
+            background: #ef4444;
+            border-radius: 50%;
+            box-shadow: 20px 0 #f59e0b, 40px 0 #10b981;
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .quiz-option:hover {
+            background: #fce7f3;
+            border-color: #ec4899;
+            transform: translateY(-2px);
+        }
+        
+        .quiz-option.selected {
+            background: #fce7f3;
+            border-color: #ec4899;
+            border-width: 3px;
+        }
+        
+        .quiz-option.correct {
+            background: #dcfce7;
+            border-color: #16a34a;
+            border-width: 3px;
+        }
+        
+        .quiz-option.incorrect {
+            background: #fee2e2;
+            border-color: #dc2626;
+            border-width: 3px;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(8px);
+        }
+        
+        .nav-item.active {
+            background: rgba(255,255,255,0.3);
+            border-left: 4px solid #ec4899;
+        }
+        
+        @media (max-width: 768px) {
+            .content-shift {
+                margin-left: 0;
+            }
+            
+            .sidebar {
+                position: fixed;
+                z-index: 50;
+                height: 100vh;
+                overflow-y: auto;
+            }
+        }
+        
+        .demo-container {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 20px;
+            padding: 24px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .interactive-demo {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Mobile Header -->
+    <div class="md:hidden bg-white/90 backdrop-blur-sm shadow-lg sticky top-0 z-40">
+        <div class="flex items-center justify-between p-4">
+            <div class="flex items-center">
+                <div class="text-2xl mr-3">☕</div>
+                <div>
+                    <h1 class="text-lg font-bold text-gray-800">Modularitas Java</h1>
+                    <p class="text-xs text-gray-600">SMK Pembelajaran</p>
+                </div>
+            </div>
+            <button id="mobileMenuBtn" class="bg-gradient-to-r from-pink-400 to-purple-400 text-white p-3 rounded-xl shadow-lg">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar fixed left-0 top-0 w-72 h-full bg-gradient-to-b from-pink-400 via-purple-400 to-indigo-400 text-white shadow-2xl z-30">
+        <div class="p-6">
+            <div class="flex items-center mb-8">
+                <div class="text-4xl mr-4 bounce">☕</div>
+                <div>
+                    <h1 class="text-xl font-bold">Modularitas Java</h1>
+                    <p class="text-sm opacity-90">Pembelajaran Interaktif</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" onclick="showSection('intro')" class="nav-item flex items-center p-3 rounded-xl text-white">
+                    <span class="text-xl mr-3">🌟</span>
+                    <span class="font-medium">Intro</span>
+                </a>
+                <a href="#" onclick="showSection('pengenalan')" class="nav-item flex items-center p-3 rounded-xl text-white">
+                    <span class="text-xl mr-3">📚</span>
+                    <span class="font-medium">Pengenalan</span>
+                </a>
+                <a href="#" onclick="showSection('package')" class="nav-item flex items-center p-3 rounded-xl text-white">
+                    <span class="text-xl mr-3">📦</span>
+                    <span class="font-medium">Package</span>
+                </a>
+                <a href="#" onclick="showSection('import')" class="nav-item flex items-center p-3 rounded-xl text-white">
+                    <span class="text-xl mr-3">📥</span>
+                    <span class="font-medium">Import Statement</span>
+                </a>
+                <a href="#" onclick="showSection('access')" class="nav-item flex items-center p-3 rounded-xl text-white">
+                    <span class="text-xl mr-3">🔒</span>
+                    <span class="font-medium">Access Modifier</span>
+                </a>
+                <a href="#" onclick="showSection('struktur')" class="nav-item flex items-center p-3 rounded-xl text-white">
+                    <span class="text-xl mr-3">🏗️</span>
+                    <span class="font-medium">Struktur Project</span>
+                </a>
+                <a href="#" onclick="showSection('tugas')" class="nav-item flex items-center p-3 rounded-xl text-white">
+                    <span class="text-xl mr-3">📝</span>
+                    <span class="font-medium">Tugas</span>
+                </a>
+                <a href="#" onclick="showSection('kuis')" class="nav-item flex items-center p-3 rounded-xl text-white">
+                    <span class="text-xl mr-3">🎯</span>
+                    <span class="font-medium">Kuis</span>
+                </a>
+                <a href="#" onclick="showSection('penutup')" class="nav-item flex items-center p-3 rounded-xl text-white">
+                    <span class="text-xl mr-3">🎓</span>
+                    <span class="font-medium">Penutup</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="content-shift min-h-screen">
+        <div class="max-w-4xl mx-auto p-6 md:p-8">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section fade-in">
+                <div class="text-center mb-12">
+                    <div class="text-8xl mb-6 bounce">☕</div>
+                    <h1 class="text-4xl md:text-6xl font-bold text-gray-800 mb-6">Modularitas Java</h1>
+                    <p class="text-xl md:text-2xl text-gray-600 mb-8">Mari belajar cara membuat kode yang rapi dan terorganisir seperti rumah yang tertata!</p>
+                </div>
+                
+                <!-- Pertanyaan Pemantik -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🤔</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6">Pertanyaan Pemantik</h2>
+                    </div>
+                    
+                    <div class="space-y-6 text-lg md:text-xl text-gray-700 leading-relaxed">
+                        <div class="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-2xl">
+                            <p class="mb-4">🏠 <strong>Pernahkah kamu melihat rumah yang berantakan?</strong></p>
+                            <p>Bagaimana rasanya mencari barang di dalamnya? Pasti sulit dan memakan waktu lama, bukan?</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-2xl">
+                            <p class="mb-4">💻 <strong>Begitu juga dengan kode program!</strong></p>
+                            <p>Tanpa organisasi yang baik, kode akan sulit dipahami, dikembangkan, dan diperbaiki.</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                            <p class="mb-4">✨ <strong>Solusinya adalah Modularitas!</strong></p>
+                            <p>Seperti mengatur rumah dengan rapi, kita akan belajar mengatur kode Java agar terstruktur dan mudah dikelola.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Apa yang Dipelajari -->
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                        <div class="text-center mb-6">
+                            <div class="text-4xl mb-4">📖</div>
+                            <h3 class="text-2xl font-bold text-gray-800">Apa yang Dipelajari?</h3>
+                        </div>
+                        <ul class="space-y-4 text-lg text-gray-700">
+                            <li class="flex items-center">
+                                <span class="text-2xl mr-4">📦</span>
+                                <span>Konsep Package dalam Java</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-2xl mr-4">📥</span>
+                                <span>Import Statement</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-2xl mr-4">🔒</span>
+                                <span>Access Modifier</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-2xl mr-4">🏗️</span>
+                                <span>Struktur Project</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                        <div class="text-center mb-6">
+                            <div class="text-4xl mb-4">🎯</div>
+                            <h3 class="text-2xl font-bold text-gray-800">Tujuan Pembelajaran</h3>
+                        </div>
+                        <ul class="space-y-4 text-lg text-gray-700">
+                            <li class="flex items-center">
+                                <span class="text-2xl mr-4">✅</span>
+                                <span>Memahami konsep modularitas</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-2xl mr-4">✅</span>
+                                <span>Membuat package dengan benar</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-2xl mr-4">✅</span>
+                                <span>Menggunakan import statement</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-2xl mr-4">✅</span>
+                                <span>Menerapkan access modifier</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Pemahaman Bermakna & Motivasi -->
+                <div class="bg-gradient-to-r from-yellow-100 via-pink-100 to-purple-100 rounded-3xl p-8 md:p-12 shadow-xl mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">💡</div>
+                        <h3 class="text-3xl font-bold text-gray-800">Pemahaman Bermakna</h3>
+                    </div>
+                    
+                    <div class="text-lg md:text-xl text-gray-700 leading-relaxed text-center mb-8">
+                        <p class="mb-6">
+                            <strong>Modularitas bukan hanya tentang teknik programming,</strong><br>
+                            tetapi tentang <span class="text-pink-600 font-bold">cara berpikir terorganisir</span> yang akan berguna dalam kehidupan sehari-hari!
+                        </p>
+                        
+                        <div class="grid md:grid-cols-3 gap-6 mt-8">
+                            <div class="bg-white/70 p-6 rounded-2xl">
+                                <div class="text-3xl mb-3">🧠</div>
+                                <h4 class="font-bold text-gray-800 mb-2">Berpikir Sistematis</h4>
+                                <p class="text-gray-600">Memecah masalah besar menjadi bagian kecil</p>
+                            </div>
+                            <div class="bg-white/70 p-6 rounded-2xl">
+                                <div class="text-3xl mb-3">👥</div>
+                                <h4 class="font-bold text-gray-800 mb-2">Kerja Tim</h4>
+                                <p class="text-gray-600">Membagi tugas dengan jelas dan efisien</p>
+                            </div>
+                            <div class="bg-white/70 p-6 rounded-2xl">
+                                <div class="text-3xl mb-3">🚀</div>
+                                <h4 class="font-bold text-gray-800 mb-2">Efisiensi</h4>
+                                <p class="text-gray-600">Menggunakan kembali solusi yang sudah ada</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('pengenalan')" class="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white px-12 py-4 rounded-full text-xl font-bold hover:from-pink-600 hover:via-purple-600 hover:to-indigo-600 transition-all transform hover:scale-105 shadow-2xl pulse">
+                        Mulai Petualangan Belajar! 🚀
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden fade-in">
+                <div class="text-center mb-12">
+                    <div class="text-6xl mb-6">📚</div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Pengenalan Modularitas</h1>
+                    <p class="text-xl text-gray-600">Mari berkenalan dengan konsep dasar modularitas dalam Java</p>
+                </div>
+                
+                <!-- Analogi Rumah -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🏠</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Analogi Rumah yang Tertata</h2>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="space-y-6">
+                            <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-blue-800 mb-3 flex items-center">
+                                    <span class="text-2xl mr-3">🛏️</span>
+                                    Kamar Tidur
+                                </h3>
+                                <p class="text-blue-700">Tempat untuk beristirahat dan tidur. Semua barang yang berhubungan dengan tidur ada di sini.</p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-green-800 mb-3 flex items-center">
+                                    <span class="text-2xl mr-3">🍳</span>
+                                    Dapur
+                                </h3>
+                                <p class="text-green-700">Tempat untuk memasak dan menyimpan peralatan masak. Semuanya terorganisir dengan baik.</p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-purple-800 mb-3 flex items-center">
+                                    <span class="text-2xl mr-3">📚</span>
+                                    Ruang Belajar
+                                </h3>
+                                <p class="text-purple-700">Tempat khusus untuk belajar dengan semua buku dan alat tulis tertata rapi.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-8 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-orange-800 mb-4 text-center">💻 Sama seperti Program Java!</h3>
+                            <div class="space-y-4 text-orange-700">
+                                <p><strong>📦 Package Model:</strong> Tempat menyimpan class-class data</p>
+                                <p><strong>⚙️ Package Service:</strong> Tempat menyimpan logika bisnis</p>
+                                <p><strong>🎨 Package View:</strong> Tempat menyimpan tampilan</p>
+                                <p><strong>🔧 Package Util:</strong> Tempat menyimpan fungsi bantuan</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('package')" class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-10 py-4 rounded-full text-xl font-bold hover:from-green-600 hover:to-teal-600 transition-all transform hover:scale-105 shadow-xl">
+                        Lanjut ke Package 📦
+                    </button>
+                </div>
+            </div>
+
+            <!-- Package Section -->
+            <div id="package" class="section hidden fade-in">
+                <div class="text-center mb-12">
+                    <div class="text-6xl mb-6">📦</div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Package dalam Java</h1>
+                    <p class="text-xl text-gray-600">Belajar cara mengelompokkan class-class dengan rapi</p>
+                </div>
+                
+                <!-- Apa itu Package -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">📚</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Apa itu Package?</h2>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-orange-50 to-red-50 p-8 rounded-2xl mb-6">
+                        <p class="text-xl text-gray-700 leading-relaxed mb-6">
+                            <strong>Package</strong> adalah cara mengelompokkan class-class yang memiliki fungsi serupa 
+                            ke dalam satu folder/direktori. Seperti mengorganisir buku-buku berdasarkan kategori di perpustakaan! 📚
+                        </p>
+                        
+                        <div class="bg-white/80 p-6 rounded-xl mb-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">📝 Cara Membuat Package:</h3>
+                            <div class="code-block">
+                                <div class="mt-8 text-lg">
+                                    <span class="text-pink-300">package</span> <span class="text-yellow-300">com.sekolah.model</span>;<br><br>
+                                    <span class="text-blue-300">public class</span> <span class="text-yellow-300">Siswa</span> {<br>
+                                    &nbsp;&nbsp;<span class="text-blue-300">private String</span> nama;<br>
+                                    &nbsp;&nbsp;<span class="text-blue-300">private int</span> umur;<br>
+                                    &nbsp;&nbsp;<span class="text-gray-400">// constructor, getter, setter...</span><br>
+                                    }
+                                </div>
+                            </div>
+                            <p class="text-gray-600 mt-4 text-center">
+                                ⚠️ <strong>Penting:</strong> Deklarasi package harus di baris pertama file Java!
+                            </p>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-green-50 p-6 rounded-xl">
+                                <h4 class="font-bold text-green-800 mb-3">✅ Keuntungan Package:</h4>
+                                <ul class="text-green-700 space-y-2">
+                                    <li>• Menghindari konflik nama class</li>
+                                    <li>• Organisasi kode yang lebih baik</li>
+                                    <li>• Kontrol akses yang lebih fleksibel</li>
+                                    <li>• Memudahkan maintenance</li>
+                                </ul>
+                            </div>
+                            <div class="bg-blue-50 p-6 rounded-xl">
+                                <h4 class="font-bold text-blue-800 mb-3">📋 Aturan Penamaan:</h4>
+                                <ul class="text-blue-700 space-y-2">
+                                    <li>• Gunakan huruf kecil semua</li>
+                                    <li>• Pisahkan dengan titik (.)</li>
+                                    <li>• Mulai dengan domain terbalik</li>
+                                    <li>• Contoh: com.perusahaan.aplikasi</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white/80 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">🏗️ Contoh Struktur Package</h3>
+                            <div class="demo-container">
+                                <div class="font-mono text-lg text-gray-700 space-y-2">
+                                    <div class="flex items-center">
+                                        <span class="text-2xl mr-3">📁</span>
+                                        <span class="font-bold text-blue-600">com.sekolah.aplikasi</span>
+                                    </div>
+                                    <div class="ml-8 space-y-1">
+                                        <div class="flex items-center">
+                                            <span class="text-xl mr-3">📁</span>
+                                            <span class="font-semibold text-green-600">model</span>
+                                        </div>
+                                        <div class="ml-8 space-y-1">
+                                            <div class="flex items-center">
+                                                <span class="text-lg mr-3">📄</span>
+                                                <span class="text-gray-700">Siswa.java</span>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <span class="text-lg mr-3">📄</span>
+                                                <span class="text-gray-700">Guru.java</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="text-xl mr-3">📁</span>
+                                            <span class="font-semibold text-purple-600">service</span>
+                                        </div>
+                                        <div class="ml-8">
+                                            <div class="flex items-center">
+                                                <span class="text-lg mr-3">📄</span>
+                                                <span class="text-gray-700">SiswaService.java</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('import')" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-10 py-4 rounded-full text-xl font-bold hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-xl">
+                        Lanjut ke Import 📥
+                    </button>
+                </div>
+            </div>
+
+            <!-- Import Section -->
+            <div id="import" class="section hidden fade-in">
+                <div class="text-center mb-12">
+                    <div class="text-6xl mb-6">📥</div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Import Statement</h1>
+                    <p class="text-xl text-gray-600">Belajar cara menggunakan class dari package lain</p>
+                </div>
+                
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🔗</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Mengapa Perlu Import?</h2>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-cyan-50 to-blue-50 p-8 rounded-2xl mb-6">
+                        <p class="text-xl text-gray-700 leading-relaxed mb-6">
+                            Ketika kita ingin menggunakan class dari package lain, kita perlu "mengimpor" class tersebut terlebih dahulu.
+                            Seperti meminjam buku dari perpustakaan lain - kita harus tahu di mana letaknya! 📚
+                        </p>
+                        
+                        <div class="space-y-6">
+                            <div class="bg-white/80 p-6 rounded-xl">
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">📥 Import Specific Class:</h3>
+                                <div class="code-block">
+                                    <div class="mt-8 text-lg">
+                                        <span class="text-pink-300">import</span> <span class="text-yellow-300">java.util.ArrayList</span>;<br><br>
+                                        <span class="text-blue-300">public class</span> <span class="text-yellow-300">Main</span> {<br>
+                                        &nbsp;&nbsp;<span class="text-blue-300">public static void</span> <span class="text-yellow-300">main</span>(<span class="text-blue-300">String[]</span> args) {<br>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-300">ArrayList</span>&lt;<span class="text-blue-300">String</span>&gt; list = <span class="text-pink-300">new</span> <span class="text-blue-300">ArrayList</span>&lt;&gt;();<br>
+                                        &nbsp;&nbsp;}<br>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white/80 p-6 rounded-xl">
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">📦 Import Semua Class dari Package:</h3>
+                                <div class="code-block">
+                                    <div class="mt-8 text-lg">
+                                        <span class="text-pink-300">import</span> <span class="text-yellow-300">java.util.*</span>;<br><br>
+                                        <span class="text-blue-300">public class</span> <span class="text-yellow-300">Main</span> {<br>
+                                        &nbsp;&nbsp;<span class="text-blue-300">public static void</span> <span class="text-yellow-300">main</span>(<span class="text-blue-300">String[]</span> args) {<br>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-300">ArrayList</span>&lt;<span class="text-blue-300">String</span>&gt; list = <span class="text-pink-300">new</span> <span class="text-blue-300">ArrayList</span>&lt;&gt;();<br>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-300">HashMap</span>&lt;<span class="text-blue-300">String, Integer</span>&gt; map = <span class="text-pink-300">new</span> <span class="text-blue-300">HashMap</span>&lt;&gt;();<br>
+                                        &nbsp;&nbsp;}<br>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-green-50 p-6 rounded-xl">
+                                    <h4 class="font-bold text-green-800 mb-3">✅ Import Specific (Direkomendasikan):</h4>
+                                    <ul class="text-green-700 space-y-2">
+                                        <li>• Lebih jelas class mana yang digunakan</li>
+                                        <li>• Menghindari konflik nama</li>
+                                        <li>• Compile time lebih cepat</li>
+                                        <li>• Kode lebih mudah dibaca</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-yellow-50 p-6 rounded-xl">
+                                    <h4 class="font-bold text-yellow-800 mb-3">⚠️ Import Wildcard (*):</h4>
+                                    <ul class="text-yellow-700 space-y-2">
+                                        <li>• Praktis untuk banyak class</li>
+                                        <li>• Bisa menyebabkan konflik nama</li>
+                                        <li>• Kurang jelas dependensi</li>
+                                        <li>• Gunakan dengan hati-hati</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-blue-50 p-6 rounded-xl">
+                                <h4 class="font-bold text-blue-800 mb-3">📋 Catatan Penting:</h4>
+                                <ul class="text-blue-700 space-y-2">
+                                    <li>• Package <code>java.lang</code> tidak perlu di-import (otomatis)</li>
+                                    <li>• Import statement harus setelah package declaration</li>
+                                    <li>• Import statement harus sebelum class declaration</li>
+                                    <li>• Tidak bisa import class dengan nama yang sama dari package berbeda</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('access')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-10 py-4 rounded-full text-xl font-bold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-xl">
+                        Lanjut ke Access Modifier 🔒
+                    </button>
+                </div>
+            </div>
+
+            <!-- Access Modifier Section -->
+            <div id="access" class="section hidden fade-in">
+                <div class="text-center mb-12">
+                    <div class="text-6xl mb-6">🔒</div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Access Modifier</h1>
+                    <p class="text-xl text-gray-600">Belajar mengatur tingkat akses class, method, dan variabel</p>
+                </div>
+                
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🏠</div>
+                        <h2 class="text-3xl font-bold text-gray-800">4 Jenis Access Modifier</h2>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div class="space-y-6">
+                                <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-2xl border-l-4 border-green-400 card-hover">
+                                    <h3 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                                        <span class="text-3xl mr-3">🌍</span>
+                                        public
+                                    </h3>
+                                    <p class="text-green-700 text-lg mb-4">Dapat diakses dari mana saja - class lain, package lain, bahkan project lain!</p>
+                                    <div class="bg-white/70 p-4 rounded-lg">
+                                        <code class="text-sm text-green-800">public class Siswa { }</code>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gradient-to-br from-blue-100 to-cyan-100 p-6 rounded-2xl border-l-4 border-blue-400 card-hover">
+                                    <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                                        <span class="text-3xl mr-3">📦</span>
+                                        default (package-private)
+                                    </h3>
+                                    <p class="text-blue-700 text-lg mb-4">Hanya dapat diakses dalam package yang sama. Tidak ada kata kunci khusus.</p>
+                                    <div class="bg-white/70 p-4 rounded-lg">
+                                        <code class="text-sm text-blue-800">class Siswa { } // tanpa modifier</code>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-6">
+                                <div class="bg-gradient-to-br from-yellow-100 to-amber-100 p-6 rounded-2xl border-l-4 border-yellow-400 card-hover">
+                                    <h3 class="text-2xl font-bold text-yellow-800 mb-4 flex items-center">
+                                        <span class="text-3xl mr-3">🏘️</span>
+                                        protected
+                                    </h3>
+                                    <p class="text-yellow-700 text-lg mb-4">Dapat diakses dalam package yang sama + subclass (inheritance).</p>
+                                    <div class="bg-white/70 p-4 rounded-lg">
+                                        <code class="text-sm text-yellow-800">protected String nama;</code>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gradient-to-br from-red-100 to-pink-100 p-6 rounded-2xl border-l-4 border-red-400 card-hover">
+                                    <h3 class="text-2xl font-bold text-red-800 mb-4 flex items-center">
+                                        <span class="text-3xl mr-3">🔒</span>
+                                        private
+                                    </h3>
+                                    <p class="text-red-700 text-lg mb-4">Hanya dapat diakses dalam class yang sama. Paling ketat!</p>
+                                    <div class="bg-white/70 p-4 rounded-lg">
+                                        <code class="text-sm text-red-800">private int umur;</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tabel Perbandingan -->
+                        <div class="bg-white/80 p-8 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">📊 Tabel Perbandingan Access Modifier</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-100">
+                                            <th class="border border-gray-300 p-4 text-left font-bold">Access Modifier</th>
+                                            <th class="border border-gray-300 p-4 text-center font-bold">Same Class</th>
+                                            <th class="border border-gray-300 p-4 text-center font-bold">Same Package</th>
+                                            <th class="border border-gray-300 p-4 text-center font-bold">Subclass</th>
+                                            <th class="border border-gray-300 p-4 text-center font-bold">Different Package</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="border border-gray-300 p-4 font-semibold text-red-700">private</td>
+                                            <td class="border border-gray-300 p-4 text-center text-green-600">✅</td>
+                                            <td class="border border-gray-300 p-4 text-center text-red-600">❌</td>
+                                            <td class="border border-gray-300 p-4 text-center text-red-600">❌</td>
+                                            <td class="border border-gray-300 p-4 text-center text-red-600">❌</td>
+                                        </tr>
+                                        <tr class="bg-gray-50">
+                                            <td class="border border-gray-300 p-4 font-semibold text-blue-700">default</td>
+                                            <td class="border border-gray-300 p-4 text-center text-green-600">✅</td>
+                                            <td class="border border-gray-300 p-4 text-center text-green-600">✅</td>
+                                            <td class="border border-gray-300 p-4 text-center text-red-600">❌</td>
+                                            <td class="border border-gray-300 p-4 text-center text-red-600">❌</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="border border-gray-300 p-4 font-semibold text-yellow-700">protected</td>
+                                            <td class="border border-gray-300 p-4 text-center text-green-600">✅</td>
+                                            <td class="border border-gray-300 p-4 text-center text-green-600">✅</td>
+                                            <td class="border border-gray-300 p-4 text-center text-green-600">✅</td>
+                                            <td class="border border-gray-300 p-4 text-center text-red-600">❌</td>
+                                        </tr>
+                                        <tr class="bg-gray-50">
+                                            <td class="border border-gray-300 p-4 font-semibold text-green-700">public</td>
+                                            <td class="border border-gray-300 p-4 text-center text-green-600">✅</td>
+                                            <td class="border border-gray-300 p-4 text-center text-green-600">✅</td>
+                                            <td class="border border-gray-300 p-4 text-center text-green-600">✅</td>
+                                            <td class="border border-gray-300 p-4 text-center text-green-600">✅</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Contoh Praktis -->
+                        <div class="bg-white/80 p-8 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">💡 Contoh Praktis Penggunaan</h3>
+                            <div class="code-block">
+                                <div class="mt-8 text-lg">
+                                    <span class="text-pink-300">package</span> <span class="text-yellow-300">com.sekolah.model</span>;<br><br>
+                                    <span class="text-blue-300">public class</span> <span class="text-yellow-300">Siswa</span> {<br>
+                                    &nbsp;&nbsp;<span class="text-red-300">private</span> <span class="text-blue-300">String</span> nama; <span class="text-gray-400">// hanya dalam class ini</span><br>
+                                    &nbsp;&nbsp;<span class="text-yellow-300">protected</span> <span class="text-blue-300">int</span> umur; <span class="text-gray-400">// package + subclass</span><br>
+                                    &nbsp;&nbsp;<span class="text-blue-300">String</span> kelas; <span class="text-gray-400">// default: hanya dalam package</span><br>
+                                    &nbsp;&nbsp;<span class="text-green-300">public</span> <span class="text-blue-300">String</span> sekolah; <span class="text-gray-400">// bisa diakses dari mana saja</span><br><br>
+                                    &nbsp;&nbsp;<span class="text-green-300">public</span> <span class="text-yellow-300">getNama</span>() { <span class="text-pink-300">return</span> nama; }<br>
+                                    &nbsp;&nbsp;<span class="text-green-300">public</span> <span class="text-blue-300">void</span> <span class="text-yellow-300">setNama</span>(<span class="text-blue-300">String</span> nama) { <span class="text-pink-300">this</span>.nama = nama; }<br>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('struktur')" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-10 py-4 rounded-full text-xl font-bold hover:from-indigo-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-xl">
+                        Lanjut ke Struktur Project 🏗️
+                    </button>
+                </div>
+            </div>
+
+            <!-- Struktur Project Section -->
+            <div id="struktur" class="section hidden fade-in">
+                <div class="text-center mb-12">
+                    <div class="text-6xl mb-6">🏗️</div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Struktur Project Java</h1>
+                    <p class="text-xl text-gray-600">Belajar mengorganisir project Java dengan baik dan benar</p>
+                </div>
+                
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">📁</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Struktur Folder Standard</h2>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-8 rounded-2xl mb-6">
+                        <p class="text-xl text-gray-700 leading-relaxed mb-6 text-center">
+                            Seperti mengatur rumah, project Java juga perlu struktur yang rapi dan terorganisir.
+                            Mari pelajari struktur standard yang digunakan oleh programmer profesional! 🏠
+                        </p>
+                        
+                        <div class="bg-white/80 p-8 rounded-xl">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">🎯 Contoh Project: Sistem Perpustakaan</h3>
+                            <div class="demo-container">
+                                <div class="font-mono text-lg text-gray-700 space-y-2">
+                                    <div class="flex items-center">
+                                        <span class="text-2xl mr-3">📁</span>
+                                        <span class="font-bold text-purple-600">perpustakaan-app/</span>
+                                    </div>
+                                    <div class="ml-6 space-y-2">
+                                        <div class="flex items-center">
+                                            <span class="text-xl mr-3">📁</span>
+                                            <span class="font-semibold text-blue-600">src/</span>
+                                            <span class="ml-4 text-gray-500 text-sm">(source code)</span>
+                                        </div>
+                                        <div class="ml-12 space-y-2">
+                                            <div class="flex items-center">
+                                                <span class="text-xl mr-3">📁</span>
+                                                <span class="font-semibold text-green-600">com/perpustakaan/</span>
+                                            </div>
+                                            <div class="ml-18 space-y-2">
+                                                <div class="bg-green-50 p-4 rounded-lg">
+                                                    <div class="flex items-center mb-2">
+                                                        <span class="text-xl mr-3">📁</span>
+                                                        <span class="font-semibold text-green-700">model/</span>
+                                                        <span class="ml-4 text-green-600 text-sm">(data classes)</span>
+                                                    </div>
+                                                    <div class="ml-8 space-y-1">
+                                                        <div class="flex items-center">
+                                                            <span class="text-lg mr-3">📄</span>
+                                                            <span class="text-gray-700">Buku.java</span>
+                                                        </div>
+                                                        <div class="flex items-center">
+                                                            <span class="text-lg mr-3">📄</span>
+                                                            <span class="text-gray-700">Anggota.java</span>
+                                                        </div>
+                                                        <div class="flex items-center">
+                                                            <span class="text-lg mr-3">📄</span>
+                                                            <span class="text-gray-700">Peminjaman.java</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="bg-blue-50 p-4 rounded-lg">
+                                                    <div class="flex items-center mb-2">
+                                                        <span class="text-xl mr-3">📁</span>
+                                                        <span class="font-semibold text-blue-700">service/</span>
+                                                        <span class="ml-4 text-blue-600 text-sm">(business logic)</span>
+                                                    </div>
+                                                    <div class="ml-8 space-y-1">
+                                                        <div class="flex items-center">
+                                                            <span class="text-lg mr-3">📄</span>
+                                                            <span class="text-gray-700">PerpustakaanService.java</span>
+                                                        </div>
+                                                        <div class="flex items-center">
+                                                            <span class="text-lg mr-3">📄</span>
+                                                            <span class="text-gray-700">BukuService.java</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="bg-yellow-50 p-4 rounded-lg">
+                                                    <div class="flex items-center mb-2">
+                                                        <span class="text-xl mr-3">📁</span>
+                                                        <span class="font-semibold text-yellow-700">util/</span>
+                                                        <span class="ml-4 text-yellow-600 text-sm">(helper classes)</span>
+                                                    </div>
+                                                    <div class="ml-8 space-y-1">
+                                                        <div class="flex items-center">
+                                                            <span class="text-lg mr-3">📄</span>
+                                                            <span class="text-gray-700">DateUtil.java</span>
+                                                        </div>
+                                                        <div class="flex items-center">
+                                                            <span class="text-lg mr-3">📄</span>
+                                                            <span class="text-gray-700">ValidationUtil.java</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="bg-purple-50 p-4 rounded-lg">
+                                                    <div class="flex items-center mb-2">
+                                                        <span class="text-xl mr-3">📁</span>
+                                                        <span class="font-semibold text-purple-700">main/</span>
+                                                        <span class="ml-4 text-purple-600 text-sm">(entry point)</span>
+                                                    </div>
+                                                    <div class="ml-8">
+                                                        <div class="flex items-center">
+                                                            <span class="text-lg mr-3">📄</span>
+                                                            <span class="text-gray-700">Main.java</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Penjelasan Setiap Package -->
+                        <div class="grid md:grid-cols-2 gap-6 mt-8">
+                            <div class="space-y-4">
+                                <div class="bg-green-50 p-6 rounded-xl">
+                                    <h4 class="font-bold text-green-800 mb-3 flex items-center">
+                                        <span class="text-2xl mr-3">📊</span>
+                                        Package Model
+                                    </h4>
+                                    <p class="text-green-700 mb-3">Berisi class-class yang merepresentasikan data/entitas:</p>
+                                    <ul class="text-green-600 text-sm space-y-1">
+                                        <li>• Class dengan atribut dan method getter/setter</li>
+                                        <li>• Biasanya menggunakan access modifier private untuk atribut</li>
+                                        <li>• Contoh: Buku, Anggota, Peminjaman</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-blue-50 p-6 rounded-xl">
+                                    <h4 class="font-bold text-blue-800 mb-3 flex items-center">
+                                        <span class="text-2xl mr-3">⚙️</span>
+                                        Package Service
+                                    </h4>
+                                    <p class="text-blue-700 mb-3">Berisi logika bisnis dan operasi utama:</p>
+                                    <ul class="text-blue-600 text-sm space-y-1">
+                                        <li>• Method untuk CRUD (Create, Read, Update, Delete)</li>
+                                        <li>• Validasi dan business rules</li>
+                                        <li>• Contoh: tambahBuku(), pinjamBuku(), kembaliBuku()</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-yellow-50 p-6 rounded-xl">
+                                    <h4 class="font-bold text-yellow-800 mb-3 flex items-center">
+                                        <span class="text-2xl mr-3">🔧</span>
+                                        Package Util
+                                    </h4>
+                                    <p class="text-yellow-700 mb-3">Berisi class-class pembantu yang bisa digunakan berulang:</p>
+                                    <ul class="text-yellow-600 text-sm space-y-1">
+                                        <li>• Utility functions yang sering dipakai</li>
+                                        <li>• Helper methods untuk formatting, validation</li>
+                                        <li>• Contoh: formatTanggal(), validateEmail()</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-purple-50 p-6 rounded-xl">
+                                    <h4 class="font-bold text-purple-800 mb-3 flex items-center">
+                                        <span class="text-2xl mr-3">🚀</span>
+                                        Package Main
+                                    </h4>
+                                    <p class="text-purple-700 mb-3">Berisi entry point aplikasi:</p>
+                                    <ul class="text-purple-600 text-sm space-y-1">
+                                        <li>• Class dengan method main()</li>
+                                        <li>• Menginisialisasi dan menjalankan aplikasi</li>
+                                        <li>• Mengatur alur program utama</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('tugas')" class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-10 py-4 rounded-full text-xl font-bold hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-105 shadow-xl">
+                        Lanjut ke Tugas 📝
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tugas Section -->
+            <div id="tugas" class="section hidden fade-in">
+                <div class="text-center mb-12">
+                    <div class="text-6xl mb-6">📝</div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Tugas Modularitas Java</h1>
+                    <p class="text-xl text-gray-600">Saatnya mempraktikkan semua yang sudah dipelajari!</p>
+                </div>
+                
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🔍</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Tugas: Analisis dan Implementasi</h2>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-8 rounded-2xl mb-6">
+                        <p class="text-xl text-gray-700 leading-relaxed mb-6">
+                            Buatlah struktur project Java untuk <strong>"Sistem Toko Online"</strong> dengan ketentuan:
+                        </p>
+                        
+                        <div class="space-y-6">
+                            <div class="bg-white/80 p-6 rounded-xl">
+                                <h3 class="text-xl font-bold text-gray-800 mb-4">Yang Harus Dibuat:</h3>
+                                <ol class="space-y-3 text-lg text-gray-700">
+                                    <li><strong>1.</strong> Buat struktur package yang sesuai (model, service, util)</li>
+                                    <li><strong>2.</strong> Buat class Produk dengan atribut nama, harga, stok</li>
+                                    <li><strong>3.</strong> Buat class Customer dengan atribut nama, email, alamat</li>
+                                    <li><strong>4.</strong> Gunakan access modifier yang tepat</li>
+                                    <li><strong>5.</strong> Buat class Main untuk menjalankan program</li>
+                                </ol>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-green-100 to-emerald-100 p-6 rounded-xl">
+                                <h3 class="text-xl font-bold text-green-800 mb-4 flex items-center">
+                                    <span class="text-2xl mr-3">💡</span>
+                                    Tips Pengerjaan:
+                                </h3>
+                                <ul class="space-y-2 text-green-700">
+                                    <li>• Gunakan package com.toko.namaanda</li>
+                                    <li>• Pisahkan class berdasarkan fungsinya</li>
+                                    <li>• Gunakan private untuk data sensitif</li>
+                                    <li>• Buat getter dan setter untuk akses data</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Contoh Implementasi -->
+                            <div class="bg-white/80 p-6 rounded-xl">
+                                <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">📝 Contoh Implementasi</h3>
+                                
+                                <div class="space-y-6">
+                                    <!-- Class Produk -->
+                                    <div>
+                                        <h4 class="font-bold text-green-700 mb-3">📦 com/toko/model/Produk.java</h4>
+                                        <div class="code-block">
+                                            <div class="mt-8 text-sm">
+                                                <span class="text-pink-300">package</span> <span class="text-yellow-300">com.toko.model</span>;<br><br>
+                                                <span class="text-blue-300">public class</span> <span class="text-yellow-300">Produk</span> {<br>
+                                                &nbsp;&nbsp;<span class="text-red-300">private</span> <span class="text-blue-300">String</span> nama;<br>
+                                                &nbsp;&nbsp;<span class="text-red-300">private</span> <span class="text-blue-300">double</span> harga;<br>
+                                                &nbsp;&nbsp;<span class="text-red-300">private</span> <span class="text-blue-300">int</span> stok;<br><br>
+                                                &nbsp;&nbsp;<span class="text-gray-400">// Constructor</span><br>
+                                                &nbsp;&nbsp;<span class="text-green-300">public</span> <span class="text-yellow-300">Produk</span>(<span class="text-blue-300">String</span> nama, <span class="text-blue-300">double</span> harga, <span class="text-blue-300">int</span> stok) {<br>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-pink-300">this</span>.nama = nama;<br>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-pink-300">this</span>.harga = harga;<br>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-pink-300">this</span>.stok = stok;<br>
+                                                &nbsp;&nbsp;}<br><br>
+                                                &nbsp;&nbsp;<span class="text-gray-400">// Getter dan Setter</span><br>
+                                                &nbsp;&nbsp;<span class="text-green-300">public</span> <span class="text-blue-300">String</span> <span class="text-yellow-300">getNama</span>() { <span class="text-pink-300">return</span> nama; }<br>
+                                                &nbsp;&nbsp;<span class="text-green-300">public</span> <span class="text-blue-300">void</span> <span class="text-yellow-300">setNama</span>(<span class="text-blue-300">String</span> nama) { <span class="text-pink-300">this</span>.nama = nama; }<br>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Class TokoService -->
+                                    <div>
+                                        <h4 class="font-bold text-blue-700 mb-3">⚙️ com/toko/service/TokoService.java</h4>
+                                        <div class="code-block">
+                                            <div class="mt-8 text-sm">
+                                                <span class="text-pink-300">package</span> <span class="text-yellow-300">com.toko.service</span>;<br><br>
+                                                <span class="text-pink-300">import</span> <span class="text-yellow-300">com.toko.model.Produk</span>;<br>
+                                                <span class="text-pink-300">import</span> <span class="text-yellow-300">java.util.ArrayList</span>;<br><br>
+                                                <span class="text-blue-300">public class</span> <span class="text-yellow-300">TokoService</span> {<br>
+                                                &nbsp;&nbsp;<span class="text-red-300">private</span> <span class="text-blue-300">ArrayList</span>&lt;<span class="text-blue-300">Produk</span>&gt; daftarProduk;<br><br>
+                                                &nbsp;&nbsp;<span class="text-green-300">public</span> <span class="text-blue-300">void</span> <span class="text-yellow-300">tambahProduk</span>(<span class="text-blue-300">Produk</span> produk) {<br>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;daftarProduk.<span class="text-yellow-300">add</span>(produk);<br>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-300">System</span>.<span class="text-yellow-300">out</span>.<span class="text-yellow-300">println</span>(<span class="text-green-400">"Produk berhasil ditambahkan!"</span>);<br>
+                                                &nbsp;&nbsp;}<br>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Class Main -->
+                                    <div>
+                                        <h4 class="font-bold text-purple-700 mb-3">🚀 com/toko/main/Main.java</h4>
+                                        <div class="code-block">
+                                            <div class="mt-8 text-sm">
+                                                <span class="text-pink-300">package</span> <span class="text-yellow-300">com.toko.main</span>;<br><br>
+                                                <span class="text-pink-300">import</span> <span class="text-yellow-300">com.toko.model.Produk</span>;<br>
+                                                <span class="text-pink-300">import</span> <span class="text-yellow-300">com.toko.service.TokoService</span>;<br><br>
+                                                <span class="text-blue-300">public class</span> <span class="text-yellow-300">Main</span> {<br>
+                                                &nbsp;&nbsp;<span class="text-green-300">public static void</span> <span class="text-yellow-300">main</span>(<span class="text-blue-300">String[]</span> args) {<br>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-300">Produk</span> laptop = <span class="text-pink-300">new</span> <span class="text-blue-300">Produk</span>(<span class="text-green-400">"Laptop"</span>, <span class="text-orange-300">5000000</span>, <span class="text-orange-300">10</span>);<br>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-300">TokoService</span> toko = <span class="text-pink-300">new</span> <span class="text-blue-300">TokoService</span>();<br>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;toko.<span class="text-yellow-300">tambahProduk</span>(laptop);<br>
+                                                &nbsp;&nbsp;}<br>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('kuis')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-10 py-4 rounded-full text-xl font-bold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-xl">
+                        Lanjut ke Kuis 🎯
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden fade-in">
+                <div class="text-center mb-12">
+                    <div class="text-6xl mb-6">🎯</div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Kuis Modularitas Java</h1>
+                    <p class="text-xl text-gray-600">Uji pemahamanmu dengan 10 soal pilihan ganda!</p>
+                </div>
+                
+                <!-- Input Nama -->
+                <div id="nameInput" class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">👋</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Selamat Datang!</h2>
+                        <p class="text-xl text-gray-600 mt-4">Masukkan nama kamu untuk memulai kuis</p>
+                    </div>
+                    
+                    <div class="max-w-md mx-auto">
+                        <input type="text" id="studentName" placeholder="Masukkan nama kamu..." class="w-full p-4 border-2 border-gray-300 rounded-xl text-lg focus:border-purple-400 focus:outline-none mb-6">
+                        <button onclick="startQuiz()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-xl text-xl font-bold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                            Mulai Kuis! 🚀
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Quiz Container -->
+                <div id="quizContainer" class="hidden">
+                    <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl mb-8">
+                        <div class="flex justify-between items-center mb-8">
+                            <div class="text-lg font-semibold text-gray-700">
+                                Soal <span id="currentQuestion">1</span> dari 10
+                            </div>
+                            <div class="text-lg font-semibold text-purple-600">
+                                Skor: <span id="currentScore">0</span>
+                            </div>
+                        </div>
+                        
+                        <div id="questionContainer">
+                            <!-- Questions will be loaded here -->
+                        </div>
+                        
+                        <div class="mt-8 flex justify-between">
+                            <button id="prevBtn" onclick="previousQuestion()" class="bg-gray-500 text-white px-6 py-3 rounded-xl font-semibold hover:bg-gray-600 transition-all" disabled>
+                                ← Sebelumnya
+                            </button>
+                            <button id="nextBtn" onclick="nextQuestion()" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-600 hover:to-purple-600 transition-all">
+                                Selanjutnya →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quiz Result -->
+                <div id="quizResult" class="hidden bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl mb-8 card-hover">
+                    <div class="text-center">
+                        <div class="text-6xl mb-6" id="resultEmoji">🎉</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Selamat <span id="finalName"></span>!</h2>
+                        <p class="text-xl text-gray-600 mb-6">Kamu telah menyelesaikan kuis dengan skor:</p>
+                        <div class="text-6xl font-bold text-purple-600 mb-6" id="finalScore">0</div>
+                        <div class="text-xl text-gray-600 mb-8" id="resultMessage"></div>
+                        <button onclick="restartQuiz()" class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-8 py-4 rounded-xl text-xl font-bold hover:from-green-600 hover:to-teal-600 transition-all transform hover:scale-105 shadow-lg">
+                            Ulangi Kuis 🔄
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('penutup')" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-10 py-4 rounded-full text-xl font-bold hover:from-indigo-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-xl">
+                        Lanjut ke Penutup 🎓
+                    </button>
+                </div>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden fade-in">
+                <div class="text-center mb-12">
+                    <div class="text-6xl mb-6">🎓</div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-800 mb-4">Penutup</h1>
+                    <p class="text-xl text-gray-600">Refleksi dan kesimpulan pembelajaran modularitas Java</p>
+                </div>
+                
+                <!-- Refleksi -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🤔</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Refleksi Pembelajaran</h2>
+                    </div>
+                    
+                    <div class="space-y-6 text-lg text-gray-700">
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-blue-800 mb-3">💭 Apa yang sudah kamu pelajari?</h3>
+                            <ul class="space-y-2 text-blue-700">
+                                <li>• Konsep modularitas dalam Java</li>
+                                <li>• Cara membuat dan menggunakan package</li>
+                                <li>• Import statement untuk menggunakan class lain</li>
+                                <li>• Access modifier untuk mengatur akses</li>
+                                <li>• Struktur project yang baik dan terorganisir</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-green-800 mb-3">🌟 Bagaimana perasaanmu setelah belajar?</h3>
+                            <p class="text-green-700">
+                                Modularitas membuat kode lebih rapi, mudah dipahami, dan mudah dikembangkan. 
+                                Seperti mengatur rumah, semuanya jadi lebih teratur dan mudah ditemukan!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Kesimpulan -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">📋</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Kesimpulan Pembelajaran</h2>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-8 rounded-2xl">
+                        <div class="text-center mb-6">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4">🎯 Poin Penting Modularitas Java</h3>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <div class="bg-white/70 p-4 rounded-xl">
+                                    <h4 class="font-bold text-purple-700 mb-2">📦 Package</h4>
+                                    <p class="text-purple-600 text-sm">Mengelompokkan class berdasarkan fungsi</p>
+                                </div>
+                                <div class="bg-white/70 p-4 rounded-xl">
+                                    <h4 class="font-bold text-purple-700 mb-2">📥 Import</h4>
+                                    <p class="text-purple-600 text-sm">Menggunakan class dari package lain</p>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="bg-white/70 p-4 rounded-xl">
+                                    <h4 class="font-bold text-purple-700 mb-2">🔒 Access Modifier</h4>
+                                    <p class="text-purple-600 text-sm">Mengatur tingkat akses class dan method</p>
+                                </div>
+                                <div class="bg-white/70 p-4 rounded-xl">
+                                    <h4 class="font-bold text-purple-700 mb-2">🏗️ Struktur</h4>
+                                    <p class="text-purple-600 text-sm">Mengorganisir project dengan rapi</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tindak Lanjut -->
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🚀</div>
+                        <h2 class="text-3xl font-bold text-gray-800">Tindak Lanjut</h2>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="bg-gradient-to-br from-yellow-100 to-orange-100 p-6 rounded-2xl card-hover">
+                            <div class="text-3xl mb-4 text-center">📚</div>
+                            <h3 class="text-xl font-bold text-orange-800 mb-3 text-center">Pelajari Lebih Lanjut</h3>
+                            <ul class="text-orange-700 text-sm space-y-2">
+                                <li>• Inheritance dan Polymorphism</li>
+                                <li>• Design Patterns</li>
+                                <li>• Framework Java (Spring, etc)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-2xl card-hover">
+                            <div class="text-3xl mb-4 text-center">💻</div>
+                            <h3 class="text-xl font-bold text-green-800 mb-3 text-center">Praktik Lebih Banyak</h3>
+                            <ul class="text-green-700 text-sm space-y-2">
+                                <li>• Buat project sederhana</li>
+                                <li>• Latihan dengan IDE</li>
+                                <li>• Join komunitas programmer</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-blue-100 to-cyan-100 p-6 rounded-2xl card-hover">
+                            <div class="text-3xl mb-4 text-center">🎯</div>
+                            <h3 class="text-xl font-bold text-blue-800 mb-3 text-center">Terapkan di Project</h3>
+                            <ul class="text-blue-700 text-sm space-y-2">
+                                <li>• Gunakan struktur yang baik</li>
+                                <li>• Terapkan best practices</li>
+                                <li>• Dokumentasikan kode</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pesan Penutup -->
+                <div class="bg-gradient-to-r from-pink-100 via-purple-100 to-indigo-100 rounded-3xl p-8 md:p-12 shadow-xl text-center">
+                    <div class="text-6xl mb-6">🌟</div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">Selamat!</h2>
+                    <p class="text-xl text-gray-700 leading-relaxed mb-6">
+                        Kamu telah berhasil mempelajari konsep modularitas dalam Java! 
+                        Ingatlah bahwa programming bukan hanya tentang menulis kode, 
+                        tetapi juga tentang <span class="font-bold text-purple-600">berpikir terstruktur</span> dan 
+                        <span class="font-bold text-pink-600">mengorganisir solusi</span> dengan baik.
+                    </p>
+                    <p class="text-lg text-gray-600 mb-8">
+                        Terus berlatih dan jangan takut untuk bereksperimen. 
+                        Setiap programmer hebat dimulai dari langkah kecil seperti ini! 💪
+                    </p>
+                    <div class="text-4xl">🎉 Happy Coding! 🎉</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-pink-500 to-purple-500 text-white p-4 rounded-full shadow-2xl hover:from-pink-600 hover:to-purple-600 transition-all transform hover:scale-110 z-40 hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Quiz questions
+        const quizQuestions = [
+            {
+                question: "Apa itu package dalam Java?",
+                options: [
+                    "Sebuah file Java",
+                    "Cara mengelompokkan class-class yang serupa",
+                    "Sebuah method dalam class",
+                    "Sebuah variabel global"
+                ],
+                correct: 1
+            },
+            {
+                question: "Kata kunci apa yang digunakan untuk mengimpor class dari package lain?",
+                options: ["include", "import", "using", "require"],
+                correct: 1
+            },
+            {
+                question: "Access modifier mana yang paling ketat?",
+                options: ["public", "protected", "default", "private"],
+                correct: 3
+            },
+            {
+                question: "Package mana yang biasanya berisi class-class data?",
+                options: ["service", "util", "model", "main"],
+                correct: 2
+            },
+            {
+                question: "Apa yang dimaksud dengan access modifier 'protected'?",
+                options: [
+                    "Hanya bisa diakses dalam class yang sama",
+                    "Bisa diakses dari mana saja",
+                    "Bisa diakses dalam package yang sama dan subclass",
+                    "Tidak bisa diakses sama sekali"
+                ],
+                correct: 2
+            },
+            {
+                question: "Struktur package yang benar untuk domain 'sekolah.com' adalah:",
+                options: [
+                    "sekolah.com.aplikasi",
+                    "com.sekolah.aplikasi",
+                    "aplikasi.sekolah.com",
+                    "www.sekolah.com"
+                ],
+                correct: 1
+            },
+            {
+                question: "Folder apa yang biasanya berisi source code Java?",
+                options: ["bin", "lib", "src", "doc"],
+                correct: 2
+            },
+            {
+                question: "Import statement mana yang benar?",
+                options: [
+                    "import java.util.*",
+                    "include java.util.*",
+                    "using java.util.*",
+                    "require java.util.*"
+                ],
+                correct: 0
+            },
+            {
+                question: "Keuntungan utama dari modularitas adalah:",
+                options: [
+                    "Membuat program berjalan lebih cepat",
+                    "Mengurangi ukuran file",
+                    "Membuat kode lebih terorganisir dan mudah dipelihara",
+                    "Mengurangi penggunaan memori"
+                ],
+                correct: 2
+            },
+            {
+                question: "Access modifier default (tanpa kata kunci) dapat diakses oleh:",
+                options: [
+                    "Semua class",
+                    "Hanya class dalam package yang sama",
+                    "Hanya class yang sama",
+                    "Hanya subclass"
+                ],
+                correct: 1
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let studentName = '';
+        let userAnswers = [];
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                targetSection.classList.add('fade-in');
+                
+                // Update active nav item
+                const navItems = document.querySelectorAll('.nav-item');
+                navItems.forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Find and activate current nav item - more specific selector
+                const currentNavItem = document.querySelector(`a[onclick="showSection('${sectionId}')"]`);
+                if (currentNavItem) {
+                    currentNavItem.classList.add('active');
+                }
+                
+                // Scroll to top immediately, then smooth
+                window.scrollTo(0, 0);
+                setTimeout(() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 10);
+                
+                // Close mobile menu if open
+                closeMobileMenu();
+            }
+        }
+
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('sidebar-hidden');
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('sidebar-hidden');
+            }
+        }
+
+        // Quiz functions
+        function startQuiz() {
+            const nameInput = document.getElementById('studentName');
+            studentName = nameInput.value.trim();
+            
+            if (!studentName) {
+                alert('Silakan masukkan nama kamu terlebih dahulu!');
+                return;
+            }
+            
+            document.getElementById('nameInput').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = quizQuestions[currentQuestionIndex];
+            const container = document.getElementById('questionContainer');
+            
+            container.innerHTML = `
+                <div class="mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">${question.question}</h3>
+                    <div class="space-y-4">
+                        ${question.options.map((option, index) => `
+                            <div class="quiz-option border-2 border-gray-200 rounded-xl p-4 cursor-pointer" onclick="selectAnswer(${index})">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 border-2 border-gray-300 rounded-full mr-4 flex items-center justify-center">
+                                        <div class="w-3 h-3 bg-purple-500 rounded-full hidden option-dot"></div>
+                                    </div>
+                                    <span class="text-lg">${option}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('currentScore').textContent = score;
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            document.getElementById('nextBtn').textContent = currentQuestionIndex === quizQuestions.length - 1 ? 'Selesai' : 'Selanjutnya →';
+        }
+
+        function selectAnswer(answerIndex) {
+            // Remove previous selection
+            const options = document.querySelectorAll('.quiz-option');
+            options.forEach(option => {
+                option.classList.remove('selected');
+                option.querySelector('.option-dot').classList.add('hidden');
+            });
+            
+            // Select current answer
+            const selectedOption = options[answerIndex];
+            selectedOption.classList.add('selected');
+            selectedOption.querySelector('.option-dot').classList.remove('hidden');
+            
+            userAnswers[currentQuestionIndex] = answerIndex;
+        }
+
+        function nextQuestion() {
+            if (userAnswers[currentQuestionIndex] === undefined) {
+                alert('Silakan pilih jawaban terlebih dahulu!');
+                return;
+            }
+            
+            // Check if answer is correct
+            if (userAnswers[currentQuestionIndex] === quizQuestions[currentQuestionIndex].correct) {
+                score += 10;
+            }
+            
+            if (currentQuestionIndex < quizQuestions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showQuizResult();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+                
+                // Restore previous answer if exists
+                if (userAnswers[currentQuestionIndex] !== undefined) {
+                    const options = document.querySelectorAll('.quiz-option');
+                    const selectedIndex = userAnswers[currentQuestionIndex];
+                    options[selectedIndex].classList.add('selected');
+                    options[selectedIndex].querySelector('.option-dot').classList.remove('hidden');
+                }
+            }
+        }
+
+        function showQuizResult() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('quizResult').classList.remove('hidden');
+            
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = score + '/100';
+            
+            let resultMessage = '';
+            let emoji = '';
+            
+            if (score >= 90) {
+                resultMessage = 'Luar biasa! Kamu sangat memahami materi modularitas Java!';
+                emoji = '🏆';
+            } else if (score >= 80) {
+                resultMessage = 'Bagus sekali! Kamu sudah memahami sebagian besar materi!';
+                emoji = '🎉';
+            } else if (score >= 70) {
+                resultMessage = 'Cukup baik! Masih ada beberapa konsep yang perlu dipelajari lagi.';
+                emoji = '👍';
+            } else if (score >= 60) {
+                resultMessage = 'Lumayan! Coba pelajari materi sekali lagi ya.';
+                emoji = '📚';
+            } else {
+                resultMessage = 'Jangan menyerah! Pelajari materi sekali lagi dan coba ulangi kuis.';
+                emoji = '💪';
+            }
+            
+            document.getElementById('resultMessage').textContent = resultMessage;
+            document.getElementById('resultEmoji').textContent = emoji;
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizResult').classList.add('hidden');
+            document.getElementById('nameInput').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+        }
+
+        // Back to top functionality
+        function initBackToTop() {
+            const backToTopBtn = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('hidden');
+                } else {
+                    backToTopBtn.classList.add('hidden');
+                }
+            });
+            
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(event) {
+                const sidebar = document.getElementById('sidebar');
+                const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+                
+                if (window.innerWidth <= 768 && 
+                    !sidebar.contains(event.target) && 
+                    !mobileMenuBtn.contains(event.target)) {
+                    closeMobileMenu();
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    document.getElementById('sidebar').classList.remove('sidebar-hidden');
+                } else {
+                    document.getElementById('sidebar').classList.add('sidebar-hidden');
+                }
+            });
+            
+            // Initialize mobile menu state
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.add('sidebar-hidden');
+            }
+            
+            // Initialize back to top
+            initBackToTop();
+            
+            // Show intro section by default
+            showSection('intro');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'988ea4b5c250b5e7',t:'MTc1OTUxNzYxOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
