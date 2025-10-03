@@ -1,0 +1,3551 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar Bootstrap - Membuat Portofolio Responsif</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        .sidebar-header h4 {
+            color: #fff;
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .sidebar-header p {
+            color: rgba(255,255,255,0.7);
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+        }
+
+        .sidebar-menu {
+            padding: 0;
+            list-style: none;
+            margin: 0;
+        }
+
+        .sidebar-menu li {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: 18px 25px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border-left: 5px solid #f39c12;
+            transform: translateX(5px);
+        }
+
+        .sidebar-menu i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .main-content {
+            margin-left: 0;
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        .content-wrapper {
+            background: rgba(255,255,255,0.98);
+            margin: 15px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .content-header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.05) 10px,
+                rgba(255,255,255,0.05) 20px
+            );
+            animation: slide 20s linear infinite;
+        }
+
+        @keyframes slide {
+            0% { transform: translateX(-50px) translateY(-50px); }
+            100% { transform: translateX(50px) translateY(50px); }
+        }
+
+        .content-header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .content-header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+            margin: 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .content-body {
+            padding: 45px;
+        }
+
+        .menu-toggle {
+            position: fixed;
+            top: 25px;
+            left: 25px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 15px 18px;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            background: linear-gradient(135deg, #2980b9, #1f5f8b);
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background: linear-gradient(135deg, #c0392b, #a93226);
+            transform: scale(1.1) translateY(-3px);
+        }
+
+        .next-button {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.3);
+        }
+
+        .next-button:hover {
+            background: linear-gradient(135deg, #229954, #27ae60);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(39, 174, 96, 0.4);
+        }
+
+        .code-block {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            border-radius: 15px;
+            padding: 0;
+            margin: 25px 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .code-header {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            padding: 15px 25px;
+            color: #ecf0f1;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .code-content {
+            color: #ecf0f1;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            line-height: 1.8;
+            padding: 25px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            background: #2c3e50;
+            border-radius: 0 0 15px 15px;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.1));
+            padding: 25px;
+            border-left: 5px solid #3498db;
+            border-radius: 10px;
+            margin: 25px 0;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.1);
+        }
+
+        .step-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 25px 0;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-left: 6px solid #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 15px;
+            font-size: 1.1rem;
+        }
+
+        .emoji {
+            font-size: 1.8rem;
+            margin-right: 12px;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .intro-icons {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .intro-icon {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            min-width: 140px;
+            transition: all 0.3s ease;
+        }
+
+        .intro-icon:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .intro-icon i {
+            font-size: 3rem;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+
+        .intro-icon h5 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-top: 4px solid #3498db;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .feature-card i {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h5 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .feature-card p {
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .progress-bar-custom {
+            background: #ecf0f1;
+            height: 8px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-radius: 10px;
+            transition: width 2s ease;
+        }
+
+        @media (min-width: 768px) {
+            .sidebar {
+                left: 0;
+            }
+            
+            .main-content {
+                margin-left: 300px;
+            }
+            
+            .menu-toggle {
+                display: none;
+            }
+            
+            .content-wrapper {
+                margin: 25px 40px;
+            }
+            
+            .content-header h1 {
+                font-size: 2.8rem;
+            }
+            
+            .content-body {
+                padding: 60px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .content-header h1 {
+                font-size: 2rem;
+            }
+            
+            .content-body {
+                padding: 30px;
+            }
+            
+            .code-content {
+                font-size: 0.9rem;
+            }
+            
+            .intro-icons {
+                gap: 15px;
+            }
+            
+            .intro-icon {
+                min-width: 120px;
+                padding: 20px;
+            }
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .syntax-highlight .tag { color: #e74c3c; }
+        .syntax-highlight .attr { color: #f39c12; }
+        .syntax-highlight .value { color: #27ae60; }
+        .syntax-highlight .comment { color: #95a5a6; font-style: italic; }
+    </style>
+</head>
+<body>
+    <!-- Menu Toggle Button -->
+    <button class="menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Overlay -->
+    <div class="overlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="fab fa-bootstrap"></i> Bootstrap Tutorial</h4>
+            <p>Membuat Portofolio Responsif</p>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#" class="menu-item active" data-section="pengenalan"><i class="fas fa-rocket"></i> Pengenalan</a></li>
+            <li><a href="#" class="menu-item" data-section="persiapan"><i class="fas fa-tools"></i> Persiapan Project</a></li>
+            <li><a href="#" class="menu-item" data-section="struktur"><i class="fas fa-sitemap"></i> Struktur HTML</a></li>
+            <li><a href="#" class="menu-item" data-section="navbar"><i class="fas fa-bars"></i> Membuat Navbar</a></li>
+            <li><a href="#" class="menu-item" data-section="hero"><i class="fas fa-star"></i> Section Hero</a></li>
+            <li><a href="#" class="menu-item" data-section="about"><i class="fas fa-user"></i> Section About</a></li>
+            <li><a href="#" class="menu-item" data-section="portfolio"><i class="fas fa-briefcase"></i> Section Portfolio</a></li>
+            <li><a href="#" class="menu-item" data-section="contact"><i class="fas fa-envelope"></i> Section Contact</a></li>
+            <li><a href="#" class="menu-item" data-section="responsive"><i class="fas fa-mobile-alt"></i> Optimasi Responsif</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="content-wrapper">
+            <!-- Pengenalan Section -->
+            <div class="section active" id="pengenalan">
+                <div class="content-header">
+                    <h1>🚀 Praktik Bootstrap - Membuat Portofolio Responsif</h1>
+                    <p>Belajar membuat website portofolio yang keren dan responsif dengan Bootstrap 5!</p>
+                </div>
+                <div class="content-body">
+                    <div class="intro-icons">
+                        <div class="intro-icon">
+                            <i class="fab fa-bootstrap"></i>
+                            <h5>Bootstrap 5</h5>
+                        </div>
+                        <div class="intro-icon">
+                            <i class="fas fa-mobile-alt"></i>
+                            <h5>Responsif</h5>
+                        </div>
+                        <div class="intro-icon">
+                            <i class="fas fa-palette"></i>
+                            <h5>Modern</h5>
+                        </div>
+                        <div class="intro-icon">
+                            <i class="fas fa-rocket"></i>
+                            <h5>Cepat</h5>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">🎯</span>Apa yang Akan Kamu Pelajari?</h3>
+                    <div class="step-card">
+                        <p style="font-size: 1.2rem; margin-bottom: 20px;"><strong>Dalam tutorial ini, kamu akan belajar:</strong></p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul style="font-size: 1.1rem; line-height: 2;">
+                                    <li>✅ Cara menggunakan Bootstrap 5 untuk membuat website</li>
+                                    <li>✅ Membuat layout yang responsif (bagus di HP dan komputer)</li>
+                                    <li>✅ Menggunakan komponen Bootstrap seperti Navbar, Cards, dan Forms</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul style="font-size: 1.1rem; line-height: 2;">
+                                    <li>✅ Membuat portofolio yang profesional dan menarik</li>
+                                    <li>✅ Tips dan trik untuk optimasi tampilan</li>
+                                    <li>✅ JavaScript untuk interaktivitas</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">🤔</span>Apa itu Bootstrap?</h3>
+                    <div class="highlight">
+                        <p style="font-size: 1.2rem; line-height: 1.8; margin: 0;">
+                            <strong>Bootstrap</strong> adalah framework CSS yang membantu kita membuat website dengan cepat dan mudah. 
+                            Bayangkan Bootstrap seperti "kotak peralatan" yang sudah berisi berbagai komponen siap pakai seperti tombol, 
+                            navbar, cards, dan sistem grid yang responsif. Dengan Bootstrap, kamu tidak perlu menulis CSS dari nol!
+                        </p>
+                    </div>
+
+                    <h3><span class="emoji">🎨</span>Mengapa Menggunakan Bootstrap?</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <i class="fas fa-clock text-primary"></i>
+                            <h5>Hemat Waktu</h5>
+                            <p>Tidak perlu menulis CSS dari nol. Tinggal pakai class yang sudah tersedia!</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-mobile-alt text-success"></i>
+                            <h5>Responsif Otomatis</h5>
+                            <p>Website otomatis menyesuaikan tampilan di berbagai ukuran layar.</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-users text-warning"></i>
+                            <h5>Konsisten</h5>
+                            <p>Tampilan website akan konsisten di semua browser.</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-puzzle-piece text-info"></i>
+                            <h5>Komponen Lengkap</h5>
+                            <p>Tersedia banyak komponen siap pakai seperti navbar, cards, buttons, dll.</p>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">📋</span>Yang Perlu Kamu Siapkan</h3>
+                    <div class="step-card">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul style="font-size: 1.1rem; line-height: 2;">
+                                    <li>💻 Komputer atau laptop</li>
+                                    <li>🌐 Koneksi internet</li>
+                                    <li>📝 Text editor (VS Code, Sublime Text, atau Notepad++)</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul style="font-size: 1.1rem; line-height: 2;">
+                                    <li>🔍 Browser (Chrome, Firefox, atau Edge)</li>
+                                    <li>☕ Semangat belajar dan secangkir kopi/teh!</li>
+                                    <li>🎯 Kemauan untuk berlatih</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="next-button" onclick="nextSection()">
+                            Mulai Praktik <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Persiapan Section -->
+            <div class="section" id="persiapan">
+                <div class="content-header">
+                    <h1>🛠️ Persiapan Project</h1>
+                    <p>Mari siapkan semua yang diperlukan untuk membuat portofolio keren!</p>
+                </div>
+                <div class="content-body">
+                    <h3><span class="emoji">📁</span>Langkah 1: Buat Folder Project</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">1</span>
+                            <h5 class="mb-0">Buat folder baru di komputer kamu</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Buat folder dengan nama <strong>"portfolio-bootstrap"</strong> di desktop atau tempat yang mudah kamu akses.</p>
+                        <div class="highlight">
+                            <p style="margin: 0; font-size: 1.1rem;">
+                                <strong>💡 Tips:</strong> Pilih lokasi yang mudah diingat seperti Desktop atau Documents. 
+                                Nama folder sebaiknya tidak menggunakan spasi atau karakter khusus.
+                            </p>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">📄</span>Langkah 2: Buat File HTML</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">2</span>
+                            <h5 class="mb-0">Buat file index.html</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Di dalam folder "portfolio-bootstrap", buat file baru dengan nama <strong>"index.html"</strong></p>
+                        <div class="row mt-3">
+                            <div class="col-md-6">
+                                <h6><strong>Cara di Windows:</strong></h6>
+                                <ol style="font-size: 1.05rem;">
+                                    <li>Klik kanan di dalam folder</li>
+                                    <li>Pilih "New" → "Text Document"</li>
+                                    <li>Ganti nama dari "New Text Document.txt" menjadi "index.html"</li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><strong>Cara di Mac:</strong></h6>
+                                <ol style="font-size: 1.05rem;">
+                                    <li>Buka Terminal</li>
+                                    <li>Navigasi ke folder project</li>
+                                    <li>Ketik: <code>touch index.html</code></li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">🔗</span>Langkah 3: Template HTML Dasar</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">3</span>
+                            <h5 class="mb-0">Salin kode template dasar ini</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Buka file index.html dengan text editor, lalu salin dan tempel kode berikut:</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-file-code"></i>
+                            <span>index.html - Template Dasar Bootstrap</span>
+                        </div>
+                        <div class="code-content"><!DOCTYPE html>
+&lt;html lang="id"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Portfolio Saya - Nama Kamu&lt;/title&gt;
+    
+    &lt;!-- Bootstrap CSS dari CDN --&gt;
+    &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
+    
+    &lt;!-- Font Awesome untuk ikon-ikon keren --&gt;
+    &lt;link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"&gt;
+    
+    &lt;!-- Google Fonts - Font yang bagus dan mudah dibaca --&gt;
+    &lt;link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"&gt;
+    
+    &lt;style&gt;
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    
+    &lt;div class="container mt-5"&gt;
+        &lt;div class="text-center"&gt;
+            &lt;h1 class="display-4 text-primary"&gt;🚧 Portfolio Dalam Pembangunan&lt;/h1&gt;
+            &lt;p class="lead"&gt;Halo! Website portfolio saya sedang dalam tahap pembuatan.&lt;/p&gt;
+            &lt;p&gt;Jika kamu melihat halaman ini, berarti setup Bootstrap sudah berhasil! 🎉&lt;/p&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+    
+    &lt;!-- Bootstrap JavaScript dari CDN --&gt;
+    &lt;script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</div>
+                    </div>
+
+                    <div class="highlight">
+                        <h5><span class="emoji">💡</span>Penjelasan Kode:</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li><strong>Bootstrap CSS:</strong> Link untuk menggunakan Bootstrap dari CDN (Content Delivery Network)</li>
+                                    <li><strong>Font Awesome:</strong> Library ikon yang sangat lengkap dan keren</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li><strong>Google Fonts:</strong> Font Poppins yang modern dan mudah dibaca</li>
+                                    <li><strong>Bootstrap JavaScript:</strong> Script untuk komponen interaktif Bootstrap</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">🧪</span>Langkah 4: Test File HTML</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">4</span>
+                            <h5 class="mb-0">Buka file di browser untuk testing</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <ol style="font-size: 1.1rem; line-height: 1.8;">
+                                    <li>Simpan file index.html (tekan <kbd>Ctrl+S</kbd> di Windows atau <kbd>Cmd+S</kbd> di Mac)</li>
+                                    <li>Buka file manager/explorer di komputer kamu</li>
+                                    <li>Cari file index.html yang baru kamu buat</li>
+                                    <li>Klik kanan pada file → "Open with" → pilih browser (Chrome/Firefox/Edge)</li>
+                                    <li>Jika berhasil, kamu akan melihat halaman dengan tulisan "Portfolio Dalam Pembangunan"</li>
+                                </ol>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-lightbulb"></i> Tips Cepat:</h6>
+                                    <p class="mb-0" style="font-size: 0.95rem;">Kamu juga bisa drag & drop file HTML langsung ke browser!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="highlight">
+                        <h5><span class="emoji">✅</span>Selamat! Setup Berhasil!</h5>
+                        <p style="font-size: 1.2rem; margin: 0;">
+                            Jika kamu bisa melihat halaman web dengan styling Bootstrap (teks berwarna biru, font yang bagus), 
+                            berarti setup sudah berhasil! Sekarang kita siap untuk mulai membuat portofolio yang keren.
+                        </p>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="next-button" onclick="nextSection()">
+                            Lanjut ke Struktur HTML <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Struktur Section -->
+            <div class="section" id="struktur">
+                <div class="content-header">
+                    <h1>🏗️ Struktur HTML</h1>
+                    <p>Mari buat kerangka dasar website portofolio yang rapi dan terstruktur!</p>
+                </div>
+                <div class="content-body">
+                    <h3><span class="emoji">📐</span>Perencanaan Struktur Website</h3>
+                    <div class="step-card">
+                        <p style="font-size: 1.2rem; margin-bottom: 20px;">Sebelum mulai coding, mari kita rencanakan bagian-bagian yang akan ada di portofolio:</p>
+                        <div class="feature-grid">
+                            <div class="feature-card">
+                                <i class="fas fa-bars text-primary"></i>
+                                <h5>Navbar</h5>
+                                <p>Menu navigasi untuk berpindah antar section</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-star text-warning"></i>
+                                <h5>Hero Section</h5>
+                                <p>Bagian pembuka dengan nama dan profesi</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-user text-info"></i>
+                                <h5>About</h5>
+                                <p>Cerita tentang diri dan pengalaman</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-briefcase text-success"></i>
+                                <h5>Portfolio</h5>
+                                <p>Showcase project dan karya terbaik</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-cogs text-secondary"></i>
+                                <h5>Skills</h5>
+                                <p>Keahlian dan teknologi yang dikuasai</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-envelope text-danger"></i>
+                                <h5>Contact</h5>
+                                <p>Form kontak dan informasi pribadi</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">🔄</span>Langkah 1: Update Struktur HTML Lengkap</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">1</span>
+                            <h5 class="mb-0">Ganti isi body dengan struktur lengkap</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Hapus semua isi dalam tag &lt;body&gt; dan ganti dengan kode struktur lengkap berikut:</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-file-code"></i>
+                            <span>index.html - Struktur Body Lengkap</span>
+                        </div>
+                        <div class="code-content">&lt;body&gt;
+    &lt;!-- Navbar - Menu navigasi yang fixed di atas --&gt;
+    &lt;nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top"&gt;
+        &lt;div class="container"&gt;
+            &lt;a class="navbar-brand fw-bold" href="#"&gt;
+                &lt;i class="fas fa-code me-2"&gt;&lt;/i&gt;Portfolio Saya
+            &lt;/a&gt;
+            &lt;!-- Tombol hamburger untuk mobile --&gt;
+            &lt;button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"&gt;
+                &lt;span class="navbar-toggler-icon"&gt;&lt;/span&gt;
+            &lt;/button&gt;
+            &lt;!-- Menu items --&gt;
+            &lt;div class="collapse navbar-collapse" id="navbarNav"&gt;
+                &lt;ul class="navbar-nav ms-auto"&gt;
+                    &lt;li class="nav-item"&gt;
+                        &lt;a class="nav-link" href="#hero"&gt;Home&lt;/a&gt;
+                    &lt;/li&gt;
+                    &lt;li class="nav-item"&gt;
+                        &lt;a class="nav-link" href="#about"&gt;About&lt;/a&gt;
+                    &lt;/li&gt;
+                    &lt;li class="nav-item"&gt;
+                        &lt;a class="nav-link" href="#portfolio"&gt;Portfolio&lt;/a&gt;
+                    &lt;/li&gt;
+                    &lt;li class="nav-item"&gt;
+                        &lt;a class="nav-link" href="#skills"&gt;Skills&lt;/a&gt;
+                    &lt;/li&gt;
+                    &lt;li class="nav-item"&gt;
+                        &lt;a class="nav-link" href="#contact"&gt;Contact&lt;/a&gt;
+                    &lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/nav&gt;
+
+    &lt;!-- Hero Section - Bagian pembuka --&gt;
+    &lt;section id="hero" class="hero-section"&gt;
+        &lt;div class="container"&gt;
+            &lt;div class="row align-items-center min-vh-100"&gt;
+                &lt;div class="col-lg-6"&gt;
+                    &lt;h1 class="display-4 fw-bold text-white mb-3"&gt;
+                        Halo! Saya &lt;span class="text-warning"&gt;Nama Kamu&lt;/span&gt;
+                    &lt;/h1&gt;
+                    &lt;h3 class="text-white-50 mb-4"&gt;Web Developer &amp; Designer&lt;/h3&gt;
+                    &lt;p class="lead text-white-50 mb-4"&gt;
+                        Saya seorang siswa SMK yang passionate dalam dunia web development.
+                    &lt;/p&gt;
+                    &lt;a href="#portfolio" class="btn btn-warning btn-lg me-3"&gt;Lihat Portfolio&lt;/a&gt;
+                    &lt;a href="#contact" class="btn btn-outline-light btn-lg"&gt;Hubungi Saya&lt;/a&gt;
+                &lt;/div&gt;
+                &lt;div class="col-lg-6 text-center"&gt;
+                    &lt;div class="hero-image"&gt;
+                        &lt;i class="fas fa-user-circle display-1 text-white-50"&gt;&lt;/i&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- About Section --&gt;
+    &lt;section id="about" class="py-5"&gt;
+        &lt;div class="container"&gt;
+            &lt;div class="row"&gt;
+                &lt;div class="col-lg-12 text-center"&gt;
+                    &lt;h2 class="display-5 fw-bold mb-4"&gt;Tentang Saya&lt;/h2&gt;
+                    &lt;p class="lead"&gt;Konten about akan kita isi nanti...&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- Portfolio Section --&gt;
+    &lt;section id="portfolio" class="py-5 bg-light"&gt;
+        &lt;div class="container"&gt;
+            &lt;div class="row"&gt;
+                &lt;div class="col-lg-12 text-center"&gt;
+                    &lt;h2 class="display-5 fw-bold mb-4"&gt;Portfolio&lt;/h2&gt;
+                    &lt;p class="lead"&gt;Konten portfolio akan kita isi nanti...&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- Skills Section --&gt;
+    &lt;section id="skills" class="py-5"&gt;
+        &lt;div class="container"&gt;
+            &lt;div class="row"&gt;
+                &lt;div class="col-lg-12 text-center"&gt;
+                    &lt;h2 class="display-5 fw-bold mb-4"&gt;Skills&lt;/h2&gt;
+                    &lt;p class="lead"&gt;Konten skills akan kita isi nanti...&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- Contact Section --&gt;
+    &lt;section id="contact" class="py-5 bg-light"&gt;
+        &lt;div class="container"&gt;
+            &lt;div class="row"&gt;
+                &lt;div class="col-lg-12 text-center"&gt;
+                    &lt;h2 class="display-5 fw-bold mb-4"&gt;Contact&lt;/h2&gt;
+                    &lt;p class="lead"&gt;Konten contact akan kita isi nanti...&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- Footer --&gt;
+    &lt;footer class="bg-dark text-white py-4"&gt;
+        &lt;div class="container text-center"&gt;
+            &lt;p class="mb-0"&gt;&amp;copy; 2024 Portfolio Saya. Dibuat dengan ❤️ dan Bootstrap&lt;/p&gt;
+        &lt;/div&gt;
+    &lt;/footer&gt;
+
+    &lt;!-- Bootstrap JavaScript --&gt;
+    &lt;script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"&gt;&lt;/script&gt;
+&lt;/body&gt;</div>
+                    </div>
+
+                    <h3><span class="emoji">🎨</span>Langkah 2: Tambahkan CSS Styling</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">2</span>
+                            <h5 class="mb-0">Tambahkan styling dasar yang cantik</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Ganti CSS di dalam tag &lt;style&gt; dengan kode berikut:</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-palette"></i>
+                            <span>CSS - Styling Dasar yang Cantik</span>
+                        </div>
+                        <div class="code-content">    &lt;style&gt;
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            padding-top: 76px; /* Ruang untuk navbar fixed */
+        }
+        
+        /* Hero Section dengan background gradien */
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Efek animasi background */
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"&gt;&lt;circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/&gt;&lt;circle cx="80" cy="80" r="2" fill="rgba(255,255,255,0.1)"/&gt;&lt;/svg&gt;');
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        /* Styling untuk section */
+        section {
+            padding: 80px 0;
+        }
+        
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Navbar hover effect */
+        .navbar-nav .nav-link {
+            transition: all 0.3s ease;
+            margin: 0 5px;
+            border-radius: 5px;
+            padding: 8px 15px !important;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+        
+        /* Button hover effects */
+        .btn {
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero-section {
+                text-align: center;
+            }
+            
+            .display-4 {
+                font-size: 2.5rem;
+            }
+        }
+    &lt;/style&gt;</div>
+                    </div>
+
+                    <div class="highlight">
+                        <h5><span class="emoji">💡</span>Penjelasan CSS Penting:</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li><strong>padding-top: 76px:</strong> Memberikan ruang atas karena navbar fixed</li>
+                                    <li><strong>linear-gradient:</strong> Membuat background gradien yang cantik</li>
+                                    <li><strong>min-vh-100:</strong> Tinggi minimum 100% viewport height</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li><strong>scroll-behavior: smooth:</strong> Scroll yang halus saat klik menu</li>
+                                    <li><strong>transition:</strong> Efek animasi yang smooth</li>
+                                    <li><strong>@media:</strong> CSS responsif untuk mobile</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">👀</span>Langkah 3: Test Hasil di Browser</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">3</span>
+                            <h5 class="mb-0">Lihat hasil dan test responsivitas</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <ol style="font-size: 1.1rem; line-height: 1.8;">
+                                    <li>Simpan file index.html (<kbd>Ctrl+S</kbd>)</li>
+                                    <li>Refresh browser (<kbd>F5</kbd> atau <kbd>Ctrl+R</kbd>)</li>
+                                    <li>Kamu akan melihat:
+                                        <ul>
+                                            <li>Navbar hitam di atas (fixed)</li>
+                                            <li>Hero section dengan background gradien ungu</li>
+                                            <li>Section-section lain dengan background bergantian</li>
+                                        </ul>
+                                    </li>
+                                    <li>Coba klik menu navbar - harus scroll smooth ke section</li>
+                                    <li>Test responsivitas dengan memperkecil ukuran browser</li>
+                                </ol>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="alert alert-success">
+                                    <h6><i class="fas fa-mobile-alt"></i> Test Mobile:</h6>
+                                    <p class="mb-0" style="font-size: 0.95rem;">Tekan F12 → klik icon mobile untuk melihat tampilan mobile!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="highlight">
+                        <h5><span class="emoji">🎉</span>Bagus Sekali!</h5>
+                        <p style="font-size: 1.2rem; margin: 0;">
+                            Sekarang kamu sudah punya kerangka dasar website portofolio yang responsif! 
+                            Struktur HTML sudah rapi, styling sudah cantik, dan navbar sudah berfungsi. 
+                            Selanjutnya kita akan mengisi setiap section dengan konten yang menarik.
+                        </p>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="next-button" onclick="nextSection()">
+                            Lanjut Buat Navbar Keren <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navbar Section -->
+            <div class="section" id="navbar">
+                <div class="content-header">
+                    <h1>🧭 Membuat Navbar Responsif</h1>
+                    <p>Buat menu navigasi yang keren, responsif, dan mudah digunakan!</p>
+                </div>
+                <div class="content-body">
+                    <h3><span class="emoji">🎯</span>Apa itu Navbar dan Mengapa Penting?</h3>
+                    <div class="step-card">
+                        <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 20px;">
+                            <strong>Navbar</strong> (Navigation Bar) adalah menu navigasi yang biasanya ada di bagian atas website. 
+                            Navbar membantu pengunjung untuk berpindah antar halaman atau section dengan mudah. 
+                            Di Bootstrap, navbar sudah responsif otomatis - artinya di HP akan jadi hamburger menu! 🍔
+                        </p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><strong>🖥️ Di Desktop:</strong></h6>
+                                <ul style="font-size: 1.05rem;">
+                                    <li>Menu horizontal</li>
+                                    <li>Semua menu terlihat</li>
+                                    <li>Hover effects</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><strong>📱 Di Mobile:</strong></h6>
+                                <ul style="font-size: 1.05rem;">
+                                    <li>Hamburger menu (☰)</li>
+                                    <li>Menu collapse/expand</li>
+                                    <li>Touch-friendly</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">🔧</span>Langkah 1: Upgrade Navbar dengan Fitur Lengkap</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">1</span>
+                            <h5 class="mb-0">Ganti navbar sederhana dengan yang lebih keren</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Cari bagian navbar di kode kamu, lalu ganti dengan kode yang lebih lengkap berikut:</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-bars"></i>
+                            <span>HTML - Navbar Responsif Lengkap</span>
+                        </div>
+                        <div class="code-content">    &lt;!-- Navbar - Menu navigasi yang responsif --&gt;
+    &lt;nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow"&gt;
+        &lt;div class="container"&gt;
+            &lt;!-- Brand/Logo dengan ikon --&gt;
+            &lt;a class="navbar-brand fw-bold" href="#hero"&gt;
+                &lt;i class="fas fa-code me-2 text-warning"&gt;&lt;/i&gt;
+                &lt;span class="text-white"&gt;Portfolio&lt;/span&gt;
+                &lt;span class="text-warning"&gt;Saya&lt;/span&gt;
+            &lt;/a&gt;
+            
+            &lt;!-- Hamburger Button untuk Mobile --&gt;
+            &lt;button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"&gt;
+                &lt;span class="navbar-toggler-icon"&gt;&lt;/span&gt;
+            &lt;/button&gt;
+            
+            &lt;!-- Menu Items --&gt;
+            &lt;div class="collapse navbar-collapse" id="navbarNav"&gt;
+                &lt;ul class="navbar-nav ms-auto"&gt;
+                    &lt;li class="nav-item"&gt;
+                        &lt;a class="nav-link active" href="#hero"&gt;
+                            &lt;i class="fas fa-home me-1"&gt;&lt;/i&gt;Home
+                        &lt;/a&gt;
+                    &lt;/li&gt;
+                    &lt;li class="nav-item"&gt;
+                        &lt;a class="nav-link" href="#about"&gt;
+                            &lt;i class="fas fa-user me-1"&gt;&lt;/i&gt;About
+                        &lt;/a&gt;
+                    &lt;/li&gt;
+                    &lt;li class="nav-item"&gt;
+                        &lt;a class="nav-link" href="#portfolio"&gt;
+                            &lt;i class="fas fa-briefcase me-1"&gt;&lt;/i&gt;Portfolio
+                        &lt;/a&gt;
+                    &lt;/li&gt;
+                    &lt;li class="nav-item"&gt;
+                        &lt;a class="nav-link" href="#skills"&gt;
+                            &lt;i class="fas fa-cogs me-1"&gt;&lt;/i&gt;Skills
+                        &lt;/a&gt;
+                    &lt;/li&gt;
+                    &lt;li class="nav-item"&gt;
+                        &lt;a class="nav-link" href="#contact"&gt;
+                            &lt;i class="fas fa-envelope me-1"&gt;&lt;/i&gt;Contact
+                        &lt;/a&gt;
+                    &lt;/li&gt;
+                &lt;/ul&gt;
+                
+                &lt;!-- Tombol CTA di navbar --&gt;
+                &lt;div class="d-lg-block d-none ms-3"&gt;
+                    &lt;a href="#contact" class="btn btn-warning btn-sm"&gt;
+                        &lt;i class="fas fa-download me-1"&gt;&lt;/i&gt;Download CV
+                    &lt;/a&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/nav&gt;</div>
+                    </div>
+
+                    <div class="highlight">
+                        <h5><span class="emoji">💡</span>Penjelasan Kode Navbar:</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li><strong>navbar-expand-lg:</strong> Navbar akan collapse di layar kecil dari lg</li>
+                                    <li><strong>navbar-dark bg-dark:</strong> Tema gelap untuk navbar</li>
+                                    <li><strong>fixed-top:</strong> Navbar tetap di atas saat scroll</li>
+                                    <li><strong>shadow:</strong> Efek bayangan untuk navbar</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li><strong>navbar-toggler:</strong> Tombol hamburger untuk mobile</li>
+                                    <li><strong>ms-auto:</strong> Menu rata kanan</li>
+                                    <li><strong>me-1, me-2:</strong> Margin kanan untuk spacing ikon</li>
+                                    <li><strong>d-lg-block d-none:</strong> Tampil hanya di desktop</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">✨</span>Langkah 2: Tambahkan CSS untuk Efek Keren</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">2</span>
+                            <h5 class="mb-0">Tambahkan styling untuk navbar yang lebih menarik</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Tambahkan CSS ini di dalam tag &lt;style&gt; (setelah CSS yang sudah ada):</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-magic"></i>
+                            <span>CSS - Navbar Styling & Effects</span>
+                        </div>
+                        <div class="code-content">        /* Navbar Advanced Styling */
+        .navbar {
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .navbar.scrolled {
+            background-color: rgba(33, 37, 41, 0.95) !important;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Navbar menu styling */
+        .navbar-nav .nav-link {
+            transition: all 0.3s ease;
+            margin: 0 8px;
+            border-radius: 8px;
+            padding: 10px 15px !important;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .navbar-nav .nav-link:hover {
+            background-color: rgba(255,193,7,0.1);
+            color: #ffc107 !important;
+            transform: translateY(-2px);
+        }
+        
+        .navbar-nav .nav-link.active {
+            background-color: rgba(255,193,7,0.2);
+            color: #ffc107 !important;
+        }
+        
+        /* Hamburger menu animation */
+        .navbar-toggler {
+            padding: 8px 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-toggler:hover {
+            background-color: rgba(255,193,7,0.1);
+        }
+        
+        .navbar-toggler:focus {
+            box-shadow: none;
+        }
+        
+        /* Mobile menu styling */
+        @media (max-width: 991px) {
+            .navbar-collapse {
+                background-color: rgba(33, 37, 41, 0.98);
+                margin-top: 15px;
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            }
+            
+            .navbar-nav .nav-link {
+                margin: 5px 0;
+                text-align: center;
+            }
+        }</div>
+                    </div>
+
+                    <h3><span class="emoji">🎮</span>Langkah 3: Tambahkan JavaScript untuk Interaktivitas</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">3</span>
+                            <h5 class="mb-0">Buat navbar yang interaktif dan smart</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Tambahkan script ini sebelum tag &lt;/body&gt; (setelah Bootstrap JavaScript):</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-code"></i>
+                            <span>JavaScript - Navbar Interaktif</span>
+                        </div>
+                        <div class="code-content">    &lt;script&gt;
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY &gt; 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // Active menu berdasarkan scroll position
+        window.addEventListener('scroll', function() {
+            let current = '';
+            const sections = document.querySelectorAll('section');
+            
+            sections.forEach(section =&gt; {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY &gt;= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            // Update active menu
+            const navLinks = document.querySelectorAll('.navbar-nav .nav-link');
+            navLinks.forEach(link =&gt; {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+        
+        // Auto close navbar saat klik menu di mobile
+        const navLinks = document.querySelectorAll('.nav-link');
+        const navbarCollapse = document.querySelector('.navbar-collapse');
+        
+        navLinks.forEach(link =&gt; {
+            link.addEventListener('click', () =&gt; {
+                if (navbarCollapse.classList.contains('show')) {
+                    const bsCollapse = new bootstrap.Collapse(navbarCollapse);
+                    bsCollapse.hide();
+                }
+            });
+        });
+        
+        // Smooth scroll untuk semua anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor =&gt; {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    &lt;/script&gt;</div>
+                    </div>
+
+                    <h3><span class="emoji">📱</span>Langkah 4: Test Responsivitas dan Fitur</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">4</span>
+                            <h5 class="mb-0">Test semua fitur navbar</h5>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <ol style="font-size: 1.1rem; line-height: 1.8;">
+                                    <li>Simpan file dan refresh browser</li>
+                                    <li><strong>Test Desktop:</strong>
+                                        <ul>
+                                            <li>Hover efek pada menu</li>
+                                            <li>Klik menu - smooth scroll ke section</li>
+                                            <li>Scroll halaman - navbar berubah transparan</li>
+                                            <li>Active menu berubah otomatis saat scroll</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Test Mobile:</strong>
+                                        <ul>
+                                            <li>Kecilkan browser atau tekan F12 → mobile view</li>
+                                            <li>Klik hamburger menu - menu muncul/hilang</li>
+                                            <li>Klik menu - otomatis close dan scroll</li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-lightbulb"></i> Tips Testing:</h6>
+                                    <p class="mb-0" style="font-size: 0.95rem;">Gunakan Chrome DevTools (F12) untuk test berbagai ukuran layar!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="highlight">
+                        <h5><span class="emoji">🎉</span>Navbar Kamu Sudah Keren!</h5>
+                        <p style="font-size: 1.2rem; margin: 0;">
+                            Selamat! Navbar kamu sekarang sudah responsif dan interaktif. Di desktop terlihat sebagai menu horizontal dengan efek hover yang smooth, 
+                            di mobile jadi hamburger menu yang user-friendly. Plus ada efek transparansi saat scroll dan active menu yang otomatis berubah!
+                        </p>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="next-button" onclick="nextSection()">
+                            Lanjut ke Hero Section <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Section -->
+            <div class="section" id="hero">
+                <div class="content-header">
+                    <h1>⭐ Section Hero yang Memukau</h1>
+                    <p>Buat bagian pembuka yang menarik dan membuat pengunjung terkesan!</p>
+                </div>
+                <div class="content-body">
+                    <h3><span class="emoji">🎯</span>Apa itu Hero Section?</h3>
+                    <div class="step-card">
+                        <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 20px;">
+                            <strong>Hero Section</strong> adalah bagian pertama yang dilihat pengunjung saat membuka website kamu. 
+                            Ini adalah "first impression" yang sangat penting! Hero section yang baik harus menarik perhatian, 
+                            menyampaikan pesan utama dengan jelas, dan mendorong pengunjung untuk menjelajahi lebih lanjut.
+                        </p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><strong>Elemen Penting Hero Section:</strong></h6>
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li>Headline yang menarik</li>
+                                    <li>Sub-headline yang menjelaskan profesi</li>
+                                    <li>Call-to-action buttons</li>
+                                    <li>Visual yang mendukung (foto/ilustrasi)</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><strong>Tips Hero Section yang Efektif:</strong></h6>
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li>Gunakan kata-kata yang powerful</li>
+                                    <li>Tunjukkan value proposition</li>
+                                    <li>Buat CTA yang jelas</li>
+                                    <li>Pastikan loading cepat</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">✨</span>Langkah 1: Upgrade Hero Section</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">1</span>
+                            <h5 class="mb-0">Ganti hero section dengan konten yang lebih menarik</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Cari bagian hero section di kode kamu, lalu ganti dengan kode yang lebih lengkap:</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-star"></i>
+                            <span>HTML - Hero Section Lengkap</span>
+                        </div>
+                        <div class="code-content">    &lt;!-- Hero Section - Bagian pembuka yang memukau --&gt;
+    &lt;section id="hero" class="hero-section"&gt;
+        &lt;div class="container"&gt;
+            &lt;div class="row align-items-center min-vh-100"&gt;
+                &lt;div class="col-lg-6"&gt;
+                    &lt;div class="hero-content"&gt;
+                        &lt;h1 class="hero-title"&gt;
+                            Halo! Saya &lt;span class="text-warning"&gt;Nama Kamu&lt;/span&gt;
+                        &lt;/h1&gt;
+                        &lt;div class="hero-subtitle"&gt;
+                            &lt;span id="typing-text"&gt;&lt;/span&gt;
+                            &lt;span class="cursor"&gt;|&lt;/span&gt;
+                        &lt;/div&gt;
+                        &lt;p class="hero-description"&gt;
+                            Saya seorang siswa SMK yang passionate dalam dunia web development. 
+                            Suka belajar teknologi baru dan membuat website yang keren dan fungsional.
+                        &lt;/p&gt;
+                        &lt;div class="hero-buttons"&gt;
+                            &lt;a href="#portfolio" class="btn btn-warning btn-lg me-3"&gt;
+                                &lt;i class="fas fa-briefcase me-2"&gt;&lt;/i&gt;Lihat Portfolio
+                            &lt;/a&gt;
+                            &lt;a href="#contact" class="btn btn-outline-light btn-lg"&gt;
+                                &lt;i class="fas fa-envelope me-2"&gt;&lt;/i&gt;Hubungi Saya
+                            &lt;/a&gt;
+                        &lt;/div&gt;
+                        &lt;div class="hero-social mt-4"&gt;
+                            &lt;a href="#" class="social-link"&gt;&lt;i class="fab fa-github"&gt;&lt;/i&gt;&lt;/a&gt;
+                            &lt;a href="#" class="social-link"&gt;&lt;i class="fab fa-linkedin"&gt;&lt;/i&gt;&lt;/a&gt;
+                            &lt;a href="#" class="social-link"&gt;&lt;i class="fab fa-instagram"&gt;&lt;/i&gt;&lt;/a&gt;
+                            &lt;a href="#" class="social-link"&gt;&lt;i class="fab fa-twitter"&gt;&lt;/i&gt;&lt;/a&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div class="col-lg-6 text-center"&gt;
+                    &lt;div class="hero-image"&gt;
+                        &lt;div class="profile-card"&gt;
+                            &lt;div class="profile-img"&gt;
+                                &lt;i class="fas fa-user-circle"&gt;&lt;/i&gt;
+                            &lt;/div&gt;
+                            &lt;div class="floating-elements"&gt;
+                                &lt;div class="floating-icon" style="top: 10%; left: 10%;"&gt;
+                                    &lt;i class="fab fa-html5"&gt;&lt;/i&gt;
+                                &lt;/div&gt;
+                                &lt;div class="floating-icon" style="top: 20%; right: 15%;"&gt;
+                                    &lt;i class="fab fa-css3-alt"&gt;&lt;/i&gt;
+                                &lt;/div&gt;
+                                &lt;div class="floating-icon" style="bottom: 30%; left: 5%;"&gt;
+                                    &lt;i class="fab fa-js-square"&gt;&lt;/i&gt;
+                                &lt;/div&gt;
+                                &lt;div class="floating-icon" style="bottom: 15%; right: 10%;"&gt;
+                                    &lt;i class="fab fa-bootstrap"&gt;&lt;/i&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            &lt;!-- Scroll indicator --&gt;
+            &lt;div class="scroll-indicator"&gt;
+                &lt;a href="#about" class="scroll-down"&gt;
+                    &lt;i class="fas fa-chevron-down"&gt;&lt;/i&gt;
+                &lt;/a&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/section&gt;</div>
+                    </div>
+
+                    <h3><span class="emoji">🎨</span>Langkah 2: Tambahkan CSS untuk Hero Section</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">2</span>
+                            <h5 class="mb-0">Tambahkan styling khusus untuk hero section</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Tambahkan CSS ini di dalam tag &lt;style&gt; (setelah CSS yang sudah ada):</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-palette"></i>
+                            <span>CSS - Hero Section Styling</span>
+                        </div>
+                        <div class="code-content">        /* Hero Section Advanced Styling */
+        .hero-content {
+            animation: fadeInUp 1s ease;
+        }
+        
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.8rem;
+            color: #ffc107;
+            margin-bottom: 25px;
+            min-height: 60px;
+            font-weight: 500;
+        }
+        
+        .hero-description {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 35px;
+            line-height: 1.8;
+        }
+        
+        .hero-buttons .btn {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+        
+        .hero-social {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .social-link:hover {
+            background: #ffc107;
+            color: #333;
+            transform: translateY(-5px);
+        }
+        
+        /* Profile card styling */
+        .profile-card {
+            position: relative;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 40px;
+            border: 1px solid rgba(255,255,255,0.2);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .profile-img i {
+            font-size: 12rem;
+            color: rgba(255,255,255,0.8);
+        }
+        
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+        
+        .floating-icon {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: rgba(255,193,7,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: floatIcon 4s ease-in-out infinite;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,193,7,0.3);
+        }
+        
+        .floating-icon i {
+            font-size: 1.8rem;
+            color: #ffc107;
+        }
+        
+        .floating-icon:nth-child(1) { animation-delay: 0s; }
+        .floating-icon:nth-child(2) { animation-delay: 1s; }
+        .floating-icon:nth-child(3) { animation-delay: 2s; }
+        .floating-icon:nth-child(4) { animation-delay: 3s; }
+        
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .scroll-down {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-radius: 50%;
+            text-decoration: none;
+            font-size: 1.2rem;
+            animation: bounce 2s infinite;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        /* Typing cursor animation */
+        .cursor {
+            animation: blink 1s infinite;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* Responsive hero section */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.4rem;
+            }
+            
+            .hero-description {
+                font-size: 1.1rem;
+            }
+            
+            .profile-img i {
+                font-size: 8rem;
+            }
+            
+            .floating-icon {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .floating-icon i {
+                font-size: 1.4rem;
+            }
+        }</div>
+                    </div>
+
+                    <h3><span class="emoji">⚡</span>Langkah 3: Tambahkan JavaScript untuk Typing Effect</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">3</span>
+                            <h5 class="mb-0">Buat efek mengetik otomatis yang keren</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Tambahkan script ini sebelum tag &lt;/body&gt; (setelah script yang sudah ada):</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-keyboard"></i>
+                            <span>JavaScript - Typing Effect</span>
+                        </div>
+                        <div class="code-content">        // Typing effect untuk hero section
+        const typingTexts = [
+            'Web Developer',
+            'UI/UX Designer', 
+            'Frontend Developer',
+            'Creative Coder',
+            'Problem Solver'
+        ];
+        
+        let textIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typingElement = document.getElementById('typing-text');
+        
+        function typeEffect() {
+            const currentText = typingTexts[textIndex];
+            
+            if (isDeleting) {
+                typingElement.textContent = currentText.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typingElement.textContent = currentText.substring(0, charIndex + 1);
+                charIndex++;
+            }
+            
+            let typeSpeed = isDeleting ? 100 : 150;
+            
+            if (!isDeleting && charIndex === currentText.length) {
+                typeSpeed = 2000; // Pause at end
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                textIndex = (textIndex + 1) % typingTexts.length;
+                typeSpeed = 500; // Pause before next word
+            }
+            
+            setTimeout(typeEffect, typeSpeed);
+        }
+        
+        // Start typing effect when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(typeEffect, 1000);
+        });</div>
+                    </div>
+
+                    <div class="highlight">
+                        <h5><span class="emoji">🎉</span>Hero Section Kamu Sudah Keren!</h5>
+                        <p style="font-size: 1.2rem; margin: 0;">
+                            Sekarang hero section kamu sudah memiliki efek typing yang menarik, animasi floating icons, 
+                            social media links, dan design yang profesional. Pengunjung pasti akan terkesan dengan first impression yang kamu berikan!
+                        </p>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="next-button" onclick="nextSection()">
+                            Lanjut ke About Section <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Section -->
+            <div class="section" id="about">
+                <div class="content-header">
+                    <h1>👤 Section About</h1>
+                    <p>Ceritakan tentang diri kamu dengan cara yang menarik dan profesional!</p>
+                </div>
+                <div class="content-body">
+                    <h3><span class="emoji">📖</span>Mengapa About Section Penting?</h3>
+                    <div class="step-card">
+                        <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 20px;">
+                            <strong>About section</strong> adalah tempat kamu bercerita tentang diri sendiri, pengalaman, dan passion kamu. 
+                            Bagian ini penting karena membantu pengunjung mengenal kamu lebih dekat dan membangun koneksi personal. 
+                            Di sinilah kamu bisa menunjukkan personality dan membuat orang tertarik untuk bekerja sama dengan kamu!
+                        </p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><strong>Elemen Penting About Section:</strong></h6>
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li>Foto profesional yang friendly</li>
+                                    <li>Cerita singkat tapi berkesan</li>
+                                    <li>Timeline pengalaman/pendidikan</li>
+                                    <li>Skills dan keahlian</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><strong>Tips About Section yang Efektif:</strong></h6>
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li>Tunjukkan personality kamu</li>
+                                    <li>Sertakan hobi dan minat</li>
+                                    <li>Highlight pencapaian penting</li>
+                                    <li>Gunakan bahasa yang conversational</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">✨</span>Langkah 1: Buat About Section Lengkap</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">1</span>
+                            <h5 class="mb-0">Ganti about section dengan konten yang menarik</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Cari bagian about section di kode kamu, lalu ganti dengan kode yang lebih lengkap:</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-user"></i>
+                            <span>HTML - About Section Lengkap</span>
+                        </div>
+                        <div class="code-content">    &lt;!-- About Section --&gt;
+    &lt;section id="about" class="py-5"&gt;
+        &lt;div class="container"&gt;
+            &lt;div class="row"&gt;
+                &lt;div class="col-lg-12 text-center mb-5"&gt;
+                    &lt;h2 class="display-5 fw-bold mb-3"&gt;Tentang Saya&lt;/h2&gt;
+                    &lt;p class="lead text-muted"&gt;Mari berkenalan lebih dekat dengan saya&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            
+            &lt;div class="row align-items-center"&gt;
+                &lt;div class="col-lg-4 text-center mb-4"&gt;
+                    &lt;div class="about-image"&gt;
+                        &lt;div class="profile-picture"&gt;
+                            &lt;i class="fas fa-user-circle"&gt;&lt;/i&gt;
+                        &lt;/div&gt;
+                        &lt;div class="about-stats mt-4"&gt;
+                            &lt;div class="row"&gt;
+                                &lt;div class="col-4"&gt;
+                                    &lt;div class="stat-item"&gt;
+                                        &lt;h4 class="stat-number" data-target="15"&gt;0&lt;/h4&gt;
+                                        &lt;p class="stat-label"&gt;Projects&lt;/p&gt;
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                                &lt;div class="col-4"&gt;
+                                    &lt;div class="stat-item"&gt;
+                                        &lt;h4 class="stat-number" data-target="3"&gt;0&lt;/h4&gt;
+                                        &lt;p class="stat-label"&gt;Years&lt;/p&gt;
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                                &lt;div class="col-4"&gt;
+                                    &lt;div class="stat-item"&gt;
+                                        &lt;h4 class="stat-number" data-target="50"&gt;0&lt;/h4&gt;
+                                        &lt;p class="stat-label"&gt;Happy Clients&lt;/p&gt;
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                
+                &lt;div class="col-lg-8"&gt;
+                    &lt;div class="about-content"&gt;
+                        &lt;h3 class="mb-4"&gt;Halo! Saya seorang Web Developer yang passionate&lt;/h3&gt;
+                        &lt;p class="mb-4" style="font-size: 1.1rem; line-height: 1.8;"&gt;
+                            Saya adalah siswa SMK jurusan Rekayasa Perangkat Lunak yang memiliki passion besar 
+                            dalam dunia web development. Sudah 3 tahun berkecimpung di dunia coding dan terus 
+                            belajar teknologi-teknologi terbaru untuk menciptakan website yang tidak hanya 
+                            cantik, tapi juga fungsional dan user-friendly.
+                        &lt;/p&gt;
+                        &lt;p class="mb-4" style="font-size: 1.1rem; line-height: 1.8;"&gt;
+                            Saya percaya bahwa setiap website harus memiliki tujuan yang jelas dan memberikan 
+                            pengalaman terbaik bagi penggunanya. Oleh karena itu, saya selalu fokus pada 
+                            detail, performa, dan responsivitas dalam setiap project yang saya kerjakan.
+                        &lt;/p&gt;
+                        
+                        &lt;div class="skills-preview mb-4"&gt;
+                            &lt;h5 class="mb-3"&gt;Keahlian Utama:&lt;/h5&gt;
+                            &lt;div class="skill-tags"&gt;
+                                &lt;span class="skill-tag"&gt;&lt;i class="fab fa-html5"&gt;&lt;/i&gt; HTML5&lt;/span&gt;
+                                &lt;span class="skill-tag"&gt;&lt;i class="fab fa-css3-alt"&gt;&lt;/i&gt; CSS3&lt;/span&gt;
+                                &lt;span class="skill-tag"&gt;&lt;i class="fab fa-js-square"&gt;&lt;/i&gt; JavaScript&lt;/span&gt;
+                                &lt;span class="skill-tag"&gt;&lt;i class="fab fa-bootstrap"&gt;&lt;/i&gt; Bootstrap&lt;/span&gt;
+                                &lt;span class="skill-tag"&gt;&lt;i class="fab fa-react"&gt;&lt;/i&gt; React&lt;/span&gt;
+                                &lt;span class="skill-tag"&gt;&lt;i class="fab fa-php"&gt;&lt;/i&gt; PHP&lt;/span&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        
+                        &lt;div class="about-buttons"&gt;
+                            &lt;a href="#portfolio" class="btn btn-primary btn-lg me-3"&gt;
+                                &lt;i class="fas fa-eye me-2"&gt;&lt;/i&gt;Lihat Portfolio
+                            &lt;/a&gt;
+                            &lt;a href="#" class="btn btn-outline-primary btn-lg"&gt;
+                                &lt;i class="fas fa-download me-2"&gt;&lt;/i&gt;Download CV
+                            &lt;/a&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            
+            &lt;!-- Timeline Section --&gt;
+            &lt;div class="row mt-5"&gt;
+                &lt;div class="col-lg-12"&gt;
+                    &lt;h3 class="text-center mb-5"&gt;Perjalanan Saya&lt;/h3&gt;
+                    &lt;div class="timeline"&gt;
+                        &lt;div class="timeline-item"&gt;
+                            &lt;div class="timeline-marker"&gt;&lt;i class="fas fa-graduation-cap"&gt;&lt;/i&gt;&lt;/div&gt;
+                            &lt;div class="timeline-content"&gt;
+                                &lt;h5&gt;2022 - Sekarang&lt;/h5&gt;
+                                &lt;h6&gt;SMK Negeri 1 - Rekayasa Perangkat Lunak&lt;/h6&gt;
+                                &lt;p&gt;Belajar dasar-dasar programming, database, dan web development. 
+                                   Aktif mengikuti berbagai kompetisi coding dan workshop teknologi.&lt;/p&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        
+                        &lt;div class="timeline-item"&gt;
+                            &lt;div class="timeline-marker"&gt;&lt;i class="fas fa-code"&gt;&lt;/i&gt;&lt;/div&gt;
+                            &lt;div class="timeline-content"&gt;
+                                &lt;h5&gt;2023&lt;/h5&gt;
+                                &lt;h6&gt;Mulai Freelance Web Developer&lt;/h6&gt;
+                                &lt;p&gt;Mengerjakan project pertama untuk toko online lokal. 
+                                   Belajar banyak tentang client communication dan project management.&lt;/p&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        
+                        &lt;div class="timeline-item"&gt;
+                            &lt;div class="timeline-marker"&gt;&lt;i class="fas fa-trophy"&gt;&lt;/i&gt;&lt;/div&gt;
+                            &lt;div class="timeline-content"&gt;
+                                &lt;h5&gt;2024&lt;/h5&gt;
+                                &lt;h6&gt;Juara 2 Lomba Web Design Tingkat Provinsi&lt;/h6&gt;
+                                &lt;p&gt;Berhasil meraih juara 2 dalam kompetisi web design dengan tema 
+                                   "Smart City". Project ini menggunakan React dan Node.js.&lt;/p&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/section&gt;</div>
+                    </div>
+
+                    <h3><span class="emoji">🎨</span>Langkah 2: Tambahkan CSS untuk About Section</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">2</span>
+                            <h5 class="mb-0">Tambahkan styling untuk about section</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Tambahkan CSS ini di dalam tag &lt;style&gt; (setelah CSS yang sudah ada):</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-palette"></i>
+                            <span>CSS - About Section Styling</span>
+                        </div>
+                        <div class="code-content">        /* About Section Styling */
+        .profile-picture i {
+            font-size: 12rem;
+            color: #3498db;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .about-stats {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin: 0;
+            font-weight: 500;
+        }
+        
+        .about-content {
+            padding-left: 30px;
+        }
+        
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .skill-tag {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .skill-tag:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+        }
+        
+        .skill-tag i {
+            font-size: 1.1rem;
+        }
+        
+        /* Timeline Styling */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, #3498db, #2980b9);
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 40px;
+            padding-left: 50px;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: -30px;
+            top: 0;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+        }
+        
+        .timeline-content {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-left: 4px solid #3498db;
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+        
+        .timeline-content h5 {
+            color: #3498db;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-content h6 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .timeline-content p {
+            color: #6c757d;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        /* Responsive about section */
+        @media (max-width: 768px) {
+            .about-content {
+                padding-left: 0;
+                margin-top: 30px;
+            }
+            
+            .profile-picture i {
+                font-size: 8rem;
+            }
+            
+            .timeline {
+                padding-left: 20px;
+            }
+            
+            .timeline-item {
+                padding-left: 40px;
+            }
+            
+            .timeline-marker {
+                left: -20px;
+                width: 30px;
+                height: 30px;
+                font-size: 1rem;
+            }
+        }</div>
+                    </div>
+
+                    <h3><span class="emoji">⚡</span>Langkah 3: Tambahkan JavaScript untuk Animasi Counter</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">3</span>
+                            <h5 class="mb-0">Buat animasi counter untuk statistik</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Tambahkan script ini sebelum tag &lt;/body&gt; (setelah script yang sudah ada):</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-chart-line"></i>
+                            <span>JavaScript - Counter Animation</span>
+                        </div>
+                        <div class="code-content">        // Counter animation untuk about section
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-number');
+            
+            counters.forEach(counter =&gt; {
+                const target = parseInt(counter.getAttribute('data-target'));
+                const increment = target / 100;
+                let current = 0;
+                
+                const updateCounter = () =&gt; {
+                    if (current &lt; target) {
+                        current += increment;
+                        counter.textContent = Math.ceil(current);
+                        setTimeout(updateCounter, 20);
+                    } else {
+                        counter.textContent = target;
+                    }
+                };
+                
+                updateCounter();
+            });
+        }
+        
+        // Intersection Observer untuk trigger animasi saat scroll
+        const aboutSection = document.getElementById('about');
+        const aboutObserver = new IntersectionObserver((entries) =&gt; {
+            entries.forEach(entry =&gt; {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    aboutObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        if (aboutSection) {
+            aboutObserver.observe(aboutSection);
+        }</div>
+                    </div>
+
+                    <div class="highlight">
+                        <h5><span class="emoji">🎉</span>About Section Kamu Sudah Profesional!</h5>
+                        <p style="font-size: 1.2rem; margin: 0;">
+                            Sekarang about section kamu sudah memiliki foto profil, statistik dengan animasi counter, 
+                            skill tags yang interaktif, dan timeline yang menarik. Pengunjung akan mendapat gambaran lengkap tentang diri kamu!
+                        </p>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="next-button" onclick="nextSection()">
+                            Lanjut ke Portfolio Section <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Section -->
+            <div class="section" id="portfolio">
+                <div class="content-header">
+                    <h1>💼 Section Portfolio</h1>
+                    <p>Tampilkan karya-karya terbaik kamu dengan style yang menarik!</p>
+                </div>
+                <div class="content-body">
+                    <h3><span class="emoji">🎨</span>Mengapa Portfolio Section Penting?</h3>
+                    <div class="step-card">
+                        <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 20px;">
+                            <strong>Portfolio section</strong> adalah showcase karya-karya terbaik kamu. Di sini kamu bisa menampilkan project, 
+                            website, aplikasi, atau karya lain yang pernah dibuat. Portfolio yang baik akan meyakinkan calon klien atau employer 
+                            tentang kemampuan dan kualitas kerja kamu. Gunakan Bootstrap Cards untuk layout yang rapi dan menarik!
+                        </p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><strong>Elemen Penting Portfolio:</strong></h6>
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li>Screenshot/mockup berkualitas tinggi</li>
+                                    <li>Deskripsi project yang jelas</li>
+                                    <li>Teknologi yang digunakan</li>
+                                    <li>Link demo dan source code</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><strong>Tips Portfolio yang Efektif:</strong></h6>
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li>Pilih 4-6 project terbaik</li>
+                                    <li>Ceritakan tantangan dan solusi</li>
+                                    <li>Tunjukkan variety skills</li>
+                                    <li>Update secara berkala</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">✨</span>Langkah 1: Buat Portfolio Section dengan Cards</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">1</span>
+                            <h5 class="mb-0">Ganti portfolio section dengan showcase project</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Cari bagian portfolio section di kode kamu, lalu ganti dengan kode yang lebih lengkap:</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-briefcase"></i>
+                            <span>HTML - Portfolio Section Lengkap</span>
+                        </div>
+                        <div class="code-content">    &lt;!-- Portfolio Section --&gt;
+    &lt;section id="portfolio" class="py-5 bg-light"&gt;
+        &lt;div class="container"&gt;
+            &lt;div class="row"&gt;
+                &lt;div class="col-lg-12 text-center mb-5"&gt;
+                    &lt;h2 class="display-5 fw-bold mb-3"&gt;Portfolio Saya&lt;/h2&gt;
+                    &lt;p class="lead text-muted"&gt;Beberapa project yang pernah saya kerjakan&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            
+            &lt;!-- Filter buttons --&gt;
+            &lt;div class="row mb-4"&gt;
+                &lt;div class="col-12 text-center"&gt;
+                    &lt;div class="portfolio-filters"&gt;
+                        &lt;button class="filter-btn active" data-filter="all"&gt;Semua&lt;/button&gt;
+                        &lt;button class="filter-btn" data-filter="web"&gt;Website&lt;/button&gt;
+                        &lt;button class="filter-btn" data-filter="mobile"&gt;Mobile App&lt;/button&gt;
+                        &lt;button class="filter-btn" data-filter="design"&gt;UI/UX Design&lt;/button&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            
+            &lt;div class="row portfolio-grid"&gt;
+                &lt;!-- Project 1 --&gt;
+                &lt;div class="col-lg-4 col-md-6 mb-4 portfolio-item" data-category="web"&gt;
+                    &lt;div class="portfolio-card"&gt;
+                        &lt;div class="portfolio-image"&gt;
+                            &lt;div class="project-placeholder"&gt;
+                                &lt;i class="fas fa-laptop-code"&gt;&lt;/i&gt;
+                                &lt;h5&gt;E-Commerce Website&lt;/h5&gt;
+                            &lt;/div&gt;
+                            &lt;div class="portfolio-overlay"&gt;
+                                &lt;div class="portfolio-links"&gt;
+                                    &lt;a href="#" class="portfolio-link" data-bs-toggle="modal" data-bs-target="#portfolioModal1"&gt;
+                                        &lt;i class="fas fa-eye"&gt;&lt;/i&gt;
+                                    &lt;/a&gt;
+                                    &lt;a href="#" class="portfolio-link"&gt;
+                                        &lt;i class="fas fa-external-link-alt"&gt;&lt;/i&gt;
+                                    &lt;/a&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        &lt;div class="portfolio-content"&gt;
+                            &lt;h5&gt;Toko Online Fashion&lt;/h5&gt;
+                            &lt;p&gt;Website e-commerce lengkap dengan sistem pembayaran dan manajemen produk.&lt;/p&gt;
+                            &lt;div class="portfolio-tech"&gt;
+                                &lt;span class="tech-tag"&gt;HTML&lt;/span&gt;
+                                &lt;span class="tech-tag"&gt;CSS&lt;/span&gt;
+                                &lt;span class="tech-tag"&gt;JavaScript&lt;/span&gt;
+                                &lt;span class="tech-tag"&gt;PHP&lt;/span&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                
+                &lt;!-- Project 2 --&gt;
+                &lt;div class="col-lg-4 col-md-6 mb-4 portfolio-item" data-category="mobile"&gt;
+                    &lt;div class="portfolio-card"&gt;
+                        &lt;div class="portfolio-image"&gt;
+                            &lt;div class="project-placeholder"&gt;
+                                &lt;i class="fas fa-mobile-alt"&gt;&lt;/i&gt;
+                                &lt;h5&gt;Food Delivery App&lt;/h5&gt;
+                            &lt;/div&gt;
+                            &lt;div class="portfolio-overlay"&gt;
+                                &lt;div class="portfolio-links"&gt;
+                                    &lt;a href="#" class="portfolio-link" data-bs-toggle="modal" data-bs-target="#portfolioModal2"&gt;
+                                        &lt;i class="fas fa-eye"&gt;&lt;/i&gt;
+                                    &lt;/a&gt;
+                                    &lt;a href="#" class="portfolio-link"&gt;
+                                        &lt;i class="fas fa-external-link-alt"&gt;&lt;/i&gt;
+                                    &lt;/a&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        &lt;div class="portfolio-content"&gt;
+                            &lt;h5&gt;Aplikasi Pesan Makanan&lt;/h5&gt;
+                            &lt;p&gt;Mobile app untuk memesan makanan dengan fitur tracking real-time.&lt;/p&gt;
+                            &lt;div class="portfolio-tech"&gt;
+                                &lt;span class="tech-tag"&gt;React Native&lt;/span&gt;
+                                &lt;span class="tech-tag"&gt;Firebase&lt;/span&gt;
+                                &lt;span class="tech-tag"&gt;Node.js&lt;/span&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                
+                &lt;!-- Project 3 --&gt;
+                &lt;div class="col-lg-4 col-md-6 mb-4 portfolio-item" data-category="design"&gt;
+                    &lt;div class="portfolio-card"&gt;
+                        &lt;div class="portfolio-image"&gt;
+                            &lt;div class="project-placeholder"&gt;
+                                &lt;i class="fas fa-paint-brush"&gt;&lt;/i&gt;
+                                &lt;h5&gt;Banking App UI&lt;/h5&gt;
+                            &lt;/div&gt;
+                            &lt;div class="portfolio-overlay"&gt;
+                                &lt;div class="portfolio-links"&gt;
+                                    &lt;a href="#" class="portfolio-link" data-bs-toggle="modal" data-bs-target="#portfolioModal3"&gt;
+                                        &lt;i class="fas fa-eye"&gt;&lt;/i&gt;
+                                    &lt;/a&gt;
+                                    &lt;a href="#" class="portfolio-link"&gt;
+                                        &lt;i class="fas fa-external-link-alt"&gt;&lt;/i&gt;
+                                    &lt;/a&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        &lt;div class="portfolio-content"&gt;
+                            &lt;h5&gt;UI Design Aplikasi Bank&lt;/h5&gt;
+                            &lt;p&gt;Desain interface modern untuk aplikasi mobile banking dengan UX yang intuitif.&lt;/p&gt;
+                            &lt;div class="portfolio-tech"&gt;
+                                &lt;span class="tech-tag"&gt;Figma&lt;/span&gt;
+                                &lt;span class="tech-tag"&gt;Adobe XD&lt;/span&gt;
+                                &lt;span class="tech-tag"&gt;Prototyping&lt;/span&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                
+                &lt;!-- Project 4 --&gt;
+                &lt;div class="col-lg-4 col-md-6 mb-4 portfolio-item" data-category="web"&gt;
+                    &lt;div class="portfolio-card"&gt;
+                        &lt;div class="portfolio-image"&gt;
+                            &lt;div class="project-placeholder"&gt;
+                                &lt;i class="fas fa-graduation-cap"&gt;&lt;/i&gt;
+                                &lt;h5&gt;School Management&lt;/h5&gt;
+                            &lt;/div&gt;
+                            &lt;div class="portfolio-overlay"&gt;
+                                &lt;div class="portfolio-links"&gt;
+                                    &lt;a href="#" class="portfolio-link" data-bs-toggle="modal" data-bs-target="#portfolioModal4"&gt;
+                                        &lt;i class="fas fa-eye"&gt;&lt;/i&gt;
+                                    &lt;/a&gt;
+                                    &lt;a href="#" class="portfolio-link"&gt;
+                                        &lt;i class="fas fa-external-link-alt"&gt;&lt;/i&gt;
+                                    &lt;/a&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        &lt;div class="portfolio-content"&gt;
+                            &lt;h5&gt;Sistem Manajemen Sekolah&lt;/h5&gt;
+                            &lt;p&gt;Web aplikasi untuk mengelola data siswa, guru, dan nilai dengan dashboard admin.&lt;/p&gt;
+                            &lt;div class="portfolio-tech"&gt;
+                                &lt;span class="tech-tag"&gt;Laravel&lt;/span&gt;
+                                &lt;span class="tech-tag"&gt;MySQL&lt;/span&gt;
+                                &lt;span class="tech-tag"&gt;Bootstrap&lt;/span&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                
+                &lt;!-- Project 5 --&gt;
+                &lt;div class="col-lg-4 col-md-6 mb-4 portfolio-item" data-category="web"&gt;
+                    &lt;div class="portfolio-card"&gt;
+                        &lt;div class="portfolio-image"&gt;
+                            &lt;div class="project-placeholder"&gt;
+                                &lt;i class="fas fa-blog"&gt;&lt;/i&gt;
+                                &lt;h5&gt;Personal Blog&lt;/h5&gt;
+                            &lt;/div&gt;
+                            &lt;div class="portfolio-overlay"&gt;
+                                &lt;div class="portfolio-links"&gt;
+                                    &lt;a href="#" class="portfolio-link" data-bs-toggle="modal" data-bs-target="#portfolioModal5"&gt;
+                                        &lt;i class="fas fa-eye"&gt;&lt;/i&gt;
+                                    &lt;/a&gt;
+                                    &lt;a href="#" class="portfolio-link"&gt;
+                                        &lt;i class="fas fa-external-link-alt"&gt;&lt;/i&gt;
+                                    &lt;/a&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        &lt;div class="portfolio-content"&gt;
+                            &lt;h5&gt;Blog Pribadi Responsif&lt;/h5&gt;
+                            &lt;p&gt;Website blog dengan CMS custom, sistem komentar, dan optimasi SEO.&lt;/p&gt;
+                            &lt;div class="portfolio-tech"&gt;
+                                &lt;span class="tech-tag"&gt;WordPress&lt;/span&gt;
+                                &lt;span class="tech-tag"&gt;Custom Theme&lt;/span&gt;
+                                &lt;span class="tech-tag"&gt;SEO&lt;/span&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                
+                &lt;!-- Project 6 --&gt;
+                &lt;div class="col-lg-4 col-md-6 mb-4 portfolio-item" data-category="design"&gt;
+                    &lt;div class="portfolio-card"&gt;
+                        &lt;div class="portfolio-image"&gt;
+                            &lt;div class="project-placeholder"&gt;
+                                &lt;i class="fas fa-palette"&gt;&lt;/i&gt;
+                                &lt;h5&gt;Brand Identity&lt;/h5&gt;
+                            &lt;/div&gt;
+                            &lt;div class="portfolio-overlay"&gt;
+                                &lt;div class="portfolio-links"&gt;
+                                    &lt;a href="#" class="portfolio-link" data-bs-toggle="modal" data-bs-target="#portfolioModal6"&gt;
+                                        &lt;i class="fas fa-eye"&gt;&lt;/i&gt;
+                                    &lt;/a&gt;
+                                    &lt;a href="#" class="portfolio-link"&gt;
+                                        &lt;i class="fas fa-external-link-alt"&gt;&lt;/i&gt;
+                                    &lt;/a&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        &lt;div class="portfolio-content"&gt;
+                            &lt;h5&gt;Brand Identity Startup&lt;/h5&gt;
+                            &lt;p&gt;Desain logo, brand guideline, dan materi marketing untuk startup teknologi.&lt;/p&gt;
+                            &lt;div class="portfolio-tech"&gt;
+                                &lt;span class="tech-tag"&gt;Illustrator&lt;/span&gt;
+                                &lt;span class="tech-tag"&gt;Photoshop&lt;/span&gt;
+                                &lt;span class="tech-tag"&gt;Branding&lt;/span&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/section&gt;</div>
+                    </div>
+
+                    <h3><span class="emoji">🎨</span>Langkah 2: Tambahkan CSS untuk Portfolio Section</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">2</span>
+                            <h5 class="mb-0">Tambahkan styling untuk portfolio cards</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Tambahkan CSS ini di dalam tag &lt;style&gt; (setelah CSS yang sudah ada):</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-palette"></i>
+                            <span>CSS - Portfolio Section Styling</span>
+                        </div>
+                        <div class="code-content">        /* Portfolio Section Styling */
+        .portfolio-filters {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        
+        .filter-btn {
+            background: white;
+            border: 2px solid #3498db;
+            color: #3498db;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #3498db;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+        }
+        
+        .portfolio-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .portfolio-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .portfolio-image {
+            position: relative;
+            height: 250px;
+            overflow: hidden;
+        }
+        
+        .project-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .project-placeholder i {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+        
+        .project-placeholder h5 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .portfolio-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(52, 152, 219, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .portfolio-card:hover .portfolio-overlay {
+            opacity: 1;
+        }
+        
+        .portfolio-links {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .portfolio-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: white;
+            color: #3498db;
+            border-radius: 50%;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .portfolio-link:hover {
+            background: #ffc107;
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .portfolio-content {
+            padding: 25px;
+        }
+        
+        .portfolio-content h5 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .portfolio-content p {
+            color: #6c757d;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .portfolio-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .tech-tag {
+            background: #f8f9fa;
+            color: #495057;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid #e9ecef;
+        }
+        
+        /* Portfolio item animation */
+        .portfolio-item {
+            transition: all 0.3s ease;
+        }
+        
+        .portfolio-item.hide {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+        }
+        
+        /* Responsive portfolio */
+        @media (max-width: 768px) {
+            .portfolio-filters {
+                gap: 10px;
+            }
+            
+            .filter-btn {
+                padding: 8px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .portfolio-image {
+                height: 200px;
+            }
+            
+            .project-placeholder i {
+                font-size: 3rem;
+            }
+            
+            .portfolio-content {
+                padding: 20px;
+            }
+        }</div>
+                    </div>
+
+                    <h3><span class="emoji">⚡</span>Langkah 3: Tambahkan JavaScript untuk Filter Portfolio</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">3</span>
+                            <h5 class="mb-0">Buat sistem filter untuk kategori project</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Tambahkan script ini sebelum tag &lt;/body&gt; (setelah script yang sudah ada):</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-filter"></i>
+                            <span>JavaScript - Portfolio Filter</span>
+                        </div>
+                        <div class="code-content">        // Portfolio filter functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const portfolioItems = document.querySelectorAll('.portfolio-item');
+            
+            filterBtns.forEach(btn =&gt; {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterBtns.forEach(b =&gt; b.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    const filterValue = this.getAttribute('data-filter');
+                    
+                    portfolioItems.forEach(item =&gt; {
+                        if (filterValue === 'all') {
+                            item.classList.remove('hide');
+                        } else {
+                            if (item.getAttribute('data-category') === filterValue) {
+                                item.classList.remove('hide');
+                            } else {
+                                item.classList.add('hide');
+                            }
+                        }
+                    });
+                });
+            });
+        });</div>
+                    </div>
+
+                    <div class="highlight">
+                        <h5><span class="emoji">🎉</span>Portfolio Section Kamu Sudah Profesional!</h5>
+                        <p style="font-size: 1.2rem; margin: 0;">
+                            Sekarang portfolio section kamu sudah memiliki filter kategori yang interaktif, 
+                            cards dengan hover effects yang smooth, dan layout yang responsive. 
+                            Pengunjung bisa dengan mudah melihat project-project terbaik kamu berdasarkan kategori!
+                        </p>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="next-button" onclick="nextSection()">
+                            Lanjut ke Contact Section <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Section -->
+            <div class="section" id="contact">
+                <div class="content-header">
+                    <h1>📞 Section Contact</h1>
+                    <p>Buat form kontak yang mudah digunakan pengunjung!</p>
+                </div>
+                <div class="content-body">
+                    <h3><span class="emoji">📬</span>Mengapa Contact Section Penting?</h3>
+                    <div class="step-card">
+                        <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 20px;">
+                            <strong>Contact section</strong> adalah jembatan antara kamu dan calon klien atau employer. 
+                            Bagian ini harus mudah ditemukan, mudah digunakan, dan memberikan berbagai cara untuk menghubungi kamu. 
+                            Form kontak yang baik bisa meningkatkan peluang mendapat project atau pekerjaan!
+                        </p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><strong>Elemen Penting Contact Section:</strong></h6>
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li>Form kontak dengan validasi</li>
+                                    <li>Informasi kontak langsung</li>
+                                    <li>Link media sosial</li>
+                                    <li>Lokasi/alamat (jika diperlukan)</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><strong>Tips Contact Section Efektif:</strong></h6>
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li>Call-to-action yang jelas</li>
+                                    <li>Response time expectation</li>
+                                    <li>Multiple contact methods</li>
+                                    <li>Professional tone</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3><span class="emoji">✨</span>Langkah 1: Buat Contact Section Lengkap</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">1</span>
+                            <h5 class="mb-0">Ganti contact section dengan form dan info kontak</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Cari bagian contact section di kode kamu, lalu ganti dengan kode yang lebih lengkap:</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-envelope"></i>
+                            <span>HTML - Contact Section Lengkap</span>
+                        </div>
+                        <div class="code-content">    &lt;!-- Contact Section --&gt;
+    &lt;section id="contact" class="py-5 bg-light"&gt;
+        &lt;div class="container"&gt;
+            &lt;div class="row"&gt;
+                &lt;div class="col-lg-12 text-center mb-5"&gt;
+                    &lt;h2 class="display-5 fw-bold mb-3"&gt;Hubungi Saya&lt;/h2&gt;
+                    &lt;p class="lead text-muted"&gt;Mari diskusikan project impian Anda!&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+            
+            &lt;div class="row"&gt;
+                &lt;!-- Contact Info --&gt;
+                &lt;div class="col-lg-4 mb-4"&gt;
+                    &lt;div class="contact-info"&gt;
+                        &lt;h4 class="mb-4"&gt;Mari Terhubung!&lt;/h4&gt;
+                        &lt;p class="mb-4"&gt;
+                            Saya selalu terbuka untuk diskusi project baru, kolaborasi, 
+                            atau sekadar ngobrol tentang teknologi. Jangan ragu untuk menghubungi saya!
+                        &lt;/p&gt;
+                        
+                        &lt;div class="contact-item"&gt;
+                            &lt;div class="contact-icon"&gt;
+                                &lt;i class="fas fa-envelope"&gt;&lt;/i&gt;
+                            &lt;/div&gt;
+                            &lt;div class="contact-details"&gt;
+                                &lt;h6&gt;Email&lt;/h6&gt;
+                                &lt;p&gt;nama@email.com&lt;/p&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        
+                        &lt;div class="contact-item"&gt;
+                            &lt;div class="contact-icon"&gt;
+                                &lt;i class="fas fa-phone"&gt;&lt;/i&gt;
+                            &lt;/div&gt;
+                            &lt;div class="contact-details"&gt;
+                                &lt;h6&gt;WhatsApp&lt;/h6&gt;
+                                &lt;p&gt;+62 812-3456-7890&lt;/p&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        
+                        &lt;div class="contact-item"&gt;
+                            &lt;div class="contact-icon"&gt;
+                                &lt;i class="fas fa-map-marker-alt"&gt;&lt;/i&gt;
+                            &lt;/div&gt;
+                            &lt;div class="contact-details"&gt;
+                                &lt;h6&gt;Lokasi&lt;/h6&gt;
+                                &lt;p&gt;Jakarta, Indonesia&lt;/p&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        
+                        &lt;div class="contact-item"&gt;
+                            &lt;div class="contact-icon"&gt;
+                                &lt;i class="fas fa-clock"&gt;&lt;/i&gt;
+                            &lt;/div&gt;
+                            &lt;div class="contact-details"&gt;
+                                &lt;h6&gt;Response Time&lt;/h6&gt;
+                                &lt;p&gt;Dalam 24 jam&lt;/p&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                        
+                        &lt;div class="social-links mt-4"&gt;
+                            &lt;h6 class="mb-3"&gt;Follow Me:&lt;/h6&gt;
+                            &lt;div class="social-icons"&gt;
+                                &lt;a href="#" class="social-icon"&gt;&lt;i class="fab fa-github"&gt;&lt;/i&gt;&lt;/a&gt;
+                                &lt;a href="#" class="social-icon"&gt;&lt;i class="fab fa-linkedin"&gt;&lt;/i&gt;&lt;/a&gt;
+                                &lt;a href="#" class="social-icon"&gt;&lt;i class="fab fa-instagram"&gt;&lt;/i&gt;&lt;/a&gt;
+                                &lt;a href="#" class="social-icon"&gt;&lt;i class="fab fa-twitter"&gt;&lt;/i&gt;&lt;/a&gt;
+                            &lt;/div&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                
+                &lt;!-- Contact Form --&gt;
+                &lt;div class="col-lg-8"&gt;
+                    &lt;div class="contact-form"&gt;
+                        &lt;form id="contactForm"&gt;
+                            &lt;div class="row"&gt;
+                                &lt;div class="col-md-6 mb-3"&gt;
+                                    &lt;label for="name" class="form-label"&gt;Nama Lengkap *&lt;/label&gt;
+                                    &lt;input type="text" class="form-control" id="name" name="name" required&gt;
+                                    &lt;div class="invalid-feedback"&gt;
+                                        Nama harus diisi.
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                                &lt;div class="col-md-6 mb-3"&gt;
+                                    &lt;label for="email" class="form-label"&gt;Email *&lt;/label&gt;
+                                    &lt;input type="email" class="form-control" id="email" name="email" required&gt;
+                                    &lt;div class="invalid-feedback"&gt;
+                                        Email harus valid.
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                            
+                            &lt;div class="row"&gt;
+                                &lt;div class="col-md-6 mb-3"&gt;
+                                    &lt;label for="phone" class="form-label"&gt;No. WhatsApp&lt;/label&gt;
+                                    &lt;input type="tel" class="form-control" id="phone" name="phone"&gt;
+                                &lt;/div&gt;
+                                &lt;div class="col-md-6 mb-3"&gt;
+                                    &lt;label for="subject" class="form-label"&gt;Subject *&lt;/label&gt;
+                                    &lt;select class="form-select" id="subject" name="subject" required&gt;
+                                        &lt;option value=""&gt;Pilih Subject&lt;/option&gt;
+                                        &lt;option value="web-development"&gt;Web Development&lt;/option&gt;
+                                        &lt;option value="ui-ux-design"&gt;UI/UX Design&lt;/option&gt;
+                                        &lt;option value="mobile-app"&gt;Mobile App&lt;/option&gt;
+                                        &lt;option value="consultation"&gt;Konsultasi&lt;/option&gt;
+                                        &lt;option value="collaboration"&gt;Kolaborasi&lt;/option&gt;
+                                        &lt;option value="other"&gt;Lainnya&lt;/option&gt;
+                                    &lt;/select&gt;
+                                    &lt;div class="invalid-feedback"&gt;
+                                        Pilih subject.
+                                    &lt;/div&gt;
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                            
+                            &lt;div class="mb-3"&gt;
+                                &lt;label for="budget" class="form-label"&gt;Budget (Opsional)&lt;/label&gt;
+                                &lt;select class="form-select" id="budget" name="budget"&gt;
+                                    &lt;option value=""&gt;Pilih Range Budget&lt;/option&gt;
+                                    &lt;option value="under-5jt"&gt;Di bawah 5 juta&lt;/option&gt;
+                                    &lt;option value="5-10jt"&gt;5 - 10 juta&lt;/option&gt;
+                                    &lt;option value="10-25jt"&gt;10 - 25 juta&lt;/option&gt;
+                                    &lt;option value="above-25jt"&gt;Di atas 25 juta&lt;/option&gt;
+                                    &lt;option value="discuss"&gt;Mari diskusikan&lt;/option&gt;
+                                &lt;/select&gt;
+                            &lt;/div&gt;
+                            
+                            &lt;div class="mb-4"&gt;
+                                &lt;label for="message" class="form-label"&gt;Pesan *&lt;/label&gt;
+                                &lt;textarea class="form-control" id="message" name="message" rows="6" 
+                                         placeholder="Ceritakan tentang project Anda, timeline, dan detail lainnya..." required&gt;&lt;/textarea&gt;
+                                &lt;div class="invalid-feedback"&gt;
+                                    Pesan harus diisi.
+                                &lt;/div&gt;
+                            &lt;/div&gt;
+                            
+                            &lt;div class="text-center"&gt;
+                                &lt;button type="submit" class="btn btn-primary btn-lg px-5"&gt;
+                                    &lt;i class="fas fa-paper-plane me-2"&gt;&lt;/i&gt;Kirim Pesan
+                                &lt;/button&gt;
+                            &lt;/div&gt;
+                        &lt;/form&gt;
+                        
+                        &lt;!-- Success Message --&gt;
+                        &lt;div id="successMessage" class="alert alert-success mt-4" style="display: none;"&gt;
+                            &lt;i class="fas fa-check-circle me-2"&gt;&lt;/i&gt;
+                            Terima kasih! Pesan Anda telah terkirim. Saya akan membalas dalam 24 jam.
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/section&gt;</div>
+                    </div>
+
+                    <h3><span class="emoji">🎨</span>Langkah 2: Tambahkan CSS untuk Contact Section</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">2</span>
+                            <h5 class="mb-0">Tambahkan styling untuk form dan contact info</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Tambahkan CSS ini di dalam tag &lt;style&gt; (setelah CSS yang sudah ada):</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-palette"></i>
+                            <span>CSS - Contact Section Styling</span>
+                        </div>
+                        <div class="code-content">        /* Contact Section Styling */
+        .contact-info {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            height: 100%;
+        }
+        
+        .contact-info h4 {
+            color: #2c3e50;
+            font-weight: 700;
+        }
+        
+        .contact-info p {
+            color: #6c757d;
+            line-height: 1.8;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-item:hover {
+            background: #e9ecef;
+            transform: translateX(10px);
+        }
+        
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .contact-icon i {
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .contact-details h6 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .contact-details p {
+            color: #6c757d;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border-radius: 50%;
+            text-decoration: none;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icon:hover {
+            background: linear-gradient(135deg, #2980b9, #1f5f8b);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+        }
+        
+        /* Contact Form Styling */
+        .contact-form {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .form-label {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .form-control,
+        .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px 15px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+        
+        .form-control.is-invalid,
+        .form-select.is-invalid {
+            border-color: #e74c3c;
+        }
+        
+        .invalid-feedback {
+            display: block;
+            color: #e74c3c;
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+        
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 40px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2980b9, #1f5f8b);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.3);
+        }
+        
+        /* Success message animation */
+        .alert-success {
+            border: none;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            font-weight: 500;
+        }
+        
+        /* Responsive contact section */
+        @media (max-width: 768px) {
+            .contact-info,
+            .contact-form {
+                padding: 30px 20px;
+                margin-bottom: 30px;
+            }
+            
+            .contact-item {
+                padding: 12px;
+            }
+            
+            .contact-icon {
+                width: 40px;
+                height: 40px;
+                margin-right: 12px;
+            }
+            
+            .contact-icon i {
+                font-size: 1rem;
+            }
+            
+            .social-icons {
+                justify-content: center;
+            }
+        }</div>
+                    </div>
+
+                    <h3><span class="emoji">⚡</span>Langkah 3: Tambahkan JavaScript untuk Form Validation</h3>
+                    <div class="step-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="step-number">3</span>
+                            <h5 class="mb-0">Buat validasi form dan submit handling</h5>
+                        </div>
+                        <p style="font-size: 1.2rem;">Tambahkan script ini sebelum tag &lt;/body&gt; (setelah script yang sudah ada):</p>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fas fa-check-circle"></i>
+                            <span>JavaScript - Form Validation</span>
+                        </div>
+                        <div class="code-content">        // Contact form validation and submission
+        document.addEventListener('DOMContentLoaded', function() {
+            const contactForm = document.getElementById('contactForm');
+            const successMessage = document.getElementById('successMessage');
+            
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Reset previous validation states
+                const inputs = contactForm.querySelectorAll('.form-control, .form-select');
+                inputs.forEach(input =&gt; {
+                    input.classList.remove('is-invalid');
+                });
+                
+                let isValid = true;
+                
+                // Validate required fields
+                const requiredFields = ['name', 'email', 'subject', 'message'];
+                requiredFields.forEach(fieldName =&gt; {
+                    const field = document.getElementById(fieldName);
+                    if (!field.value.trim()) {
+                        field.classList.add('is-invalid');
+                        isValid = false;
+                    }
+                });
+                
+                // Validate email format
+                const email = document.getElementById('email');
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (email.value && !emailRegex.test(email.value)) {
+                    email.classList.add('is-invalid');
+                    isValid = false;
+                }
+                
+                if (isValid) {
+                    // Simulate form submission
+                    const submitBtn = contactForm.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    
+                    // Show loading state
+                    submitBtn.innerHTML = '&lt;i class="fas fa-spinner fa-spin me-2"&gt;&lt;/i&gt;Mengirim...';
+                    submitBtn.disabled = true;
+                    
+                    // Simulate API call delay
+                    setTimeout(() =&gt; {
+                        // Hide form and show success message
+                        contactForm.style.display = 'none';
+                        successMessage.style.display = 'block';
+                        
+                        // Scroll to success message
+                        successMessage.scrollIntoView({ behavior: 'smooth' });
+                        
+                        // Reset form after 5 seconds
+                        setTimeout(() =&gt; {
+                            contactForm.reset();
+                            contactForm.style.display = 'block';
+                            successMessage.style.display = 'none';
+                            submitBtn.innerHTML = originalText;
+                            submitBtn.disabled = false;
+                        }, 5000);
+                    }, 2000);
+                }
+            });
+            
+            // Real-time validation
+            const inputs = contactForm.querySelectorAll('.form-control, .form-select');
+            inputs.forEach(input =&gt; {
+                input.addEventListener('blur', function() {
+                    if (this.hasAttribute('required') && !this.value.trim()) {
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.classList.remove('is-invalid');
+                    }
+                    
+                    // Special validation for email
+                    if (this.type === 'email' && this.value) {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!emailRegex.test(this.value)) {
+                            this.classList.add('is-invalid');
+                        } else {
+                            this.classList.remove('is-invalid');
+                        }
+                    }
+                });
+            });
+        });</div>
+                    </div>
+
+                    <div class="highlight">
+                        <h5><span class="emoji">🎉</span>Contact Section Kamu Sudah Profesional!</h5>
+                        <p style="font-size: 1.2rem; margin: 0;">
+                            Sekarang contact section kamu sudah memiliki form dengan validasi real-time, 
+                            informasi kontak yang lengkap, social media links, dan user experience yang smooth. 
+                            Calon klien akan mudah menghubungi kamu melalui berbagai channel yang tersedia!
+                        </p>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="next-button" onclick="nextSection()">
+                            Lanjut ke Optimasi Responsif <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Responsive Section -->
+            <div class="section" id="responsive">
+                <div class="content-header">
+                    <h1>📱 Optimasi Responsif</h1>
+                    <p>Pastikan website kamu tampil sempurna di semua device!</p>
+                </div>
+                <div class="content-body">
+                    <div class="step-card">
+                        <h5><span class="emoji">🔧</span>Mengapa Responsif Sangat Penting?</h5>
+                        <p style="font-size: 1.2rem; line-height: 1.8; margin-bottom: 20px;">
+                            Lebih dari 60% pengunjung website menggunakan mobile device. Website yang tidak responsif akan kehilangan banyak pengunjung dan 
+                            mendapat ranking rendah di Google. Bootstrap membantu kita membuat website yang otomatis responsif dengan sistem grid yang fleksibel!
+                        </p>
+                        
+                        <div class="progress-bar-custom">
+                            <div class="progress-fill" style="width: 60%"></div>
+                        </div>
+                        <p class="text-center mt-2"><strong>60% traffic dari mobile device</strong></p>
+                    </div>
+
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <i class="fas fa-mobile-alt text-primary fa-3x mb-3"></i>
+                            <h5>Mobile First</h5>
+                            <p>Desain dimulai dari mobile, lalu diperbesar ke desktop untuk pengalaman optimal</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-tablet-alt text-success fa-3x mb-3"></i>
+                            <h5>Tablet Friendly</h5>
+                            <p>Tampilan optimal di tablet dengan orientasi portrait dan landscape</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-desktop text-warning fa-3x mb-3"></i>
+                            <h5>Desktop Ready</h5>
+                            <p>Memanfaatkan ruang layar besar dengan layout yang efisien dan menarik</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-search text-info fa-3x mb-3"></i>
+                            <h5>SEO Friendly</h5>
+                            <p>Google memberikan ranking lebih tinggi untuk website yang mobile-friendly</p>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <h5><span class="emoji">🎯</span>Bootstrap Breakpoints</h5>
+                        <p style="font-size: 1.1rem; margin-bottom: 20px;">Bootstrap menggunakan breakpoint untuk menentukan kapan layout berubah:</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li><strong>xs:</strong> &lt; 576px (Extra small - Phone)</li>
+                                    <li><strong>sm:</strong> ≥ 576px (Small - Phone landscape)</li>
+                                    <li><strong>md:</strong> ≥ 768px (Medium - Tablet)</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul style="font-size: 1.05rem; line-height: 1.8;">
+                                    <li><strong>lg:</strong> ≥ 992px (Large - Desktop)</li>
+                                    <li><strong>xl:</strong> ≥ 1200px (Extra large - Large desktop)</li>
+                                    <li><strong>xxl:</strong> ≥ 1400px (Extra extra large)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="highlight">
+                        <h5><span class="emoji">🎉</span>Selamat! Tutorial Selesai!</h5>
+                        <p style="font-size: 1.2rem; margin-bottom: 20px;">
+                            Kamu telah menyelesaikan tutorial dasar membuat portofolio dengan Bootstrap! 
+                            Sekarang kamu memiliki fondasi yang kuat untuk mengembangkan website portofolio yang profesional dan responsif.
+                        </p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><strong>Yang Sudah Kamu Kuasai:</strong></h6>
+                                <ul style="font-size: 1.05rem;">
+                                    <li>✅ Setup project Bootstrap</li>
+                                    <li>✅ Struktur HTML semantik</li>
+                                    <li>✅ Navbar responsif</li>
+                                    <li>✅ CSS styling profesional</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><strong>Langkah Selanjutnya:</strong></h6>
+                                <ul style="font-size: 1.05rem;">
+                                    <li>🚀 Kembangkan setiap section</li>
+                                    <li>🎨 Tambahkan animasi CSS</li>
+                                    <li>📱 Test di berbagai device</li>
+                                    <li>🌐 Deploy ke hosting</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-5">
+                        <button class="btn btn-success btn-lg me-3" onclick="alert('🎉 Selamat! Kamu telah menyelesaikan tutorial Bootstrap Portfolio! Terus berlatih dan kembangkan kreativitasmu!')">
+                            <i class="fas fa-trophy me-2"></i>Selesai!
+                        </button>
+                        <button class="btn btn-primary btn-lg" onclick="showSection('pengenalan')">
+                            <i class="fas fa-redo me-2"></i>Ulangi Tutorial
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentSection = 0;
+        const sections = ['pengenalan', 'persiapan', 'struktur', 'navbar', 'hero', 'about', 'portfolio', 'contact', 'responsive'];
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+        
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.overlay');
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+        
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show target section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update active menu
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+            
+            // Close sidebar on mobile
+            closeSidebar();
+            
+            // Scroll to top smoothly
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            
+            // Update current section index
+            currentSection = sections.indexOf(sectionId);
+        }
+        
+        function nextSection() {
+            if (currentSection < sections.length - 1) {
+                currentSection++;
+                showSection(sections[currentSection]);
+            }
+        }
+        
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+        
+        // Menu click handlers
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const sectionId = this.getAttribute('data-section');
+                showSection(sectionId);
+            });
+        });
+        
+        // Back to top button visibility
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.scrollY > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+        
+        // Initialize progress bar animation
+        function animateProgressBars() {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 500);
+            });
+        }
+        
+        // Initialize
+        showSection('pengenalan');
+        
+        // Animate progress bars when responsive section is shown
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && entry.target.id === 'responsive') {
+                    animateProgressBars();
+                }
+            });
+        });
+        
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9889200f7795b5e7',t:'MTc1OTQ1OTc1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
