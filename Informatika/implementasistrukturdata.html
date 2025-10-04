@@ -3,35 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Struktur Data: List, Stack & Queue</title>
+    <title>Belajar Struktur Data - List, Stack, Queue</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             box-sizing: border-box;
         }
         
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
+        .code-block {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-left: 4px solid #3b82f6;
+            position: relative;
+            overflow: hidden;
         }
         
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(90deg, #ef4444 0%, #f59e0b 33%, #10b981 66%);
+            opacity: 0.1;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .line-number {
+            color: #64748b;
+            user-select: none;
+            width: 40px;
+            display: inline-block;
+            text-align: right;
+            margin-right: 16px;
+            border-right: 1px solid #374151;
+            padding-right: 8px;
         }
         
-        .animate-bounce-custom { animation: bounce 2s infinite; }
-        .animate-slide-in { animation: slideIn 0.5s ease-out; }
-        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+        .keyword { color: #f472b6; }
+        .string { color: #34d399; }
+        .comment { color: #9ca3af; font-style: italic; }
+        .function { color: #60a5fa; }
+        .number { color: #fbbf24; }
         
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .menu-item {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            margin: 4px 0;
+        }
+        
+        .menu-item:hover {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            transform: translateX(8px);
+        }
+        
+        .menu-item.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
         
         .card-hover {
@@ -39,2119 +83,982 @@
         }
         
         .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
         
-        .stack-item {
-            transition: all 0.3s ease;
+        .animate-bounce-slow {
+            animation: bounce 2s infinite;
         }
         
-        .queue-item {
-            transition: all 0.3s ease;
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
+            .code-block {
+                font-size: 14px;
             }
             
-            .sidebar.open {
-                transform: translateX(0);
+            .line-number {
+                width: 30px;
+                margin-right: 8px;
             }
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-screen">
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenuOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-2xl z-50 sidebar-transition transform -translate-x-full md:translate-x-0">
+        <div class="p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-xl font-bold">📚 Struktur Data</h1>
+                    <p class="text-blue-100 text-sm mt-1">Belajar Interaktif</p>
+                </div>
+                <button id="closeSidebar" class="md:hidden text-white hover:bg-white hover:bg-opacity-20 p-2 rounded-lg">
+                    ✕
+                </button>
+            </div>
+        </div>
+        
+        <nav class="p-4 space-y-2">
+            <a href="#" class="menu-item active flex items-center p-4 text-gray-700 hover:text-white" data-section="pengenalan">
+                <span class="text-2xl mr-3">🎯</span>
+                <span class="font-medium">Pengenalan</span>
+            </a>
+            <a href="#" class="menu-item flex items-center p-4 text-gray-700 hover:text-white" data-section="list">
+                <span class="text-2xl mr-3">📝</span>
+                <span class="font-medium">Praktik List</span>
+            </a>
+            <a href="#" class="menu-item flex items-center p-4 text-gray-700 hover:text-white" data-section="stack">
+                <span class="text-2xl mr-3">📚</span>
+                <span class="font-medium">Praktik Stack</span>
+            </a>
+            <a href="#" class="menu-item flex items-center p-4 text-gray-700 hover:text-white" data-section="queue">
+                <span class="text-2xl mr-3">🚶‍♂️</span>
+                <span class="font-medium">Praktik Queue</span>
+            </a>
+        </nav>
+        
+        <div class="absolute bottom-4 left-4 right-4">
+            <div class="bg-gradient-to-r from-green-400 to-blue-500 p-4 rounded-xl text-white text-center">
+                <div class="text-2xl mb-2">🎉</div>
+                <p class="text-sm font-medium">Selamat Belajar!</p>
+                <p class="text-xs opacity-90">Ikuti setiap langkah dengan teliti</p>
+            </div>
+        </div>
+    </div>
+    
     <!-- Mobile Menu Button -->
-    <button id="mobileMenuBtn" class="md:hidden fixed top-4 left-4 z-50 bg-purple-500 text-white p-3 rounded-full shadow-lg hover:bg-purple-600 transition-colors">
+    <button id="mobileMenuBtn" class="fixed top-4 left-4 z-30 md:hidden bg-blue-600 text-white p-3 rounded-xl shadow-lg hover:bg-blue-700 transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
         </svg>
     </button>
-
-    <!-- Sidebar -->
-    <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-80 bg-white shadow-xl z-40 overflow-y-auto">
-        <div class="p-6 gradient-bg text-white">
-            <h2 class="text-2xl font-bold mb-2">📚 Struktur Data</h2>
-            <p class="text-purple-100">List, Stack & Queue</p>
-        </div>
-        
-        <nav class="p-4">
-            <ul class="space-y-2">
-                <li><a href="#" onclick="showSection('intro')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
-                    🚀 <span class="ml-3">Intro</span>
-                </a></li>
-                <li><a href="#" onclick="showSection('pengenalan')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
-                    📖 <span class="ml-3">Pengenalan</span>
-                </a></li>
-                <li><a href="#" onclick="showSection('list')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
-                    📝 <span class="ml-3">List (Daftar)</span>
-                </a></li>
-                <li><a href="#" onclick="showSection('stack')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
-                    📚 <span class="ml-3">Stack (Tumpukan)</span>
-                </a></li>
-                <li><a href="#" onclick="showSection('queue')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
-                    🚶‍♂️ <span class="ml-3">Queue (Antrian)</span>
-                </a></li>
-                <li><a href="#" onclick="showSection('tugas')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
-                    ✍️ <span class="ml-3">Tugas</span>
-                </a></li>
-                <li><a href="#" onclick="showSection('kuis')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
-                    🎯 <span class="ml-3">Kuis</span>
-                </a></li>
-                <li><a href="#" onclick="showSection('penutup')" class="nav-link flex items-center p-3 rounded-lg hover:bg-purple-50 transition-colors">
-                    🎉 <span class="ml-3">Penutup</span>
-                </a></li>
-            </ul>
-        </nav>
-    </div>
-
+    
     <!-- Main Content -->
     <div class="md:ml-80 min-h-screen">
         <div class="max-w-4xl mx-auto p-4 md:p-8">
             
-            <!-- Intro Section -->
-            <div id="intro" class="section animate-fade-in">
-                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
-                    <div class="text-center mb-8">
-                        <div class="text-6xl mb-4 animate-bounce-custom">🎯</div>
-                        <h1 class="text-4xl font-bold text-purple-800 mb-4">Selamat Datang!</h1>
-                        <p class="text-xl text-gray-600">Mari Belajar Struktur Data dengan Menyenangkan</p>
-                    </div>
-                    
-                    <div class="grid md:grid-cols-2 gap-8">
-                        <div class="bg-gradient-to-r from-pink-100 to-purple-100 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-purple-800 mb-4">🤔 Pertanyaan Pemantik</h3>
-                            <div class="space-y-3 text-lg">
-                                <p>• Bagaimana komputer menyimpan data?</p>
-                                <p>• Mengapa ada berbagai cara menyimpan data?</p>
-                                <p>• Kapan kita butuh tumpukan vs antrian?</p>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-blue-100 to-indigo-100 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-indigo-800 mb-4">📚 Apa yang Dipelajari</h3>
-                            <div class="space-y-3 text-lg">
-                                <p>• Konsep List, Stack, dan Queue</p>
-                                <p>• Implementasi dalam pemrograman</p>
-                                <p>• Aplikasi dalam kehidupan sehari-hari</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-8 bg-gradient-to-r from-green-100 to-teal-100 p-6 rounded-2xl">
-                        <h3 class="text-2xl font-bold text-green-800 mb-4">🎯 Tujuan Pembelajaran</h3>
-                        <div class="grid md:grid-cols-2 gap-4 text-lg">
-                            <div>
-                                <p>• Memahami konsep struktur data dasar</p>
-                                <p>• Dapat mengimplementasikan List, Stack, Queue</p>
-                            </div>
-                            <div>
-                                <p>• Memilih struktur data yang tepat</p>
-                                <p>• Menerapkan dalam pemecahan masalah</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-8 bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-2xl">
-                        <h3 class="text-2xl font-bold text-orange-800 mb-4">💡 Pemahaman Bermakna</h3>
-                        <p class="text-lg">Struktur data adalah cara kita mengorganisir informasi agar mudah diakses dan dikelola, seperti mengatur buku di perpustakaan atau antrian di bank!</p>
-                    </div>
-                    
-                    <div class="mt-8 bg-gradient-to-r from-red-100 to-pink-100 p-6 rounded-2xl">
-                        <h3 class="text-2xl font-bold text-red-800 mb-4">🔥 Motivasi</h3>
-                        <p class="text-lg">Dengan memahami struktur data, kamu akan menjadi programmer yang lebih efisien dan dapat membangun aplikasi yang lebih cepat dan handal!</p>
-                    </div>
-                </div>
-                
-                <div class="text-center">
-                    <button onclick="nextSection('pengenalan')" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-full text-xl font-semibold transition-colors shadow-lg">
-                        Mulai Belajar! 🚀
-                    </button>
-                </div>
-            </div>
-
             <!-- Pengenalan Section -->
-            <div id="pengenalan" class="section hidden">
-                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
-                    <div class="text-center mb-8">
-                        <div class="text-6xl mb-4">📊</div>
-                        <h1 class="text-4xl font-bold text-purple-800 mb-4">Pengenalan Struktur Data</h1>
+            <div id="pengenalan" class="content-section">
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl md:text-6xl font-bold gradient-text mb-4">
+                        🚀 Struktur Data
+                    </h1>
+                    <p class="text-xl md:text-2xl text-gray-600 mb-8">
+                        List, Stack, dan Queue untuk Siswa SMK
+                    </p>
+                    <div class="animate-bounce-slow text-6xl">📊</div>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-6 mb-12">
+                    <div class="card-hover bg-white p-6 rounded-2xl shadow-lg text-center">
+                        <div class="text-4xl mb-4">📝</div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">List</h3>
+                        <p class="text-gray-600">Kumpulan data yang tersusun berurutan</p>
                     </div>
-                    
-                    <div class="space-y-8">
-                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-indigo-800 mb-4">🤖 Apa itu Struktur Data?</h3>
-                            <p class="text-lg mb-4">Struktur data adalah cara mengorganisir dan menyimpan data dalam komputer sehingga dapat digunakan secara efisien. Bayangkan seperti lemari pakaian - ada yang digantung, ada yang dilipat di laci, semua punya tempatnya!</p>
-                            
-                            <div class="grid md:grid-cols-3 gap-4 mt-6">
-                                <div class="bg-white p-4 rounded-xl text-center card-hover">
-                                    <div class="text-3xl mb-2">📝</div>
-                                    <h4 class="font-bold text-purple-700">List</h4>
-                                    <p class="text-sm">Seperti daftar belanja</p>
-                                    <div class="mt-2 text-xs text-gray-500">Akses: O(1), Pencarian: O(n)</div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl text-center card-hover">
-                                    <div class="text-3xl mb-2">📚</div>
-                                    <h4 class="font-bold text-purple-700">Stack</h4>
-                                    <p class="text-sm">Seperti tumpukan buku</p>
-                                    <div class="mt-2 text-xs text-gray-500">Push/Pop: O(1)</div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl text-center card-hover">
-                                    <div class="text-3xl mb-2">🚶‍♂️</div>
-                                    <h4 class="font-bold text-purple-700">Queue</h4>
-                                    <p class="text-sm">Seperti antrian bank</p>
-                                    <div class="mt-2 text-xs text-gray-500">Enqueue/Dequeue: O(1)</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-purple-800 mb-4">🧠 Sejarah Singkat</h3>
-                            <div class="grid md:grid-cols-2 gap-6">
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-purple-700 mb-2">📅 1940-1950an</h4>
-                                    <p class="text-sm">Konsep struktur data mulai berkembang seiring dengan komputer pertama</p>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-purple-700 mb-2">🎓 1960an</h4>
-                                    <p class="text-sm">Donald Knuth menulis "The Art of Computer Programming" yang membahas struktur data secara mendalam</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-green-800 mb-4">🎯 Mengapa Penting?</h3>
-                            <div class="grid md:grid-cols-2 gap-6">
-                                <div>
-                                    <h4 class="font-bold text-green-700 mb-2">✅ Efisiensi</h4>
-                                    <p>Memilih struktur data yang tepat membuat program lebih cepat</p>
-                                    <div class="mt-2 text-xs bg-green-100 p-2 rounded">Contoh: Binary Search vs Linear Search</div>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-green-700 mb-2">🧹 Organisasi</h4>
-                                    <p>Data tersusun rapi dan mudah dikelola</p>
-                                    <div class="mt-2 text-xs bg-green-100 p-2 rounded">Seperti mengatur file di folder</div>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-green-700 mb-2">🔍 Pencarian</h4>
-                                    <p>Menemukan data lebih mudah dan cepat</p>
-                                    <div class="mt-2 text-xs bg-green-100 p-2 rounded">Database menggunakan index untuk pencarian cepat</div>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-green-700 mb-2">💾 Memori</h4>
-                                    <p>Menggunakan memori komputer secara optimal</p>
-                                    <div class="mt-2 text-xs bg-green-100 p-2 rounded">Menghindari memory leak dan fragmentasi</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-orange-800 mb-4">🌟 Contoh dalam Kehidupan</h3>
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div class="space-y-4">
-                                    <div class="flex items-center space-x-4 bg-white p-3 rounded-xl">
-                                        <div class="text-2xl">📱</div>
-                                        <div>
-                                            <h4 class="font-bold">Aplikasi Chat</h4>
-                                            <p class="text-sm">Pesan tersimpan dalam list berurutan</p>
-                                            <div class="text-xs text-gray-500 mt-1">WhatsApp, Telegram, Discord</div>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center space-x-4 bg-white p-3 rounded-xl">
-                                        <div class="text-2xl">↩️</div>
-                                        <div>
-                                            <h4 class="font-bold">Tombol Undo</h4>
-                                            <p class="text-sm">Menggunakan stack untuk menyimpan aksi</p>
-                                            <div class="text-xs text-gray-500 mt-1">Microsoft Word, Photoshop, VS Code</div>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center space-x-4 bg-white p-3 rounded-xl">
-                                        <div class="text-2xl">🖨️</div>
-                                        <div>
-                                            <h4 class="font-bold">Antrian Printer</h4>
-                                            <p class="text-sm">Dokumen dicetak sesuai urutan queue</p>
-                                            <div class="text-xs text-gray-500 mt-1">Print spooler di Windows/Mac</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="space-y-4">
-                                    <div class="flex items-center space-x-4 bg-white p-3 rounded-xl">
-                                        <div class="text-2xl">🌐</div>
-                                        <div>
-                                            <h4 class="font-bold">Browser History</h4>
-                                            <p class="text-sm">Stack untuk tombol back/forward</p>
-                                            <div class="text-xs text-gray-500 mt-1">Chrome, Firefox, Safari</div>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center space-x-4 bg-white p-3 rounded-xl">
-                                        <div class="text-2xl">🎵</div>
-                                        <div>
-                                            <h4 class="font-bold">Playlist Musik</h4>
-                                            <p class="text-sm">Queue untuk lagu yang akan diputar</p>
-                                            <div class="text-xs text-gray-500 mt-1">Spotify, Apple Music, YouTube Music</div>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center space-x-4 bg-white p-3 rounded-xl">
-                                        <div class="text-2xl">🏥</div>
-                                        <div>
-                                            <h4 class="font-bold">Sistem Antrian RS</h4>
-                                            <p class="text-sm">Queue untuk mengatur urutan pasien</p>
-                                            <div class="text-xs text-gray-500 mt-1">Sistem nomor antrian digital</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-red-800 mb-4">⚡ Big O Notation - Kompleksitas Waktu</h3>
-                            <p class="text-lg mb-4">Big O menggambarkan seberapa cepat algoritma berjalan seiring bertambahnya data:</p>
-                            <div class="grid md:grid-cols-3 gap-4">
-                                <div class="bg-white p-4 rounded-xl text-center">
-                                    <div class="text-2xl mb-2 text-green-600">O(1)</div>
-                                    <h4 class="font-bold text-green-700">Konstan</h4>
-                                    <p class="text-sm">Waktu tetap, tidak peduli ukuran data</p>
-                                    <div class="text-xs text-gray-500 mt-2">Akses array berdasarkan index</div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl text-center">
-                                    <div class="text-2xl mb-2 text-yellow-600">O(n)</div>
-                                    <h4 class="font-bold text-yellow-700">Linear</h4>
-                                    <p class="text-sm">Waktu bertambah seiring data</p>
-                                    <div class="text-xs text-gray-500 mt-2">Mencari item dalam list</div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl text-center">
-                                    <div class="text-2xl mb-2 text-red-600">O(n²)</div>
-                                    <h4 class="font-bold text-red-700">Kuadratik</h4>
-                                    <p class="text-sm">Waktu bertambah eksponensial</p>
-                                    <div class="text-xs text-gray-500 mt-2">Bubble sort algorithm</div>
-                                </div>
-                            </div>
+                    <div class="card-hover bg-white p-6 rounded-2xl shadow-lg text-center">
+                        <div class="text-4xl mb-4">📚</div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Stack</h3>
+                        <p class="text-gray-600">Tumpukan data LIFO (Last In First Out)</p>
+                    </div>
+                    <div class="card-hover bg-white p-6 rounded-2xl shadow-lg text-center">
+                        <div class="text-4xl mb-4">🚶‍♂️</div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Queue</h3>
+                        <p class="text-gray-600">Antrian data FIFO (First In First Out)</p>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🎯</span>
+                        Apa itu Struktur Data?
+                    </h2>
+                    <div class="text-lg md:text-xl text-gray-700 leading-relaxed space-y-4">
+                        <p>
+                            <strong>Struktur data</strong> adalah cara mengorganisir dan menyimpan data di dalam komputer agar dapat digunakan secara efisien. 
+                            Bayangkan seperti cara kita menyusun buku di rak, atau mengatur antrian di kantin sekolah! 📚
+                        </p>
+                        <p>
+                            Dalam pembelajaran ini, kita akan mempelajari 3 struktur data dasar yang sangat penting:
+                        </p>
+                        <div class="bg-blue-50 p-6 rounded-xl mt-6">
+                            <ul class="space-y-3 text-lg">
+                                <li class="flex items-center">
+                                    <span class="text-2xl mr-3">📝</span>
+                                    <strong>List:</strong> Seperti daftar belanja yang bisa ditambah atau dikurangi
+                                </li>
+                                <li class="flex items-center">
+                                    <span class="text-2xl mr-3">📚</span>
+                                    <strong>Stack:</strong> Seperti tumpukan piring, yang terakhir ditaruh yang pertama diambil
+                                </li>
+                                <li class="flex items-center">
+                                    <span class="text-2xl mr-3">🚶‍♂️</span>
+                                    <strong>Queue:</strong> Seperti antrian di kasir, yang pertama datang yang pertama dilayani
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
                 
-                <div class="text-center">
-                    <button onclick="nextSection('list')" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-full text-xl font-semibold transition-colors shadow-lg">
-                        Lanjut ke List 📝
-                    </button>
+                <div class="bg-gradient-to-r from-green-400 to-blue-500 text-white rounded-2xl shadow-lg p-8">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center">
+                        <span class="text-3xl mr-3">🎮</span>
+                        Siap Memulai Petualangan?
+                    </h3>
+                    <p class="text-lg mb-6">
+                        Kita akan belajar dengan cara praktik langsung menggunakan bahasa pemrograman Python. 
+                        Setiap langkah akan dijelaskan dengan detail dan mudah dipahami!
+                    </p>
+                    <div class="flex items-center text-lg">
+                        <span class="text-2xl mr-3">💡</span>
+                        <span>Tip: Ikuti setiap langkah dengan teliti dan jangan ragu untuk bereksperimen!</span>
+                    </div>
                 </div>
             </div>
-
-            <!-- List Section -->
-            <div id="list" class="section hidden">
-                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
-                    <div class="text-center mb-8">
-                        <div class="text-6xl mb-4">📝</div>
-                        <h1 class="text-4xl font-bold text-purple-800 mb-4">List (Daftar)</h1>
-                    </div>
-                    
-                    <div class="space-y-8">
-                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-indigo-800 mb-4">📋 Apa itu List?</h3>
-                            <p class="text-lg mb-4">List adalah struktur data yang menyimpan elemen-elemen secara berurutan. Seperti daftar belanja, setiap item memiliki posisi tertentu dan bisa diakses kapan saja!</p>
-                            
-                            <div class="bg-white p-4 rounded-xl mt-4">
-                                <h4 class="font-bold text-purple-700 mb-3">Contoh List Sederhana:</h4>
-                                <div class="flex flex-wrap gap-2">
-                                    <div class="bg-pink-100 px-4 py-2 rounded-lg">0: Apel 🍎</div>
-                                    <div class="bg-yellow-100 px-4 py-2 rounded-lg">1: Pisang 🍌</div>
-                                    <div class="bg-orange-100 px-4 py-2 rounded-lg">2: Jeruk 🍊</div>
-                                    <div class="bg-red-100 px-4 py-2 rounded-lg">3: Anggur 🍇</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-green-800 mb-4">⚡ Operasi pada List</h3>
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-green-700 mb-2">➕ Menambah (Insert)</h4>
-                                    <p>Menambahkan elemen baru ke posisi tertentu</p>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-green-700 mb-2">❌ Menghapus (Delete)</h4>
-                                    <p>Menghapus elemen dari posisi tertentu</p>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-green-700 mb-2">🔍 Mencari (Search)</h4>
-                                    <p>Mencari elemen dalam list</p>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-green-700 mb-2">📍 Akses (Access)</h4>
-                                    <p>Mengakses elemen berdasarkan indeks</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-purple-800 mb-4">💻 Contoh Kode List</h3>
-                            <div class="bg-gray-900 text-green-400 p-4 rounded-xl mb-4 overflow-x-auto">
-                                <pre class="text-sm"><code>// Python - Membuat dan menggunakan List
-my_list = ["apel", "pisang", "jeruk"]
-
-# Menambah item
-my_list.append("anggur")        # ["apel", "pisang", "jeruk", "anggur"]
-
-# Mengakses item berdasarkan index
-print(my_list[0])               # Output: "apel"
-
-# Menghapus item
-my_list.remove("pisang")        # ["apel", "jeruk", "anggur"]
-
-# Mencari item
-if "jeruk" in my_list:
-    print("Jeruk ditemukan!")   # Output: "Jeruk ditemukan!"</code></pre>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-indigo-800 mb-4">🔍 Jenis-jenis List</h3>
-                            <div class="grid md:grid-cols-2 gap-4 mb-6">
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-indigo-700 mb-2">📋 Array (Static)</h4>
-                                    <p class="text-sm mb-2">Ukuran tetap, akses cepat</p>
-                                    <div class="text-sm bg-indigo-100 p-3 rounded mb-3">
-                                        <strong>Keunggulan:</strong> Akses O(1), Cache-friendly<br>
-                                        <strong>Kelemahan:</strong> Ukuran tidak bisa berubah<br>
-                                        <strong>Contoh:</strong> int arr[100] dalam C/C++
-                                    </div>
-                                    <div class="text-sm text-gray-700 font-medium">
-                                        💡 Cocok untuk data dengan ukuran yang sudah diketahui
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-indigo-700 mb-2">🔗 Linked List</h4>
-                                    <p class="text-sm mb-2">Ukuran dinamis, fleksibel</p>
-                                    <div class="text-sm bg-indigo-100 p-3 rounded mb-3">
-                                        <strong>Keunggulan:</strong> Ukuran dinamis, Insert/Delete O(1)<br>
-                                        <strong>Kelemahan:</strong> Akses O(n), Extra memory<br>
-                                        <strong>Contoh:</strong> std::list dalam C++
-                                    </div>
-                                    <div class="text-sm text-gray-700 font-medium">
-                                        💡 Cocok untuk data yang sering berubah ukuran
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-indigo-700 mb-2">📊 Dynamic Array</h4>
-                                    <p class="text-sm mb-2">Kombinasi array dan fleksibilitas</p>
-                                    <div class="text-sm bg-indigo-100 p-3 rounded mb-3">
-                                        <strong>Keunggulan:</strong> Akses O(1), Ukuran dinamis<br>
-                                        <strong>Kelemahan:</strong> Resize operation mahal<br>
-                                        <strong>Contoh:</strong> ArrayList (Java), list (Python)
-                                    </div>
-                                    <div class="text-sm text-gray-700 font-medium">
-                                        💡 Paling populer dalam pemrograman modern
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-indigo-700 mb-2">🔄 Doubly Linked List</h4>
-                                    <p class="text-sm mb-2">Linked list dengan pointer dua arah</p>
-                                    <div class="text-sm bg-indigo-100 p-3 rounded mb-3">
-                                        <strong>Keunggulan:</strong> Traversal dua arah<br>
-                                        <strong>Kelemahan:</strong> Memory overhead lebih besar<br>
-                                        <strong>Contoh:</strong> std::deque dalam C++
-                                    </div>
-                                    <div class="text-sm text-gray-700 font-medium">
-                                        💡 Cocok untuk navigasi maju-mundur
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-white p-4 rounded-xl">
-                                <h4 class="font-bold text-indigo-700 mb-3">🎯 Perbandingan Kompleksitas Waktu</h4>
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-sm">
-                                        <thead>
-                                            <tr class="bg-indigo-100">
-                                                <th class="p-3 text-left font-bold">Operasi</th>
-                                                <th class="p-3 text-center font-bold">Array</th>
-                                                <th class="p-3 text-center font-bold">Dynamic Array</th>
-                                                <th class="p-3 text-center font-bold">Linked List</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr class="border-b">
-                                                <td class="p-3 font-semibold">Access</td>
-                                                <td class="p-3 text-center text-green-600 font-bold">O(1)</td>
-                                                <td class="p-3 text-center text-green-600 font-bold">O(1)</td>
-                                                <td class="p-3 text-center text-red-600 font-bold">O(n)</td>
-                                            </tr>
-                                            <tr class="border-b">
-                                                <td class="p-3 font-semibold">Insert (End)</td>
-                                                <td class="p-3 text-center text-red-600 font-bold">N/A</td>
-                                                <td class="p-3 text-center text-yellow-600 font-bold">O(1)*</td>
-                                                <td class="p-3 text-center text-green-600 font-bold">O(1)</td>
-                                            </tr>
-                                            <tr class="border-b">
-                                                <td class="p-3 font-semibold">Insert (Middle)</td>
-                                                <td class="p-3 text-center text-red-600 font-bold">N/A</td>
-                                                <td class="p-3 text-center text-red-600 font-bold">O(n)</td>
-                                                <td class="p-3 text-center text-green-600 font-bold">O(1)</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="p-3 font-semibold">Delete</td>
-                                                <td class="p-3 text-center text-red-600 font-bold">N/A</td>
-                                                <td class="p-3 text-center text-red-600 font-bold">O(n)</td>
-                                                <td class="p-3 text-center text-green-600 font-bold">O(1)</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    <p class="text-sm text-gray-600 mt-3 font-medium">* Amortized time complexity</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-rose-50 to-pink-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-rose-800 mb-4">🏗️ Implementasi List dalam Berbagai Bahasa</h3>
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-rose-700 mb-2">🐍 Python</h4>
-                                    <div class="bg-gray-900 text-green-400 p-4 rounded text-sm overflow-x-auto">
-                                        <pre><code># Dynamic Array (List)
-my_list = [1, 2, 3]
-my_list.append(4)        # O(1)
-my_list.insert(1, 'x')   # O(n)
-my_list.pop()            # O(1)
-my_list.remove('x')      # O(n)
-
-# List Comprehension
-squares = [x**2 for x in range(5)]
-# [0, 1, 4, 9, 16]</code></pre>
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-rose-700 mb-2">☕ Java</h4>
-                                    <div class="bg-gray-900 text-green-400 p-4 rounded text-sm overflow-x-auto">
-                                        <pre><code>// ArrayList (Dynamic Array)
-ArrayList&lt;String&gt; list = new ArrayList&lt;&gt;();
-list.add("Hello");       // O(1)
-list.add(0, "Hi");       // O(n)
-list.get(0);             // O(1)
-list.remove(0);          // O(n)
-
-// LinkedList
-LinkedList&lt;String&gt; linked = new LinkedList&lt;&gt;();
-linked.addFirst("First"); // O(1)
-linked.addLast("Last");   // O(1)</code></pre>
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-rose-700 mb-2">🔷 C++</h4>
-                                    <div class="bg-gray-900 text-green-400 p-4 rounded text-sm overflow-x-auto">
-                                        <pre><code>// Vector (Dynamic Array)
-std::vector&lt;int&gt; vec = {1, 2, 3};
-vec.push_back(4);        // O(1)
-vec.insert(vec.begin(), 0); // O(n)
-vec.pop_back();          // O(1)
-
-// List (Doubly Linked List)
-std::list&lt;int&gt; lst = {1, 2, 3};
-lst.push_front(0);       // O(1)
-lst.push_back(4);        // O(1)</code></pre>
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-rose-700 mb-2">🟨 JavaScript</h4>
-                                    <div class="bg-gray-900 text-green-400 p-4 rounded text-sm overflow-x-auto">
-                                        <pre><code>// Array (Dynamic)
-let arr = [1, 2, 3];
-arr.push(4);             // O(1)
-arr.unshift(0);          // O(n)
-arr.pop();               // O(1)
-arr.shift();             // O(n)
-
-// Modern methods
-arr.map(x => x * 2);     // Transform
-arr.filter(x => x > 1);  // Filter
-arr.reduce((a,b) => a+b); // Reduce</code></pre>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-emerald-800 mb-4">🌍 Aplikasi List dalam Dunia Nyata</h3>
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div class="space-y-4">
-                                    <div class="bg-white p-4 rounded-xl">
-                                        <h4 class="font-bold text-emerald-700 mb-2">📱 Social Media Feed</h4>
-                                        <p class="text-sm mb-2">Timeline Instagram, Facebook menggunakan list untuk menyimpan postingan</p>
-                                        <div class="text-sm bg-emerald-100 p-3 rounded">
-                                            <strong>Struktur:</strong> Dynamic Array<br>
-                                            <strong>Operasi:</strong> Insert baru di awal, scroll infinite loading
-                                        </div>
-                                    </div>
-                                    <div class="bg-white p-4 rounded-xl">
-                                        <h4 class="font-bold text-emerald-700 mb-2">🛒 Shopping Cart</h4>
-                                        <p class="text-sm mb-2">Keranjang belanja e-commerce menyimpan item dalam list</p>
-                                        <div class="text-sm bg-emerald-100 p-3 rounded">
-                                            <strong>Struktur:</strong> Dynamic Array<br>
-                                            <strong>Operasi:</strong> Add, remove, update quantity
-                                        </div>
-                                    </div>
-                                    <div class="bg-white p-4 rounded-xl">
-                                        <h4 class="font-bold text-emerald-700 mb-2">📊 Spreadsheet</h4>
-                                        <p class="text-sm mb-2">Excel, Google Sheets menggunakan 2D array untuk cells</p>
-                                        <div class="text-sm bg-emerald-100 p-3 rounded">
-                                            <strong>Struktur:</strong> 2D Array<br>
-                                            <strong>Operasi:</strong> Random access, formula calculation
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="space-y-4">
-                                    <div class="bg-white p-4 rounded-xl">
-                                        <h4 class="font-bold text-emerald-700 mb-2">🎵 Playlist</h4>
-                                        <p class="text-sm mb-2">Spotify, Apple Music menyimpan lagu dalam ordered list</p>
-                                        <div class="text-sm bg-emerald-100 p-3 rounded">
-                                            <strong>Struktur:</strong> Linked List<br>
-                                            <strong>Operasi:</strong> Reorder, shuffle, repeat
-                                        </div>
-                                    </div>
-                                    <div class="bg-white p-4 rounded-xl">
-                                        <h4 class="font-bold text-emerald-700 mb-2">📧 Email Inbox</h4>
-                                        <p class="text-sm mb-2">Gmail, Outlook menyimpan email dalam list terurut</p>
-                                        <div class="text-sm bg-emerald-100 p-3 rounded">
-                                            <strong>Struktur:</strong> Dynamic Array<br>
-                                            <strong>Operasi:</strong> Sort by date, search, filter
-                                        </div>
-                                    </div>
-                                    <div class="bg-white p-4 rounded-xl">
-                                        <h4 class="font-bold text-emerald-700 mb-2">🎮 Game Inventory</h4>
-                                        <p class="text-sm mb-2">RPG games menyimpan item player dalam inventory list</p>
-                                        <div class="text-sm bg-emerald-100 p-3 rounded">
-                                            <strong>Struktur:</strong> Dynamic Array<br>
-                                            <strong>Operasi:</strong> Add loot, use items, sort by type
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-teal-800 mb-4">🎮 Demo Interaktif List</h3>
-                            <div class="bg-white p-6 rounded-xl">
-                                <div class="mb-4">
-                                    <input type="text" id="listInput" placeholder="Masukkan item baru..." class="border-2 border-purple-300 rounded-lg px-4 py-2 w-full md:w-auto mr-2 mb-2 md:mb-0">
-                                    <button onclick="addToList()" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors">Tambah Item</button>
-                                    <button onclick="insertAtIndex()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors ml-2">Insert di Index</button>
-                                    <button onclick="clearList()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors ml-2">Hapus Semua</button>
-                                </div>
-                                
-                                <div class="mb-4">
-                                    <input type="number" id="indexInput" placeholder="Index..." class="border-2 border-blue-300 rounded-lg px-4 py-2 w-20 mr-2">
-                                    <button onclick="searchInList()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">Cari Item</button>
-                                    <button onclick="sortList()" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg transition-colors ml-2">Urutkan</button>
-                                </div>
-                                
-                                <div id="listDemo" class="min-h-[100px] border-2 border-dashed border-purple-300 rounded-lg p-4">
-                                    <p class="text-gray-500 text-center">List kosong - tambahkan item pertama!</p>
-                                </div>
-                                
-                                <div class="mt-4 text-sm text-gray-600">
-                                    <p>💡 Tips: Klik item untuk menghapusnya! Gunakan index untuk insert di posisi tertentu.</p>
-                                    <p class="mt-1">📊 Jumlah item: <span id="listCount">0</span></p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-orange-800 mb-4">🌟 Keunggulan List</h3>
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div>
-                                    <h4 class="font-bold text-orange-700 mb-2">✅ Fleksibel</h4>
-                                    <p>Ukuran bisa berubah-ubah</p>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-orange-700 mb-2">🎯 Akses Langsung</h4>
-                                    <p>Bisa akses elemen mana saja dengan indeks</p>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-orange-700 mb-2">🔄 Dinamis</h4>
-                                    <p>Bisa menambah/mengurangi elemen</p>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-orange-700 mb-2">📊 Terurut</h4>
-                                    <p>Elemen tersimpan sesuai urutan</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-center">
-                    <button onclick="nextSection('stack')" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-full text-xl font-semibold transition-colors shadow-lg">
-                        Lanjut ke Stack 📚
-                    </button>
-                </div>
-            </div>
-
-            <!-- Stack Section -->
-            <div id="stack" class="section hidden">
-                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
-                    <div class="text-center mb-8">
-                        <div class="text-6xl mb-4">📚</div>
-                        <h1 class="text-4xl font-bold text-purple-800 mb-4">Stack (Tumpukan)</h1>
-                    </div>
-                    
-                    <div class="space-y-8">
-                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-indigo-800 mb-4">📚 Apa itu Stack?</h3>
-                            <p class="text-lg mb-4">Stack adalah struktur data yang mengikuti prinsip LIFO (Last In, First Out). Seperti tumpukan buku - buku yang terakhir ditaruh akan diambil pertama kali!</p>
-                            
-                            <div class="bg-white p-4 rounded-xl mt-4">
-                                <h4 class="font-bold text-purple-700 mb-3">Prinsip LIFO:</h4>
-                                <div class="text-center">
-                                    <div class="inline-block">
-                                        <div class="bg-red-200 px-6 py-3 rounded-t-lg border-2 border-red-300">Buku C (Terakhir masuk)</div>
-                                        <div class="bg-yellow-200 px-6 py-3 border-l-2 border-r-2 border-yellow-300">Buku B</div>
-                                        <div class="bg-green-200 px-6 py-3 rounded-b-lg border-2 border-green-300">Buku A (Pertama masuk)</div>
-                                    </div>
-                                    <p class="mt-2 text-sm text-gray-600">↑ Yang diambil pertama (Pop)</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-green-800 mb-4">⚡ Operasi pada Stack</h3>
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-green-700 mb-2">📥 Push</h4>
-                                    <p>Menambahkan elemen ke puncak stack</p>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-green-700 mb-2">📤 Pop</h4>
-                                    <p>Mengeluarkan elemen dari puncak stack</p>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-green-700 mb-2">👀 Peek/Top</h4>
-                                    <p>Melihat elemen puncak tanpa mengeluarkannya</p>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-green-700 mb-2">❓ isEmpty</h4>
-                                    <p>Mengecek apakah stack kosong</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-purple-800 mb-4">🎮 Demo Interaktif Stack</h3>
-                            <div class="bg-white p-6 rounded-xl">
-                                <div class="mb-4">
-                                    <input type="text" id="stackInput" placeholder="Masukkan item..." class="border-2 border-purple-300 rounded-lg px-4 py-2 w-full md:w-auto mr-2 mb-2 md:mb-0">
-                                    <button onclick="pushToStack()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">Push</button>
-                                    <button onclick="popFromStack()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors ml-2">Pop</button>
-                                    <button onclick="peekStack()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors ml-2">Peek</button>
-                                </div>
-                                
-                                <div class="flex justify-center">
-                                    <div class="relative">
-                                        <div class="text-center mb-2 text-sm font-bold text-purple-700">↓ PUNCAK</div>
-                                        <div id="stackDemo" class="w-32 min-h-[200px] border-2 border-dashed border-purple-300 rounded-lg flex flex-col items-center justify-start p-2">
-                                            <div class="text-gray-500 text-sm text-center mt-4">Stack Kosong</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div id="stackMessage" class="mt-4 text-center text-sm"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-orange-800 mb-4">🌟 Contoh Penggunaan Stack</h3>
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-orange-700 mb-2">↩️ Undo/Redo</h4>
-                                    <p class="text-sm mb-2">Menyimpan aksi untuk dibatalkan</p>
-                                    <div class="text-xs bg-orange-100 p-2 rounded">
-                                        <strong>Contoh:</strong> Photoshop, Word, VS Code<br>
-                                        <strong>Implementasi:</strong> Setiap aksi di-push, Ctrl+Z melakukan pop
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-orange-700 mb-2">🌐 Browser History</h4>
-                                    <p class="text-sm mb-2">Tombol back pada browser</p>
-                                    <div class="text-xs bg-orange-100 p-2 rounded">
-                                        <strong>Contoh:</strong> Chrome, Firefox, Safari<br>
-                                        <strong>Implementasi:</strong> URL baru di-push, back button melakukan pop
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-orange-700 mb-2">🧮 Kalkulator</h4>
-                                    <p class="text-sm mb-2">Evaluasi ekspresi matematika</p>
-                                    <div class="text-xs bg-orange-100 p-2 rounded">
-                                        <strong>Contoh:</strong> (3 + 4) * 2<br>
-                                        <strong>Implementasi:</strong> Shunting Yard Algorithm
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-orange-700 mb-2">📞 Function Calls</h4>
-                                    <p class="text-sm mb-2">Pemanggilan fungsi dalam program</p>
-                                    <div class="text-xs bg-orange-100 p-2 rounded">
-                                        <strong>Contoh:</strong> Call Stack dalam debugging<br>
-                                        <strong>Implementasi:</strong> Function parameters & return address
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-orange-700 mb-2">🔍 Syntax Parsing</h4>
-                                    <p class="text-sm mb-2">Validasi kurung buka-tutup</p>
-                                    <div class="text-xs bg-orange-100 p-2 rounded">
-                                        <strong>Contoh:</strong> {[()]} - valid, {[())} - invalid<br>
-                                        <strong>Implementasi:</strong> Push opening, pop & match closing
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-orange-700 mb-2">🎮 Game State</h4>
-                                    <p class="text-sm mb-2">Menyimpan state permainan</p>
-                                    <div class="text-xs bg-orange-100 p-2 rounded">
-                                        <strong>Contoh:</strong> Save/Load game, pause menu<br>
-                                        <strong>Implementasi:</strong> Push current state, pop to restore
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-indigo-800 mb-4">🏗️ Implementasi Stack</h3>
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-indigo-700 mb-2">📋 Array-based Stack</h4>
-                                    <div class="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto mb-2">
-                                        <pre><code>class ArrayStack:
-    def __init__(self, size):
-        self.stack = [None] * size
-        self.top = -1
-        self.size = size
-    
-    def push(self, item):
-        if self.top < self.size - 1:
-            self.top += 1
-            self.stack[self.top] = item
-        else:
-            raise Exception("Stack Overflow")
-    
-    def pop(self):
-        if self.top >= 0:
-            item = self.stack[self.top]
-            self.top -= 1
-            return item
-        else:
-            raise Exception("Stack Underflow")</code></pre>
-                                    </div>
-                                    <div class="text-xs bg-indigo-100 p-2 rounded">
-                                        <strong>Keunggulan:</strong> Memory efficient, fast access<br>
-                                        <strong>Kelemahan:</strong> Fixed size, stack overflow risk
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-indigo-700 mb-2">🔗 Linked List Stack</h4>
-                                    <div class="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto mb-2">
-                                        <pre><code>class Node:
-    def __init__(self, data):
-        self.data = data
-        self.next = None
-
-class LinkedStack:
-    def __init__(self):
-        self.head = None
-    
-    def push(self, item):
-        new_node = Node(item)
-        new_node.next = self.head
-        self.head = new_node
-    
-    def pop(self):
-        if self.head:
-            item = self.head.data
-            self.head = self.head.next
-            return item
-        else:
-            raise Exception("Stack Underflow")</code></pre>
-                                    </div>
-                                    <div class="text-xs bg-indigo-100 p-2 rounded">
-                                        <strong>Keunggulan:</strong> Dynamic size, no overflow<br>
-                                        <strong>Kelemahan:</strong> Extra memory for pointers
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-rose-50 to-pink-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-rose-800 mb-4">🧮 Contoh: Evaluasi Ekspresi Matematika</h3>
-                            <div class="bg-white p-4 rounded-xl mb-4">
-                                <h4 class="font-bold text-rose-700 mb-2">Infix ke Postfix (Shunting Yard)</h4>
-                                <p class="text-sm mb-3">Mengubah ekspresi seperti "3 + 4 * 2" menjadi "3 4 2 * +"</p>
-                                <div class="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto">
-                                    <pre><code>def infix_to_postfix(expression):
-    precedence = {'+': 1, '-': 1, '*': 2, '/': 2, '^': 3}
-    stack = []
-    result = []
-    
-    for char in expression:
-        if char.isalnum():  # Operand
-            result.append(char)
-        elif char == '(':
-            stack.append(char)
-        elif char == ')':
-            while stack and stack[-1] != '(':
-                result.append(stack.pop())
-            stack.pop()  # Remove '('
-        else:  # Operator
-            while (stack and stack[-1] != '(' and
-                   precedence.get(stack[-1], 0) >= precedence[char]):
-                result.append(stack.pop())
-            stack.append(char)
-    
-    while stack:
-        result.append(stack.pop())
-    
-    return ''.join(result)</code></pre>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-white p-4 rounded-xl">
-                                <h4 class="font-bold text-rose-700 mb-2">Evaluasi Postfix</h4>
-                                <div class="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto">
-                                    <pre><code>def evaluate_postfix(expression):
-    stack = []
-    
-    for char in expression:
-        if char.isdigit():
-            stack.append(int(char))
-        else:  # Operator
-            b = stack.pop()
-            a = stack.pop()
             
-            if char == '+':
-                stack.append(a + b)
-            elif char == '-':
-                stack.append(a - b)
-            elif char == '*':
-                stack.append(a * b)
-            elif char == '/':
-                stack.append(a / b)
-    
-    return stack[0]
-
-# Contoh: "342*+" = 3 + (4 * 2) = 11</code></pre>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-emerald-800 mb-4">🔍 Stack dalam Debugging</h3>
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-emerald-700 mb-2">📊 Call Stack Trace</h4>
-                                    <div class="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto">
-                                        <pre><code>def function_a():
-    function_b()
-
-def function_b():
-    function_c()
-
-def function_c():
-    raise Exception("Error!")
-
-# Call Stack:
-# function_c() <- Top (Error location)
-# function_b()
-# function_a()
-# main()      <- Bottom</code></pre>
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-emerald-700 mb-2">🐛 Stack Overflow</h4>
-                                    <div class="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto">
-                                        <pre><code>def recursive_function(n):
-    print(f"Call {n}")
-    recursive_function(n + 1)  # No base case!
-
-# Hasil: Stack Overflow
-# Call 1
-# Call 2
-# Call 3
-# ...
-# RecursionError: maximum recursion depth exceeded</code></pre>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-4 bg-white p-4 rounded-xl">
-                                <h4 class="font-bold text-emerald-700 mb-2">💡 Tips Debugging dengan Stack</h4>
-                                <ul class="text-sm space-y-1">
-                                    <li>• Baca stack trace dari atas ke bawah untuk menemukan error</li>
-                                    <li>• Function teratas adalah lokasi error terjadi</li>
-                                    <li>• Function terbawah adalah entry point program</li>
-                                    <li>• Stack overflow biasanya disebabkan infinite recursion</li>
-                                </ul>
-                            </div>
-                        </div>
+            <!-- List Section -->
+            <div id="list" class="content-section hidden">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl md:text-5xl font-bold gradient-text mb-4">
+                        📝 Praktik List
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-600">
+                        Belajar menggunakan List untuk menyimpan data berurutan
+                    </p>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🤔</span>
+                        Apa itu List?
+                    </h2>
+                    <p class="text-lg text-gray-700 mb-6">
+                        List adalah struktur data yang dapat menyimpan beberapa item dalam satu variabel. 
+                        Seperti daftar belanja yang bisa kita tambah, hapus, atau ubah isinya! 🛒
+                    </p>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-xl mb-6">
+                        <h3 class="text-xl font-bold text-yellow-800 mb-3 flex items-center">
+                            <span class="text-2xl mr-2">⚡</span>
+                            Karakteristik List:
+                        </h3>
+                        <ul class="text-lg text-yellow-700 space-y-2">
+                            <li>• Dapat menyimpan berbagai tipe data</li>
+                            <li>• Urutan data tetap terjaga (ordered)</li>
+                            <li>• Dapat diubah (mutable)</li>
+                            <li>• Menggunakan index untuk mengakses data</li>
+                        </ul>
                     </div>
                 </div>
                 
-                <div class="text-center">
-                    <button onclick="nextSection('queue')" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-full text-xl font-semibold transition-colors shadow-lg">
-                        Lanjut ke Queue 🚶‍♂️
-                    </button>
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🛠️</span>
+                        Langkah 1: Membuat List Pertama
+                    </h2>
+                    
+                    <p class="text-lg text-gray-700 mb-4">
+                        Mari kita buat program sederhana untuk mengelola daftar nama siswa di kelas:
+                    </p>
+                    
+                    <div class="bg-gray-100 p-4 rounded-xl mb-4">
+                        <div class="flex items-center mb-2">
+                            <span class="text-blue-600 mr-2">📄</span>
+                            <span class="font-medium text-gray-700">File: daftar_siswa.py</span>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block rounded-xl p-6 text-white font-mono text-base md:text-lg mb-6">
+<span class="line-number">1</span><span class="comment"># Program Daftar Siswa Menggunakan List</span>
+<span class="line-number">2</span><span class="comment"># Dibuat untuk belajar struktur data List</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span><span class="comment"># Membuat list kosong untuk menyimpan nama siswa</span>
+<span class="line-number">5</span><span class="keyword">daftar_siswa</span> = []
+<span class="line-number">6</span>
+<span class="line-number">7</span><span class="comment"># Menampilkan list kosong</span>
+<span class="line-number">8</span><span class="function">print</span>(<span class="string">"Daftar siswa awal:"</span>, daftar_siswa)
+<span class="line-number">9</span><span class="function">print</span>(<span class="string">"Jumlah siswa:"</span>, <span class="function">len</span>(daftar_siswa))
+                    </div>
+                    
+                    <div class="bg-green-50 border-l-4 border-green-400 p-6 rounded-r-xl">
+                        <h4 class="font-bold text-green-800 mb-2 flex items-center">
+                            <span class="text-xl mr-2">💡</span>
+                            Penjelasan Kode:
+                        </h4>
+                        <ul class="text-green-700 space-y-1">
+                            <li>• <code>[]</code> membuat list kosong</li>
+                            <li>• <code>len()</code> menghitung jumlah item dalam list</li>
+                            <li>• <code>print()</code> menampilkan isi list</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">➕</span>
+                        Langkah 2: Menambah Data ke List
+                    </h2>
+                    
+                    <div class="bg-gray-100 p-4 rounded-xl mb-4">
+                        <div class="flex items-center mb-2">
+                            <span class="text-blue-600 mr-2">📄</span>
+                            <span class="font-medium text-gray-700">File: tambah_siswa.py</span>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block rounded-xl p-6 text-white font-mono text-base md:text-lg mb-6">
+<span class="line-number">1</span><span class="comment"># Program Menambah Siswa ke List</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span><span class="keyword">daftar_siswa</span> = []
+<span class="line-number">4</span>
+<span class="line-number">5</span><span class="comment"># Menambah siswa satu per satu menggunakan append()</span>
+<span class="line-number">6</span>daftar_siswa.<span class="function">append</span>(<span class="string">"Andi"</span>)
+<span class="line-number">7</span>daftar_siswa.<span class="function">append</span>(<span class="string">"Budi"</span>)
+<span class="line-number">8</span>daftar_siswa.<span class="function">append</span>(<span class="string">"Citra"</span>)
+<span class="line-number">9</span>
+<span class="line-number">10</span><span class="function">print</span>(<span class="string">"Daftar siswa setelah ditambah:"</span>)
+<span class="line-number">11</span><span class="function">print</span>(daftar_siswa)
+<span class="line-number">12</span><span class="function">print</span>(<span class="string">f"Total siswa: {len(daftar_siswa)} orang"</span>)
+<span class="line-number">13</span>
+<span class="line-number">14</span><span class="comment"># Menambah siswa dengan input dari user</span>
+<span class="line-number">15</span>nama_baru = <span class="function">input</span>(<span class="string">"Masukkan nama siswa baru: "</span>)
+<span class="line-number">16</span>daftar_siswa.<span class="function">append</span>(nama_baru)
+<span class="line-number">17</span>
+<span class="line-number">18</span><span class="function">print</span>(<span class="string">"Daftar siswa terbaru:"</span>)
+<span class="line-number">19</span><span class="function">print</span>(daftar_siswa)
+                    </div>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-6 rounded-r-xl">
+                        <h4 class="font-bold text-blue-800 mb-2 flex items-center">
+                            <span class="text-xl mr-2">🔍</span>
+                            Metode Menambah Data:
+                        </h4>
+                        <ul class="text-blue-700 space-y-2">
+                            <li>• <code>append()</code> - menambah di akhir list</li>
+                            <li>• <code>insert(index, item)</code> - menambah di posisi tertentu</li>
+                            <li>• <code>extend()</code> - menambah beberapa item sekaligus</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🔍</span>
+                        Langkah 3: Mengakses Data dalam List
+                    </h2>
+                    
+                    <div class="bg-gray-100 p-4 rounded-xl mb-4">
+                        <div class="flex items-center mb-2">
+                            <span class="text-blue-600 mr-2">📄</span>
+                            <span class="font-medium text-gray-700">File: akses_siswa.py</span>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block rounded-xl p-6 text-white font-mono text-base md:text-lg mb-6">
+<span class="line-number">1</span><span class="comment"># Program Mengakses Data dalam List</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span><span class="keyword">daftar_siswa</span> = [<span class="string">"Andi"</span>, <span class="string">"Budi"</span>, <span class="string">"Citra"</span>, <span class="string">"Dina"</span>, <span class="string">"Eko"</span>]
+<span class="line-number">4</span>
+<span class="line-number">5</span><span class="comment"># Mengakses berdasarkan index (dimulai dari 0)</span>
+<span class="line-number">6</span><span class="function">print</span>(<span class="string">"Siswa pertama:"</span>, daftar_siswa[<span class="number">0</span>])
+<span class="line-number">7</span><span class="function">print</span>(<span class="string">"Siswa kedua:"</span>, daftar_siswa[<span class="number">1</span>])
+<span class="line-number">8</span><span class="function">print</span>(<span class="string">"Siswa terakhir:"</span>, daftar_siswa[-<span class="number">1</span>])
+<span class="line-number">9</span>
+<span class="line-number">10</span><span class="comment"># Mengakses beberapa siswa sekaligus (slicing)</span>
+<span class="line-number">11</span><span class="function">print</span>(<span class="string">"3 siswa pertama:"</span>, daftar_siswa[<span class="number">0</span>:<span class="number">3</span>])
+<span class="line-number">12</span><span class="function">print</span>(<span class="string">"2 siswa terakhir:"</span>, daftar_siswa[-<span class="number">2</span>:])
+<span class="line-number">13</span>
+<span class="line-number">14</span><span class="comment"># Mencari siswa tertentu</span>
+<span class="line-number">15</span>nama_dicari = <span class="function">input</span>(<span class="string">"Cari nama siswa: "</span>)
+<span class="line-number">16</span><span class="keyword">if</span> nama_dicari <span class="keyword">in</span> daftar_siswa:
+<span class="line-number">17</span>    posisi = daftar_siswa.<span class="function">index</span>(nama_dicari)
+<span class="line-number">18</span>    <span class="function">print</span>(<span class="string">f"{nama_dicari} ada di posisi ke-{posisi + 1}"</span>)
+<span class="line-number">19</span><span class="keyword">else</span>:
+<span class="line-number">20</span>    <span class="function">print</span>(<span class="string">f"{nama_dicari} tidak ditemukan"</span>)
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🎯</span>
+                        Studi Kasus: Sistem Nilai Siswa
+                    </h2>
+                    
+                    <p class="text-lg text-gray-700 mb-4">
+                        Mari buat program lengkap untuk mengelola nilai siswa menggunakan List:
+                    </p>
+                    
+                    <div class="bg-gray-100 p-4 rounded-xl mb-4">
+                        <div class="flex items-center mb-2">
+                            <span class="text-blue-600 mr-2">📄</span>
+                            <span class="font-medium text-gray-700">File: sistem_nilai.py</span>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block rounded-xl p-6 text-white font-mono text-base md:text-lg mb-6">
+<span class="line-number">1</span><span class="comment"># Sistem Pengelolaan Nilai Siswa</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span><span class="keyword">nama_siswa</span> = []
+<span class="line-number">4</span><span class="keyword">nilai_siswa</span> = []
+<span class="line-number">5</span>
+<span class="line-number">6</span><span class="function">print</span>(<span class="string">"=== SISTEM NILAI SISWA ==="</span>)
+<span class="line-number">7</span><span class="function">print</span>(<span class="string">"Masukkan data siswa (ketik 'selesai' untuk berhenti)"</span>)
+<span class="line-number">8</span>
+<span class="line-number">9</span><span class="keyword">while</span> <span class="keyword">True</span>:
+<span class="line-number">10</span>    nama = <span class="function">input</span>(<span class="string">"Nama siswa: "</span>)
+<span class="line-number">11</span>    <span class="keyword">if</span> nama.<span class="function">lower</span>() == <span class="string">'selesai'</span>:
+<span class="line-number">12</span>        <span class="keyword">break</span>
+<span class="line-number">13</span>    
+<span class="line-number">14</span>    nilai = <span class="function">float</span>(<span class="function">input</span>(<span class="string">f"Nilai {nama}: "</span>))
+<span class="line-number">15</span>    
+<span class="line-number">16</span>    nama_siswa.<span class="function">append</span>(nama)
+<span class="line-number">17</span>    nilai_siswa.<span class="function">append</span>(nilai)
+<span class="line-number">18</span>
+<span class="line-number">19</span><span class="comment"># Menampilkan hasil</span>
+<span class="line-number">20</span><span class="function">print</span>(<span class="string">"\n=== DAFTAR NILAI ==="</span>)
+<span class="line-number">21</span><span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="function">len</span>(nama_siswa)):
+<span class="line-number">22</span>    <span class="function">print</span>(<span class="string">f"{i+1}. {nama_siswa[i]}: {nilai_siswa[i]}"</span>)
+<span class="line-number">23</span>
+<span class="line-number">24</span><span class="comment"># Menghitung statistik</span>
+<span class="line-number">25</span>rata_rata = <span class="function">sum</span>(nilai_siswa) / <span class="function">len</span>(nilai_siswa)
+<span class="line-number">26</span>nilai_tertinggi = <span class="function">max</span>(nilai_siswa)
+<span class="line-number">27</span>nilai_terendah = <span class="function">min</span>(nilai_siswa)
+<span class="line-number">28</span>
+<span class="line-number">29</span><span class="function">print</span>(<span class="string">f"\nRata-rata: {rata_rata:.2f}"</span>)
+<span class="line-number">30</span><span class="function">print</span>(<span class="string">f"Nilai tertinggi: {nilai_tertinggi}"</span>)
+<span class="line-number">31</span><span class="function">print</span>(<span class="string">f"Nilai terendah: {nilai_terendah}"</span>)
+                    </div>
                 </div>
             </div>
-
+            
+            <!-- Stack Section -->
+            <div id="stack" class="content-section hidden">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl md:text-5xl font-bold gradient-text mb-4">
+                        📚 Praktik Stack
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-600">
+                        Belajar Stack - Tumpukan Data LIFO
+                    </p>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🤔</span>
+                        Apa itu Stack?
+                    </h2>
+                    <p class="text-lg text-gray-700 mb-6">
+                        Stack adalah struktur data yang mengikuti prinsip <strong>LIFO (Last In First Out)</strong>. 
+                        Bayangkan seperti tumpukan piring - piring yang terakhir ditaruh akan menjadi yang pertama diambil! 🍽️
+                    </p>
+                    
+                    <div class="bg-purple-50 border-l-4 border-purple-400 p-6 rounded-r-xl mb-6">
+                        <h3 class="text-xl font-bold text-purple-800 mb-3 flex items-center">
+                            <span class="text-2xl mr-2">⚡</span>
+                            Operasi Utama Stack:
+                        </h3>
+                        <ul class="text-lg text-purple-700 space-y-2">
+                            <li>• <strong>Push:</strong> Menambah data ke atas tumpukan</li>
+                            <li>• <strong>Pop:</strong> Mengambil data dari atas tumpukan</li>
+                            <li>• <strong>Peek/Top:</strong> Melihat data teratas tanpa mengambil</li>
+                            <li>• <strong>isEmpty:</strong> Mengecek apakah stack kosong</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🛠️</span>
+                        Langkah 1: Membuat Class Stack
+                    </h2>
+                    
+                    <div class="bg-gray-100 p-4 rounded-xl mb-4">
+                        <div class="flex items-center mb-2">
+                            <span class="text-blue-600 mr-2">📄</span>
+                            <span class="font-medium text-gray-700">File: stack_class.py</span>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block rounded-xl p-6 text-white font-mono text-base md:text-lg mb-6">
+<span class="line-number">1</span><span class="comment"># Class Stack untuk Tumpukan Data</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span><span class="keyword">class</span> <span class="function">Stack</span>:
+<span class="line-number">4</span>    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>):
+<span class="line-number">5</span>        <span class="keyword">self</span>.items = []  <span class="comment"># List untuk menyimpan data</span>
+<span class="line-number">6</span>    
+<span class="line-number">7</span>    <span class="keyword">def</span> <span class="function">push</span>(<span class="keyword">self</span>, item):
+<span class="line-number">8</span>        <span class="string">"""Menambah item ke atas stack"""</span>
+<span class="line-number">9</span>        <span class="keyword">self</span>.items.<span class="function">append</span>(item)
+<span class="line-number">10</span>        <span class="function">print</span>(<span class="string">f"✅ '{item}' ditambahkan ke stack"</span>)
+<span class="line-number">11</span>    
+<span class="line-number">12</span>    <span class="keyword">def</span> <span class="function">pop</span>(<span class="keyword">self</span>):
+<span class="line-number">13</span>        <span class="string">"""Mengambil item dari atas stack"""</span>
+<span class="line-number">14</span>        <span class="keyword">if</span> <span class="keyword">self</span>.<span class="function">is_empty</span>():
+<span class="line-number">15</span>            <span class="function">print</span>(<span class="string">"❌ Stack kosong!"</span>)
+<span class="line-number">16</span>            <span class="keyword">return</span> <span class="keyword">None</span>
+<span class="line-number">17</span>        item = <span class="keyword">self</span>.items.<span class="function">pop</span>()
+<span class="line-number">18</span>        <span class="function">print</span>(<span class="string">f"📤 '{item}' diambil dari stack"</span>)
+<span class="line-number">19</span>        <span class="keyword">return</span> item
+<span class="line-number">20</span>    
+<span class="line-number">21</span>    <span class="keyword">def</span> <span class="function">peek</span>(<span class="keyword">self</span>):
+<span class="line-number">22</span>        <span class="string">"""Melihat item teratas tanpa mengambil"""</span>
+<span class="line-number">23</span>        <span class="keyword">if</span> <span class="keyword">self</span>.<span class="function">is_empty</span>():
+<span class="line-number">24</span>            <span class="keyword">return</span> <span class="keyword">None</span>
+<span class="line-number">25</span>        <span class="keyword">return</span> <span class="keyword">self</span>.items[-<span class="number">1</span>]
+<span class="line-number">26</span>    
+<span class="line-number">27</span>    <span class="keyword">def</span> <span class="function">is_empty</span>(<span class="keyword">self</span>):
+<span class="line-number">28</span>        <span class="string">"""Mengecek apakah stack kosong"""</span>
+<span class="line-number">29</span>        <span class="keyword">return</span> <span class="function">len</span>(<span class="keyword">self</span>.items) == <span class="number">0</span>
+<span class="line-number">30</span>    
+<span class="line-number">31</span>    <span class="keyword">def</span> <span class="function">size</span>(<span class="keyword">self</span>):
+<span class="line-number">32</span>        <span class="string">"""Mengembalikan ukuran stack"""</span>
+<span class="line-number">33</span>        <span class="keyword">return</span> <span class="function">len</span>(<span class="keyword">self</span>.items)
+<span class="line-number">34</span>    
+<span class="line-number">35</span>    <span class="keyword">def</span> <span class="function">display</span>(<span class="keyword">self</span>):
+<span class="line-number">36</span>        <span class="string">"""Menampilkan isi stack"""</span>
+<span class="line-number">37</span>        <span class="function">print</span>(<span class="string">"📚 Isi Stack (dari atas ke bawah):"</span>)
+<span class="line-number">38</span>        <span class="keyword">if</span> <span class="keyword">self</span>.<span class="function">is_empty</span>():
+<span class="line-number">39</span>            <span class="function">print</span>(<span class="string">"   (kosong)"</span>)
+<span class="line-number">40</span>        <span class="keyword">else</span>:
+<span class="line-number">41</span>            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="function">range</span>(<span class="function">len</span>(<span class="keyword">self</span>.items) - <span class="number">1</span>, -<span class="number">1</span>, -<span class="number">1</span>):
+<span class="line-number">42</span>                <span class="function">print</span>(<span class="string">f"   {self.items[i]}"</span>)
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🧪</span>
+                        Langkah 2: Testing Stack
+                    </h2>
+                    
+                    <div class="bg-gray-100 p-4 rounded-xl mb-4">
+                        <div class="flex items-center mb-2">
+                            <span class="text-blue-600 mr-2">📄</span>
+                            <span class="font-medium text-gray-700">File: test_stack.py</span>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block rounded-xl p-6 text-white font-mono text-base md:text-lg mb-6">
+<span class="line-number">1</span><span class="comment"># Testing Stack dengan Tumpukan Buku</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span><span class="comment"># Membuat stack baru</span>
+<span class="line-number">4</span>tumpukan_buku = <span class="function">Stack</span>()
+<span class="line-number">5</span>
+<span class="line-number">6</span><span class="function">print</span>(<span class="string">"=== SIMULASI TUMPUKAN BUKU ==="</span>)
+<span class="line-number">7</span><span class="function">print</span>(<span class="string">f"Stack kosong? {tumpukan_buku.is_empty()}"</span>)
+<span class="line-number">8</span>
+<span class="line-number">9</span><span class="comment"># Menambah buku ke tumpukan</span>
+<span class="line-number">10</span><span class="function">print</span>(<span class="string">"\n📚 Menambah buku ke tumpukan:"</span>)
+<span class="line-number">11</span>tumpukan_buku.<span class="function">push</span>(<span class="string">"Matematika"</span>)
+<span class="line-number">12</span>tumpukan_buku.<span class="function">push</span>(<span class="string">"Bahasa Indonesia"</span>)
+<span class="line-number">13</span>tumpukan_buku.<span class="function">push</span>(<span class="string">"Pemrograman"</span>)
+<span class="line-number">14</span>
+<span class="line-number">15</span><span class="comment"># Menampilkan isi stack</span>
+<span class="line-number">16</span><span class="function">print</span>(<span class="string">f"\nJumlah buku: {tumpukan_buku.size()}"</span>)
+<span class="line-number">17</span>tumpukan_buku.<span class="function">display</span>()
+<span class="line-number">18</span>
+<span class="line-number">19</span><span class="comment"># Melihat buku teratas</span>
+<span class="line-number">20</span><span class="function">print</span>(<span class="string">f"\n👀 Buku teratas: {tumpukan_buku.peek()}"</span>)
+<span class="line-number">21</span>
+<span class="line-number">22</span><span class="comment"># Mengambil buku dari tumpukan</span>
+<span class="line-number">23</span><span class="function">print</span>(<span class="string">"\n📤 Mengambil buku:"</span>)
+<span class="line-number">24</span>buku_diambil = tumpukan_buku.<span class="function">pop</span>()
+<span class="line-number">25</span>
+<span class="line-number">26</span><span class="function">print</span>(<span class="string">f"\nSisa buku: {tumpukan_buku.size()}"</span>)
+<span class="line-number">27</span>tumpukan_buku.<span class="function">display</span>()
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🎯</span>
+                        Studi Kasus: Sistem Undo Editor
+                    </h2>
+                    
+                    <p class="text-lg text-gray-700 mb-4">
+                        Mari buat program editor sederhana dengan fitur Undo menggunakan Stack:
+                    </p>
+                    
+                    <div class="bg-gray-100 p-4 rounded-xl mb-4">
+                        <div class="flex items-center mb-2">
+                            <span class="text-blue-600 mr-2">📄</span>
+                            <span class="font-medium text-gray-700">File: editor_undo.py</span>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block rounded-xl p-6 text-white font-mono text-base md:text-lg mb-6">
+<span class="line-number">1</span><span class="comment"># Editor Sederhana dengan Fitur Undo</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span><span class="keyword">class</span> <span class="function">SimpleEditor</span>:
+<span class="line-number">4</span>    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>):
+<span class="line-number">5</span>        <span class="keyword">self</span>.text = <span class="string">""</span>
+<span class="line-number">6</span>        <span class="keyword">self</span>.history = <span class="function">Stack</span>()  <span class="comment"># Stack untuk menyimpan riwayat</span>
+<span class="line-number">7</span>    
+<span class="line-number">8</span>    <span class="keyword">def</span> <span class="function">write</span>(<span class="keyword">self</span>, text):
+<span class="line-number">9</span>        <span class="string">"""Menulis text dan menyimpan ke history"""</span>
+<span class="line-number">10</span>        <span class="keyword">self</span>.history.<span class="function">push</span>(<span class="keyword">self</span>.text)  <span class="comment"># Simpan state sebelumnya</span>
+<span class="line-number">11</span>        <span class="keyword">self</span>.text += text
+<span class="line-number">12</span>        <span class="function">print</span>(<span class="string">f"✍️ Menulis: '{text}'"</span>)
+<span class="line-number">13</span>    
+<span class="line-number">14</span>    <span class="keyword">def</span> <span class="function">undo</span>(<span class="keyword">self</span>):
+<span class="line-number">15</span>        <span class="string">"""Membatalkan perubahan terakhir"""</span>
+<span class="line-number">16</span>        <span class="keyword">if</span> <span class="keyword">self</span>.history.<span class="function">is_empty</span>():
+<span class="line-number">17</span>            <span class="function">print</span>(<span class="string">"❌ Tidak ada yang bisa di-undo"</span>)
+<span class="line-number">18</span>        <span class="keyword">else</span>:
+<span class="line-number">19</span>            <span class="keyword">self</span>.text = <span class="keyword">self</span>.history.<span class="function">pop</span>()
+<span class="line-number">20</span>            <span class="function">print</span>(<span class="string">"↩️ Undo berhasil"</span>)
+<span class="line-number">21</span>    
+<span class="line-number">22</span>    <span class="keyword">def</span> <span class="function">show</span>(<span class="keyword">self</span>):
+<span class="line-number">23</span>        <span class="string">"""Menampilkan text saat ini"""</span>
+<span class="line-number">24</span>        <span class="function">print</span>(<span class="string">f"📄 Text saat ini: '{self.text}'"</span>)
+<span class="line-number">25</span>
+<span class="line-number">26</span><span class="comment"># Testing Editor</span>
+<span class="line-number">27</span>editor = <span class="function">SimpleEditor</span>()
+<span class="line-number">28</span>
+<span class="line-number">29</span><span class="function">print</span>(<span class="string">"=== EDITOR DENGAN UNDO ==="</span>)
+<span class="line-number">30</span>
+<span class="line-number">31</span><span class="keyword">while</span> <span class="keyword">True</span>:
+<span class="line-number">32</span>    <span class="function">print</span>(<span class="string">"\nPilihan:"</span>)
+<span class="line-number">33</span>    <span class="function">print</span>(<span class="string">"1. Tulis text"</span>)
+<span class="line-number">34</span>    <span class="function">print</span>(<span class="string">"2. Undo"</span>)
+<span class="line-number">35</span>    <span class="function">print</span>(<span class="string">"3. Tampilkan text"</span>)
+<span class="line-number">36</span>    <span class="function">print</span>(<span class="string">"4. Keluar"</span>)
+<span class="line-number">37</span>    
+<span class="line-number">38</span>    pilihan = <span class="function">input</span>(<span class="string">"Pilih (1-4): "</span>)
+<span class="line-number">39</span>    
+<span class="line-number">40</span>    <span class="keyword">if</span> pilihan == <span class="string">'1'</span>:
+<span class="line-number">41</span>        text = <span class="function">input</span>(<span class="string">"Masukkan text: "</span>)
+<span class="line-number">42</span>        editor.<span class="function">write</span>(text)
+<span class="line-number">43</span>    <span class="keyword">elif</span> pilihan == <span class="string">'2'</span>:
+<span class="line-number">44</span>        editor.<span class="function">undo</span>()
+<span class="line-number">45</span>    <span class="keyword">elif</span> pilihan == <span class="string">'3'</span>:
+<span class="line-number">46</span>        editor.<span class="function">show</span>()
+<span class="line-number">47</span>    <span class="keyword">elif</span> pilihan == <span class="string">'4'</span>:
+<span class="line-number">48</span>        <span class="function">print</span>(<span class="string">"👋 Terima kasih!"</span>)
+<span class="line-number">49</span>        <span class="keyword">break</span>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Queue Section -->
-            <div id="queue" class="section hidden">
-                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
-                    <div class="text-center mb-8">
-                        <div class="text-6xl mb-4">🚶‍♂️</div>
-                        <h1 class="text-4xl font-bold text-purple-800 mb-4">Queue (Antrian)</h1>
-                    </div>
+            <div id="queue" class="content-section hidden">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl md:text-5xl font-bold gradient-text mb-4">
+                        🚶‍♂️ Praktik Queue
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-600">
+                        Belajar Queue - Antrian Data FIFO
+                    </p>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🤔</span>
+                        Apa itu Queue?
+                    </h2>
+                    <p class="text-lg text-gray-700 mb-6">
+                        Queue adalah struktur data yang mengikuti prinsip <strong>FIFO (First In First Out)</strong>. 
+                        Seperti antrian di kasir - orang yang pertama datang akan dilayani pertama! 🏪
+                    </p>
                     
-                    <div class="space-y-8">
-                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-indigo-800 mb-4">🚶‍♂️ Apa itu Queue?</h3>
-                            <p class="text-lg mb-4">Queue adalah struktur data yang mengikuti prinsip FIFO (First In, First Out). Seperti antrian di bank - yang datang pertama akan dilayani pertama!</p>
-                            
-                            <div class="bg-white p-4 rounded-xl mt-4">
-                                <h4 class="font-bold text-purple-700 mb-3">Prinsip FIFO:</h4>
-                                <div class="flex justify-center items-center space-x-2">
-                                    <div class="text-sm text-gray-600">Keluar →</div>
-                                    <div class="bg-red-200 px-4 py-2 rounded-lg border-2 border-red-300">A</div>
-                                    <div class="bg-yellow-200 px-4 py-2 rounded-lg border-2 border-yellow-300">B</div>
-                                    <div class="bg-green-200 px-4 py-2 rounded-lg border-2 border-green-300">C</div>
-                                    <div class="text-sm text-gray-600">← Masuk</div>
-                                </div>
-                                <div class="text-center mt-2">
-                                    <p class="text-sm text-gray-600">A masuk pertama, A keluar pertama</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-green-800 mb-4">⚡ Operasi pada Queue</h3>
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-green-700 mb-2">📥 Enqueue</h4>
-                                    <p>Menambahkan elemen ke belakang queue</p>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-green-700 mb-2">📤 Dequeue</h4>
-                                    <p>Mengeluarkan elemen dari depan queue</p>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-green-700 mb-2">👀 Front</h4>
-                                    <p>Melihat elemen depan tanpa mengeluarkannya</p>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-green-700 mb-2">❓ isEmpty</h4>
-                                    <p>Mengecek apakah queue kosong</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-purple-800 mb-4">🎮 Demo Interaktif Queue</h3>
-                            <div class="bg-white p-6 rounded-xl">
-                                <div class="mb-4">
-                                    <input type="text" id="queueInput" placeholder="Masukkan item..." class="border-2 border-purple-300 rounded-lg px-4 py-2 w-full md:w-auto mr-2 mb-2 md:mb-0">
-                                    <button onclick="enqueue()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">Enqueue</button>
-                                    <button onclick="dequeue()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors ml-2">Dequeue</button>
-                                    <button onclick="frontQueue()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors ml-2">Front</button>
-                                </div>
-                                
-                                <div class="flex justify-center">
-                                    <div class="relative">
-                                        <div class="flex items-center space-x-2 mb-2">
-                                            <div class="text-sm font-bold text-green-600">MASUK →</div>
-                                            <div class="text-sm font-bold text-red-600">← KELUAR</div>
-                                        </div>
-                                        <div id="queueDemo" class="min-h-[80px] w-full max-w-md border-2 border-dashed border-purple-300 rounded-lg flex items-center justify-center p-4">
-                                            <div class="text-gray-500 text-sm text-center">Queue Kosong</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div id="queueMessage" class="mt-4 text-center text-sm"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-orange-800 mb-4">🌟 Contoh Penggunaan Queue</h3>
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-orange-700 mb-2">🖨️ Print Queue</h4>
-                                    <p class="text-sm mb-2">Antrian dokumen untuk dicetak</p>
-                                    <div class="text-xs bg-orange-100 p-2 rounded">
-                                        <strong>Contoh:</strong> Windows Print Spooler<br>
-                                        <strong>Implementasi:</strong> Dokumen masuk queue, printer ambil satu per satu
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-orange-700 mb-2">🎵 Playlist</h4>
-                                    <p class="text-sm mb-2">Daftar lagu yang akan diputar</p>
-                                    <div class="text-xs bg-orange-100 p-2 rounded">
-                                        <strong>Contoh:</strong> Spotify, YouTube Music<br>
-                                        <strong>Implementasi:</strong> Add to queue, play next song
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-orange-700 mb-2">🏥 Sistem Antrian</h4>
-                                    <p class="text-sm mb-2">Antrian pasien di rumah sakit</p>
-                                    <div class="text-xs bg-orange-100 p-2 rounded">
-                                        <strong>Contoh:</strong> Nomor antrian digital<br>
-                                        <strong>Implementasi:</strong> FIFO - first come first served
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-orange-700 mb-2">💻 Task Scheduling</h4>
-                                    <p class="text-sm mb-2">Penjadwalan tugas dalam sistem operasi</p>
-                                    <div class="text-xs bg-orange-100 p-2 rounded">
-                                        <strong>Contoh:</strong> CPU scheduling, process queue<br>
-                                        <strong>Implementasi:</strong> Round-robin scheduling
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-orange-700 mb-2">🌐 Web Server</h4>
-                                    <p class="text-sm mb-2">Menangani request dari client</p>
-                                    <div class="text-xs bg-orange-100 p-2 rounded">
-                                        <strong>Contoh:</strong> Apache, Nginx request queue<br>
-                                        <strong>Implementasi:</strong> Request masuk queue, worker process ambil
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-orange-700 mb-2">📱 Message Queue</h4>
-                                    <p class="text-sm mb-2">Sistem messaging antar aplikasi</p>
-                                    <div class="text-xs bg-orange-100 p-2 rounded">
-                                        <strong>Contoh:</strong> RabbitMQ, Apache Kafka<br>
-                                        <strong>Implementasi:</strong> Producer-consumer pattern
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-indigo-800 mb-4">🔄 Jenis-jenis Queue</h3>
-                            <div class="grid md:grid-cols-2 gap-4 mb-6">
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-indigo-700 mb-2">📋 Simple Queue</h4>
-                                    <p class="text-sm mb-2">Queue standar dengan FIFO</p>
-                                    <div class="text-xs bg-indigo-100 p-2 rounded mb-2">
-                                        <strong>Operasi:</strong> Enqueue, Dequeue, Front<br>
-                                        <strong>Kompleksitas:</strong> O(1) untuk semua operasi<br>
-                                        <strong>Contoh:</strong> Antrian bank, print queue
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-indigo-700 mb-2">⭐ Priority Queue</h4>
-                                    <p class="text-sm mb-2">Queue dengan prioritas</p>
-                                    <div class="text-xs bg-indigo-100 p-2 rounded mb-2">
-                                        <strong>Operasi:</strong> Insert dengan prioritas<br>
-                                        <strong>Kompleksitas:</strong> O(log n) insert, O(1) extract<br>
-                                        <strong>Contoh:</strong> Emergency room, OS scheduling
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-indigo-700 mb-2">🔄 Circular Queue</h4>
-                                    <p class="text-sm mb-2">Queue melingkar untuk efisiensi memori</p>
-                                    <div class="text-xs bg-indigo-100 p-2 rounded mb-2">
-                                        <strong>Keunggulan:</strong> Memory efficient, no shifting<br>
-                                        <strong>Implementasi:</strong> Array dengan front & rear pointer<br>
-                                        <strong>Contoh:</strong> Buffer dalam streaming
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-indigo-700 mb-2">↔️ Deque (Double-ended)</h4>
-                                    <p class="text-sm mb-2">Queue yang bisa insert/delete dari kedua ujung</p>
-                                    <div class="text-xs bg-indigo-100 p-2 rounded mb-2">
-                                        <strong>Operasi:</strong> Push/pop front & rear<br>
-                                        <strong>Fleksibilitas:</strong> Bisa jadi stack atau queue<br>
-                                        <strong>Contoh:</strong> Browser history, undo/redo
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-rose-50 to-pink-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-rose-800 mb-4">🏗️ Implementasi Queue</h3>
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-rose-700 mb-2">📋 Array-based Queue</h4>
-                                    <div class="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto mb-2">
-                                        <pre><code>class ArrayQueue:
-    def __init__(self, size):
-        self.queue = [None] * size
-        self.front = 0
-        self.rear = -1
-        self.size = size
-        self.count = 0
-    
-    def enqueue(self, item):
-        if self.count < self.size:
-            self.rear = (self.rear + 1) % self.size
-            self.queue[self.rear] = item
-            self.count += 1
-        else:
-            raise Exception("Queue Full")
-    
-    def dequeue(self):
-        if self.count > 0:
-            item = self.queue[self.front]
-            self.front = (self.front + 1) % self.size
-            self.count -= 1
-            return item
-        else:
-            raise Exception("Queue Empty")</code></pre>
-                                    </div>
-                                    <div class="text-xs bg-rose-100 p-2 rounded">
-                                        <strong>Keunggulan:</strong> Memory efficient, O(1) operations<br>
-                                        <strong>Kelemahan:</strong> Fixed size
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-rose-700 mb-2">🔗 Linked List Queue</h4>
-                                    <div class="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto mb-2">
-                                        <pre><code>class Node:
-    def __init__(self, data):
-        self.data = data
-        self.next = None
-
-class LinkedQueue:
-    def __init__(self):
-        self.front = None
-        self.rear = None
-    
-    def enqueue(self, item):
-        new_node = Node(item)
-        if self.rear:
-            self.rear.next = new_node
-        else:
-            self.front = new_node
-        self.rear = new_node
-    
-    def dequeue(self):
-        if self.front:
-            item = self.front.data
-            self.front = self.front.next
-            if not self.front:
-                self.rear = None
-            return item
-        else:
-            raise Exception("Queue Empty")</code></pre>
-                                    </div>
-                                    <div class="text-xs bg-rose-100 p-2 rounded">
-                                        <strong>Keunggulan:</strong> Dynamic size, no overflow<br>
-                                        <strong>Kelemahan:</strong> Extra memory for pointers
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-emerald-800 mb-4">⭐ Priority Queue dalam Aksi</h3>
-                            <div class="bg-white p-4 rounded-xl mb-4">
-                                <h4 class="font-bold text-emerald-700 mb-2">🏥 Sistem Emergency Room</h4>
-                                <div class="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-x-auto">
-                                    <pre><code>import heapq
-
-class Patient:
-    def __init__(self, name, priority):
-        self.name = name
-        self.priority = priority
-    
-    def __lt__(self, other):
-        return self.priority < other.priority  # Lower number = higher priority
-
-class EmergencyRoom:
-    def __init__(self):
-        self.queue = []
-    
-    def admit_patient(self, name, priority):
-        patient = Patient(name, priority)
-        heapq.heappush(self.queue, patient)
-        print(f"{name} admitted with priority {priority}")
-    
-    def treat_next(self):
-        if self.queue:
-            patient = heapq.heappop(self.queue)
-            print(f"Treating {patient.name} (priority {patient.priority})")
-            return patient
-        else:
-            print("No patients waiting")
-
-# Contoh penggunaan:
-er = EmergencyRoom()
-er.admit_patient("John", 3)      # Non-urgent
-er.admit_patient("Alice", 1)     # Critical
-er.admit_patient("Bob", 2)       # Urgent
-er.treat_next()  # Alice (priority 1) treated first</code></pre>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-white p-4 rounded-xl">
-                                <h4 class="font-bold text-emerald-700 mb-2">💡 Keunggulan Priority Queue</h4>
-                                <ul class="text-sm space-y-1">
-                                    <li>• Elemen dengan prioritas tinggi dilayani lebih dulu</li>
-                                    <li>• Cocok untuk sistem real-time dan critical applications</li>
-                                    <li>• Implementasi menggunakan heap untuk efisiensi O(log n)</li>
-                                    <li>• Banyak digunakan dalam algoritma graph (Dijkstra, A*)</li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-cyan-50 to-blue-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-cyan-800 mb-4">🌐 Queue dalam Sistem Terdistribusi</h3>
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-cyan-700 mb-2">📨 Message Queue</h4>
-                                    <p class="text-sm mb-2">Komunikasi asinkron antar service</p>
-                                    <div class="text-xs bg-cyan-100 p-2 rounded">
-                                        <strong>Contoh:</strong> RabbitMQ, Apache Kafka, AWS SQS<br>
-                                        <strong>Kegunaan:</strong> Decoupling, reliability, scalability
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-cyan-700 mb-2">⚡ Event Streaming</h4>
-                                    <p class="text-sm mb-2">Real-time data processing</p>
-                                    <div class="text-xs bg-cyan-100 p-2 rounded">
-                                        <strong>Contoh:</strong> Apache Kafka, Amazon Kinesis<br>
-                                        <strong>Kegunaan:</strong> Real-time analytics, event sourcing
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-cyan-700 mb-2">🔄 Job Queue</h4>
-                                    <p class="text-sm mb-2">Background task processing</p>
-                                    <div class="text-xs bg-cyan-100 p-2 rounded">
-                                        <strong>Contoh:</strong> Redis Queue, Celery, Sidekiq<br>
-                                        <strong>Kegunaan:</strong> Email sending, image processing
-                                    </div>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-cyan-700 mb-2">🏗️ Load Balancing</h4>
-                                    <p class="text-sm mb-2">Distribusi beban kerja</p>
-                                    <div class="text-xs bg-cyan-100 p-2 rounded">
-                                        <strong>Contoh:</strong> Nginx, HAProxy, AWS ELB<br>
-                                        <strong>Kegunaan:</strong> Request distribution, failover
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="bg-green-50 border-l-4 border-green-400 p-6 rounded-r-xl mb-6">
+                        <h3 class="text-xl font-bold text-green-800 mb-3 flex items-center">
+                            <span class="text-2xl mr-2">⚡</span>
+                            Operasi Utama Queue:
+                        </h3>
+                        <ul class="text-lg text-green-700 space-y-2">
+                            <li>• <strong>Enqueue:</strong> Menambah data di belakang antrian</li>
+                            <li>• <strong>Dequeue:</strong> Mengambil data dari depan antrian</li>
+                            <li>• <strong>Front:</strong> Melihat data terdepan tanpa mengambil</li>
+                            <li>• <strong>isEmpty:</strong> Mengecek apakah queue kosong</li>
+                        </ul>
                     </div>
                 </div>
                 
-                <div class="text-center">
-                    <button onclick="nextSection('tugas')" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-full text-xl font-semibold transition-colors shadow-lg">
-                        Lanjut ke Tugas ✍️
-                    </button>
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🛠️</span>
+                        Langkah 1: Membuat Class Queue
+                    </h2>
+                    
+                    <div class="bg-gray-100 p-4 rounded-xl mb-4">
+                        <div class="flex items-center mb-2">
+                            <span class="text-blue-600 mr-2">📄</span>
+                            <span class="font-medium text-gray-700">File: queue_class.py</span>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block rounded-xl p-6 text-white font-mono text-base md:text-lg mb-6">
+<span class="line-number">1</span><span class="comment"># Class Queue untuk Antrian Data</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span><span class="keyword">class</span> <span class="function">Queue</span>:
+<span class="line-number">4</span>    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>):
+<span class="line-number">5</span>        <span class="keyword">self</span>.items = []  <span class="comment"># List untuk menyimpan data</span>
+<span class="line-number">6</span>    
+<span class="line-number">7</span>    <span class="keyword">def</span> <span class="function">enqueue</span>(<span class="keyword">self</span>, item):
+<span class="line-number">8</span>        <span class="string">"""Menambah item ke belakang queue"""</span>
+<span class="line-number">9</span>        <span class="keyword">self</span>.items.<span class="function">append</span>(item)
+<span class="line-number">10</span>        <span class="function">print</span>(<span class="string">f"✅ '{item}' masuk antrian"</span>)
+<span class="line-number">11</span>    
+<span class="line-number">12</span>    <span class="keyword">def</span> <span class="function">dequeue</span>(<span class="keyword">self</span>):
+<span class="line-number">13</span>        <span class="string">"""Mengambil item dari depan queue"""</span>
+<span class="line-number">14</span>        <span class="keyword">if</span> <span class="keyword">self</span>.<span class="function">is_empty</span>():
+<span class="line-number">15</span>            <span class="function">print</span>(<span class="string">"❌ Antrian kosong!"</span>)
+<span class="line-number">16</span>            <span class="keyword">return</span> <span class="keyword">None</span>
+<span class="line-number">17</span>        item = <span class="keyword">self</span>.items.<span class="function">pop</span>(<span class="number">0</span>)  <span class="comment"># Ambil dari index 0 (depan)</span>
+<span class="line-number">18</span>        <span class="function">print</span>(<span class="string">f"🚶‍♂️ '{item}' keluar dari antrian"</span>)
+<span class="line-number">19</span>        <span class="keyword">return</span> item
+<span class="line-number">20</span>    
+<span class="line-number">21</span>    <span class="keyword">def</span> <span class="function">front</span>(<span class="keyword">self</span>):
+<span class="line-number">22</span>        <span class="string">"""Melihat item terdepan tanpa mengambil"""</span>
+<span class="line-number">23</span>        <span class="keyword">if</span> <span class="keyword">self</span>.<span class="function">is_empty</span>():
+<span class="line-number">24</span>            <span class="keyword">return</span> <span class="keyword">None</span>
+<span class="line-number">25</span>        <span class="keyword">return</span> <span class="keyword">self</span>.items[<span class="number">0</span>]
+<span class="line-number">26</span>    
+<span class="line-number">27</span>    <span class="keyword">def</span> <span class="function">is_empty</span>(<span class="keyword">self</span>):
+<span class="line-number">28</span>        <span class="string">"""Mengecek apakah queue kosong"""</span>
+<span class="line-number">29</span>        <span class="keyword">return</span> <span class="function">len</span>(<span class="keyword">self</span>.items) == <span class="number">0</span>
+<span class="line-number">30</span>    
+<span class="line-number">31</span>    <span class="keyword">def</span> <span class="function">size</span>(<span class="keyword">self</span>):
+<span class="line-number">32</span>        <span class="string">"""Mengembalikan ukuran queue"""</span>
+<span class="line-number">33</span>        <span class="keyword">return</span> <span class="function">len</span>(<span class="keyword">self</span>.items)
+<span class="line-number">34</span>    
+<span class="line-number">35</span>    <span class="keyword">def</span> <span class="function">display</span>(<span class="keyword">self</span>):
+<span class="line-number">36</span>        <span class="string">"""Menampilkan isi queue"""</span>
+<span class="line-number">37</span>        <span class="function">print</span>(<span class="string">"🚶‍♂️ Antrian (dari depan ke belakang):"</span>)
+<span class="line-number">38</span>        <span class="keyword">if</span> <span class="keyword">self</span>.<span class="function">is_empty</span>():
+<span class="line-number">39</span>            <span class="function">print</span>(<span class="string">"   (kosong)"</span>)
+<span class="line-number">40</span>        <span class="keyword">else</span>:
+<span class="line-number">41</span>            <span class="keyword">for</span> i, item <span class="keyword">in</span> <span class="function">enumerate</span>(<span class="keyword">self</span>.items):
+<span class="line-number">42</span>                <span class="function">print</span>(<span class="string">f"   {i+1}. {item}"</span>)
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🧪</span>
+                        Langkah 2: Testing Queue
+                    </h2>
+                    
+                    <div class="bg-gray-100 p-4 rounded-xl mb-4">
+                        <div class="flex items-center mb-2">
+                            <span class="text-blue-600 mr-2">📄</span>
+                            <span class="font-medium text-gray-700">File: test_queue.py</span>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block rounded-xl p-6 text-white font-mono text-base md:text-lg mb-6">
+<span class="line-number">1</span><span class="comment"># Testing Queue dengan Antrian Kasir</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span><span class="comment"># Membuat queue baru</span>
+<span class="line-number">4</span>antrian_kasir = <span class="function">Queue</span>()
+<span class="line-number">5</span>
+<span class="line-number">6</span><span class="function">print</span>(<span class="string">"=== SIMULASI ANTRIAN KASIR ==="</span>)
+<span class="line-number">7</span><span class="function">print</span>(<span class="string">f"Antrian kosong? {antrian_kasir.is_empty()}"</span>)
+<span class="line-number">8</span>
+<span class="line-number">9</span><span class="comment"># Pelanggan masuk antrian</span>
+<span class="line-number">10</span><span class="function">print</span>(<span class="string">"\n🏪 Pelanggan masuk antrian:"</span>)
+<span class="line-number">11</span>antrian_kasir.<span class="function">enqueue</span>(<span class="string">"Andi"</span>)
+<span class="line-number">12</span>antrian_kasir.<span class="function">enqueue</span>(<span class="string">"Budi"</span>)
+<span class="line-number">13</span>antrian_kasir.<span class="function">enqueue</span>(<span class="string">"Citra"</span>)
+<span class="line-number">14</span>antrian_kasir.<span class="function">enqueue</span>(<span class="string">"Dina"</span>)
+<span class="line-number">15</span>
+<span class="line-number">16</span><span class="comment"># Menampilkan antrian</span>
+<span class="line-number">17</span><span class="function">print</span>(<span class="string">f"\nJumlah antrian: {antrian_kasir.size()}"</span>)
+<span class="line-number">18</span>antrian_kasir.<span class="function">display</span>()
+<span class="line-number">19</span>
+<span class="line-number">20</span><span class="comment"># Melihat yang terdepan</span>
+<span class="line-number">21</span><span class="function">print</span>(<span class="string">f"\n👀 Yang terdepan: {antrian_kasir.front()}"</span>)
+<span class="line-number">22</span>
+<span class="line-number">23</span><span class="comment"># Melayani pelanggan (dequeue)</span>
+<span class="line-number">24</span><span class="function">print</span>(<span class="string">"\n💰 Melayani pelanggan:"</span>)
+<span class="line-number">25</span>dilayani = antrian_kasir.<span class="function">dequeue</span>()
+<span class="line-number">26</span>dilayani = antrian_kasir.<span class="function">dequeue</span>()
+<span class="line-number">27</span>
+<span class="line-number">28</span><span class="function">print</span>(<span class="string">f"\nSisa antrian: {antrian_kasir.size()}"</span>)
+<span class="line-number">29</span>antrian_kasir.<span class="function">display</span>()
+<span class="line-number">30</span>
+<span class="line-number">31</span><span class="comment"># Pelanggan baru masuk</span>
+<span class="line-number">32</span><span class="function">print</span>(<span class="string">"\n➕ Pelanggan baru masuk:"</span>)
+<span class="line-number">33</span>antrian_kasir.<span class="function">enqueue</span>(<span class="string">"Eko"</span>)
+<span class="line-number">34</span>antrian_kasir.<span class="function">display</span>()
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-3xl mr-3">🎯</span>
+                        Studi Kasus: Sistem Antrian Printer
+                    </h2>
+                    
+                    <p class="text-lg text-gray-700 mb-4">
+                        Mari buat sistem antrian printer di lab komputer menggunakan Queue:
+                    </p>
+                    
+                    <div class="bg-gray-100 p-4 rounded-xl mb-4">
+                        <div class="flex items-center mb-2">
+                            <span class="text-blue-600 mr-2">📄</span>
+                            <span class="font-medium text-gray-700">File: antrian_printer.py</span>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block rounded-xl p-6 text-white font-mono text-base md:text-lg mb-6">
+<span class="line-number">1</span><span class="comment"># Sistem Antrian Printer Lab Komputer</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span><span class="keyword">class</span> <span class="function">PrinterQueue</span>:
+<span class="line-number">4</span>    <span class="keyword">def</span> <span class="function">__init__</span>(<span class="keyword">self</span>):
+<span class="line-number">5</span>        <span class="keyword">self</span>.queue = <span class="function">Queue</span>()
+<span class="line-number">6</span>        <span class="keyword">self</span>.job_counter = <span class="number">1</span>
+<span class="line-number">7</span>    
+<span class="line-number">8</span>    <span class="keyword">def</span> <span class="function">add_print_job</span>(<span class="keyword">self</span>, user, document, pages):
+<span class="line-number">9</span>        <span class="string">"""Menambah job print ke antrian"""</span>
+<span class="line-number">10</span>        job = {
+<span class="line-number">11</span>            <span class="string">'id'</span>: <span class="keyword">self</span>.job_counter,
+<span class="line-number">12</span>            <span class="string">'user'</span>: user,
+<span class="line-number">13</span>            <span class="string">'document'</span>: document,
+<span class="line-number">14</span>            <span class="string">'pages'</span>: pages
+<span class="line-number">15</span>        }
+<span class="line-number">16</span>        <span class="keyword">self</span>.queue.<span class="function">enqueue</span>(job)
+<span class="line-number">17</span>        <span class="function">print</span>(<span class="string">f"🖨️ Job #{self.job_counter} dari {user} ditambahkan"</span>)
+<span class="line-number">18</span>        <span class="keyword">self</span>.job_counter += <span class="number">1</span>
+<span class="line-number">19</span>    
+<span class="line-number">20</span>    <span class="keyword">def</span> <span class="function">process_job</span>(<span class="keyword">self</span>):
+<span class="line-number">21</span>        <span class="string">"""Memproses job print"""</span>
+<span class="line-number">22</span>        <span class="keyword">if</span> <span class="keyword">self</span>.queue.<span class="function">is_empty</span>():
+<span class="line-number">23</span>            <span class="function">print</span>(<span class="string">"❌ Tidak ada job untuk diproses"</span>)
+<span class="line-number">24</span>            <span class="keyword">return</span>
+<span class="line-number">25</span>        
+<span class="line-number">26</span>        job = <span class="keyword">self</span>.queue.<span class="function">dequeue</span>()
+<span class="line-number">27</span>        <span class="function">print</span>(<span class="string">f"⚡ Memproses Job #{job['id']}:"</span>)
+<span class="line-number">28</span>        <span class="function">print</span>(<span class="string">f"   User: {job['user']}"</span>)
+<span class="line-number">29</span>        <span class="function">print</span>(<span class="string">f"   Dokumen: {job['document']}"</span>)
+<span class="line-number">30</span>        <span class="function">print</span>(<span class="string">f"   Halaman: {job['pages']}"</span>)
+<span class="line-number">31</span>        <span class="function">print</span>(<span class="string">"✅ Selesai diprint!"</span>)
+<span class="line-number">32</span>    
+<span class="line-number">33</span>    <span class="keyword">def</span> <span class="function">show_queue</span>(<span class="keyword">self</span>):
+<span class="line-number">34</span>        <span class="string">"""Menampilkan antrian print"""</span>
+<span class="line-number">35</span>        <span class="function">print</span>(<span class="string">f"\n📋 Antrian Print ({self.queue.size()} job):"</span>)
+<span class="line-number">36</span>        <span class="keyword">if</span> <span class="keyword">self</span>.queue.<span class="function">is_empty</span>():
+<span class="line-number">37</span>            <span class="function">print</span>(<span class="string">"   (kosong)"</span>)
+<span class="line-number">38</span>        <span class="keyword">else</span>:
+<span class="line-number">39</span>            <span class="keyword">for</span> i, job <span class="keyword">in</span> <span class="function">enumerate</span>(<span class="keyword">self</span>.queue.items):
+<span class="line-number">40</span>                <span class="function">print</span>(<span class="string">f"   {i+1}. Job #{job['id']} - {job['user']} ({job['pages']} hal)"</span>)
+<span class="line-number">41</span>
+<span class="line-number">42</span><span class="comment"># Program Utama</span>
+<span class="line-number">43</span>printer = <span class="function">PrinterQueue</span>()
+<span class="line-number">44</span>
+<span class="line-number">45</span><span class="function">print</span>(<span class="string">"=== SISTEM ANTRIAN PRINTER LAB ==="</span>)
+<span class="line-number">46</span>
+<span class="line-number">47</span><span class="keyword">while</span> <span class="keyword">True</span>:
+<span class="line-number">48</span>    <span class="function">print</span>(<span class="string">"\nMenu:"</span>)
+<span class="line-number">49</span>    <span class="function">print</span>(<span class="string">"1. Tambah job print"</span>)
+<span class="line-number">50</span>    <span class="function">print</span>(<span class="string">"2. Proses job"</span>)
+<span class="line-number">51</span>    <span class="function">print</span>(<span class="string">"3. Lihat antrian"</span>)
+<span class="line-number">52</span>    <span class="function">print</span>(<span class="string">"4. Keluar"</span>)
+<span class="line-number">53</span>    
+<span class="line-number">54</span>    pilihan = <span class="function">input</span>(<span class="string">"Pilih (1-4): "</span>)
+<span class="line-number">55</span>    
+<span class="line-number">56</span>    <span class="keyword">if</span> pilihan == <span class="string">'1'</span>:
+<span class="line-number">57</span>        user = <span class="function">input</span>(<span class="string">"Nama user: "</span>)
+<span class="line-number">58</span>        document = <span class="function">input</span>(<span class="string">"Nama dokumen: "</span>)
+<span class="line-number">59</span>        pages = <span class="function">int</span>(<span class="function">input</span>(<span class="string">"Jumlah halaman: "</span>))
+<span class="line-number">60</span>        printer.<span class="function">add_print_job</span>(user, document, pages)
+<span class="line-number">61</span>    <span class="keyword">elif</span> pilihan == <span class="string">'2'</span>:
+<span class="line-number">62</span>        printer.<span class="function">process_job</span>()
+<span class="line-number">63</span>    <span class="keyword">elif</span> pilihan == <span class="string">'3'</span>:
+<span class="line-number">64</span>        printer.<span class="function">show_queue</span>()
+<span class="line-number">65</span>    <span class="keyword">elif</span> pilihan == <span class="string">'4'</span>:
+<span class="line-number">66</span>        <span class="function">print</span>(<span class="string">"👋 Terima kasih!"</span>)
+<span class="line-number">67</span>        <span class="keyword">break</span>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-purple-400 to-pink-500 text-white rounded-2xl shadow-lg p-8">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center">
+                        <span class="text-3xl mr-3">🎉</span>
+                        Selamat! Kamu Sudah Menguasai Struktur Data!
+                    </h3>
+                    <div class="grid md:grid-cols-3 gap-4 text-center">
+                        <div class="bg-white bg-opacity-20 p-4 rounded-xl">
+                            <div class="text-3xl mb-2">📝</div>
+                            <h4 class="font-bold">List</h4>
+                            <p class="text-sm">Data berurutan yang fleksibel</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-4 rounded-xl">
+                            <div class="text-3xl mb-2">📚</div>
+                            <h4 class="font-bold">Stack</h4>
+                            <p class="text-sm">LIFO - Last In First Out</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-4 rounded-xl">
+                            <div class="text-3xl mb-2">🚶‍♂️</div>
+                            <h4 class="font-bold">Queue</h4>
+                            <p class="text-sm">FIFO - First In First Out</p>
+                        </div>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <p class="text-lg">💡 Terus berlatih dan eksplorasi lebih dalam!</p>
+                    </div>
                 </div>
             </div>
-
-            <!-- Tugas Section -->
-            <div id="tugas" class="section hidden">
-                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
-                    <div class="text-center mb-8">
-                        <div class="text-6xl mb-4">✍️</div>
-                        <h1 class="text-4xl font-bold text-purple-800 mb-4">Tugas Pembelajaran</h1>
-                    </div>
-                    
-                    <div class="space-y-6">
-                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
-                            <h3 class="text-xl font-bold text-indigo-800 mb-4">📝 Soal 1: Analisis Struktur Data</h3>
-                            <p class="mb-4">Jelaskan perbedaan utama antara List, Stack, dan Queue! Berikan contoh penggunaan masing-masing dalam kehidupan sehari-hari.</p>
-                            <textarea class="w-full h-32 p-4 border-2 border-indigo-300 rounded-lg resize-none" placeholder="Tulis jawaban Anda di sini..."></textarea>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-2xl">
-                            <h3 class="text-xl font-bold text-green-800 mb-4">🎯 Soal 2: Implementasi Stack</h3>
-                            <p class="mb-4">Anda diminta membuat fitur "Undo" untuk aplikasi text editor. Jelaskan bagaimana Anda akan menggunakan Stack untuk implementasi ini! Sebutkan operasi-operasi yang diperlukan.</p>
-                            <textarea class="w-full h-32 p-4 border-2 border-green-300 rounded-lg resize-none" placeholder="Tulis jawaban Anda di sini..."></textarea>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
-                            <h3 class="text-xl font-bold text-purple-800 mb-4">🚀 Soal 3: Skenario Queue</h3>
-                            <p class="mb-4">Sebuah restoran fast food ingin membuat sistem antrian digital. Pelanggan bisa memesan melalui aplikasi dan mendapat nomor antrian. Jelaskan bagaimana Queue dapat digunakan untuk sistem ini!</p>
-                            <textarea class="w-full h-32 p-4 border-2 border-purple-300 rounded-lg resize-none" placeholder="Tulis jawaban Anda di sini..."></textarea>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
-                            <h3 class="text-xl font-bold text-orange-800 mb-4">💡 Soal 4: Pemilihan Struktur Data</h3>
-                            <p class="mb-4">Untuk setiap skenario berikut, tentukan struktur data yang paling tepat (List, Stack, atau Queue) dan jelaskan alasannya:</p>
-                            <ul class="list-disc list-inside mb-4 space-y-2">
-                                <li>Menyimpan riwayat pencarian di browser</li>
-                                <li>Daftar kontak di ponsel</li>
-                                <li>Sistem antrian bank</li>
-                                <li>Fitur back/forward di browser</li>
-                            </ul>
-                            <textarea class="w-full h-32 p-4 border-2 border-orange-300 rounded-lg resize-none" placeholder="Tulis jawaban Anda di sini..."></textarea>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-2xl">
-                            <h3 class="text-xl font-bold text-red-800 mb-4">🔍 Soal 5: Analisis Kasus</h3>
-                            <p class="mb-4">Anda adalah developer yang diminta membuat aplikasi pemutar musik. Aplikasi ini harus memiliki fitur:</p>
-                            <ul class="list-disc list-inside mb-4 space-y-1">
-                                <li>Daftar lagu (playlist)</li>
-                                <li>Riwayat lagu yang sudah diputar</li>
-                                <li>Antrian lagu yang akan diputar selanjutnya</li>
-                            </ul>
-                            <p class="mb-4">Jelaskan struktur data apa yang akan Anda gunakan untuk masing-masing fitur dan mengapa!</p>
-                            <textarea class="w-full h-32 p-4 border-2 border-red-300 rounded-lg resize-none" placeholder="Tulis jawaban Anda di sini..."></textarea>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-center">
-                    <button onclick="nextSection('kuis')" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-full text-xl font-semibold transition-colors shadow-lg">
-                        Lanjut ke Kuis 🎯
-                    </button>
-                </div>
-            </div>
-
-            <!-- Kuis Section -->
-            <div id="kuis" class="section hidden">
-                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
-                    <div class="text-center mb-8">
-                        <div class="text-6xl mb-4">🎯</div>
-                        <h1 class="text-4xl font-bold text-purple-800 mb-4">Kuis Interaktif</h1>
-                    </div>
-                    
-                    <!-- Input Nama -->
-                    <div id="nameInput" class="text-center">
-                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl max-w-md mx-auto">
-                            <h3 class="text-xl font-bold text-purple-800 mb-4">Masukkan Nama Anda</h3>
-                            <input type="text" id="studentName" placeholder="Nama lengkap..." class="w-full p-3 border-2 border-purple-300 rounded-lg mb-4 text-center">
-                            <button onclick="startQuiz()" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-                                Mulai Kuis! 🚀
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Kuis Content -->
-                    <div id="quizContent" class="hidden">
-                        <div class="mb-6">
-                            <div class="flex justify-between items-center mb-4">
-                                <div class="text-lg font-semibold text-purple-800">
-                                    Soal <span id="currentQuestion">1</span> dari 10
-                                </div>
-                                <div class="text-lg font-semibold text-green-800">
-                                    Skor: <span id="currentScore">0</span>
-                                </div>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-3">
-                                <div id="progressBar" class="bg-purple-500 h-3 rounded-full transition-all duration-300" style="width: 10%"></div>
-                            </div>
-                        </div>
-                        
-                        <div id="questionContainer" class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl mb-6">
-                            <h3 id="questionText" class="text-xl font-bold text-indigo-800 mb-6"></h3>
-                            <div id="optionsContainer" class="space-y-3"></div>
-                        </div>
-                        
-                        <div class="text-center">
-                            <button id="nextButton" onclick="nextQuestion()" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors hidden">
-                                Soal Selanjutnya
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Hasil Kuis -->
-                    <div id="quizResult" class="hidden text-center">
-                        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-8 rounded-2xl">
-                            <div class="text-6xl mb-4">🎉</div>
-                            <h3 class="text-2xl font-bold text-green-800 mb-4">Kuis Selesai!</h3>
-                            <div class="text-xl mb-4">
-                                <strong id="finalName"></strong>
-                            </div>
-                            <div class="text-3xl font-bold text-purple-800 mb-4">
-                                Skor Akhir: <span id="finalScore"></span>/100
-                            </div>
-                            <div id="gradeMessage" class="text-lg mb-6"></div>
-                            <button onclick="restartQuiz()" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
-                                Ulangi Kuis
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-center">
-                    <button onclick="nextSection('penutup')" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-full text-xl font-semibold transition-colors shadow-lg">
-                        Lanjut ke Penutup 🎉
-                    </button>
-                </div>
-            </div>
-
-            <!-- Penutup Section -->
-            <div id="penutup" class="section hidden">
-                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
-                    <div class="text-center mb-8">
-                        <div class="text-6xl mb-4">🎉</div>
-                        <h1 class="text-4xl font-bold text-purple-800 mb-4">Penutup Pembelajaran</h1>
-                    </div>
-                    
-                    <div class="space-y-8">
-                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-indigo-800 mb-4">🤔 Refleksi</h3>
-                            <div class="space-y-4">
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-indigo-700 mb-2">Apa yang sudah kamu pelajari hari ini?</h4>
-                                    <textarea class="w-full h-20 p-3 border-2 border-indigo-300 rounded-lg resize-none" placeholder="Tulis refleksi Anda..."></textarea>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-indigo-700 mb-2">Bagian mana yang paling menarik?</h4>
-                                    <textarea class="w-full h-20 p-3 border-2 border-indigo-300 rounded-lg resize-none" placeholder="Tulis refleksi Anda..."></textarea>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-indigo-700 mb-2">Apa yang masih ingin kamu pelajari lebih lanjut?</h4>
-                                    <textarea class="w-full h-20 p-3 border-2 border-indigo-300 rounded-lg resize-none" placeholder="Tulis refleksi Anda..."></textarea>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-green-800 mb-4">📚 Kesimpulan Pembelajaran</h3>
-                            <div class="grid md:grid-cols-3 gap-4">
-                                <div class="bg-white p-4 rounded-xl text-center">
-                                    <div class="text-3xl mb-2">📝</div>
-                                    <h4 class="font-bold text-green-700 mb-2">List</h4>
-                                    <p class="text-sm">Struktur data fleksibel untuk menyimpan data berurutan dengan akses acak</p>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl text-center">
-                                    <div class="text-3xl mb-2">📚</div>
-                                    <h4 class="font-bold text-green-700 mb-2">Stack</h4>
-                                    <p class="text-sm">LIFO - Last In First Out, cocok untuk undo/redo dan function calls</p>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl text-center">
-                                    <div class="text-3xl mb-2">🚶‍♂️</div>
-                                    <h4 class="font-bold text-green-700 mb-2">Queue</h4>
-                                    <p class="text-sm">FIFO - First In First Out, ideal untuk sistem antrian dan scheduling</p>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-6 bg-white p-4 rounded-xl">
-                                <h4 class="font-bold text-green-700 mb-2">🎯 Poin Penting:</h4>
-                                <ul class="list-disc list-inside space-y-1 text-sm">
-                                    <li>Setiap struktur data memiliki keunggulan dan kegunaan spesifik</li>
-                                    <li>Pemilihan struktur data yang tepat meningkatkan efisiensi program</li>
-                                    <li>Memahami operasi dasar setiap struktur data sangat penting</li>
-                                    <li>Struktur data adalah fondasi dalam pengembangan aplikasi</li>
-                                </ul>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
-                            <h3 class="text-2xl font-bold text-purple-800 mb-4">🚀 Tindak Lanjut</h3>
-                            <div class="grid md:grid-cols-2 gap-4">
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-purple-700 mb-2">📖 Belajar Lebih Lanjut</h4>
-                                    <ul class="text-sm space-y-1">
-                                        <li>• Struktur data lanjutan (Tree, Graph)</li>
-                                        <li>• Algoritma sorting dan searching</li>
-                                        <li>• Implementasi dalam bahasa pemrograman</li>
-                                        <li>• Analisis kompleksitas waktu</li>
-                                    </ul>
-                                </div>
-                                <div class="bg-white p-4 rounded-xl">
-                                    <h4 class="font-bold text-purple-700 mb-2">💻 Praktik Coding</h4>
-                                    <ul class="text-sm space-y-1">
-                                        <li>• Implementasi List dalam Python/Java</li>
-                                        <li>• Membuat Stack untuk kalkulator</li>
-                                        <li>• Simulasi Queue untuk sistem antrian</li>
-                                        <li>• Project mini menggunakan struktur data</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl text-center">
-                            <h3 class="text-2xl font-bold text-orange-800 mb-4">🌟 Selamat!</h3>
-                            <p class="text-lg mb-4">Kamu telah berhasil menyelesaikan pembelajaran tentang struktur data dasar!</p>
-                            <p class="text-base text-gray-700">Terus semangat belajar dan jangan lupa untuk mempraktikkan ilmu yang sudah didapat. Struktur data adalah fondasi penting dalam dunia pemrograman!</p>
-                            
-                            <div class="mt-6 flex justify-center space-x-4">
-                                <div class="text-4xl animate-bounce-custom">🎉</div>
-                                <div class="text-4xl animate-bounce-custom" style="animation-delay: 0.1s">🎊</div>
-                                <div class="text-4xl animate-bounce-custom" style="animation-delay: 0.2s">🏆</div>
-                                <div class="text-4xl animate-bounce-custom" style="animation-delay: 0.3s">⭐</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-center">
-                    <button onclick="showSection('intro')" class="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-full text-xl font-semibold transition-colors shadow-lg">
-                        Kembali ke Awal 🔄
-                    </button>
-                </div>
+            
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between items-center mt-12 pt-8 border-t border-gray-200">
+                <button id="prevBtn" class="hidden bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-xl font-medium transition-colors flex items-center">
+                    <span class="mr-2">←</span>
+                    Sebelumnya
+                </button>
+                <div class="flex-1"></div>
+                <button id="nextBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-medium transition-colors flex items-center">
+                    Selanjutnya
+                    <span class="ml-2">→</span>
+                </button>
             </div>
         </div>
     </div>
-
+    
     <!-- Floating Back to Top Button -->
-    <button id="backToTop" class="fixed bottom-6 right-6 bg-purple-500 hover:bg-purple-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 opacity-0 pointer-events-none z-30">
+    <button id="backToTop" class="floating-btn bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg hidden">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
         </svg>
     </button>
-
+    
     <script>
-        // Global variables
-        let currentList = [];
-        let currentStack = [];
-        let currentQueue = [];
-        let quizData = [];
-        let currentQuizIndex = 0;
-        let quizScore = 0;
-        let studentName = '';
-
-        // Quiz questions
-        const questions = [
-            {
-                question: "Apa kepanjangan dari LIFO?",
-                options: ["Last In First Out", "List In First Out", "Last Item First Operation", "Linear In First Out"],
-                correct: 0
-            },
-            {
-                question: "Struktur data mana yang menggunakan prinsip FIFO?",
-                options: ["Stack", "List", "Queue", "Array"],
-                correct: 2
-            },
-            {
-                question: "Operasi untuk menambahkan elemen ke Stack disebut:",
-                options: ["Enqueue", "Push", "Insert", "Add"],
-                correct: 1
-            },
-            {
-                question: "Operasi untuk mengeluarkan elemen dari Queue disebut:",
-                options: ["Pop", "Delete", "Dequeue", "Remove"],
-                correct: 2
-            },
-            {
-                question: "Dalam Stack, elemen mana yang akan keluar pertama?",
-                options: ["Elemen pertama yang masuk", "Elemen terakhir yang masuk", "Elemen di tengah", "Semua elemen bersamaan"],
-                correct: 1
-            },
-            {
-                question: "Kompleksitas waktu untuk mengakses elemen dalam Array berdasarkan index adalah:",
-                options: ["O(n)", "O(log n)", "O(1)", "O(n²)"],
-                correct: 2
-            },
-            {
-                question: "Dalam Queue, elemen baru ditambahkan di:",
-                options: ["Depan", "Belakang", "Tengah", "Mana saja"],
-                correct: 1
-            },
-            {
-                question: "Perbedaan utama antara Array dan Linked List adalah:",
-                options: ["Array lebih lambat", "Linked List ukurannya tetap", "Array memiliki ukuran tetap", "Tidak ada perbedaan"],
-                correct: 2
-            },
-            {
-                question: "Operasi Peek pada Stack berfungsi untuk:",
-                options: ["Menghapus elemen teratas", "Melihat elemen teratas tanpa menghapus", "Menambah elemen baru", "Mengosongkan stack"],
-                correct: 1
-            },
-            {
-                question: "Manakah yang BUKAN contoh penggunaan Stack?",
-                options: ["Function call dalam program", "Tombol Undo/Redo", "Browser history", "Antrian bank"],
-                correct: 3
-            },
-            {
-                question: "Dalam Big O Notation, O(1) berarti:",
-                options: ["Waktu eksekusi bertambah linear", "Waktu eksekusi konstan", "Waktu eksekusi bertambah kuadratik", "Waktu eksekusi tidak terdefinisi"],
-                correct: 1
-            },
-            {
-                question: "Struktur data yang paling cocok untuk implementasi sistem undo adalah:",
-                options: ["Queue", "List", "Stack", "Array"],
-                correct: 2
-            },
-            {
-                question: "Jika kita memiliki Stack dengan elemen [A, B, C] (C di puncak), setelah operasi Pop() dan Push(D), isi Stack menjadi:",
-                options: ["[A, B, D]", "[D, A, B]", "[A, D, B]", "[D, B, A]"],
-                correct: 0
-            },
-            {
-                question: "Keunggulan utama Linked List dibanding Array adalah:",
-                options: ["Akses lebih cepat", "Ukuran dinamis", "Menggunakan memori lebih sedikit", "Lebih mudah diimplementasi"],
-                correct: 1
-            },
-            {
-                question: "Dalam Queue, operasi untuk melihat elemen depan tanpa menghapusnya disebut:",
-                options: ["Peek", "Front", "Top", "Semua benar"],
-                correct: 3
-            }
-        ];
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            showSection('intro');
-            setupEventListeners();
+        // Navigation state
+        const sections = ['pengenalan', 'list', 'stack', 'queue'];
+        let currentSection = 0;
+        
+        // DOM elements
+        const sidebar = document.getElementById('sidebar');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const closeSidebar = document.getElementById('closeSidebar');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+        const backToTop = document.getElementById('backToTop');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const menuItems = document.querySelectorAll('.menu-item');
+        
+        // Mobile menu functionality
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+            mobileMenuOverlay.classList.remove('hidden');
         });
-
-        function setupEventListeners() {
-            // Mobile menu toggle
-            document.getElementById('mobileMenuBtn').addEventListener('click', function() {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.toggle('open');
-            });
-
-            // Close sidebar when clicking outside on mobile
-            document.addEventListener('click', function(e) {
-                const sidebar = document.getElementById('sidebar');
-                const mobileBtn = document.getElementById('mobileMenuBtn');
-                
-                if (window.innerWidth < 768 && !sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
-                    sidebar.classList.remove('open');
-                }
-            });
-
-            // Back to top button
-            const backToTopBtn = document.getElementById('backToTop');
-            
-            window.addEventListener('scroll', function() {
-                if (window.pageYOffset > 300) {
-                    backToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
-                } else {
-                    backToTopBtn.classList.add('opacity-0', 'pointer-events-none');
-                }
-            });
-
-            backToTopBtn.addEventListener('click', function() {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-
-            // Enter key listeners
-            document.getElementById('listInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') addToList();
-            });
-
-            document.getElementById('stackInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') pushToStack();
-            });
-
-            document.getElementById('queueInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') enqueue();
-            });
-
-            document.getElementById('studentName').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') startQuiz();
-            });
-        }
-
-        function showSection(sectionId) {
-            // Hide all sections
-            const sections = document.querySelectorAll('.section');
-            sections.forEach(section => {
-                section.classList.add('hidden');
-                section.classList.remove('animate-fade-in');
-            });
-
-            // Show target section
-            const targetSection = document.getElementById(sectionId);
-            if (targetSection) {
-                targetSection.classList.remove('hidden');
-                targetSection.classList.add('animate-fade-in');
-                
-                // Scroll to top
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                
-                // Close mobile menu
-                document.getElementById('sidebar').classList.remove('open');
-                
-                // Update active nav link
-                updateActiveNavLink(sectionId);
+        
+        closeSidebar.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            mobileMenuOverlay.classList.add('hidden');
+        });
+        
+        mobileMenuOverlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            mobileMenuOverlay.classList.add('hidden');
+        });
+        
+        // Back to top functionality
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.remove('hidden');
+            } else {
+                backToTop.classList.add('hidden');
             }
-        }
-
-        function nextSection(sectionId) {
-            // Smooth scroll to top first
+        });
+        
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        // Section navigation
+        function showSection(sectionIndex) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show current section
+            document.getElementById(sections[sectionIndex]).classList.remove('hidden');
+            
+            // Update menu items
+            menuItems.forEach(item => item.classList.remove('active'));
+            menuItems[sectionIndex].classList.add('active');
+            
+            // Update navigation buttons
+            prevBtn.classList.toggle('hidden', sectionIndex === 0);
+            nextBtn.textContent = sectionIndex === sections.length - 1 ? 'Selesai ✨' : 'Selanjutnya →';
+            
+            // Close mobile menu
+            sidebar.classList.add('-translate-x-full');
+            mobileMenuOverlay.classList.add('hidden');
+            
+            // Scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
             
-            // Wait for scroll to complete, then change section
-            setTimeout(() => {
-                showSection(sectionId);
-            }, 300);
+            currentSection = sectionIndex;
         }
-
-        function updateActiveNavLink(activeSection) {
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
-                link.classList.remove('bg-purple-100', 'text-purple-800');
-                link.classList.add('text-gray-700');
+        
+        // Menu item clicks
+        menuItems.forEach((item, index) => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                showSection(index);
             });
-
-            // Find and highlight active link
-            navLinks.forEach(link => {
-                if (link.getAttribute('onclick').includes(activeSection)) {
-                    link.classList.add('bg-purple-100', 'text-purple-800');
-                    link.classList.remove('text-gray-700');
-                }
-            });
-        }
-
-        // List Demo Functions
-        function addToList() {
-            const input = document.getElementById('listInput');
-            const value = input.value.trim();
-            
-            if (value) {
-                currentList.push(value);
-                input.value = '';
-                updateListDisplay();
-                showListMessage(`"${value}" ditambahkan ke list`, 'success');
-            }
-        }
-
-        function insertAtIndex() {
-            const input = document.getElementById('listInput');
-            const indexInput = document.getElementById('indexInput');
-            const value = input.value.trim();
-            const index = parseInt(indexInput.value);
-            
-            if (value && !isNaN(index) && index >= 0 && index <= currentList.length) {
-                currentList.splice(index, 0, value);
-                input.value = '';
-                indexInput.value = '';
-                updateListDisplay();
-                showListMessage(`"${value}" disisipkan di index ${index}`, 'success');
+        });
+        
+        // Navigation button clicks
+        nextBtn.addEventListener('click', () => {
+            if (currentSection < sections.length - 1) {
+                showSection(currentSection + 1);
             } else {
-                showListMessage('Masukkan item dan index yang valid!', 'error');
+                // Show completion message
+                alert('🎉 Selamat! Kamu telah menyelesaikan pembelajaran Struktur Data!\n\nSekarang kamu sudah memahami:\n• List - untuk data berurutan\n• Stack - untuk data LIFO\n• Queue - untuk data FIFO\n\nTerus berlatih dan eksplorasi lebih dalam! 💪');
             }
-        }
-
-        function searchInList() {
-            const input = document.getElementById('listInput');
-            const searchValue = input.value.trim();
-            
-            if (searchValue) {
-                const index = currentList.indexOf(searchValue);
-                if (index !== -1) {
-                    showListMessage(`"${searchValue}" ditemukan di index ${index}`, 'info');
-                    // Highlight the found item
-                    highlightListItem(index);
-                } else {
-                    showListMessage(`"${searchValue}" tidak ditemukan dalam list`, 'error');
-                }
+        });
+        
+        prevBtn.addEventListener('click', () => {
+            if (currentSection > 0) {
+                showSection(currentSection - 1);
             }
-        }
-
-        function sortList() {
-            if (currentList.length > 0) {
-                currentList.sort();
-                updateListDisplay();
-                showListMessage('List berhasil diurutkan!', 'success');
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' && currentSection < sections.length - 1) {
+                showSection(currentSection + 1);
+            } else if (e.key === 'ArrowLeft' && currentSection > 0) {
+                showSection(currentSection - 1);
             }
-        }
-
-        function updateListDisplay() {
-            const container = document.getElementById('listDemo');
-            const countElement = document.getElementById('listCount');
-            
-            if (currentList.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 text-center">List kosong - tambahkan item pertama!</p>';
-            } else {
-                container.innerHTML = currentList.map((item, index) => 
-                    `<div class="inline-block bg-gradient-to-r from-purple-100 to-pink-100 px-4 py-2 rounded-lg m-1 cursor-pointer hover:bg-gradient-to-r hover:from-purple-200 hover:to-pink-200 transition-colors animate-slide-in" onclick="removeFromList(${index})" id="listItem${index}">
-                        <span class="font-bold text-purple-700">${index}:</span> ${item}
-                    </div>`
-                ).join('');
-            }
-            
-            countElement.textContent = currentList.length;
-        }
-
-        function highlightListItem(index) {
-            const item = document.getElementById(`listItem${index}`);
-            if (item) {
-                item.classList.add('ring-4', 'ring-yellow-400');
-                setTimeout(() => {
-                    item.classList.remove('ring-4', 'ring-yellow-400');
-                }, 2000);
-            }
-        }
-
-        function removeFromList(index) {
-            const removedItem = currentList[index];
-            currentList.splice(index, 1);
-            updateListDisplay();
-            showListMessage(`"${removedItem}" dihapus dari list`, 'success');
-        }
-
-        function clearList() {
-            currentList = [];
-            updateListDisplay();
-            showListMessage('Semua item dihapus dari list', 'info');
-        }
-
-        function showListMessage(message, type) {
-            // Create or update message element
-            let messageEl = document.getElementById('listMessage');
-            if (!messageEl) {
-                messageEl = document.createElement('div');
-                messageEl.id = 'listMessage';
-                document.getElementById('listDemo').parentNode.appendChild(messageEl);
-            }
-            
-            const colors = {
-                success: 'text-green-600 bg-green-50 border-green-200',
-                error: 'text-red-600 bg-red-50 border-red-200',
-                info: 'text-blue-600 bg-blue-50 border-blue-200'
-            };
-            
-            messageEl.className = `mt-2 text-center text-sm p-2 rounded border ${colors[type]}`;
-            messageEl.textContent = message;
-            
-            setTimeout(() => {
-                messageEl.textContent = '';
-                messageEl.className = 'mt-2 text-center text-sm';
-            }, 3000);
-        }
-
-        // Stack Demo Functions
-        function pushToStack() {
-            const input = document.getElementById('stackInput');
-            const value = input.value.trim();
-            
-            if (value) {
-                currentStack.push(value);
-                input.value = '';
-                updateStackDisplay();
-                showStackMessage(`"${value}" ditambahkan ke stack`, 'success');
-            }
-        }
-
-        function popFromStack() {
-            if (currentStack.length === 0) {
-                showStackMessage('Stack kosong! Tidak ada yang bisa di-pop', 'error');
-                return;
-            }
-            
-            const poppedItem = currentStack.pop();
-            updateStackDisplay();
-            showStackMessage(`"${poppedItem}" dikeluarkan dari stack`, 'success');
-        }
-
-        function peekStack() {
-            if (currentStack.length === 0) {
-                showStackMessage('Stack kosong! Tidak ada yang bisa dilihat', 'error');
-                return;
-            }
-            
-            const topItem = currentStack[currentStack.length - 1];
-            showStackMessage(`Elemen teratas: "${topItem}"`, 'info');
-        }
-
-        function updateStackDisplay() {
-            const container = document.getElementById('stackDemo');
-            
-            if (currentStack.length === 0) {
-                container.innerHTML = '<div class="text-gray-500 text-sm text-center mt-4">Stack Kosong</div>';
-            } else {
-                // Reverse the array to show newest items at top (like real stack)
-                const reversedStack = [...currentStack].reverse();
-                container.innerHTML = reversedStack.map((item, displayIndex) => {
-                    const actualIndex = currentStack.length - 1 - displayIndex;
-                    const isTop = displayIndex === 0;
-                    return `<div class="stack-item bg-gradient-to-r from-blue-100 to-indigo-100 px-4 py-2 rounded-lg mb-1 text-center border-2 border-blue-200 animate-slide-in ${isTop ? 'ring-2 ring-purple-400 bg-gradient-to-r from-purple-100 to-pink-100' : ''}">
-                        <div class="flex justify-between items-center">
-                            <span class="text-xs text-gray-500 font-bold">[${actualIndex}]</span>
-                            <span class="flex-1 mx-2">${item}</span>
-                            ${isTop ? '<span class="text-xs text-purple-600 font-bold">TOP</span>' : '<span class="text-xs text-transparent">TOP</span>'}
-                        </div>
-                    </div>`
-                }).join('');
-            }
-        }
-
-        function showStackMessage(message, type) {
-            const messageEl = document.getElementById('stackMessage');
-            const colors = {
-                success: 'text-green-600 bg-green-50',
-                error: 'text-red-600 bg-red-50',
-                info: 'text-blue-600 bg-blue-50'
-            };
-            
-            messageEl.className = `mt-4 text-center text-sm p-2 rounded ${colors[type]}`;
-            messageEl.textContent = message;
-            
-            setTimeout(() => {
-                messageEl.textContent = '';
-                messageEl.className = 'mt-4 text-center text-sm';
-            }, 3000);
-        }
-
-        // Queue Demo Functions
-        function enqueue() {
-            const input = document.getElementById('queueInput');
-            const value = input.value.trim();
-            
-            if (value) {
-                currentQueue.push(value);
-                input.value = '';
-                updateQueueDisplay();
-                showQueueMessage(`"${value}" ditambahkan ke queue`, 'success');
-            }
-        }
-
-        function dequeue() {
-            if (currentQueue.length === 0) {
-                showQueueMessage('Queue kosong! Tidak ada yang bisa di-dequeue', 'error');
-                return;
-            }
-            
-            const dequeuedItem = currentQueue.shift();
-            updateQueueDisplay();
-            showQueueMessage(`"${dequeuedItem}" dikeluarkan dari queue`, 'success');
-        }
-
-        function frontQueue() {
-            if (currentQueue.length === 0) {
-                showQueueMessage('Queue kosong! Tidak ada elemen depan', 'error');
-                return;
-            }
-            
-            const frontItem = currentQueue[0];
-            showQueueMessage(`Elemen depan: "${frontItem}"`, 'info');
-        }
-
-        function updateQueueDisplay() {
-            const container = document.getElementById('queueDemo');
-            
-            if (currentQueue.length === 0) {
-                container.innerHTML = '<div class="text-gray-500 text-sm text-center">Queue Kosong</div>';
-            } else {
-                // Reverse the display order - newest items on left, oldest on right
-                const reversedQueue = [...currentQueue].reverse();
-                container.innerHTML = `<div class="flex items-center space-x-2 overflow-x-auto">
-                    ${reversedQueue.map((item, displayIndex) => {
-                        const actualIndex = currentQueue.length - 1 - displayIndex;
-                        const isNext = displayIndex === reversedQueue.length - 1; // rightmost (oldest) will be dequeued next
-                        return `<div class="queue-item bg-gradient-to-r from-green-100 to-teal-100 px-4 py-2 rounded-lg border-2 border-green-200 whitespace-nowrap animate-slide-in ${isNext ? 'ring-2 ring-red-300' : ''}">
-                            ${item}
-                        </div>`
-                    }).join('')}
-                </div>`;
-            }
-        }
-
-        function showQueueMessage(message, type) {
-            const messageEl = document.getElementById('queueMessage');
-            const colors = {
-                success: 'text-green-600 bg-green-50',
-                error: 'text-red-600 bg-red-50',
-                info: 'text-blue-600 bg-blue-50'
-            };
-            
-            messageEl.className = `mt-4 text-center text-sm p-2 rounded ${colors[type]}`;
-            messageEl.textContent = message;
-            
-            setTimeout(() => {
-                messageEl.textContent = '';
-                messageEl.className = 'mt-4 text-center text-sm';
-            }, 3000);
-        }
-
-        // Quiz Functions
-        function startQuiz() {
-            const nameInput = document.getElementById('studentName');
-            studentName = nameInput.value.trim();
-            
-            if (!studentName) {
-                alert('Silakan masukkan nama Anda terlebih dahulu!');
-                return;
-            }
-            
-            document.getElementById('nameInput').classList.add('hidden');
-            document.getElementById('quizContent').classList.remove('hidden');
-            
-            currentQuizIndex = 0;
-            quizScore = 0;
-            loadQuestion();
-        }
-
-        function loadQuestion() {
-            const question = questions[currentQuizIndex];
-            
-            document.getElementById('currentQuestion').textContent = currentQuizIndex + 1;
-            document.getElementById('currentScore').textContent = quizScore;
-            document.getElementById('questionText').textContent = question.question;
-            
-            const optionsContainer = document.getElementById('optionsContainer');
-            optionsContainer.innerHTML = question.options.map((option, index) => 
-                `<button onclick="selectAnswer(${index})" class="option-btn w-full text-left p-4 bg-white hover:bg-indigo-50 border-2 border-indigo-200 rounded-lg transition-colors">
-                    ${String.fromCharCode(65 + index)}. ${option}
-                </button>`
-            ).join('');
-            
-            document.getElementById('progressBar').style.width = `${((currentQuizIndex + 1) / questions.length) * 100}%`;
-            document.getElementById('nextButton').classList.add('hidden');
-        }
-
-        function selectAnswer(selectedIndex) {
-            const question = questions[currentQuizIndex];
-            const options = document.querySelectorAll('.option-btn');
-            
-            // Disable all options
-            options.forEach((btn, index) => {
-                btn.disabled = true;
-                btn.classList.remove('hover:bg-indigo-50');
-                
-                if (index === question.correct) {
-                    btn.classList.add('bg-green-100', 'border-green-500', 'text-green-800');
-                } else if (index === selectedIndex && index !== question.correct) {
-                    btn.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
-                }
-            });
-            
-            // Update score
-            if (selectedIndex === question.correct) {
-                quizScore += 10;
-                document.getElementById('currentScore').textContent = quizScore;
-            }
-            
-            // Show next button
-            setTimeout(() => {
-                document.getElementById('nextButton').classList.remove('hidden');
-            }, 1000);
-        }
-
-        function nextQuestion() {
-            currentQuizIndex++;
-            
-            if (currentQuizIndex < questions.length) {
-                loadQuestion();
-            } else {
-                showQuizResult();
-            }
-        }
-
-        function showQuizResult() {
-            document.getElementById('quizContent').classList.add('hidden');
-            document.getElementById('quizResult').classList.remove('hidden');
-            
-            document.getElementById('finalName').textContent = studentName;
-            document.getElementById('finalScore').textContent = quizScore;
-            
-            let gradeMessage = '';
-            if (quizScore >= 90) {
-                gradeMessage = '🌟 Luar biasa! Kamu sangat memahami materi ini!';
-            } else if (quizScore >= 80) {
-                gradeMessage = '👏 Bagus sekali! Pemahaman kamu sudah baik!';
-            } else if (quizScore >= 70) {
-                gradeMessage = '👍 Cukup baik! Terus belajar ya!';
-            } else if (quizScore >= 60) {
-                gradeMessage = '📚 Perlu belajar lebih giat lagi!';
-            } else {
-                gradeMessage = '💪 Jangan menyerah! Ulangi materi dan coba lagi!';
-            }
-            
-            document.getElementById('gradeMessage').textContent = gradeMessage;
-        }
-
-        function restartQuiz() {
-            document.getElementById('quizResult').classList.add('hidden');
-            document.getElementById('nameInput').classList.remove('hidden');
-            document.getElementById('studentName').value = '';
-            currentQuizIndex = 0;
-            quizScore = 0;
-        }
+        });
+        
+        // Initialize
+        showSection(0);
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'985c3bb733e6e787',t:'MTc1ODk4OTAzMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9894d3ebc4fab5e7',t:'MTc1OTU4MjQ2Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
