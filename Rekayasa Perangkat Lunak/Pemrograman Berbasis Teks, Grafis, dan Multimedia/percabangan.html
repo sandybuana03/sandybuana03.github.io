@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar Percabangan Java - Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .menu-item {
+            transition: all 0.3s ease;
+        }
+        
+        .menu-item:hover {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            transform: translateX(5px);
+        }
+        
+        .menu-item.active {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        pre {
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            pre {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenuOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 gradient-bg text-white z-50 sidebar-transition transform -translate-x-full lg:translate-x-0 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center space-x-3">
+                    <div class="text-4xl">☕</div>
+                    <div>
+                        <h1 class="text-xl font-bold">Java Learning</h1>
+                        <p class="text-sm opacity-80">Percabangan Lanjutan</p>
+                    </div>
+                </div>
+                <button id="closeSidebar" class="lg:hidden text-white hover:bg-white hover:bg-opacity-20 p-2 rounded">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <nav class="space-y-2">
+                <button class="menu-item active w-full text-left p-4 rounded-lg flex items-center space-x-3" data-section="pengenalan">
+                    <span class="text-2xl">🎯</span>
+                    <span class="font-medium">Pengenalan</span>
+                </button>
+                
+                <button class="menu-item w-full text-left p-4 rounded-lg flex items-center space-x-3" data-section="if-else">
+                    <span class="text-2xl">🔀</span>
+                    <span class="font-medium">If-Else Lanjutan</span>
+                </button>
+                
+                <button class="menu-item w-full text-left p-4 rounded-lg flex items-center space-x-3" data-section="nested-if">
+                    <span class="text-2xl">🏗️</span>
+                    <span class="font-medium">Nested If</span>
+                </button>
+                
+                <button class="menu-item w-full text-left p-4 rounded-lg flex items-center space-x-3" data-section="switch-case">
+                    <span class="text-2xl">🎛️</span>
+                    <span class="font-medium">Switch Case</span>
+                </button>
+                
+                <button class="menu-item w-full text-left p-4 rounded-lg flex items-center space-x-3" data-section="ternary">
+                    <span class="text-2xl">⚡</span>
+                    <span class="font-medium">Operator Ternary</span>
+                </button>
+                
+                <button class="menu-item w-full text-left p-4 rounded-lg flex items-center space-x-3" data-section="praktik">
+                    <span class="text-2xl">💻</span>
+                    <span class="font-medium">Praktik Lengkap</span>
+                </button>
+            </nav>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-30">
+            <div class="px-4 sm:px-6 lg:px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <button id="openSidebar" class="lg:hidden text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <h2 id="pageTitle" class="text-xl sm:text-2xl font-bold text-gray-800">Pengenalan Percabangan Lanjutan</h2>
+                    <div class="text-2xl bounce">🚀</div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Content Area -->
+        <main class="p-4 sm:p-6 lg:p-8">
+            <div id="content" class="max-w-4xl mx-auto">
+                <!-- Pengenalan Content -->
+                <div class="fade-in">
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8 rounded-2xl mb-8 card-hover">
+                        <div class="flex items-center space-x-4 mb-4">
+                            <div class="text-6xl">🎯</div>
+                            <div>
+                                <h1 class="text-3xl font-bold mb-2">Selamat Datang!</h1>
+                                <p class="text-xl opacity-90">Mari belajar Struktur Kontrol Percabangan Java yang lebih canggih!</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                            <div class="text-4xl mb-4">🤔</div>
+                            <h3 class="text-xl font-bold mb-3 text-gray-800">Apa itu Percabangan?</h3>
+                            <p class="text-gray-600 leading-relaxed">Percabangan adalah struktur kontrol yang memungkinkan program membuat keputusan berdasarkan kondisi tertentu. Seperti memilih jalan di persimpangan!</p>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                            <div class="text-4xl mb-4">🎪</div>
+                            <h3 class="text-xl font-bold mb-3 text-gray-800">Mengapa Penting?</h3>
+                            <p class="text-gray-600 leading-relaxed">Dengan percabangan, program bisa "berpikir" dan memberikan respons yang berbeda sesuai situasi. Ini membuat aplikasi lebih pintar dan interaktif!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg mb-8">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <div class="text-2xl">💡</div>
+                            <h3 class="text-lg font-bold text-yellow-800">Yang Akan Kamu Pelajari:</h3>
+                        </div>
+                        <ul class="space-y-2 text-yellow-700">
+                            <li class="flex items-center space-x-2">
+                                <span class="text-green-500">✅</span>
+                                <span>If-Else dengan kondisi kompleks</span>
+                            </li>
+                            <li class="flex items-center space-x-2">
+                                <span class="text-green-500">✅</span>
+                                <span>Nested If (If bersarang)</span>
+                            </li>
+                            <li class="flex items-center space-x-2">
+                                <span class="text-green-500">✅</span>
+                                <span>Switch Case untuk pilihan banyak</span>
+                            </li>
+                            <li class="flex items-center space-x-2">
+                                <span class="text-green-500">✅</span>
+                                <span>Operator Ternary untuk kode singkat</span>
+                            </li>
+                            <li class="flex items-center space-x-2">
+                                <span class="text-green-500">✅</span>
+                                <span>Praktik langsung dengan contoh nyata</span>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="text-3xl">🎮</div>
+                            <h3 class="text-xl font-bold text-gray-800">Siap Memulai Petualangan?</h3>
+                        </div>
+                        <p class="text-gray-600 leading-relaxed mb-4">
+                            Pembelajaran ini dirancang khusus untuk siswa SMK dengan pendekatan step-by-step yang mudah diikuti. 
+                            Setiap materi dilengkapi dengan contoh kode yang bisa langsung dipraktikkan!
+                        </p>
+                        <div class="flex items-center space-x-2 text-blue-600">
+                            <span class="text-xl">👉</span>
+                            <span class="font-medium">Klik "Selanjutnya" untuk mulai belajar!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Next Button -->
+            <div class="max-w-4xl mx-auto mt-12 flex justify-end">
+                <button id="nextBtn" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2">
+                    <span>Selanjutnya</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 opacity-0 pointer-events-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Content data
+        const contentData = {
+            pengenalan: {
+                title: "Pengenalan Percabangan Lanjutan",
+                content: `
+                    <div class="fade-in">
+                        <div class="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8 rounded-2xl mb-8 card-hover">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="text-6xl">🎯</div>
+                                <div>
+                                    <h1 class="text-3xl font-bold mb-2">Selamat Datang!</h1>
+                                    <p class="text-xl opacity-90">Mari belajar Struktur Kontrol Percabangan Java yang lebih canggih!</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mb-8">
+                            <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                                <div class="text-4xl mb-4">🤔</div>
+                                <h3 class="text-xl font-bold mb-3 text-gray-800">Apa itu Percabangan?</h3>
+                                <p class="text-gray-600 leading-relaxed">Percabangan adalah struktur kontrol yang memungkinkan program membuat keputusan berdasarkan kondisi tertentu. Seperti memilih jalan di persimpangan!</p>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-xl shadow-lg card-hover">
+                                <div class="text-4xl mb-4">🎪</div>
+                                <h3 class="text-xl font-bold mb-3 text-gray-800">Mengapa Penting?</h3>
+                                <p class="text-gray-600 leading-relaxed">Dengan percabangan, program bisa "berpikir" dan memberikan respons yang berbeda sesuai situasi. Ini membuat aplikasi lebih pintar dan interaktif!</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg mb-8">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="text-2xl">💡</div>
+                                <h3 class="text-lg font-bold text-yellow-800">Yang Akan Kamu Pelajari:</h3>
+                            </div>
+                            <ul class="space-y-2 text-yellow-700">
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-green-500">✅</span>
+                                    <span>If-Else dengan kondisi kompleks</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-green-500">✅</span>
+                                    <span>Nested If (If bersarang)</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-green-500">✅</span>
+                                    <span>Switch Case untuk pilihan banyak</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-green-500">✅</span>
+                                    <span>Operator Ternary untuk kode singkat</span>
+                                </li>
+                                <li class="flex items-center space-x-2">
+                                    <span class="text-green-500">✅</span>
+                                    <span>Praktik langsung dengan contoh nyata</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg">
+                            <div class="flex items-center space-x-3 mb-4">
+                                <div class="text-3xl">🎮</div>
+                                <h3 class="text-xl font-bold text-gray-800">Siap Memulai Petualangan?</h3>
+                            </div>
+                            <p class="text-gray-600 leading-relaxed mb-4">
+                                Pembelajaran ini dirancang khusus untuk siswa SMK dengan pendekatan step-by-step yang mudah diikuti. 
+                                Setiap materi dilengkapi dengan contoh kode yang bisa langsung dipraktikkan!
+                            </p>
+                            <div class="flex items-center space-x-2 text-blue-600">
+                                <span class="text-xl">👉</span>
+                                <span class="font-medium">Klik "Selanjutnya" untuk mulai belajar!</span>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            
+            "if-else": {
+                title: "If-Else Lanjutan",
+                content: `
+                    <div class="fade-in">
+                        <div class="bg-gradient-to-r from-green-500 to-blue-500 text-white p-8 rounded-2xl mb-8 card-hover">
+                            <div class="flex items-center space-x-4">
+                                <div class="text-6xl">🔀</div>
+                                <div>
+                                    <h1 class="text-3xl font-bold mb-2">If-Else Lanjutan</h1>
+                                    <p class="text-xl opacity-90">Belajar kondisi yang lebih kompleks dan canggih!</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                            <h3 class="text-xl font-bold mb-4 flex items-center space-x-2">
+                                <span class="text-2xl">📚</span>
+                                <span>Konsep Dasar</span>
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed mb-4">
+                                If-Else lanjutan memungkinkan kita membuat kondisi yang lebih kompleks menggunakan operator logika 
+                                seperti AND (&&), OR (||), dan NOT (!). Ini seperti membuat aturan yang lebih detail!
+                            </p>
+                            
+                            <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-blue-800 mb-2">🔍 Operator Logika:</h4>
+                                <div class="grid md:grid-cols-3 gap-4 text-sm">
+                                    <div class="bg-white p-3 rounded">
+                                        <strong>AND (&&)</strong><br>
+                                        Semua kondisi harus true
+                                    </div>
+                                    <div class="bg-white p-3 rounded">
+                                        <strong>OR (||)</strong><br>
+                                        Salah satu kondisi true
+                                    </div>
+                                    <div class="bg-white p-3 rounded">
+                                        <strong>NOT (!)</strong><br>
+                                        Membalik nilai boolean
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white p-6 rounded-xl shadow-lg">
+                                <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                    <span class="text-xl">🔧</span>
+                                    <span>Langkah 1: Operator Logika AND (&&)</span>
+                                </h4>
+                                <p class="text-gray-600 mb-4">Operator AND membutuhkan SEMUA kondisi bernilai true.</p>
+                                
+                                <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                    <p class="text-sm text-gray-600 mb-2">📁 File: ContohAND.java</p>
+                                    <div class="code-block p-4 rounded-lg text-white overflow-x-auto">
+                                        <pre><code>public class ContohAND {
+    public static void main(String[] args) {
+        int nilai = 85;
+        int absensi = 90;
+        
+        // Kedua kondisi harus true
+        if (nilai >= 80 && absensi >= 85) {
+            System.out.println("🎉 Selamat! Kamu lulus dengan predikat baik!");
+            System.out.println("Nilai: " + nilai + ", Absensi: " + absensi + "%");
+        } else {
+            System.out.println("😔 Maaf, syarat belum terpenuhi");
+        }
+    }
+}</code></pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <p class="text-blue-800"><strong>💡 Penjelasan:</strong> Program akan mencetak pesan selamat hanya jika nilai ≥ 80 DAN absensi ≥ 85%.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-xl shadow-lg">
+                                <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                    <span class="text-xl">⚡</span>
+                                    <span>Langkah 2: Operator Logika OR (||)</span>
+                                </h4>
+                                <p class="text-gray-600 mb-4">Operator OR hanya membutuhkan SALAH SATU kondisi bernilai true.</p>
+                                
+                                <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                    <p class="text-sm text-gray-600 mb-2">📁 File: ContohOR.java</p>
+                                    <div class="code-block p-4 rounded-lg text-white overflow-x-auto">
+                                        <pre><code>public class ContohOR {
+    public static void main(String[] args) {
+        String hari = "Sabtu";
+        boolean libur = false;
+        
+        // Salah satu kondisi true sudah cukup
+        if (hari.equals("Sabtu") || hari.equals("Minggu") || libur) {
+            System.out.println("🏖️ Hari ini libur! Waktunya santai");
+        } else {
+            System.out.println("📚 Hari ini sekolah, semangat belajar!");
+        }
+    }
+}</code></pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <p class="text-green-800"><strong>💡 Penjelasan:</strong> Program akan menampilkan "libur" jika hari Sabtu ATAU Minggu ATAU ada libur khusus.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-xl shadow-lg">
+                                <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                    <span class="text-xl">🚫</span>
+                                    <span>Langkah 3: Operator NOT (!)</span>
+                                </h4>
+                                <p class="text-gray-600 mb-4">Operator NOT membalik nilai boolean (true menjadi false, false menjadi true).</p>
+                                
+                                <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                    <p class="text-sm text-gray-600 mb-2">📁 File: ContohNOT.java</p>
+                                    <div class="code-block p-4 rounded-lg text-white overflow-x-auto">
+                                        <pre><code>public class ContohNOT {
+    public static void main(String[] args) {
+        boolean hujan = false;
+        boolean adaUang = true;
+        
+        // Menggunakan operator NOT
+        if (!hujan && adaUang) {
+            System.out.println("🚶‍♂️ Ayo jalan-jalan ke mall!");
+        } else if (hujan) {
+            System.out.println("☔ Hujan nih, di rumah aja");
+        } else {
+            System.out.println("💸 Uang habis, menabung dulu ya");
+        }
+    }
+}</code></pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-purple-50 p-4 rounded-lg">
+                                    <p class="text-purple-800"><strong>💡 Penjelasan:</strong> !hujan berarti "tidak hujan". Jadi kondisi terpenuhi jika tidak hujan DAN ada uang.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg mt-8">
+                            <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                <span class="text-xl">📊</span>
+                                <span>Tabel Kebenaran Operator Logika</span>
+                            </h4>
+                            <div class="overflow-x-auto">
+                                <table class="w-full border-collapse border border-gray-300 text-sm">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="border border-gray-300 p-2">A</th>
+                                            <th class="border border-gray-300 p-2">B</th>
+                                            <th class="border border-gray-300 p-2">A && B</th>
+                                            <th class="border border-gray-300 p-2">A || B</th>
+                                            <th class="border border-gray-300 p-2">!A</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="border border-gray-300 p-2 text-center">true</td>
+                                            <td class="border border-gray-300 p-2 text-center">true</td>
+                                            <td class="border border-gray-300 p-2 text-center bg-green-100">true</td>
+                                            <td class="border border-gray-300 p-2 text-center bg-green-100">true</td>
+                                            <td class="border border-gray-300 p-2 text-center bg-red-100">false</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="border border-gray-300 p-2 text-center">true</td>
+                                            <td class="border border-gray-300 p-2 text-center">false</td>
+                                            <td class="border border-gray-300 p-2 text-center bg-red-100">false</td>
+                                            <td class="border border-gray-300 p-2 text-center bg-green-100">true</td>
+                                            <td class="border border-gray-300 p-2 text-center bg-red-100">false</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="border border-gray-300 p-2 text-center">false</td>
+                                            <td class="border border-gray-300 p-2 text-center">true</td>
+                                            <td class="border border-gray-300 p-2 text-center bg-red-100">false</td>
+                                            <td class="border border-gray-300 p-2 text-center bg-green-100">true</td>
+                                            <td class="border border-gray-300 p-2 text-center bg-green-100">true</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="border border-gray-300 p-2 text-center">false</td>
+                                            <td class="border border-gray-300 p-2 text-center">false</td>
+                                            <td class="border border-gray-300 p-2 text-center bg-red-100">false</td>
+                                            <td class="border border-gray-300 p-2 text-center bg-red-100">false</td>
+                                            <td class="border border-gray-300 p-2 text-center bg-green-100">true</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg mt-8">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="text-2xl">🎓</div>
+                                <h3 class="text-lg font-bold text-yellow-800">Tips Penting:</h3>
+                            </div>
+                            <ul class="space-y-2 text-yellow-700">
+                                <li>• Gunakan tanda kurung () untuk mengelompokkan kondisi</li>
+                                <li>• && memiliki prioritas lebih tinggi dari ||</li>
+                                <li>• Operator ! hanya berlaku untuk satu kondisi</li>
+                                <li>• Buat kondisi yang mudah dibaca dan dipahami</li>
+                                <li>• Short-circuit evaluation: && berhenti jika kondisi pertama false, || berhenti jika kondisi pertama true</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            },
+            
+            "nested-if": {
+                title: "Nested If (If Bersarang)",
+                content: `
+                    <div class="fade-in">
+                        <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-8 rounded-2xl mb-8 card-hover">
+                            <div class="flex items-center space-x-4">
+                                <div class="text-6xl">🏗️</div>
+                                <div>
+                                    <h1 class="text-3xl font-bold mb-2">Nested If (If Bersarang)</h1>
+                                    <p class="text-xl opacity-90">Membuat kondisi di dalam kondisi seperti boneka Rusia!</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                            <h3 class="text-xl font-bold mb-4 flex items-center space-x-2">
+                                <span class="text-2xl">🎪</span>
+                                <span>Apa itu Nested If?</span>
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed mb-4">
+                                Nested If adalah struktur if yang berada di dalam if lainnya. Bayangkan seperti kotak di dalam kotak, 
+                                di mana setiap kotak memiliki aturan tersendiri yang harus dipenuhi!
+                            </p>
+                        </div>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white p-6 rounded-xl shadow-lg">
+                                <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                    <span class="text-xl">🎯</span>
+                                    <span>Langkah 1: Nested If Sederhana</span>
+                                </h4>
+                                <p class="text-gray-600 mb-4">Mari mulai dengan contoh sederhana sistem penilaian sekolah.</p>
+                                
+                                <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                    <p class="text-sm text-gray-600 mb-2">📁 File: SistemNilai.java</p>
+                                    <div class="code-block p-4 rounded-lg text-white overflow-x-auto">
+                                        <pre><code>public class SistemNilai {
+    public static void main(String[] args) {
+        int nilai = 85;
+        boolean tugasLengkap = true;
+        
+        // If pertama: cek apakah lulus
+        if (nilai >= 70) {
+            System.out.println("🎉 Selamat! Kamu LULUS!");
+            
+            // If kedua (nested): cek predikat
+            if (nilai >= 90) {
+                System.out.println("🏆 Predikat: SANGAT BAIK");
+            } else if (nilai >= 80) {
+                System.out.println("⭐ Predikat: BAIK");
+                
+                // If ketiga (nested dalam nested): bonus
+                if (tugasLengkap) {
+                    System.out.println("🎁 Bonus: Dapat sertifikat!");
+                }
+            } else {
+                System.out.println("👍 Predikat: CUKUP");
+            }
+        } else {
+            System.out.println("😔 Maaf, kamu belum lulus");
+            System.out.println("💪 Semangat untuk ujian ulang!");
+        }
+    }
+}</code></pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <p class="text-blue-800"><strong>💡 Penjelasan:</strong> Program ini mengecek kelulusan dulu, baru menentukan predikat, dan terakhir mengecek bonus sertifikat.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-xl shadow-lg">
+                                <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                    <span class="text-xl">🎮</span>
+                                    <span>Langkah 2: Game RPG Level System</span>
+                                </h4>
+                                <p class="text-gray-600 mb-4">Contoh yang lebih menarik: sistem level dalam game RPG!</p>
+                                
+                                <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                    <p class="text-sm text-gray-600 mb-2">📁 File: GameRPG.java</p>
+                                    <div class="code-block p-4 rounded-lg text-white overflow-x-auto">
+                                        <pre><code>public class GameRPG {
+    public static void main(String[] args) {
+        int level = 25;
+        String kelas = "Warrior";
+        int exp = 1500;
+        boolean punyaSenjataLegendary = true;
+        
+        System.out.println("=== STATUS KARAKTER ===");
+        System.out.println("Level: " + level);
+        System.out.println("Kelas: " + kelas);
+        
+        // Nested if untuk menentukan rank dan kemampuan
+        if (level >= 20) {
+            System.out.println("🏅 Rank: VETERAN");
+            
+            if (kelas.equals("Warrior")) {
+                System.out.println("⚔️ Skill Unlock: Berserker Mode");
+                
+                if (level >= 30) {
+                    System.out.println("🔥 Ultimate: Dragon Slash");
+                } else if (punyaSenjataLegendary) {
+                    System.out.println("✨ Special: Legendary Strike");
+                }
+                
+            } else if (kelas.equals("Mage")) {
+                System.out.println("🔮 Skill Unlock: Fireball");
+                
+                if (level >= 30) {
+                    System.out.println("⚡ Ultimate: Lightning Storm");
+                }
+            }
+            
+            // Cek bonus EXP
+            if (exp >= 1000) {
+                System.out.println("💎 Bonus: Double EXP untuk 1 jam!");
+            }
+            
+        } else if (level >= 10) {
+            System.out.println("🥉 Rank: INTERMEDIATE");
+            System.out.println("📚 Tip: Latih skill lebih giat!");
+            
+        } else {
+            System.out.println("🌱 Rank: BEGINNER");
+            System.out.println("🎯 Target: Capai level 10!");
+        }
+    }
+}</code></pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <p class="text-green-800"><strong>💡 Penjelasan:</strong> Sistem ini mengecek level, lalu kelas karakter, lalu kemampuan khusus berdasarkan kombinasi level dan item.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg mt-8">
+                            <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                <span class="text-xl">💡</span>
+                                <span>Latihan: Coba Sendiri!</span>
+                            </h4>
+                            <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                <p class="text-sm text-gray-600 mb-2">🎯 Challenge: Sistem Penerimaan Mahasiswa</p>
+                                <div class="code-block p-4 rounded-lg text-white overflow-x-auto">
+                                    <pre><code>// Buatlah program untuk menentukan apakah siswa diterima di universitas
+// Syarat:
+// 1. Nilai rata-rata >= 80
+// 2. Nilai bahasa Inggris >= 75  
+// 3. Umur antara 17-25 tahun
+// 4. Tidak ada nilai di bawah 60
+
+int nilaiRataRata = 85;
+int nilaiBahasaInggris = 78;
+int umur = 18;
+int nilaiTerendah = 65;
+
+// Tulis kode nested if di sini!</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-red-50 border-l-4 border-red-400 p-6 rounded-lg mt-8">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="text-2xl">⚠️</div>
+                                <h3 class="text-lg font-bold text-red-800">Kesalahan Umum & Cara Menghindarinya:</h3>
+                            </div>
+                            <div class="space-y-3 text-red-700">
+                                <div class="bg-white p-3 rounded">
+                                    <strong>❌ Terlalu banyak nested (>4 level)</strong><br>
+                                    <span class="text-sm">✅ Gunakan method terpisah atau kombinasikan kondisi dengan operator logika</span>
+                                </div>
+                                <div class="bg-white p-3 rounded">
+                                    <strong>❌ Indentasi tidak konsisten</strong><br>
+                                    <span class="text-sm">✅ Gunakan 4 spasi atau 1 tab secara konsisten</span>
+                                </div>
+                                <div class="bg-white p-3 rounded">
+                                    <strong>❌ Tidak test semua kemungkinan</strong><br>
+                                    <span class="text-sm">✅ Buat test case untuk setiap cabang kondisi</span>
+                                </div>
+                                <div class="bg-white p-3 rounded">
+                                    <strong>❌ Kondisi yang bisa disederhanakan</strong><br>
+                                    <span class="text-sm">✅ Gunakan operator logika untuk menggabungkan kondisi sederhana</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            
+            "switch-case": {
+                title: "Switch Case",
+                content: `
+                    <div class="fade-in">
+                        <div class="bg-gradient-to-r from-orange-500 to-red-500 text-white p-8 rounded-2xl mb-8 card-hover">
+                            <div class="flex items-center space-x-4">
+                                <div class="text-6xl">🎛️</div>
+                                <div>
+                                    <h1 class="text-3xl font-bold mb-2">Switch Case</h1>
+                                    <p class="text-xl opacity-90">Pilihan banyak? Switch Case solusinya!</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                            <h3 class="text-xl font-bold mb-4 flex items-center space-x-2">
+                                <span class="text-2xl">🎯</span>
+                                <span>Kapan Menggunakan Switch Case?</span>
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed mb-4">
+                                Switch Case digunakan ketika kita punya banyak pilihan berdasarkan satu variabel. 
+                                Lebih rapi dan mudah dibaca dibanding if-else bertingkat untuk kasus seperti ini!
+                            </p>
+                        </div>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white p-6 rounded-xl shadow-lg">
+                                <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                    <span class="text-xl">📅</span>
+                                    <span>Langkah 1: Switch Case Dasar - Hari dalam Seminggu</span>
+                                </h4>
+                                <p class="text-gray-600 mb-4">Mari mulai dengan contoh sederhana menampilkan nama hari.</p>
+                                
+                                <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                    <p class="text-sm text-gray-600 mb-2">📁 File: HariDalamSeminggu.java</p>
+                                    <div class="code-block p-4 rounded-lg text-white overflow-x-auto">
+                                        <pre><code>public class HariDalamSeminggu {
+    public static void main(String[] args) {
+        int nomorHari = 3;
+        String namaHari;
+        String aktivitas;
+        
+        // Switch case untuk menentukan nama hari
+        switch (nomorHari) {
+            case 1:
+                namaHari = "Senin";
+                aktivitas = "Semangat memulai minggu baru! 💪";
+                break;
+            case 2:
+                namaHari = "Selasa";
+                aktivitas = "Hari kedua, tetap semangat! 🔥";
+                break;
+            case 3:
+                namaHari = "Rabu";
+                aktivitas = "Pertengahan minggu, jangan kendor! ⚡";
+                break;
+            case 4:
+                namaHari = "Kamis";
+                aktivitas = "Hampir weekend, tahan dikit lagi! 🎯";
+                break;
+            case 5:
+                namaHari = "Jumat";
+                aktivitas = "TGIF! Thank God It's Friday! 🎉";
+                break;
+            case 6:
+                namaHari = "Sabtu";
+                aktivitas = "Weekend! Saatnya santai 🏖️";
+                break;
+            case 7:
+                namaHari = "Minggu";
+                aktivitas = "Hari libur, istirahat yang cukup 😴";
+                break;
+            default:
+                namaHari = "Tidak valid";
+                aktivitas = "Nomor hari harus 1-7! ❌";
+                break;
+        }
+        
+        System.out.println("Hari ke-" + nomorHari + ": " + namaHari);
+        System.out.println("Mood: " + aktivitas);
+    }
+}</code></pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <p class="text-blue-800"><strong>💡 Penjelasan:</strong> Switch memeriksa nilai nomorHari dan menjalankan case yang sesuai. Jangan lupa break untuk menghindari fall-through!</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-xl shadow-lg">
+                                <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                    <span class="text-xl">🍕</span>
+                                    <span>Langkah 2: Menu Restoran dengan Harga</span>
+                                </h4>
+                                <p class="text-gray-600 mb-4">Contoh praktis: sistem pemesanan makanan dengan switch case.</p>
+                                
+                                <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                    <p class="text-sm text-gray-600 mb-2">📁 File: MenuRestoran.java</p>
+                                    <div class="code-block p-4 rounded-lg text-white overflow-x-auto">
+                                        <pre><code>public class MenuRestoran {
+    public static void main(String[] args) {
+        String pilihan = "B";
+        String namaMenu;
+        int harga;
+        String deskripsi;
+        
+        System.out.println("=== MENU RESTORAN JAVA CAFE ===");
+        System.out.println("A. Nasi Goreng");
+        System.out.println("B. Mie Ayam");
+        System.out.println("C. Gado-gado");
+        System.out.println("D. Soto Ayam");
+        System.out.println("E. Es Teh Manis");
+        System.out.println("===============================");
+        
+        switch (pilihan.toUpperCase()) {
+            case "A":
+                namaMenu = "Nasi Goreng Spesial";
+                harga = 25000;
+                deskripsi = "Nasi goreng dengan telur, ayam, dan kerupuk 🍳";
+                break;
+                
+            case "B":
+                namaMenu = "Mie Ayam Bakso";
+                harga = 20000;
+                deskripsi = "Mie ayam dengan bakso dan pangsit 🍜";
+                break;
+                
+            case "C":
+                namaMenu = "Gado-gado Jakarta";
+                harga = 18000;
+                deskripsi = "Sayuran segar dengan bumbu kacang 🥗";
+                break;
+                
+            case "D":
+                namaMenu = "Soto Ayam Lamongan";
+                harga = 22000;
+                deskripsi = "Soto ayam dengan telur dan kerupuk 🍲";
+                break;
+                
+            case "E":
+                namaMenu = "Es Teh Manis";
+                harga = 8000;
+                deskripsi = "Minuman segar untuk cuaca panas 🧊";
+                break;
+                
+            default:
+                namaMenu = "Menu tidak tersedia";
+                harga = 0;
+                deskripsi = "Silakan pilih menu A-E ❌";
+                break;
+        }
+        
+        System.out.println("\\n🍽️ Pesanan Anda:");
+        System.out.println("Menu: " + namaMenu);
+        System.out.println("Harga: Rp " + harga);
+        System.out.println("Deskripsi: " + deskripsi);
+        
+        if (harga > 0) {
+            System.out.println("\\n✅ Pesanan berhasil!");
+            System.out.println("💰 Total yang harus dibayar: Rp " + harga);
+        }
+    }
+}</code></pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <p class="text-green-800"><strong>💡 Penjelasan:</strong> Program ini menggunakan toUpperCase() agar input huruf kecil/besar tetap bisa diproses dengan benar.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg mt-8">
+                            <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                <span class="text-xl">🔄</span>
+                                <span>Langkah 3: Multiple Case Labels</span>
+                            </h4>
+                            <p class="text-gray-600 mb-4">Beberapa case bisa memiliki aksi yang sama tanpa break.</p>
+                            
+                            <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                <p class="text-sm text-gray-600 mb-2">📁 File: KategoriHari.java</p>
+                                <div class="code-block p-4 rounded-lg text-white overflow-x-auto">
+                                    <pre><code>public class KategoriHari {
+    public static void main(String[] args) {
+        int hari = 6; // 1=Senin, 2=Selasa, dst.
+        String kategori;
+        String aktivitas;
+        
+        switch (hari) {
+            case 1: // Senin
+            case 2: // Selasa  
+            case 3: // Rabu
+            case 4: // Kamis
+            case 5: // Jumat
+                kategori = "Hari Kerja";
+                aktivitas = "Sekolah dan belajar 📚";
+                break;
+                
+            case 6: // Sabtu
+            case 7: // Minggu
+                kategori = "Weekend";
+                aktivitas = "Istirahat dan refreshing 🏖️";
+                break;
+                
+            default:
+                kategori = "Tidak Valid";
+                aktivitas = "Masukkan angka 1-7 ❌";
+                break;
+        }
+        
+        System.out.println("Hari ke-" + hari);
+        System.out.println("Kategori: " + kategori);
+        System.out.println("Aktivitas: " + aktivitas);
+    }
+}</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <p class="text-purple-800"><strong>💡 Penjelasan:</strong> Case 1-5 tidak memiliki break, sehingga akan "fall through" ke aksi yang sama. Ini berguna untuk mengelompokkan nilai yang memiliki hasil sama.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg mt-8">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="text-2xl">🎓</div>
+                                <h3 class="text-lg font-bold text-yellow-800">Tips Switch Case:</h3>
+                            </div>
+                            <ul class="space-y-2 text-yellow-700">
+                                <li>• Selalu gunakan break; untuk menghindari fall-through yang tidak diinginkan</li>
+                                <li>• Gunakan default case untuk menangani input tidak valid</li>
+                                <li>• Switch hanya bisa untuk tipe data tertentu (int, char, String, enum)</li>
+                                <li>• Multiple case labels bisa digunakan untuk aksi yang sama (fall-through)</li>
+                                <li>• Urutkan case dari yang paling sering digunakan untuk performa</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-red-50 border-l-4 border-red-400 p-6 rounded-lg mt-8">
+                            <div class="flex items-center space-x-3 mb-3">
+                                <div class="text-2xl">⚠️</div>
+                                <h3 class="text-lg font-bold text-red-800">Kesalahan Umum Switch Case:</h3>
+                            </div>
+                            <div class="space-y-3 text-red-700">
+                                <div class="bg-white p-3 rounded">
+                                    <strong>❌ Lupa break; statement</strong><br>
+                                    <span class="text-sm">✅ Selalu tambahkan break; kecuali memang ingin fall-through</span>
+                                </div>
+                                <div class="bg-white p-3 rounded">
+                                    <strong>❌ Tidak ada default case</strong><br>
+                                    <span class="text-sm">✅ Selalu sediakan default untuk input tidak terduga</span>
+                                </div>
+                                <div class="bg-white p-3 rounded">
+                                    <strong>❌ Menggunakan switch untuk kondisi kompleks</strong><br>
+                                    <span class="text-sm">✅ Gunakan if-else untuk kondisi dengan range atau operator logika</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            
+            "ternary": {
+                title: "Operator Ternary",
+                content: `
+                    <div class="fade-in">
+                        <div class="bg-gradient-to-r from-cyan-500 to-blue-500 text-white p-8 rounded-2xl mb-8 card-hover">
+                            <div class="flex items-center space-x-4">
+                                <div class="text-6xl">⚡</div>
+                                <div>
+                                    <h1 class="text-3xl font-bold mb-2">Operator Ternary</h1>
+                                    <p class="text-xl opacity-90">If-Else dalam satu baris! Singkat dan powerful!</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                            <h3 class="text-xl font-bold mb-4 flex items-center space-x-2">
+                                <span class="text-2xl">🎯</span>
+                                <span>Apa itu Operator Ternary?</span>
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed mb-4">
+                                Operator Ternary adalah cara singkat menulis if-else dalam satu baris. 
+                                Formatnya: <code class="bg-gray-200 px-2 py-1 rounded">kondisi ? nilaiJikaTrue : nilaiJikaFalse</code>
+                            </p>
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <p class="text-blue-800"><strong>💡 Kapan digunakan:</strong> Untuk kondisi sederhana yang hanya mengembalikan satu nilai berdasarkan kondisi true/false.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white p-6 rounded-xl shadow-lg">
+                                <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                    <span class="text-xl">🔰</span>
+                                    <span>Langkah 1: Ternary Operator Dasar</span>
+                                </h4>
+                                <p class="text-gray-600 mb-4">Mari mulai dengan contoh sederhana membandingkan if-else dengan ternary.</p>
+                                
+                                <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                    <p class="text-sm text-gray-600 mb-2">📁 File: TernaryDasar.java</p>
+                                    <div class="code-block p-4 rounded-lg text-white overflow-x-auto">
+                                        <pre><code>public class TernaryDasar {
+    public static void main(String[] args) {
+        int nilai = 85;
+        
+        // Cara lama dengan if-else
+        String hasilIfElse;
+        if (nilai >= 70) {
+            hasilIfElse = "LULUS";
+        } else {
+            hasilIfElse = "TIDAK LULUS";
+        }
+        
+        // Cara baru dengan ternary operator
+        String hasilTernary = (nilai >= 70) ? "LULUS" : "TIDAK LULUS";
+        
+        System.out.println("=== PERBANDINGAN IF-ELSE vs TERNARY ===");
+        System.out.println("Nilai: " + nilai);
+        System.out.println("Hasil if-else: " + hasilIfElse);
+        System.out.println("Hasil ternary: " + hasilTernary);
+        
+        // Contoh lain: menentukan status dewasa
+        int umur = 17;
+        String status = (umur >= 18) ? "Dewasa 👨" : "Remaja 👦";
+        System.out.println("\\nUmur: " + umur + " tahun");
+        System.out.println("Status: " + status);
+        
+        // Contoh dengan angka
+        int a = 10, b = 20;
+        int maksimal = (a > b) ? a : b;
+        System.out.println("\\nNilai maksimal antara " + a + " dan " + b + " adalah: " + maksimal);
+        
+        // Contoh dengan boolean
+        boolean hujan = true;
+        String aktivitas = hujan ? "Di rumah aja ☔" : "Jalan-jalan ☀️";
+        System.out.println("\\nCuaca hujan: " + hujan);
+        System.out.println("Aktivitas: " + aktivitas);
+    }
+}</code></pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <p class="text-blue-800"><strong>💡 Penjelasan:</strong> Ternary operator membuat kode lebih ringkas. Format: (kondisi) ? nilaiTrue : nilaiFalse</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-xl shadow-lg">
+                                <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                    <span class="text-xl">🏆</span>
+                                    <span>Langkah 2: Ternary Bersarang (Nested Ternary)</span>
+                                </h4>
+                                <p class="text-gray-600 mb-4">Ternary operator bisa disarangkan untuk kondisi yang lebih kompleks.</p>
+                                
+                                <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                    <p class="text-sm text-gray-600 mb-2">📁 File: TernaryBersarang.java</p>
+                                    <div class="code-block p-4 rounded-lg text-white overflow-x-auto">
+                                        <pre><code>public class TernaryBersarang {
+    public static void main(String[] args) {
+        int nilai = 85;
+        
+        // Nested ternary untuk menentukan grade
+        String grade = (nilai >= 90) ? "A" : 
+                      (nilai >= 80) ? "B" : 
+                      (nilai >= 70) ? "C" : 
+                      (nilai >= 60) ? "D" : "F";
+        
+        System.out.println("=== SISTEM PENILAIAN ===");
+        System.out.println("Nilai: " + nilai);
+        System.out.println("Grade: " + grade);
+        
+        // Nested ternary untuk emoji berdasarkan grade
+        String emoji = grade.equals("A") ? "🏆" :
+                      grade.equals("B") ? "⭐" :
+                      grade.equals("C") ? "👍" :
+                      grade.equals("D") ? "😐" : "😔";
+        
+        System.out.println("Emoji: " + emoji);
+        
+        // Contoh lain: kategori umur
+        int umur = 25;
+        String kategori = (umur < 13) ? "Anak-anak 👶" :
+                         (umur < 20) ? "Remaja 👦" :
+                         (umur < 60) ? "Dewasa 👨" : "Lansia 👴";
+        
+        System.out.println("\\n=== KATEGORI UMUR ===");
+        System.out.println("Umur: " + umur + " tahun");
+        System.out.println("Kategori: " + kategori);
+    }
+}</code></pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <p class="text-green-800"><strong>💡 Penjelasan:</strong> Nested ternary memungkinkan multiple kondisi, tapi jangan terlalu kompleks agar tetap mudah dibaca.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg mt-8">
+                            <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                <span class="text-xl">⚖️</span>
+                                <span>Perbandingan: If-Else vs Ternary</span>
+                            </h4>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-gray-100 p-4 rounded-lg">
+                                    <h5 class="font-bold mb-2 text-gray-800">❌ Kurang Efisien (If-Else)</h5>
+                                    <div class="code-block p-3 rounded text-white text-sm overflow-x-auto">
+                                        <pre><code>String status;
+if (umur >= 18) {
+    status = "Dewasa";
+} else {
+    status = "Remaja";
+}
+System.out.println(status);</code></pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-100 p-4 rounded-lg">
+                                    <h5 class="font-bold mb-2 text-gray-800">✅ Lebih Efisien (Ternary)</h5>
+                                    <div class="code-block p-3 rounded text-white text-sm overflow-x-auto">
+                                        <pre><code>String status = (umur >= 18) ? 
+    "Dewasa" : "Remaja";
+    
+System.out.println(status);</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg mt-8">
+                            <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                <span class="text-xl">🎯</span>
+                                <span>Latihan: Sistem Grading</span>
+                            </h4>
+                            <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                <p class="text-sm text-gray-600 mb-2">💪 Challenge: Buat sistem grading dengan ternary</p>
+                                <div class="code-block p-4 rounded-lg text-white overflow-x-auto">
+                                    <pre><code>// Buat program grading menggunakan nested ternary
+// A: 90-100, B: 80-89, C: 70-79, D: 60-69, F: <60
+
+int nilai = 87;
+
+// Tulis nested ternary di sini!
+String grade = // ... lengkapi kode ini
+
+System.out.println("Nilai: " + nilai + ", Grade: " + grade);</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mt-8">
+                            <div class="bg-green-50 border-l-4 border-green-400 p-6 rounded-lg">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="text-2xl">✅</div>
+                                    <h3 class="text-lg font-bold text-green-800">Gunakan Ternary Untuk:</h3>
+                                </div>
+                                <ul class="space-y-2 text-green-700">
+                                    <li>• Assignment nilai sederhana</li>
+                                    <li>• Return value dari method</li>
+                                    <li>• Kondisi boolean sederhana</li>
+                                    <li>• Formatting output singkat</li>
+                                    <li>• Inisialisasi variabel berdasarkan kondisi</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-red-50 border-l-4 border-red-400 p-6 rounded-lg">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <div class="text-2xl">❌</div>
+                                    <h3 class="text-lg font-bold text-red-800">Hindari Ternary Untuk:</h3>
+                                </div>
+                                <ul class="space-y-2 text-red-700">
+                                    <li>• Multiple statements/actions</li>
+                                    <li>• Kondisi yang sangat kompleks</li>
+                                    <li>• Nested ternary yang rumit (>3 level)</li>
+                                    <li>• Debugging yang sulit</li>
+                                    <li>• Operasi yang memiliki side effects</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            
+            "praktik": {
+                title: "Praktik Lengkap",
+                content: `
+                    <div class="fade-in">
+                        <div class="bg-gradient-to-r from-pink-500 to-rose-500 text-white p-8 rounded-2xl mb-8 card-hover">
+                            <div class="flex items-center space-x-4">
+                                <div class="text-6xl">💻</div>
+                                <div>
+                                    <h1 class="text-3xl font-bold mb-2">Praktik Lengkap</h1>
+                                    <p class="text-xl opacity-90">Saatnya menggabungkan semua yang sudah dipelajari!</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                            <h3 class="text-xl font-bold mb-4 flex items-center space-x-2">
+                                <span class="text-2xl">🎯</span>
+                                <span>Project: Sistem Manajemen Sekolah</span>
+                            </h3>
+                            <p class="text-gray-600 leading-relaxed mb-4">
+                                Kita akan membuat sistem manajemen sekolah yang menggabungkan semua struktur kontrol percabangan 
+                                yang sudah dipelajari: if-else lanjutan, nested if, switch case, dan ternary operator.
+                            </p>
+                        </div>
+                        
+                        <div class="space-y-8">
+                            <div class="bg-white p-6 rounded-xl shadow-lg">
+                                <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                    <span class="text-xl">🏫</span>
+                                    <span>Langkah 1: Sistem Penilaian Siswa Lengkap</span>
+                                </h4>
+                                <p class="text-gray-600 mb-4">Program pertama: sistem penilaian yang komprehensif dengan berbagai kriteria.</p>
+                                
+                                <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                    <p class="text-sm text-gray-600 mb-2">📁 File: SistemPenilaianSiswa.java</p>
+                                    <div class="code-block p-4 rounded-lg text-white overflow-x-auto">
+                                        <pre><code>public class SistemPenilaianSiswa {
+    public static void main(String[] args) {
+        // Data siswa
+        String nama = "Andi Pratama";
+        int nilaiUTS = 85;
+        int nilaiUAS = 90;
+        int nilaiTugas = 88;
+        int absensi = 95; // Persentase kehadiran
+        boolean ikutEkskul = true;
+        String jurusan = "RPL"; // RPL, TKJ, MM
+        boolean prestasi = false;
+        
+        System.out.println("=== SISTEM PENILAIAN SISWA SMK ===");
+        System.out.println("Nama: " + nama);
+        System.out.println("Jurusan: " + jurusan);
+        System.out.println("================================");
+        
+        // Hitung nilai akhir dengan bobot
+        double nilaiAkhir = (nilaiUTS * 0.3) + (nilaiUAS * 0.4) + (nilaiTugas * 0.3);
+        System.out.println("Nilai UTS (30%): " + nilaiUTS);
+        System.out.println("Nilai UAS (40%): " + nilaiUAS);
+        System.out.println("Nilai Tugas (30%): " + nilaiTugas);
+        System.out.println("Nilai Akhir: " + String.format("%.1f", nilaiAkhir));
+        
+        // Tentukan grade menggunakan nested if
+        String grade;
+        String predikat;
+        if (nilaiAkhir >= 90) {
+            grade = "A";
+            predikat = "SANGAT BAIK";
+        } else if (nilaiAkhir >= 80) {
+            grade = "B";
+            predikat = "BAIK";
+        } else if (nilaiAkhir >= 70) {
+            grade = "C";
+            predikat = "CUKUP";
+        } else if (nilaiAkhir >= 60) {
+            grade = "D";
+            predikat = "KURANG";
+        } else {
+            grade = "E";
+            predikat = "SANGAT KURANG";
+        }
+        
+        System.out.println("Grade: " + grade + " (" + predikat + ")");
+        
+        // Cek kelulusan dengan kondisi kompleks
+        boolean lulus = false;
+        String alasanTidakLulus = "";
+        
+        if (nilaiAkhir >= 70) {
+            if (absensi >= 80) {
+                lulus = true;
+            } else {
+                alasanTidakLulus = "Absensi kurang dari 80%";
+            }
+        } else {
+            alasanTidakLulus = "Nilai akhir kurang dari 70";
+        }
+        
+        // Status kelulusan dengan ternary
+        String statusLulus = lulus ? "LULUS ✅" : "TIDAK LULUS ❌";
+        System.out.println("Status: " + statusLulus);
+        
+        if (!lulus) {
+            System.out.println("Alasan: " + alasanTidakLulus);
+        }
+        
+        // Rekomendasi berdasarkan jurusan menggunakan switch
+        System.out.println("\\n=== REKOMENDASI JURUSAN ===");
+        switch (jurusan.toUpperCase()) {
+            case "RPL":
+                System.out.println("🖥️ Rekayasa Perangkat Lunak");
+                if (nilaiAkhir >= 85) {
+                    System.out.println("💡 Rekomendasi: Lanjut ke Politeknik Informatika");
+                } else if (nilaiAkhir >= 75) {
+                    System.out.println("💡 Rekomendasi: Ikut bootcamp programming");
+                } else {
+                    System.out.println("💡 Rekomendasi: Perkuat dasar programming");
+                }
+                break;
+                
+            case "TKJ":
+                System.out.println("🌐 Teknik Komputer dan Jaringan");
+                if (nilaiAkhir >= 85) {
+                    System.out.println("💡 Rekomendasi: Ambil sertifikasi Cisco/MikroTik");
+                } else if (nilaiAkhir >= 75) {
+                    System.out.println("💡 Rekomendasi: Praktik lebih banyak konfigurasi jaringan");
+                } else {
+                    System.out.println("💡 Rekomendasi: Pelajari dasar-dasar jaringan");
+                }
+                break;
+                
+            case "MM":
+                System.out.println("🎨 Multimedia");
+                if (nilaiAkhir >= 85) {
+                    System.out.println("💡 Rekomendasi: Portfolio untuk industri kreatif");
+                } else if (nilaiAkhir >= 75) {
+                    System.out.println("💡 Rekomendasi: Ikut workshop desain grafis");
+                } else {
+                    System.out.println("💡 Rekomendasi: Latih skill software desain");
+                }
+                break;
+                
+            default:
+                System.out.println("❓ Jurusan tidak dikenali");
+                break;
+        }
+        
+        // Pesan motivasi berdasarkan performa
+        System.out.println("\\n=== PESAN MOTIVASI ===");
+        String pesanMotivasi = (nilaiAkhir >= 90) ? "Luar biasa! Pertahankan prestasi gemilang! 🏆" :
+                              (nilaiAkhir >= 80) ? "Bagus sekali! Sedikit lagi mencapai yang terbaik! ⭐" :
+                              (nilaiAkhir >= 70) ? "Cukup baik, tingkatkan lagi ya! 💪" :
+                              (nilaiAkhir >= 60) ? "Perlu usaha lebih keras, semangat! 🔥" :
+                              "Jangan menyerah, setiap usaha pasti berbuah! 🌱";
+        
+        System.out.println(pesanMotivasi);
+    }
+}</code></pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <p class="text-blue-800"><strong>💡 Fitur yang digunakan:</strong> Nested if untuk grade, kondisi kompleks untuk kelulusan, switch untuk rekomendasi jurusan, ternary untuk pesan motivasi.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-xl shadow-lg">
+                                <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                    <span class="text-xl">🎮</span>
+                                    <span>Langkah 2: Game Quiz Interaktif</span>
+                                </h4>
+                                <p class="text-gray-600 mb-4">Program kedua: game quiz yang menggunakan semua jenis percabangan.</p>
+                                
+                                <div class="bg-gray-100 p-4 rounded-lg mb-4">
+                                    <p class="text-sm text-gray-600 mb-2">📁 File: GameQuizJava.java</p>
+                                    <div class="code-block p-4 rounded-lg text-white overflow-x-auto">
+                                        <pre><code>public class GameQuizJava {
+    public static void main(String[] args) {
+        // Setup game
+        String namaPlayer = "JavaLearner";
+        int skor = 0;
+        int nyawa = 3;
+        int level = 1;
+        boolean powerUpAktif = false;
+        String difficulty = "medium"; // easy, medium, hard
+        
+        System.out.println("🎮 === JAVA QUIZ GAME === 🎮");
+        System.out.println("Player: " + namaPlayer);
+        System.out.println("Nyawa: ❤️".repeat(nyawa));
+        System.out.println("Level: " + level);
+        System.out.println("Difficulty: " + difficulty.toUpperCase());
+        System.out.println("============================\\n");
+        
+        // Simulasi jawaban quiz (dalam implementasi nyata, ini input dari user)
+        String[] jawaban = {"B", "A", "C", "B", "A"}; // Jawaban player
+        String[] jawabanBenar = {"B", "A", "C", "A", "A"}; // Jawaban yang benar
+        String[] soal = {
+            "Apa kepanjangan dari JVM?",
+            "Tipe data untuk bilangan bulat di Java?",
+            "Keyword untuk membuat class di Java?",
+            "Method utama dalam program Java?",
+            "Operator untuk perbandingan sama dengan?"
+        };
+        
+        // Proses setiap soal
+        for (int i = 0; i < soal.length; i++) {
+            System.out.println("📝 SOAL " + (i + 1) + ": " + soal[i]);
+            System.out.println("Jawaban kamu: " + jawaban[i]);
+            System.out.println("Jawaban benar: " + jawabanBenar[i]);
+            
+            // Cek jawaban menggunakan nested if dan ternary
+            if (jawaban[i].equalsIgnoreCase(jawabanBenar[i])) {
+                // Jawaban benar
+                int poinDasar = 10;
+                
+                // Bonus poin berdasarkan difficulty menggunakan switch
+                int bonusDifficulty;
+                switch (difficulty.toLowerCase()) {
+                    case "easy":
+                        bonusDifficulty = 0;
+                        break;
+                    case "medium":
+                        bonusDifficulty = 5;
+                        break;
+                    case "hard":
+                        bonusDifficulty = 10;
+                        break;
+                    default:
+                        bonusDifficulty = 0;
+                        break;
+                }
+                
+                // Bonus power-up
+                int bonusPowerUp = powerUpAktif ? 5 : 0;
+                
+                int totalPoin = poinDasar + bonusDifficulty + bonusPowerUp;
+                skor += totalPoin;
+                
+                System.out.println("✅ BENAR! +" + totalPoin + " poin");
+                
+                // Aktivasi power-up berdasarkan streak
+                if (i >= 2 && skor >= 50) {
+                    powerUpAktif = true;
+                    System.out.println("⚡ POWER-UP ACTIVATED! Bonus poin untuk soal selanjutnya!");
+                }
+                
+            } else {
+                // Jawaban salah
+                nyawa--;
+                System.out.println("❌ SALAH! -1 nyawa");
+                
+                // Cek apakah masih ada nyawa
+                if (nyawa <= 0) {
+                    System.out.println("💀 GAME OVER! Nyawa habis!");
+                    break;
+                } else {
+                    System.out.println("Nyawa tersisa: " + "❤️".repeat(nyawa));
+                }
+                
+                // Reset power-up jika salah
+                if (powerUpAktif) {
+                    powerUpAktif = false;
+                    System.out.println("⚡ Power-up hilang karena jawaban salah!");
+                }
+            }
+            
+            System.out.println("Skor saat ini: " + skor);
+            System.out.println("------------------------\\n");
+        }
+        
+        // Hasil akhir game
+        System.out.println("🏁 === HASIL AKHIR === 🏁");
+        System.out.println("Skor Final: " + skor);
+        System.out.println("Nyawa Tersisa: " + nyawa);
+        
+        // Tentukan rank berdasarkan skor menggunakan nested ternary
+        String rank = (skor >= 80) ? "S (LEGEND) 👑" :
+                     (skor >= 70) ? "A (MASTER) 🏆" :
+                     (skor >= 60) ? "B (EXPERT) ⭐" :
+                     (skor >= 50) ? "C (GOOD) 👍" :
+                     (skor >= 30) ? "D (BEGINNER) 🌱" : "F (NOOB) 😅";
+        
+        System.out.println("Rank: " + rank);
+        
+        // Pesan penutup dengan ternary
+        String pesanPenutup = (skor >= 70) ? "Excellent work! Keep coding! 💻" :
+                             (skor >= 50) ? "Good job! Practice more! 📚" :
+                             "Don't give up! Every expert was once a beginner! 🌱";
+        
+        System.out.println("\\n" + pesanPenutup);
+        System.out.println("\\nTerima kasih telah bermain Java Quiz Game! 🎮");
+    }
+}</code></pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <p class="text-green-800"><strong>💡 Fitur yang digunakan:</strong> Switch untuk bonus difficulty, nested if untuk power-up, kondisi kompleks untuk game over, ternary untuk ranking dan pesan.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-lg mt-8">
+                            <h4 class="text-lg font-bold mb-4 flex items-center space-x-2">
+                                <span class="text-xl">📊</span>
+                                <span>Evaluasi Pembelajaran</span>
+                            </h4>
+                            <div class="space-y-4">
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <h5 class="font-bold text-blue-800 mb-2">🎯 Cek Pemahaman Kamu:</h5>
+                                    <div class="space-y-2 text-sm text-blue-700">
+                                        <div class="flex items-center space-x-2">
+                                            <input type="checkbox" class="rounded">
+                                            <span>Bisa membedakan kapan menggunakan &&, ||, dan !</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="checkbox" class="rounded">
+                                            <span>Memahami struktur nested if dan kapan menggunakannya</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="checkbox" class="rounded">
+                                            <span>Bisa membuat switch case dengan multiple labels</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="checkbox" class="rounded">
+                                            <span>Memahami kapan menggunakan ternary operator</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="checkbox" class="rounded">
+                                            <span>Bisa menggabungkan semua jenis percabangan dalam satu program</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-yellow-50 p-4 rounded-lg">
+                                    <h5 class="font-bold text-yellow-800 mb-2">💡 Tips Lanjutan:</h5>
+                                    <ul class="space-y-1 text-sm text-yellow-700">
+                                        <li>• Selalu prioritaskan keterbacaan kode daripada singkatnya</li>
+                                        <li>• Gunakan komentar untuk menjelaskan logika yang kompleks</li>
+                                        <li>• Test semua kemungkinan input untuk memastikan program robust</li>
+                                        <li>• Refactor kode jika sudah terlalu kompleks</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-400 to-blue-500 text-white p-8 rounded-2xl mt-8">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <div class="text-6xl">🎉</div>
+                                <div>
+                                    <h3 class="text-2xl font-bold mb-2">Selamat! Kamu Sudah Menguasai Percabangan Java!</h3>
+                                    <p class="text-lg opacity-90">Sekarang kamu bisa membuat program yang lebih pintar dan interaktif!</p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-6 mt-6">
+                                <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+                                    <h4 class="font-bold mb-2">✅ Yang Sudah Kamu Kuasai:</h4>
+                                    <ul class="space-y-1 text-sm">
+                                        <li>• If-Else dengan operator logika (&&, ||, !)</li>
+                                        <li>• Nested If untuk kondisi bertingkat</li>
+                                        <li>• Switch Case dengan multiple labels</li>
+                                        <li>• Ternary Operator untuk kode singkat</li>
+                                        <li>• Kombinasi semua jenis percabangan</li>
+                                        <li>• Best practices dan error handling</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+                                    <h4 class="font-bold mb-2">🚀 Langkah Selanjutnya:</h4>
+                                    <ul class="space-y-1 text-sm">
+                                        <li>• Pelajari Looping (for, while, do-while)</li>
+                                        <li>• Belajar Array dan Collections</li>
+                                        <li>• Eksplorasi Method dan Function</li>
+                                        <li>• Object-Oriented Programming (OOP)</li>
+                                        <li>• Exception Handling</li>
+                                        <li>• Praktik dengan project nyata</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 text-center">
+                                <p class="text-lg font-semibold">🌟 "Setiap expert pernah menjadi beginner. Terus berlatih dan jangan pernah menyerah!" 🌟</p>
+                            </div>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        // Current section tracking
+        let currentSection = 'pengenalan';
+        const sections = ['pengenalan', 'if-else', 'nested-if', 'switch-case', 'ternary', 'praktik'];
+
+        // DOM elements
+        const sidebar = document.getElementById('sidebar');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+        const openSidebarBtn = document.getElementById('openSidebar');
+        const closeSidebarBtn = document.getElementById('closeSidebar');
+        const contentDiv = document.getElementById('content');
+        const pageTitleDiv = document.getElementById('pageTitle');
+        const nextBtn = document.getElementById('nextBtn');
+        const backToTopBtn = document.getElementById('backToTop');
+        const menuItems = document.querySelectorAll('.menu-item');
+
+        // Sidebar functionality
+        function openSidebar() {
+            sidebar.classList.remove('-translate-x-full');
+            mobileMenuOverlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            sidebar.classList.add('-translate-x-full');
+            mobileMenuOverlay.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        openSidebarBtn.addEventListener('click', openSidebar);
+        closeSidebarBtn.addEventListener('click', closeSidebar);
+        mobileMenuOverlay.addEventListener('click', closeSidebar);
+
+        // Content loading
+        function loadContent(section) {
+            const data = contentData[section];
+            if (data) {
+                // Update active menu item FIRST
+                menuItems.forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.section === section) {
+                        item.classList.add('active');
+                    }
+                });
+                
+                // Then update content
+                contentDiv.innerHTML = data.content;
+                pageTitleDiv.textContent = data.title;
+                currentSection = section;
+                
+                // Force scroll to top immediately
+                document.documentElement.scrollTop = 0;
+                document.body.scrollTop = 0;
+                
+                // Close sidebar on mobile
+                if (window.innerWidth < 1024) {
+                    closeSidebar();
+                }
+            }
+        }
+
+        // Menu item clicks
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.section;
+                loadContent(section);
+            });
+        });
+
+        // Next button functionality
+        nextBtn.addEventListener('click', () => {
+            const currentIndex = sections.indexOf(currentSection);
+            const nextIndex = (currentIndex + 1) % sections.length;
+            
+            // Scroll to top first, then load content
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            
+            // Small delay to ensure scroll completes
+            setTimeout(() => {
+                loadContent(sections[nextIndex]);
+            }, 50);
+        });
+
+        // Back to top functionality
+        function toggleBackToTop() {
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
+            } else {
+                backToTopBtn.classList.add('opacity-0', 'pointer-events-none');
+            }
+        }
+
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        window.addEventListener('scroll', toggleBackToTop);
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                const currentIndex = sections.indexOf(currentSection);
+                const nextIndex = (currentIndex + 1) % sections.length;
+                
+                // Scroll to top first, then load content
+                window.scrollTo({ top: 0, behavior: 'auto' });
+                
+                setTimeout(() => {
+                    loadContent(sections[nextIndex]);
+                }, 50);
+            } else if (e.key === 'Escape') {
+                closeSidebar();
+            }
+        });
+
+        // Responsive sidebar handling
+        function handleResize() {
+            if (window.innerWidth >= 1024) {
+                sidebar.classList.remove('-translate-x-full');
+                mobileMenuOverlay.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            } else {
+                sidebar.classList.add('-translate-x-full');
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
+
+        // Initialize
+        handleResize();
+        toggleBackToTop();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9894399df1f50fad',t:'MTc1OTU3NjE0Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
