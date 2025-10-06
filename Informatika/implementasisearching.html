@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Belajar Algoritma Pencarian - Interactive Learning</title>
+    <title>Praktik Algoritma Pencarian - Pembelajaran Interaktif</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body {
             box-sizing: border-box;
@@ -13,177 +14,106 @@
         .code-block {
             background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
             border-radius: 12px;
-            padding: 20px;
-            margin: 16px 0;
-            position: relative;
-            overflow-x: auto;
+            overflow: hidden;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
         
-        .code-block::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 30px;
-            background: linear-gradient(90deg, #ef4444, #f97316, #eab308, #22c55e, #3b82f6, #8b5cf6);
-            border-radius: 12px 12px 0 0;
+        .code-header {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .code-content {
-            margin-top: 20px;
-            font-family: 'Courier New', monospace;
-            color: #e2e8f0;
-            line-height: 1.6;
-            white-space: pre;
+            padding: 20px;
             overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+            color: #e2e8f0;
         }
         
-        .file-label {
-            position: absolute;
-            top: 5px;
-            left: 15px;
-            background: rgba(0, 0, 0, 0.7);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
+        /* Syntax Highlighting */
+        .keyword { color: #ff79c6; font-weight: bold; }
+        .string { color: #f1fa8c; }
+        .comment { color: #6272a4; font-style: italic; }
+        .function { color: #50fa7b; }
+        .number { color: #bd93f9; }
+        .operator { color: #ff79c6; }
+        .variable { color: #8be9fd; }
+        .builtin { color: #ffb86c; }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
         }
         
-        .sidebar {
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
+        .menu-item {
+            transition: all 0.3s ease;
         }
         
-        .sidebar.open {
-            transform: translateX(0);
-        }
-        
-        .content-section {
-            display: none;
-        }
-        
-        .content-section.active {
-            display: block;
+        .menu-item:hover {
+            transform: translateX(8px);
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
         }
         
         .floating-btn {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
-            transition: all 0.3s ease;
+            bottom: 30px;
+            right: 30px;
             z-index: 1000;
+            transition: all 0.3s ease;
         }
         
         .floating-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(59, 130, 246, 0.6);
+            transform: scale(1.1);
         }
         
-        .next-btn {
-            background: linear-gradient(135deg, #10b981, #059669);
-            transition: all 0.3s ease;
-        }
-        
-        .next-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-        }
-        
-        .interactive-demo {
-            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
-            border: 2px solid #0ea5e9;
+        .interactive-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 16px;
             padding: 24px;
-            margin: 20px 0;
-        }
-        
-        .search-input {
-            border: 2px solid #3b82f6;
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 16px;
-            width: 100%;
-            margin: 8px 0;
-        }
-        
-        .search-btn {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 24px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .search-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-        }
-        
-        .highlight {
-            background: #fef3c7;
-            padding: 2px 4px;
-            border-radius: 4px;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
         
         .step-card {
             background: white;
             border-radius: 12px;
             padding: 20px;
-            margin: 16px 0;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             border-left: 4px solid #3b82f6;
+            margin-bottom: 20px;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+            padding: 2px 8px;
+            border-radius: 6px;
+            color: #1f2937;
+            font-weight: 600;
         }
         
         @media (max-width: 768px) {
-            .code-content {
-                font-size: 14px;
-            }
-            
             .floating-btn {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
+                bottom: 20px;
+                right: 20px;
             }
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
-    <!-- Mobile Menu Button -->
-    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-blue-600 text-white p-3 rounded-lg shadow-lg">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-        </svg>
-    </button>
-
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenuOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+    
     <!-- Sidebar -->
-    <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-80 bg-white shadow-2xl z-40 lg:transform-none lg:static lg:z-auto">
-        <div class="p-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-            <div class="flex items-center space-x-3">
-                <div class="text-3xl">🔍</div>
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-2xl z-50 sidebar-transition transform -translate-x-full md:translate-x-0">
+        <div class="p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-search text-2xl"></i>
                 <div>
                     <h1 class="text-xl font-bold">Algoritma Pencarian</h1>
-                    <p class="text-blue-100 text-sm">Interactive Learning</p>
+                    <p class="text-blue-100 text-sm">Pembelajaran Interaktif</p>
                 </div>
             </div>
         </div>
@@ -191,1048 +121,1306 @@
         <nav class="p-4">
             <ul class="space-y-2">
                 <li>
-                    <button onclick="showSection('pengenalan')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors flex items-center space-x-3">
-                        <span class="text-2xl">📚</span>
+                    <button onclick="showSection('pengenalan')" class="menu-item w-full text-left p-4 rounded-lg hover:bg-blue-50 flex items-center gap-3">
+                        <i class="fas fa-book-open text-blue-600"></i>
                         <span class="font-medium">Pengenalan</span>
                     </button>
                 </li>
                 <li>
-                    <button onclick="showSection('linear-search')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors flex items-center space-x-3">
-                        <span class="text-2xl">🔍</span>
+                    <button onclick="showSection('linear-search')" class="menu-item w-full text-left p-4 rounded-lg hover:bg-blue-50 flex items-center gap-3">
+                        <i class="fas fa-arrow-right text-green-600"></i>
                         <span class="font-medium">Linear Search</span>
                     </button>
                 </li>
                 <li>
-                    <button onclick="showSection('binary-search')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors flex items-center space-x-3">
-                        <span class="text-2xl">⚡</span>
+                    <button onclick="showSection('binary-search')" class="menu-item w-full text-left p-4 rounded-lg hover:bg-blue-50 flex items-center gap-3">
+                        <i class="fas fa-divide text-purple-600"></i>
                         <span class="font-medium">Binary Search</span>
                     </button>
                 </li>
                 <li>
-                    <button onclick="showSection('praktik-scanner')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors flex items-center space-x-3">
-                        <span class="text-2xl">💻</span>
-                        <span class="font-medium">Praktik dengan Input</span>
+                    <button onclick="showSection('praktik-linear')" class="menu-item w-full text-left p-4 rounded-lg hover:bg-blue-50 flex items-center gap-3">
+                        <i class="fas fa-code text-orange-600"></i>
+                        <span class="font-medium">Praktik Linear Search</span>
                     </button>
                 </li>
                 <li>
-                    <button onclick="showSection('studi-kasus')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-blue-50 transition-colors flex items-center space-x-3">
-                        <span class="text-2xl">🎯</span>
-                        <span class="font-medium">Studi Kasus</span>
+                    <button onclick="showSection('praktik-binary')" class="menu-item w-full text-left p-4 rounded-lg hover:bg-blue-50 flex items-center gap-3">
+                        <i class="fas fa-laptop-code text-red-600"></i>
+                        <span class="font-medium">Praktik Binary Search</span>
+                    </button>
+                </li>
+                <li>
+                    <button onclick="showSection('perbandingan')" class="menu-item w-full text-left p-4 rounded-lg hover:bg-blue-50 flex items-center gap-3">
+                        <i class="fas fa-chart-bar text-indigo-600"></i>
+                        <span class="font-medium">Perbandingan & Analisis</span>
                     </button>
                 </li>
             </ul>
         </nav>
     </div>
-
-    <!-- Overlay for mobile -->
-    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden hidden"></div>
-
+    
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="fixed top-4 left-4 z-50 md:hidden bg-blue-600 text-white p-3 rounded-lg shadow-lg">
+        <i class="fas fa-bars"></i>
+    </button>
+    
     <!-- Main Content -->
-    <div class="lg:ml-80 min-h-screen">
-        <div class="max-w-4xl mx-auto p-6 lg:p-8">
+    <div class="md:ml-80 min-h-screen">
+        <div class="max-w-4xl mx-auto p-6 md:p-8">
             
             <!-- Pengenalan Section -->
-            <section id="pengenalan" class="content-section active">
-                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-                    <div class="text-center mb-8">
-                        <div class="text-6xl mb-4">🔍</div>
-                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Algoritma Pencarian</h1>
-                        <p class="text-xl text-gray-600">Mari belajar cara mencari data dengan efisien!</p>
+            <div id="pengenalan" class="section">
+                <div class="interactive-card mb-8">
+                    <div class="flex items-center gap-4 mb-6">
+                        <i class="fas fa-search text-4xl"></i>
+                        <div>
+                            <h2 class="text-3xl font-bold">Selamat Datang! 🎉</h2>
+                            <p class="text-blue-100">Mari belajar Algoritma Pencarian dengan cara yang menyenangkan!</p>
+                        </div>
                     </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 shadow-xl mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                        <i class="fas fa-lightbulb text-yellow-500"></i>
+                        Apa itu Algoritma Pencarian?
+                    </h3>
                     
-                    <div class="grid md:grid-cols-2 gap-6 mb-8">
-                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl">
-                            <div class="text-3xl mb-3">🎯</div>
-                            <h3 class="text-xl font-bold text-blue-800 mb-2">Apa itu Algoritma Pencarian?</h3>
-                            <p class="text-gray-700">Algoritma pencarian adalah cara sistematis untuk menemukan data tertentu dalam kumpulan data.</p>
+                    <div class="space-y-6 text-lg leading-relaxed text-gray-700">
+                        <p>
+                            <span class="highlight">Algoritma Pencarian</span> adalah cara sistematis untuk menemukan data tertentu dalam kumpulan data. 
+                            Bayangkan kamu sedang mencari buku favorit di perpustakaan yang besar - kamu butuh strategi yang tepat!
+                        </p>
+                        
+                        <div class="bg-blue-50 p-6 rounded-xl border-l-4 border-blue-500">
+                            <h4 class="font-bold text-blue-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-info-circle"></i>
+                                Mengapa Penting?
+                            </h4>
+                            <ul class="space-y-2 text-blue-700">
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                    <span>Menghemat waktu dalam mencari data</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                    <span>Dasar untuk aplikasi database dan search engine</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                    <span>Skill fundamental untuk programmer</span>
+                                </li>
+                            </ul>
                         </div>
                         
-                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl">
-                            <div class="text-3xl mb-3">⚡</div>
-                            <h3 class="text-xl font-bold text-green-800 mb-2">Mengapa Penting?</h3>
-                            <p class="text-gray-700">Dalam dunia programming, kita sering perlu mencari data. Algoritma yang tepat membuat pencarian lebih cepat!</p>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl mb-6">
-                        <h3 class="text-2xl font-bold text-purple-800 mb-4 flex items-center">
-                            <span class="mr-3">📋</span>
-                            Jenis-jenis Algoritma Pencarian
-                        </h3>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div class="bg-white p-4 rounded-lg shadow-sm">
-                                <h4 class="font-bold text-lg text-blue-600 mb-2">🔍 Linear Search</h4>
-                                <p class="text-gray-600">Mencari satu per satu dari awal sampai akhir</p>
+                        <div class="grid md:grid-cols-2 gap-6 mt-8">
+                            <div class="bg-gradient-to-br from-green-100 to-green-200 p-6 rounded-xl">
+                                <h4 class="font-bold text-green-800 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-arrow-right"></i>
+                                    Linear Search
+                                </h4>
+                                <p class="text-green-700 mb-2">Mencari satu per satu dari awal sampai akhir. Sederhana tapi bisa lambat untuk data besar.</p>
+                                <div class="text-xs text-green-600">
+                                    <strong>Time:</strong> O(n) | <strong>Space:</strong> O(1)
+                                </div>
                             </div>
-                            <div class="bg-white p-4 rounded-lg shadow-sm">
-                                <h4 class="font-bold text-lg text-green-600 mb-2">⚡ Binary Search</h4>
-                                <p class="text-gray-600">Mencari dengan membagi data menjadi dua bagian</p>
+                            
+                            <div class="bg-gradient-to-br from-purple-100 to-purple-200 p-6 rounded-xl">
+                                <h4 class="font-bold text-purple-800 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-divide"></i>
+                                    Binary Search
+                                </h4>
+                                <p class="text-purple-700 mb-2">Membagi data menjadi dua bagian berulang kali. Cepat tapi butuh data yang sudah terurut.</p>
+                                <div class="text-xs text-purple-600">
+                                    <strong>Time:</strong> O(log n) | <strong>Space:</strong> O(1)
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="text-center">
-                    <button onclick="showSection('linear-search')" class="next-btn text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg">
-                        Mulai Belajar Linear Search 🚀
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                        Mulai Belajar Linear Search! <i class="fas fa-arrow-right ml-2"></i>
                     </button>
                 </div>
-            </section>
-
+            </div>
+            
             <!-- Linear Search Section -->
-            <section id="linear-search" class="content-section">
-                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-                    <div class="text-center mb-8">
-                        <div class="text-6xl mb-4">🔍</div>
-                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Linear Search</h1>
-                        <p class="text-xl text-gray-600">Pencarian sederhana dari awal sampai akhir</p>
-                    </div>
-                    
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-blue-600 mb-4 flex items-center">
-                            <span class="mr-3">💡</span>
-                            Konsep Linear Search
-                        </h3>
-                        <p class="text-lg text-gray-700 mb-4">
-                            Linear Search adalah algoritma pencarian paling sederhana. Bayangkan kamu mencari buku di rak, 
-                            kamu akan melihat satu per satu dari kiri ke kanan sampai ketemu!
-                        </p>
-                        
-                        <div class="interactive-demo">
-                            <h4 class="text-xl font-bold text-blue-800 mb-4">🎮 Demo Interaktif</h4>
-                            <p class="mb-4">Coba cari angka dalam array: [5, 2, 8, 1, 9, 3]</p>
-                            <input type="number" id="linearSearchInput" class="search-input" placeholder="Masukkan angka yang dicari (1-9)">
-                            <button onclick="demoLinearSearch()" class="search-btn">Cari! 🔍</button>
-                            <div id="linearSearchResult" class="mt-4 p-4 bg-gray-100 rounded-lg hidden">
-                                <div id="linearSearchSteps"></div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-blue-600 mb-4 flex items-center">
-                            <span class="mr-3">📝</span>
-                            Langkah-langkah Linear Search
-                        </h3>
-                        <ol class="list-decimal list-inside space-y-3 text-lg text-gray-700">
-                            <li>Mulai dari elemen pertama (index 0)</li>
-                            <li>Bandingkan elemen saat ini dengan data yang dicari</li>
-                            <li>Jika sama, return index (posisi ditemukan)</li>
-                            <li>Jika tidak sama, lanjut ke elemen berikutnya</li>
-                            <li>Ulangi sampai data ditemukan atau sampai akhir array</li>
-                            <li>Jika sampai akhir tidak ketemu, return -1 (tidak ditemukan)</li>
-                        </ol>
-                    </div>
-                    
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-blue-600 mb-4 flex items-center">
-                            <span class="mr-3">💻</span>
-                            Implementasi dalam Python
-                        </h3>
-                        
-                        <div class="code-block">
-                            <div class="file-label">📄 linear_search.py</div>
-                            <div class="code-content">def linear_search(arr, target):
-    """
-    Function untuk melakukan linear search
-    arr: list data yang akan dicari
-    target: data yang dicari
-    return: index jika ditemukan, -1 jika tidak ditemukan
-    """
-    # Loop melalui setiap elemen dalam list
-    for i in range(len(arr)):
-        # Jika elemen saat ini sama dengan target
-        if arr[i] == target:
-            return i  # Return index dimana data ditemukan
-    
-    return -1  # Return -1 jika data tidak ditemukan
-
-# Program utama
-if __name__ == "__main__":
-    # Contoh list data
-    data = [5, 2, 8, 1, 9, 3]
-    cari = 8
-    
-    # Panggil function linear_search
-    hasil = linear_search(data, cari)
-    
-    # Tampilkan hasil
-    if hasil != -1:
-        print(f"Data {cari} ditemukan di index {hasil}")
-    else:
-        print(f"Data {cari} tidak ditemukan")</div>
-                        </div>
-                    </div>
-                    
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-blue-600 mb-4 flex items-center">
-                            <span class="mr-3">⏱️</span>
-                            Kompleksitas Waktu
-                        </h3>
-                        <div class="bg-yellow-50 p-4 rounded-lg">
-                            <p class="text-lg text-gray-700 mb-2"><strong>Best Case:</strong> O(1) - Data ditemukan di posisi pertama</p>
-                            <p class="text-lg text-gray-700 mb-2"><strong>Average Case:</strong> O(n) - Rata-rata memeriksa setengah elemen</p>
-                            <p class="text-lg text-gray-700"><strong>Worst Case:</strong> O(n) - Data ditemukan di akhir atau tidak ada</p>
+            <div id="linear-search" class="section hidden">
+                <div class="interactive-card mb-8">
+                    <div class="flex items-center gap-4 mb-4">
+                        <i class="fas fa-arrow-right text-4xl"></i>
+                        <div>
+                            <h2 class="text-3xl font-bold">Linear Search 🔍</h2>
+                            <p class="text-green-100">Pencarian berurutan dari awal sampai akhir</p>
                         </div>
                     </div>
                 </div>
                 
+                <div class="bg-white rounded-2xl p-8 shadow-xl mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Konsep Dasar</h3>
+                    
+                    <div class="space-y-6 text-lg text-gray-700">
+                        <p>
+                            <span class="highlight">Linear Search</span> adalah algoritma pencarian paling sederhana. 
+                            Kita memeriksa setiap elemen dalam array satu per satu sampai menemukan yang dicari.
+                        </p>
+                        
+                        <div class="bg-yellow-50 p-6 rounded-xl border-l-4 border-yellow-500">
+                            <h4 class="font-bold text-yellow-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-lightbulb"></i>
+                                Analogi & Contoh Nyata
+                            </h4>
+                            <p class="text-yellow-700 mb-3">
+                                <strong>Analogi:</strong> Seperti mencari kunci di dalam tas. Kamu mengeluarkan barang satu per satu sampai ketemu kunci yang dicari!
+                            </p>
+                            <p class="text-yellow-700">
+                                <strong>Aplikasi nyata:</strong> Mencari nama di daftar kontak HP, mencari file di folder yang tidak terurut, 
+                                atau mencari produk di toko online tanpa filter.
+                            </p>
+                        </div>
+                        
+                        <div class="step-card">
+                            <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                <span class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">1</span>
+                                Langkah-langkah Linear Search
+                            </h4>
+                            <ol class="space-y-2 ml-10">
+                                <li>Mulai dari elemen pertama (indeks 0)</li>
+                                <li>Bandingkan dengan nilai yang dicari</li>
+                                <li>Jika sama, return indeks tersebut</li>
+                                <li>Jika tidak, lanjut ke elemen berikutnya</li>
+                                <li>Ulangi sampai ketemu atau sampai akhir array</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="code-block mb-8">
+                    <div class="code-header">
+                        <i class="fas fa-file-code text-white"></i>
+                        <span class="text-white font-medium">linear_search.py</span>
+                        <div class="flex gap-2 ml-auto">
+                            <div class="w-3 h-3 bg-red-400 rounded-full"></div>
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                            <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                        </div>
+                    </div>
+                    <div class="code-content">
+<pre><code><span class="keyword">def</span> <span class="function">linear_search</span>(<span class="variable">arr</span>, <span class="variable">target</span>):
+    <span class="string">"""
+    Fungsi untuk melakukan pencarian linear
+    arr: list yang akan dicari
+    target: nilai yang dicari
+    return: indeks jika ditemukan, -1 jika tidak
+    """</span>
+    <span class="comment"># Validasi input</span>
+    <span class="keyword">if</span> <span class="keyword">not</span> <span class="variable">arr</span>:
+        <span class="keyword">return</span> <span class="number">-1</span>  <span class="comment"># Array kosong</span>
+    
+    <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="builtin">range</span>(<span class="builtin">len</span>(<span class="variable">arr</span>)):
+        <span class="keyword">if</span> <span class="variable">arr</span>[<span class="variable">i</span>] <span class="operator">==</span> <span class="variable">target</span>:
+            <span class="keyword">return</span> <span class="variable">i</span>  <span class="comment"># Ditemukan! Return indeks</span>
+    <span class="keyword">return</span> <span class="number">-1</span>  <span class="comment"># Tidak ditemukan</span>
+
+<span class="comment"># Contoh penggunaan</span>
+<span class="variable">data</span> <span class="operator">=</span> [<span class="number">64</span>, <span class="number">34</span>, <span class="number">25</span>, <span class="number">12</span>, <span class="number">22</span>, <span class="number">11</span>, <span class="number">90</span>]
+<span class="variable">cari</span> <span class="operator">=</span> <span class="number">25</span>
+
+<span class="variable">hasil</span> <span class="operator">=</span> <span class="function">linear_search</span>(<span class="variable">data</span>, <span class="variable">cari</span>)
+<span class="keyword">if</span> <span class="variable">hasil</span> <span class="operator">!=</span> <span class="number">-1</span>:
+    <span class="builtin">print</span>(<span class="string">f"Nilai {cari} ditemukan di indeks {hasil}"</span>)
+<span class="keyword">else</span>:
+    <span class="builtin">print</span>(<span class="string">f"Nilai {cari} tidak ditemukan"</span>)</code></pre>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-xl mb-8">
+                    <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-chart-line text-green-600"></i>
+                        Kompleksitas Waktu Linear Search
+                    </h4>
+                    <div class="grid md:grid-cols-3 gap-4 text-center">
+                        <div class="bg-white p-4 rounded-lg">
+                            <div class="text-green-600 font-bold text-xl">O(1)</div>
+                            <div class="text-sm text-gray-600">Best Case</div>
+                            <div class="text-xs text-gray-500">Data di posisi pertama</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg">
+                            <div class="text-yellow-600 font-bold text-xl">O(n/2)</div>
+                            <div class="text-sm text-gray-600">Average Case</div>
+                            <div class="text-xs text-gray-500">Data di tengah rata-rata</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg">
+                            <div class="text-red-600 font-bold text-xl">O(n)</div>
+                            <div class="text-sm text-gray-600">Worst Case</div>
+                            <div class="text-xs text-gray-500">Data di akhir/tidak ada</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 bg-blue-50 p-4 rounded-lg">
+                        <p class="text-sm text-blue-700">
+                            <strong>Penjelasan:</strong> n adalah jumlah elemen dalam array. 
+                            Dalam kasus terburuk, kita harus memeriksa semua n elemen.
+                        </p>
+                    </div>
+                </div>
+                
                 <div class="text-center">
-                    <button onclick="showSection('binary-search')" class="next-btn text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg">
-                        Lanjut ke Binary Search ⚡
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-green-600 to-blue-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                        Lanjut ke Binary Search! <i class="fas fa-arrow-right ml-2"></i>
                     </button>
                 </div>
-            </section>
-
+            </div>
+            
             <!-- Binary Search Section -->
-            <section id="binary-search" class="content-section">
-                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-                    <div class="text-center mb-8">
-                        <div class="text-6xl mb-4">⚡</div>
-                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Binary Search</h1>
-                        <p class="text-xl text-gray-600">Pencarian super cepat dengan teknik divide and conquer!</p>
+            <div id="binary-search" class="section hidden">
+                <div class="interactive-card mb-8">
+                    <div class="flex items-center gap-4 mb-4">
+                        <i class="fas fa-divide text-4xl"></i>
+                        <div>
+                            <h2 class="text-3xl font-bold">Binary Search ⚡</h2>
+                            <p class="text-purple-100">Pencarian cepat dengan teknik divide and conquer</p>
+                        </div>
                     </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 shadow-xl mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Konsep Dasar</h3>
                     
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-green-600 mb-4 flex items-center">
-                            <span class="mr-3">💡</span>
-                            Konsep Binary Search
-                        </h3>
-                        <p class="text-lg text-gray-700 mb-4">
-                            Binary Search seperti bermain tebak angka! Kamu tebak di tengah, lalu eliminasi setengah kemungkinan. 
-                            <strong>Syarat penting:</strong> Data harus sudah terurut dari kecil ke besar atau sebaliknya!
+                    <div class="space-y-6 text-lg text-gray-700">
+                        <p>
+                            <span class="highlight">Binary Search</span> adalah algoritma pencarian yang sangat efisien untuk data yang sudah terurut. 
+                            Prinsipnya adalah membagi data menjadi dua bagian dan memilih bagian yang mungkin berisi data yang dicari.
                         </p>
-                        <div class="bg-red-50 p-4 rounded-lg mb-4">
-                            <p class="text-red-800 font-semibold">⚠️ Peringatan: Binary Search hanya bekerja pada data yang sudah diurutkan!</p>
-                            <p class="text-red-700">Jika data belum terurut, hasil pencarian akan salah.</p>
+                        
+                        <div class="bg-purple-50 p-6 rounded-xl border-l-4 border-purple-500">
+                            <h4 class="font-bold text-purple-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-lightbulb"></i>
+                                Analogi & Contoh Nyata
+                            </h4>
+                            <p class="text-purple-700 mb-3">
+                                <strong>Analogi:</strong> Seperti menebak angka 1-100. Kamu mulai dari 50. Jika terlalu besar, coba 25. Jika terlalu kecil, coba 75. 
+                                Terus bagi dua sampai ketemu!
+                            </p>
+                            <p class="text-purple-700">
+                                <strong>Aplikasi nyata:</strong> Mencari kata di kamus, sistem pencarian Google, database bank, 
+                                atau mencari lagu di Spotify (yang sudah diurutkan alfabetis).
+                            </p>
                         </div>
                         
-                        <div class="interactive-demo">
-                            <h4 class="text-xl font-bold text-green-800 mb-4">🎮 Demo Interaktif</h4>
-                            <p class="mb-4">Coba cari angka dalam array terurut: [1, 2, 3, 5, 8, 9]</p>
-                            <input type="number" id="binarySearchInput" class="search-input" placeholder="Masukkan angka yang dicari (1-9)">
-                            <button onclick="demoBinarySearch()" class="search-btn bg-green-600 hover:bg-green-700">Cari! ⚡</button>
-                            <div id="binarySearchResult" class="mt-4 p-4 bg-gray-100 rounded-lg hidden">
-                                <div id="binarySearchSteps"></div>
-                            </div>
+                        <div class="bg-red-50 p-6 rounded-xl border-l-4 border-red-500">
+                            <h4 class="font-bold text-red-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Syarat Penting!
+                            </h4>
+                            <p class="text-red-700">
+                                Binary Search hanya bisa digunakan pada data yang <strong>sudah terurut</strong> (ascending atau descending).
+                            </p>
+                        </div>
+                        
+                        <div class="step-card">
+                            <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                <span class="bg-purple-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm">1</span>
+                                Langkah-langkah Binary Search
+                            </h4>
+                            <ol class="space-y-2 ml-10">
+                                <li>Tentukan batas kiri (left) dan kanan (right)</li>
+                                <li>Hitung posisi tengah: mid = (left + right) / 2</li>
+                                <li>Bandingkan arr[mid] dengan target</li>
+                                <li>Jika sama, return mid</li>
+                                <li>Jika arr[mid] > target, cari di bagian kiri (right = mid - 1)</li>
+                                <li>Jika arr[mid] < target, cari di bagian kanan (left = mid + 1)</li>
+                                <li>Ulangi sampai ketemu atau left > right</li>
+                            </ol>
                         </div>
                     </div>
-                    
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-green-600 mb-4 flex items-center">
-                            <span class="mr-3">📝</span>
-                            Langkah-langkah Binary Search
-                        </h3>
-                        <ol class="list-decimal list-inside space-y-3 text-lg text-gray-700">
-                            <li>Tentukan batas kiri (left = 0) dan kanan (right = length-1)</li>
-                            <li>Hitung posisi tengah: mid = (left + right) / 2</li>
-                            <li>Bandingkan elemen tengah dengan data yang dicari</li>
-                            <li>Jika sama, return mid (ditemukan!)</li>
-                            <li>Jika data lebih kecil, cari di bagian kiri (right = mid - 1)</li>
-                            <li>Jika data lebih besar, cari di bagian kanan (left = mid + 1)</li>
-                            <li>Ulangi sampai ditemukan atau left > right</li>
-                        </ol>
+                </div>
+                
+                <div class="code-block mb-8">
+                    <div class="code-header">
+                        <i class="fas fa-file-code text-white"></i>
+                        <span class="text-white font-medium">binary_search.py</span>
+                        <div class="flex gap-2 ml-auto">
+                            <div class="w-3 h-3 bg-red-400 rounded-full"></div>
+                            <div class="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                            <div class="w-3 h-3 bg-green-400 rounded-full"></div>
+                        </div>
                     </div>
+                    <div class="code-content">
+<pre><code><span class="keyword">def</span> <span class="function">binary_search</span>(<span class="variable">arr</span>, <span class="variable">target</span>):
+    <span class="string">"""
+    Fungsi untuk melakukan pencarian binary
+    arr: list yang sudah terurut
+    target: nilai yang dicari
+    return: indeks jika ditemukan, -1 jika tidak
+    """</span>
+    <span class="comment"># Validasi input</span>
+    <span class="keyword">if</span> <span class="keyword">not</span> <span class="variable">arr</span>:
+        <span class="keyword">return</span> <span class="number">-1</span>  <span class="comment"># Array kosong</span>
+    
+    <span class="variable">left</span> <span class="operator">=</span> <span class="number">0</span>
+    <span class="variable">right</span> <span class="operator">=</span> <span class="builtin">len</span>(<span class="variable">arr</span>) <span class="operator">-</span> <span class="number">1</span>
+    
+    <span class="keyword">while</span> <span class="variable">left</span> <span class="operator"><=</span> <span class="variable">right</span>:
+        <span class="variable">mid</span> <span class="operator">=</span> (<span class="variable">left</span> <span class="operator">+</span> <span class="variable">right</span>) <span class="operator">//</span> <span class="number">2</span>
+        
+        <span class="keyword">if</span> <span class="variable">arr</span>[<span class="variable">mid</span>] <span class="operator">==</span> <span class="variable">target</span>:
+            <span class="keyword">return</span> <span class="variable">mid</span>  <span class="comment"># Ditemukan!</span>
+        <span class="keyword">elif</span> <span class="variable">arr</span>[<span class="variable">mid</span>] <span class="operator">></span> <span class="variable">target</span>:
+            <span class="variable">right</span> <span class="operator">=</span> <span class="variable">mid</span> <span class="operator">-</span> <span class="number">1</span>  <span class="comment"># Cari di bagian kiri</span>
+        <span class="keyword">else</span>:
+            <span class="variable">left</span> <span class="operator">=</span> <span class="variable">mid</span> <span class="operator">+</span> <span class="number">1</span>   <span class="comment"># Cari di bagian kanan</span>
+    
+    <span class="keyword">return</span> <span class="number">-1</span>  <span class="comment"># Tidak ditemukan</span>
+
+<span class="comment"># Contoh penggunaan</span>
+<span class="variable">data</span> <span class="operator">=</span> [<span class="number">11</span>, <span class="number">12</span>, <span class="number">22</span>, <span class="number">25</span>, <span class="number">34</span>, <span class="number">64</span>, <span class="number">90</span>]  <span class="comment"># Harus terurut!</span>
+<span class="variable">cari</span> <span class="operator">=</span> <span class="number">25</span>
+
+<span class="variable">hasil</span> <span class="operator">=</span> <span class="function">binary_search</span>(<span class="variable">data</span>, <span class="variable">cari</span>)
+<span class="keyword">if</span> <span class="variable">hasil</span> <span class="operator">!=</span> <span class="number">-1</span>:
+    <span class="builtin">print</span>(<span class="string">f"Nilai {cari} ditemukan di indeks {hasil}"</span>)
+<span class="keyword">else</span>:
+    <span class="builtin">print</span>(<span class="string">f"Nilai {cari} tidak ditemukan"</span>)</code></pre>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-xl mb-8">
+                    <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-rocket text-purple-600"></i>
+                        Kompleksitas Waktu Binary Search
+                    </h4>
+                    <div class="grid md:grid-cols-3 gap-4 text-center">
+                        <div class="bg-white p-4 rounded-lg">
+                            <div class="text-green-600 font-bold text-xl">O(1)</div>
+                            <div class="text-sm text-gray-600">Best Case</div>
+                            <div class="text-xs text-gray-500">Data di posisi tengah pertama</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg">
+                            <div class="text-blue-600 font-bold text-xl">O(log n)</div>
+                            <div class="text-sm text-gray-600">Average Case</div>
+                            <div class="text-xs text-gray-500">Rata-rata log₂(n) langkah</div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg">
+                            <div class="text-orange-600 font-bold text-xl">O(log n)</div>
+                            <div class="text-sm text-gray-600">Worst Case</div>
+                            <div class="text-xs text-gray-500">Maksimal log₂(n) langkah</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 bg-purple-50 p-4 rounded-lg">
+                        <p class="text-sm text-purple-700">
+                            <strong>Penjelasan:</strong> log₂(n) artinya berapa kali kita bisa membagi n dengan 2 sampai jadi 1. 
+                            Contoh: untuk 1000 data, maksimal butuh log₂(1000) ≈ 10 langkah saja!
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                        Mulai Praktik! <i class="fas fa-code ml-2"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Praktik Linear Search Section -->
+            <div id="praktik-linear" class="section hidden">
+                <div class="interactive-card mb-8">
+                    <div class="flex items-center gap-4 mb-4">
+                        <i class="fas fa-code text-4xl"></i>
+                        <div>
+                            <h2 class="text-3xl font-bold">Praktik Linear Search 💻</h2>
+                            <p class="text-orange-100">Mari implementasikan step by step!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 shadow-xl mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                        <i class="fas fa-play-circle text-green-500"></i>
+                        Langkah 1: Persiapan Project
+                    </h3>
                     
                     <div class="step-card">
-                        <h3 class="text-2xl font-bold text-green-600 mb-4 flex items-center">
-                            <span class="mr-3">💻</span>
-                            Implementasi dalam Python
-                        </h3>
+                        <h4 class="font-bold text-gray-800 mb-3">📁 Buat File Baru</h4>
+                        <p class="text-gray-700 mb-4">Buat file Python baru dengan nama <code class="bg-gray-100 px-2 py-1 rounded">linear_search_praktik.py</code></p>
                         
                         <div class="code-block">
-                            <div class="file-label">📄 binary_search.py</div>
-                            <div class="code-content">def binary_search(arr, target):
-    """
-    Function untuk melakukan binary search
-    arr: list data yang sudah terurut
-    target: data yang dicari
-    return: index jika ditemukan, -1 jika tidak ditemukan
-    """
-    left = 0                    # Batas kiri
-    right = len(arr) - 1        # Batas kanan
-    
-    # Loop selama masih ada area pencarian
-    while left <= right:
-        mid = left + (right - left) // 2  # Hitung posisi tengah (hindari overflow)
-        
-        # Jika elemen tengah sama dengan target
-        if arr[mid] == target:
-            return mid  # Data ditemukan di posisi mid
-        
-        # Jika target lebih kecil, cari di bagian kiri
-        elif arr[mid] > target:
-            right = mid - 1
-        # Jika target lebih besar, cari di bagian kanan
-        else:
-            left = mid + 1
-    
-    return -1  # Data tidak ditemukan
+                            <div class="code-header">
+                                <i class="fas fa-file-code text-white"></i>
+                                <span class="text-white font-medium">linear_search_praktik.py</span>
+                            </div>
+                            <div class="code-content">
+<pre><code><span class="comment"># Praktik Linear Search - SMK Programming</span>
+<span class="comment"># Nama: [Isi nama kamu]</span>
+<span class="comment"># Kelas: [Isi kelas kamu]</span>
 
-# Program utama
-if __name__ == "__main__":
-    # List harus sudah terurut untuk binary search!
-    data = [1, 2, 3, 5, 8, 9, 12, 15, 18, 20]
-    cari = 8
-    
-    # Panggil function binary_search
-    hasil = binary_search(data, cari)
-    
-    # Tampilkan hasil
-    if hasil != -1:
-        print(f"Data {cari} ditemukan di index {hasil}")
-    else:
-        print(f"Data {cari} tidak ditemukan")</div>
-                        </div>
-                    </div>
-                    
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-green-600 mb-4 flex items-center">
-                            <span class="mr-3">⏱️</span>
-                            Kompleksitas Waktu
-                        </h3>
-                        <div class="bg-green-50 p-4 rounded-lg">
-                            <p class="text-lg text-gray-700 mb-2"><strong>Best Case:</strong> O(1) - Data ditemukan di tengah</p>
-                            <p class="text-lg text-gray-700 mb-2"><strong>Average Case:</strong> O(log n) - Sangat efisien!</p>
-                            <p class="text-lg text-gray-700"><strong>Worst Case:</strong> O(log n) - Tetap cepat!</p>
-                            <div class="mt-4 p-3 bg-yellow-100 rounded-lg">
-                                <p class="font-bold text-yellow-800">💡 Tips: Binary Search 1000x lebih cepat dari Linear Search untuk data besar!</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-green-600 mb-4 flex items-center">
-                            <span class="mr-3">🤔</span>
-                            Kapan Menggunakan Algoritma Mana?
-                        </h3>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div class="bg-blue-50 p-4 rounded-lg">
-                                <h4 class="font-bold text-blue-800 mb-2">🔍 Gunakan Linear Search jika:</h4>
-                                <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
-                                    <li>Data belum terurut</li>
-                                    <li>Data berukuran kecil (< 100 elemen)</li>
-                                    <li>Mencari berdasarkan string/teks</li>
-                                    <li>Perlu pencarian fleksibel (sebagian kata)</li>
-                                </ul>
-                            </div>
-                            <div class="bg-green-50 p-4 rounded-lg">
-                                <h4 class="font-bold text-green-800 mb-2">⚡ Gunakan Binary Search jika:</h4>
-                                <ul class="list-disc list-inside text-sm text-gray-700 space-y-1">
-                                    <li>Data sudah terurut</li>
-                                    <li>Data berukuran besar (> 1000 elemen)</li>
-                                    <li>Mencari berdasarkan angka/ID</li>
-                                    <li>Perlu pencarian yang sangat cepat</li>
-                                </ul>
+<span class="builtin">print</span>(<span class="string">"=== PRAKTIK LINEAR SEARCH ==="</span>)
+<span class="builtin">print</span>(<span class="string">"Mari belajar implementasi algoritma pencarian linear!"</span>)
+<span class="builtin">print</span>()</code></pre>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="text-center">
-                    <button onclick="showSection('praktik-scanner')" class="next-btn text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg">
-                        Praktik dengan Input 💻
-                    </button>
-                </div>
-            </section>
-
-            <!-- Praktik Scanner Section -->
-            <section id="praktik-scanner" class="content-section">
-                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-                    <div class="text-center mb-8">
-                        <div class="text-6xl mb-4">💻</div>
-                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Praktik dengan Input</h1>
-                        <p class="text-xl text-gray-600">Buat program interaktif yang menerima input dari user!</p>
-                    </div>
+                <div class="bg-white rounded-2xl p-8 shadow-xl mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                        <i class="fas fa-cogs text-blue-500"></i>
+                        Langkah 2: Implementasi Fungsi
+                    </h3>
                     
                     <div class="step-card">
-                        <h3 class="text-2xl font-bold text-purple-600 mb-4 flex items-center">
-                            <span class="mr-3">🎯</span>
-                            Langkah 1: Setup Project
-                        </h3>
-                        <ol class="list-decimal list-inside space-y-2 text-lg text-gray-700">
-                            <li>Buka IDE Python (PyCharm, VS Code, atau IDLE)</li>
-                            <li>Buat folder baru dengan nama "SearchAlgorithm"</li>
-                            <li>Buat file baru dengan nama "interactive_search.py"</li>
-                        </ol>
-                    </div>
-                    
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-purple-600 mb-4 flex items-center">
-                            <span class="mr-3">📝</span>
-                            Langkah 2: Import Library
-                        </h3>
-                        <p class="text-lg text-gray-700 mb-4">Pertama, kita perlu import library time untuk mengukur waktu eksekusi:</p>
+                        <h4 class="font-bold text-gray-800 mb-3">🔧 Buat Fungsi Linear Search</h4>
+                        <p class="text-gray-700 mb-4">Tambahkan kode berikut ke file kamu:</p>
                         
                         <div class="code-block">
-                            <div class="file-label">📄 interactive_search.py</div>
-                            <div class="code-content"># Import library yang diperlukan
-import time
-
-# File untuk program pencarian interaktif
-# Code selanjutnya akan ditambahkan di sini</div>
+                            <div class="code-header">
+                                <i class="fas fa-file-code text-white"></i>
+                                <span class="text-white font-medium">Fungsi Linear Search</span>
+                            </div>
+                            <div class="code-content">
+<pre><code><span class="keyword">def</span> <span class="function">linear_search</span>(<span class="variable">data_list</span>, <span class="variable">target</span>):
+    <span class="string">"""
+    Fungsi untuk melakukan pencarian linear
+    
+    Parameter:
+    - data_list: list berisi data yang akan dicari
+    - target: nilai yang ingin dicari
+    
+    Return:
+    - indeks jika ditemukan
+    - -1 jika tidak ditemukan
+    """</span>
+    <span class="builtin">print</span>(<span class="string">f"🔍 Mencari nilai: {target}"</span>)
+    <span class="builtin">print</span>(<span class="string">f"📊 Data: {data_list}"</span>)
+    <span class="builtin">print</span>(<span class="string">"="</span> <span class="operator">*</span> <span class="number">40</span>)
+    
+    <span class="comment"># Loop untuk memeriksa setiap elemen</span>
+    <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="builtin">range</span>(<span class="builtin">len</span>(<span class="variable">data_list</span>)):
+        <span class="builtin">print</span>(<span class="string">f"Langkah {i+1}: Memeriksa indeks {i} = {data_list[i]}"</span>)
+        
+        <span class="comment"># Bandingkan dengan target</span>
+        <span class="keyword">if</span> <span class="variable">data_list</span>[<span class="variable">i</span>] <span class="operator">==</span> <span class="variable">target</span>:
+            <span class="builtin">print</span>(<span class="string">f"✅ DITEMUKAN! Nilai {target} ada di indeks {i}"</span>)
+            <span class="keyword">return</span> <span class="variable">i</span>
+        <span class="keyword">else</span>:
+            <span class="builtin">print</span>(<span class="string">f"❌ Tidak sama, lanjut ke elemen berikutnya..."</span>)
+    
+    <span class="comment"># Jika sampai sini, berarti tidak ditemukan</span>
+    <span class="builtin">print</span>(<span class="string">f"❌ Nilai {target} tidak ditemukan dalam data"</span>)
+    <span class="keyword">return</span> <span class="number">-1</span></code></pre>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-purple-600 mb-4 flex items-center">
-                            <span class="mr-3">🔧</span>
-                            Langkah 3: Buat Function Linear Search
-                        </h3>
-                        
-                        <div class="code-block">
-                            <div class="file-label">📄 interactive_search.py</div>
-                            <div class="code-content">def linear_search(arr, target):
-    """Function untuk melakukan linear search dengan output step by step"""
-    print("🔍 Melakukan Linear Search...")
-    
-    for i in range(len(arr)):
-        print(f"Memeriksa index {i}: {arr[i]}")
-        
-        if arr[i] == target:
-            print("✅ Data ditemukan!")
-            return i
-    
-    print("❌ Data tidak ditemukan")
-    return -1</div>
-                        </div>
-                    </div>
-                    
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-purple-600 mb-4 flex items-center">
-                            <span class="mr-3">⚡</span>
-                            Langkah 4: Buat Function Binary Search
-                        </h3>
-                        
-                        <div class="code-block">
-                            <div class="file-label">📄 interactive_search.py</div>
-                            <div class="code-content">def binary_search(arr, target):
-    """Function untuk melakukan binary search dengan output step by step"""
-    print("⚡ Melakukan Binary Search...")
-    
-    left = 0
-    right = len(arr) - 1
-    step = 1
-    
-    while left <= right:
-        mid = left + (right - left) // 2
-        
-        print(f"Step {step}: Memeriksa tengah index {mid} (nilai: {arr[mid]})")
-        
-        if arr[mid] == target:
-            print("✅ Data ditemukan!")
-            return mid
-        
-        if arr[mid] > target:
-            print("Target lebih kecil, cari di bagian kiri")
-            right = mid - 1
-        else:
-            print("Target lebih besar, cari di bagian kanan")
-            left = mid + 1
-        
-        step += 1
-    
-    print("❌ Data tidak ditemukan")
-    return -1</div>
-                        </div>
-                    </div>
-                    
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-purple-600 mb-4 flex items-center">
-                            <span class="mr-3">🎮</span>
-                            Langkah 5: Buat Function Main Interaktif
-                        </h3>
-                        
-                        <div class="code-block">
-                            <div class="file-label">📄 interactive_search.py</div>
-                            <div class="code-content">def main():
-    """Program utama untuk pencarian interaktif"""
-    print("🎯 PROGRAM PENCARIAN INTERAKTIF 🎯")
-    print("=====================================")
-    
-    # Input ukuran list
-    n = int(input("Masukkan jumlah data: "))
-    
-    data = []
-    
-    # Input data list
-    print(f"Masukkan {n} angka:")
-    for i in range(n):
-        angka = int(input(f"Data ke-{i+1}: "))
-        data.append(angka)
-    
-    # Tampilkan data yang diinput
-    print(f"\n📊 Data yang diinput: {data}")
-    
-    # Menu pilihan algoritma
-    print("\n🔍 Pilih algoritma pencarian:")
-    print("1. Linear Search")
-    print("2. Binary Search (data akan diurutkan otomatis)")
-    pilihan = int(input("Pilihan Anda (1/2): "))
-    
-    # Input data yang dicari
-    target = int(input("\nMasukkan angka yang dicari: "))
-    
-    print("\n" + "=" * 40)
-    
-    start_time = time.time()
-    hasil = -1
-    
-    if pilihan == 1:
-        hasil = linear_search(data, target)
-    elif pilihan == 2:
-        # Urutkan data dulu untuk binary search
-        data.sort()
-        print(f"📈 Data diurutkan: {data}")
-        print()
-        hasil = binary_search(data, target)
-    else:
-        print("❌ Pilihan tidak valid!")
-        return
-    
-    end_time = time.time()
-    duration = (end_time - start_time) * 1000000000  # Convert to nanoseconds
-    
-    print("\n" + "=" * 40)
-    print("📋 HASIL PENCARIAN:")
-    
-    if hasil != -1:
-        print(f"✅ Data {target} ditemukan di index {hasil}")
-    else:
-        print(f"❌ Data {target} tidak ditemukan")
-    
-    print(f"⏱️  Waktu eksekusi: {duration:.0f} nanoseconds")
-
-# Jalankan program utama
-if __name__ == "__main__":
-    main()</div>
-                        </div>
-                    </div>
-                    
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-purple-600 mb-4 flex items-center">
-                            <span class="mr-3">▶️</span>
-                            Langkah 6: Jalankan Program
-                        </h3>
-                        <ol class="list-decimal list-inside space-y-2 text-lg text-gray-700">
-                            <li>Jalankan program dengan perintah: <code>python interactive_search.py</code></li>
-                            <li>Masukkan jumlah data (misal: 5)</li>
-                            <li>Masukkan data satu per satu (misal: 10, 5, 8, 3, 12)</li>
-                            <li>Pilih algoritma (1 untuk Linear, 2 untuk Binary)</li>
-                            <li>Masukkan angka yang dicari (misal: 8)</li>
-                            <li>Lihat proses pencarian step by step!</li>
-                        </ol>
                     </div>
                 </div>
                 
-                <div class="text-center">
-                    <button onclick="showSection('studi-kasus')" class="next-btn text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg">
-                        Lihat Studi Kasus 🎯
-                    </button>
-                </div>
-            </section>
-
-            <!-- Studi Kasus Section -->
-            <section id="studi-kasus" class="content-section">
-                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-                    <div class="text-center mb-8">
-                        <div class="text-6xl mb-4">🎯</div>
-                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Studi Kasus</h1>
-                        <p class="text-xl text-gray-600">Aplikasi nyata algoritma pencarian dalam sistem perpustakaan</p>
-                    </div>
+                <div class="bg-white rounded-2xl p-8 shadow-xl mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                        <i class="fas fa-keyboard text-purple-500"></i>
+                        Langkah 3: Input dari User
+                    </h3>
                     
                     <div class="step-card">
-                        <h3 class="text-2xl font-bold text-red-600 mb-4 flex items-center">
-                            <span class="mr-3">📚</span>
-                            Kasus: Sistem Pencarian Buku Perpustakaan
-                        </h3>
-                        <p class="text-lg text-gray-700 mb-4">
-                            Kita akan membuat sistem pencarian buku di perpustakaan yang bisa mencari berdasarkan:
-                        </p>
-                        <ul class="list-disc list-inside space-y-2 text-lg text-gray-700">
-                            <li>🔢 Nomor ID Buku (menggunakan Binary Search)</li>
-                            <li>📖 Judul Buku (menggunakan Linear Search)</li>
-                            <li>👤 Nama Pengarang (menggunakan Linear Search)</li>
+                        <h4 class="font-bold text-gray-800 mb-3">⌨️ Terima Input dari Pengguna</h4>
+                        <p class="text-gray-700 mb-4">Tambahkan kode untuk menerima input:</p>
+                        
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-file-code text-white"></i>
+                                <span class="text-white font-medium">Input Handler</span>
+                            </div>
+                            <div class="code-content">
+<pre><code><span class="comment"># Fungsi untuk input data dari user</span>
+<span class="keyword">def</span> <span class="function">input_data</span>():
+    <span class="builtin">print</span>(<span class="string">"📝 MASUKKAN DATA"</span>)
+    <span class="builtin">print</span>(<span class="string">"-"</span> <span class="operator">*</span> <span class="number">20</span>)
+    
+    <span class="comment"># Input jumlah data</span>
+    <span class="keyword">while</span> <span class="builtin">True</span>:
+        <span class="keyword">try</span>:
+            <span class="variable">n</span> <span class="operator">=</span> <span class="builtin">int</span>(<span class="builtin">input</span>(<span class="string">"Berapa jumlah data yang ingin dimasukkan? "</span>))
+            <span class="keyword">if</span> <span class="variable">n</span> <span class="operator">></span> <span class="number">0</span> <span class="keyword">and</span> <span class="variable">n</span> <span class="operator"><=</span> <span class="number">1000</span>:
+                <span class="keyword">break</span>
+            <span class="keyword">elif</span> <span class="variable">n</span> <span class="operator">></span> <span class="number">1000</span>:
+                <span class="builtin">print</span>(<span class="string">"❌ Maksimal 1000 data untuk demo ini!"</span>)
+            <span class="keyword">else</span>:
+                <span class="builtin">print</span>(<span class="string">"❌ Jumlah data harus lebih dari 0!"</span>)
+        <span class="keyword">except</span> <span class="builtin">ValueError</span>:
+            <span class="builtin">print</span>(<span class="string">"❌ Masukkan angka yang valid!"</span>)
+    
+    <span class="comment"># Input data satu per satu</span>
+    <span class="variable">data</span> <span class="operator">=</span> []
+    <span class="builtin">print</span>(<span class="string">f"\nMasukkan {n} data:"</span>)
+    <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="builtin">range</span>(<span class="variable">n</span>):
+        <span class="keyword">while</span> <span class="builtin">True</span>:
+            <span class="keyword">try</span>:
+                <span class="variable">nilai</span> <span class="operator">=</span> <span class="builtin">int</span>(<span class="builtin">input</span>(<span class="string">f"Data ke-{i+1}: "</span>))
+                <span class="variable">data</span>.<span class="function">append</span>(<span class="variable">nilai</span>)
+                <span class="keyword">break</span>
+            <span class="keyword">except</span> <span class="builtin">ValueError</span>:
+                <span class="builtin">print</span>(<span class="string">"❌ Masukkan angka yang valid!"</span>)
+    
+    <span class="keyword">return</span> <span class="variable">data</span>
+
+<span class="comment"># Fungsi untuk input nilai yang dicari</span>
+<span class="keyword">def</span> <span class="function">input_target</span>():
+    <span class="builtin">print</span>(<span class="string">"\n🎯 NILAI YANG DICARI"</span>)
+    <span class="builtin">print</span>(<span class="string">"-"</span> <span class="operator">*</span> <span class="number">20</span>)
+    
+    <span class="keyword">while</span> <span class="builtin">True</span>:
+        <span class="keyword">try</span>:
+            <span class="variable">target</span> <span class="operator">=</span> <span class="builtin">int</span>(<span class="builtin">input</span>(<span class="string">"Masukkan nilai yang ingin dicari: "</span>))
+            <span class="keyword">return</span> <span class="variable">target</span>
+        <span class="keyword">except</span> <span class="builtin">ValueError</span>:
+            <span class="builtin">print</span>(<span class="string">"❌ Masukkan angka yang valid!"</span>)</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 shadow-xl mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                        <i class="fas fa-play text-green-500"></i>
+                        Langkah 4: Program Utama
+                    </h3>
+                    
+                    <div class="step-card">
+                        <h4 class="font-bold text-gray-800 mb-3">🚀 Jalankan Program</h4>
+                        <p class="text-gray-700 mb-4">Tambahkan program utama:</p>
+                        
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-file-code text-white"></i>
+                                <span class="text-white font-medium">Main Program</span>
+                            </div>
+                            <div class="code-content">
+<pre><code><span class="comment"># Program Utama</span>
+<span class="keyword">def</span> <span class="function">main</span>():
+    <span class="builtin">print</span>(<span class="string">"🎉 SELAMAT DATANG DI PROGRAM LINEAR SEARCH!"</span>)
+    <span class="builtin">print</span>(<span class="string">"="</span> <span class="operator">*</span> <span class="number">50</span>)
+    
+    <span class="keyword">while</span> <span class="builtin">True</span>:
+        <span class="builtin">print</span>(<span class="string">"\n📋 MENU:"</span>)
+        <span class="builtin">print</span>(<span class="string">"1. Mulai Pencarian Baru"</span>)
+        <span class="builtin">print</span>(<span class="string">"2. Keluar"</span>)
+        
+        <span class="variable">pilihan</span> <span class="operator">=</span> <span class="builtin">input</span>(<span class="string">"\nPilih menu (1/2): "</span>)
+        
+        <span class="keyword">if</span> <span class="variable">pilihan</span> <span class="operator">==</span> <span class="string">"1"</span>:
+            <span class="comment"># Input data dari user</span>
+            <span class="variable">data</span> <span class="operator">=</span> <span class="function">input_data</span>()
+            <span class="variable">target</span> <span class="operator">=</span> <span class="function">input_target</span>()
+            
+            <span class="builtin">print</span>(<span class="string">"\n"</span> <span class="operator">+</span> <span class="string">"="</span> <span class="operator">*</span> <span class="number">50</span>)
+            <span class="builtin">print</span>(<span class="string">"🔍 PROSES PENCARIAN DIMULAI!"</span>)
+            <span class="builtin">print</span>(<span class="string">"="</span> <span class="operator">*</span> <span class="number">50</span>)
+            
+            <span class="comment"># Lakukan pencarian</span>
+            <span class="variable">hasil</span> <span class="operator">=</span> <span class="function">linear_search</span>(<span class="variable">data</span>, <span class="variable">target</span>)
+            
+            <span class="builtin">print</span>(<span class="string">"\n"</span> <span class="operator">+</span> <span class="string">"="</span> <span class="operator">*</span> <span class="number">50</span>)
+            <span class="builtin">print</span>(<span class="string">"📊 HASIL PENCARIAN:"</span>)
+            <span class="keyword">if</span> <span class="variable">hasil</span> <span class="operator">!=</span> <span class="number">-1</span>:
+                <span class="builtin">print</span>(<span class="string">f"✅ Nilai {target} ditemukan di posisi indeks {hasil}"</span>)
+                <span class="builtin">print</span>(<span class="string">f"📍 Posisi ke-{hasil + 1} dalam urutan data"</span>)
+            <span class="keyword">else</span>:
+                <span class="builtin">print</span>(<span class="string">f"❌ Nilai {target} tidak ditemukan dalam data"</span>)
+            <span class="builtin">print</span>(<span class="string">"="</span> <span class="operator">*</span> <span class="number">50</span>)
+            
+        <span class="keyword">elif</span> <span class="variable">pilihan</span> <span class="operator">==</span> <span class="string">"2"</span>:
+            <span class="builtin">print</span>(<span class="string">"\n👋 Terima kasih telah belajar Linear Search!"</span>)
+            <span class="builtin">print</span>(<span class="string">"🎓 Semoga ilmunya bermanfaat!"</span>)
+            <span class="keyword">break</span>
+        <span class="keyword">else</span>:
+            <span class="builtin">print</span>(<span class="string">"❌ Pilihan tidak valid! Pilih 1 atau 2."</span>)
+
+<span class="comment"># Jalankan program</span>
+<span class="keyword">if</span> <span class="variable">__name__</span> <span class="operator">==</span> <span class="string">"__main__"</span>:
+    <span class="function">main</span>()</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-xl mb-8">
+                    <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-lightbulb text-yellow-500"></i>
+                        Tips Menjalankan Program
+                    </h4>
+                    <div class="space-y-3 text-gray-700">
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                            <span>Simpan file dengan ekstensi <code class="bg-gray-100 px-2 py-1 rounded">.py</code></span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                            <span>Buka terminal/command prompt di folder file tersebut</span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                            <span>Jalankan dengan perintah: <code class="bg-gray-100 px-2 py-1 rounded">python linear_search_praktik.py</code></span>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                            <span>Ikuti instruksi yang muncul di layar</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                        <h5 class="font-bold text-yellow-800 mb-2">🔧 Troubleshooting</h5>
+                        <ul class="text-sm text-yellow-700 space-y-1">
+                            <li>• Jika error "python not found", coba <code class="bg-yellow-100 px-1 rounded">python3</code></li>
+                            <li>• Pastikan Python sudah terinstall di komputer</li>
+                            <li>• Cek indentasi (spasi) pada kode Python harus konsisten</li>
+                            <li>• Jika ada error syntax, periksa tanda kurung dan kutip</li>
                         </ul>
                     </div>
-                    
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-red-600 mb-4 flex items-center">
-                            <span class="mr-3">🏗️</span>
-                            Langkah 1: Buat Class Buku
-                        </h3>
-                        
-                        <div class="code-block">
-                            <div class="file-label">📄 buku.py</div>
-                            <div class="code-content">class Buku:
-    """Class untuk merepresentasikan data buku"""
-    
-    def __init__(self, id, judul, pengarang, tahun):
-        """
-        Constructor untuk membuat objek Buku
-        id: nomor ID buku (integer)
-        judul: judul buku (string)
-        pengarang: nama pengarang (string)
-        tahun: tahun terbit (integer)
-        """
-        self.id = id
-        self.judul = judul
-        self.pengarang = pengarang
-        self.tahun = tahun
-    
-    # Getter methods (properties)
-    def get_id(self):
-        return self.id
-    
-    def get_judul(self):
-        return self.judul
-    
-    def get_pengarang(self):
-        return self.pengarang
-    
-    def get_tahun(self):
-        return self.tahun
-    
-    def tampilkan_info(self):
-        """Method untuk menampilkan informasi buku"""
-        print(f"📖 ID: {self.id} | Judul: {self.judul} | Pengarang: {self.pengarang} | Tahun: {self.tahun}")</div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-orange-600 to-red-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                        Lanjut Praktik Binary Search! <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Praktik Binary Search Section -->
+            <div id="praktik-binary" class="section hidden">
+                <div class="interactive-card mb-8">
+                    <div class="flex items-center gap-4 mb-4">
+                        <i class="fas fa-laptop-code text-4xl"></i>
+                        <div>
+                            <h2 class="text-3xl font-bold">Praktik Binary Search ⚡</h2>
+                            <p class="text-red-100">Implementasi algoritma pencarian super cepat!</p>
                         </div>
                     </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 shadow-xl mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                        <i class="fas fa-play-circle text-green-500"></i>
+                        Langkah 1: Setup Project Binary Search
+                    </h3>
                     
                     <div class="step-card">
-                        <h3 class="text-2xl font-bold text-red-600 mb-4 flex items-center">
-                            <span class="mr-3">🔍</span>
-                            Langkah 2: Buat Class Sistem Perpustakaan
-                        </h3>
+                        <h4 class="font-bold text-gray-800 mb-3">📁 Buat File Baru</h4>
+                        <p class="text-gray-700 mb-4">Buat file Python baru dengan nama <code class="bg-gray-100 px-2 py-1 rounded">binary_search_praktik.py</code></p>
                         
                         <div class="code-block">
-                            <div class="file-label">📄 sistem_perpustakaan.py</div>
-                            <div class="code-content">from buku import Buku
-
-class SistemPerpustakaan:
-    """Class untuk mengelola sistem perpustakaan"""
-    
-    def __init__(self, kapasitas):
-        """
-        Constructor untuk sistem perpustakaan
-        kapasitas: maksimal jumlah buku yang bisa disimpan
-        """
-        self.daftar_buku = []
-        self.kapasitas = kapasitas
-    
-    def tambah_buku(self, buku):
-        """Method untuk menambah buku ke perpustakaan"""
-        if len(self.daftar_buku) < self.kapasitas:
-            self.daftar_buku.append(buku)
-            print("✅ Buku berhasil ditambahkan!")
-        else:
-            print("❌ Perpustakaan sudah penuh!")
-    
-    def cari_berdasarkan_id(self, id):
-        """Binary Search berdasarkan ID (data harus terurut)"""
-        print(f"🔍 Mencari buku dengan ID: {id}")
-        print("⚡ Menggunakan Binary Search...")
-        
-        # Urutkan list berdasarkan ID terlebih dahulu (syarat binary search)
-        self.daftar_buku.sort(key=lambda buku: buku.get_id())
-        
-        left = 0
-        right = len(self.daftar_buku) - 1
-        step = 1
-        
-        while left <= right:
-            mid = left + (right - left) // 2
-            
-            print(f"Step {step}: Memeriksa ID {self.daftar_buku[mid].get_id()} di index {mid}")
-            
-            if self.daftar_buku[mid].get_id() == id:
-                print("✅ Buku ditemukan!")
-                return self.daftar_buku[mid]
-            
-            if self.daftar_buku[mid].get_id() > id:
-                print("ID target lebih kecil, cari di bagian kiri")
-                right = mid - 1
-            else:
-                print("ID target lebih besar, cari di bagian kanan")
-                left = mid + 1
-            
-            step += 1
-        
-        print("❌ Buku tidak ditemukan")
-        return None
-    
-    def cari_berdasarkan_judul(self, judul):
-        """Linear Search berdasarkan judul"""
-        print(f"🔍 Mencari buku dengan judul: {judul}")
-        print("🔍 Menggunakan Linear Search...")
-        
-        for i, buku in enumerate(self.daftar_buku):
-            print(f"Memeriksa: {buku.get_judul()}")
-            
-            if buku.get_judul().lower() == judul.lower():
-                print("✅ Buku ditemukan!")
-                return buku
-        
-        print("❌ Buku tidak ditemukan")
-        return None
-    
-    def cari_berdasarkan_pengarang(self, pengarang):
-        """Linear Search berdasarkan pengarang"""
-        print(f"🔍 Mencari buku karya: {pengarang}")
-        print("🔍 Menggunakan Linear Search...")
-        
-        ditemukan = False
-        
-        for buku in self.daftar_buku:
-            if buku.get_pengarang().lower() == pengarang.lower():
-                if not ditemukan:
-                    print("✅ Buku-buku ditemukan:")
-                    ditemukan = True
-                buku.tampilkan_info()
-        
-        if not ditemukan:
-            print("❌ Tidak ada buku dari pengarang tersebut")
-    
-    def tampilkan_semua_buku(self):
-        """Method untuk menampilkan semua buku"""
-        print("\n📚 DAFTAR SEMUA BUKU:")
-        print("=" * 50)
-        
-        if len(self.daftar_buku) == 0:
-            print("Perpustakaan masih kosong")
-            return
-        
-        for buku in self.daftar_buku:
-            buku.tampilkan_info()</div>
-                        </div>
-                    </div>
-                    
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-red-600 mb-4 flex items-center">
-                            <span class="mr-3">🎮</span>
-                            Langkah 3: Buat Main Program
-                        </h3>
-                        
-                        <div class="code-block">
-                            <div class="file-label">📄 main_perpustakaan.py</div>
-                            <div class="code-content">import time
-from buku import Buku
-from sistem_perpustakaan import SistemPerpustakaan
-
-def main():
-    """Program utama sistem perpustakaan"""
-    perpus = SistemPerpustakaan(100)
-    
-    # Inisialisasi data buku contoh
-    perpus.tambah_buku(Buku(101, "Pemrograman Python", "Budi Santoso", 2020))
-    perpus.tambah_buku(Buku(205, "Algoritma dan Struktur Data", "Siti Aminah", 2019))
-    perpus.tambah_buku(Buku(150, "Database MySQL", "Ahmad Rahman", 2021))
-    perpus.tambah_buku(Buku(300, "Web Development", "Lisa Wijaya", 2022))
-    perpus.tambah_buku(Buku(175, "Mobile Programming", "Budi Santoso", 2023))
-    
-    print("🏛️  SISTEM PERPUSTAKAAN DIGITAL 🏛️")
-    print("=====================================")
-    
-    while True:
-        print("\n📋 MENU UTAMA:")
-        print("1. 🔢 Cari berdasarkan ID Buku")
-        print("2. 📖 Cari berdasarkan Judul")
-        print("3. 👤 Cari berdasarkan Pengarang")
-        print("4. 📚 Tampilkan semua buku")
-        print("5. ➕ Tambah buku baru")
-        print("6. 🚪 Keluar")
-        
-        try:
-            pilihan = int(input("\nPilihan Anda (1-6): "))
-            
-            print("\n" + "=" * 50)
-            
-            if pilihan == 1:
-                id_buku = int(input("Masukkan ID buku: "))
-                
-                start_time = time.time()
-                buku_by_id = perpus.cari_berdasarkan_id(id_buku)
-                end_time = time.time()
-                
-                if buku_by_id is not None:
-                    buku_by_id.tampilkan_info()
-                duration = (end_time - start_time) * 1000000000
-                print(f"⏱️  Waktu: {duration:.0f} ns")
-                
-            elif pilihan == 2:
-                judul = input("Masukkan judul buku: ")
-                
-                start_time = time.time()
-                buku_by_judul = perpus.cari_berdasarkan_judul(judul)
-                end_time = time.time()
-                
-                if buku_by_judul is not None:
-                    buku_by_judul.tampilkan_info()
-                duration = (end_time - start_time) * 1000000000
-                print(f"⏱️  Waktu: {duration:.0f} ns")
-                
-            elif pilihan == 3:
-                pengarang = input("Masukkan nama pengarang: ")
-                
-                start_time = time.time()
-                perpus.cari_berdasarkan_pengarang(pengarang)
-                end_time = time.time()
-                
-                duration = (end_time - start_time) * 1000000000
-                print(f"⏱️  Waktu: {duration:.0f} ns")
-                
-            elif pilihan == 4:
-                perpus.tampilkan_semua_buku()
-                
-            elif pilihan == 5:
-                new_id = int(input("ID buku: "))
-                new_judul = input("Judul: ")
-                new_pengarang = input("Pengarang: ")
-                new_tahun = int(input("Tahun: "))
-                
-                perpus.tambah_buku(Buku(new_id, new_judul, new_pengarang, new_tahun))
-                
-            elif pilihan == 6:
-                print("👋 Terima kasih telah menggunakan sistem perpustakaan!")
-                break
-                
-            else:
-                print("❌ Pilihan tidak valid!")
-                
-        except ValueError:
-            print("❌ Masukkan angka yang valid!")
-        except KeyboardInterrupt:
-            print("\n👋 Program dihentikan oleh user.")
-            break
-        except Exception as e:
-            print(f"❌ Terjadi kesalahan: {e}")
-
-# Jalankan program utama
-if __name__ == "__main__":
-    main()</div>
-                        </div>
-                    </div>
-                    
-                    <div class="step-card">
-                        <h3 class="text-2xl font-bold text-red-600 mb-4 flex items-center">
-                            <span class="mr-3">🎯</span>
-                            Analisis Performa
-                        </h3>
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div class="bg-blue-50 p-4 rounded-lg">
-                                <h4 class="font-bold text-blue-800 mb-2">🔢 Pencarian berdasarkan ID</h4>
-                                <p class="text-sm text-gray-700">Menggunakan <strong>Binary Search</strong> karena ID berupa angka yang bisa diurutkan. Sangat efisien untuk data besar!</p>
+                            <div class="code-header">
+                                <i class="fas fa-file-code text-white"></i>
+                                <span class="text-white font-medium">binary_search_praktik.py</span>
                             </div>
-                            <div class="bg-green-50 p-4 rounded-lg">
-                                <h4 class="font-bold text-green-800 mb-2">📖 Pencarian berdasarkan Judul/Pengarang</h4>
-                                <p class="text-sm text-gray-700">Menggunakan <strong>Linear Search</strong> karena string sulit diurutkan dan kita perlu pencarian yang fleksibel.</p>
+                            <div class="code-content">
+<pre><code><span class="comment"># Praktik Binary Search - SMK Programming</span>
+<span class="comment"># Nama: [Isi nama kamu]</span>
+<span class="comment"># Kelas: [Isi kelas kamu]</span>
+
+<span class="builtin">print</span>(<span class="string">"=== PRAKTIK BINARY SEARCH ==="</span>)
+<span class="builtin">print</span>(<span class="string">"Algoritma pencarian super cepat untuk data terurut!"</span>)
+<span class="builtin">print</span>()</code></pre>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 shadow-xl mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                        <i class="fas fa-cogs text-blue-500"></i>
+                        Langkah 2: Implementasi Binary Search
+                    </h3>
+                    
+                    <div class="step-card">
+                        <h4 class="font-bold text-gray-800 mb-3">🔧 Buat Fungsi Binary Search</h4>
+                        <p class="text-gray-700 mb-4">Implementasi dengan visualisasi proses:</p>
+                        
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-file-code text-white"></i>
+                                <span class="text-white font-medium">Fungsi Binary Search</span>
+                            </div>
+                            <div class="code-content">
+<pre><code><span class="keyword">def</span> <span class="function">binary_search</span>(<span class="variable">data_list</span>, <span class="variable">target</span>):
+    <span class="string">"""
+    Fungsi untuk melakukan pencarian binary
+    
+    Parameter:
+    - data_list: list berisi data yang sudah terurut
+    - target: nilai yang ingin dicari
+    
+    Return:
+    - indeks jika ditemukan
+    - -1 jika tidak ditemukan
+    """</span>
+    <span class="builtin">print</span>(<span class="string">f"🔍 Mencari nilai: {target}"</span>)
+    <span class="builtin">print</span>(<span class="string">f"📊 Data terurut: {data_list}"</span>)
+    <span class="builtin">print</span>(<span class="string">"="</span> <span class="operator">*</span> <span class="number">50</span>)
+    
+    <span class="variable">left</span> <span class="operator">=</span> <span class="number">0</span>
+    <span class="variable">right</span> <span class="operator">=</span> <span class="builtin">len</span>(<span class="variable">data_list</span>) <span class="operator">-</span> <span class="number">1</span>
+    <span class="variable">langkah</span> <span class="operator">=</span> <span class="number">1</span>
+    
+    <span class="keyword">while</span> <span class="variable">left</span> <span class="operator"><=</span> <span class="variable">right</span>:
+        <span class="variable">mid</span> <span class="operator">=</span> (<span class="variable">left</span> <span class="operator">+</span> <span class="variable">right</span>) <span class="operator">//</span> <span class="number">2</span>
+        
+        <span class="builtin">print</span>(<span class="string">f"\n🔄 Langkah {langkah}:"</span>)
+        <span class="builtin">print</span>(<span class="string">f"   Left: {left}, Right: {right}, Mid: {mid}"</span>)
+        <span class="builtin">print</span>(<span class="string">f"   Nilai di mid ({mid}): {data_list[mid]}"</span>)
+        
+        <span class="keyword">if</span> <span class="variable">data_list</span>[<span class="variable">mid</span>] <span class="operator">==</span> <span class="variable">target</span>:
+            <span class="builtin">print</span>(<span class="string">f"✅ DITEMUKAN! Nilai {target} ada di indeks {mid}"</span>)
+            <span class="keyword">return</span> <span class="variable">mid</span>
+        <span class="keyword">elif</span> <span class="variable">data_list</span>[<span class="variable">mid</span>] <span class="operator">></span> <span class="variable">target</span>:
+            <span class="builtin">print</span>(<span class="string">f"   {data_list[mid]} > {target}, cari di bagian KIRI"</span>)
+            <span class="variable">right</span> <span class="operator">=</span> <span class="variable">mid</span> <span class="operator">-</span> <span class="number">1</span>
+        <span class="keyword">else</span>:
+            <span class="builtin">print</span>(<span class="string">f"   {data_list[mid]} < {target}, cari di bagian KANAN"</span>)
+            <span class="variable">left</span> <span class="operator">=</span> <span class="variable">mid</span> <span class="operator">+</span> <span class="number">1</span>
+        
+        <span class="variable">langkah</span> <span class="operator">+=</span> <span class="number">1</span>
+    
+    <span class="builtin">print</span>(<span class="string">f"\n❌ Nilai {target} tidak ditemukan dalam data"</span>)
+    <span class="keyword">return</span> <span class="number">-1</span></code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 shadow-xl mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                        <i class="fas fa-sort text-purple-500"></i>
+                        Langkah 3: Fungsi Pengurutan Data
+                    </h3>
+                    
+                    <div class="step-card">
+                        <h4 class="font-bold text-gray-800 mb-3">📊 Sorting Data</h4>
+                        <p class="text-gray-700 mb-4">Binary search butuh data terurut, jadi kita buat fungsi untuk mengurutkan:</p>
+                        
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-file-code text-white"></i>
+                                <span class="text-white font-medium">Sorting Function</span>
+                            </div>
+                            <div class="code-content">
+<pre><code><span class="keyword">def</span> <span class="function">urutkan_data</span>(<span class="variable">data</span>):
+    <span class="string">"""
+    Fungsi untuk mengurutkan data menggunakan built-in sort
+    """</span>
+    <span class="variable">data_asli</span> <span class="operator">=</span> <span class="variable">data</span>.<span class="function">copy</span>()
+    <span class="variable">data</span>.<span class="function">sort</span>()
+    
+    <span class="builtin">print</span>(<span class="string">"📊 PROSES PENGURUTAN DATA:"</span>)
+    <span class="builtin">print</span>(<span class="string">f"   Data asli: {data_asli}"</span>)
+    <span class="builtin">print</span>(<span class="string">f"   Data terurut: {data}"</span>)
+    <span class="builtin">print</span>(<span class="string">"✅ Data berhasil diurutkan!"</span>)
+    
+    <span class="keyword">return</span> <span class="variable">data</span>
+
+<span class="comment"># Fungsi untuk input data dari user</span>
+<span class="keyword">def</span> <span class="function">input_data</span>():
+    <span class="builtin">print</span>(<span class="string">"📝 MASUKKAN DATA"</span>)
+    <span class="builtin">print</span>(<span class="string">"-"</span> <span class="operator">*</span> <span class="number">20</span>)
+    
+    <span class="comment"># Input jumlah data</span>
+    <span class="keyword">while</span> <span class="builtin">True</span>:
+        <span class="keyword">try</span>:
+            <span class="variable">n</span> <span class="operator">=</span> <span class="builtin">int</span>(<span class="builtin">input</span>(<span class="string">"Berapa jumlah data yang ingin dimasukkan? "</span>))
+            <span class="keyword">if</span> <span class="variable">n</span> <span class="operator">></span> <span class="number">0</span> <span class="keyword">and</span> <span class="variable">n</span> <span class="operator"><=</span> <span class="number">1000</span>:
+                <span class="keyword">break</span>
+            <span class="keyword">elif</span> <span class="variable">n</span> <span class="operator">></span> <span class="number">1000</span>:
+                <span class="builtin">print</span>(<span class="string">"❌ Maksimal 1000 data untuk demo ini!"</span>)
+            <span class="keyword">else</span>:
+                <span class="builtin">print</span>(<span class="string">"❌ Jumlah data harus lebih dari 0!"</span>)
+        <span class="keyword">except</span> <span class="builtin">ValueError</span>:
+            <span class="builtin">print</span>(<span class="string">"❌ Masukkan angka yang valid!"</span>)
+    
+    <span class="comment"># Input data satu per satu</span>
+    <span class="variable">data</span> <span class="operator">=</span> []
+    <span class="builtin">print</span>(<span class="string">f"\nMasukkan {n} data (tidak perlu urut):"</span>)
+    <span class="keyword">for</span> <span class="variable">i</span> <span class="keyword">in</span> <span class="builtin">range</span>(<span class="variable">n</span>):
+        <span class="keyword">while</span> <span class="builtin">True</span>:
+            <span class="keyword">try</span>:
+                <span class="variable">nilai</span> <span class="operator">=</span> <span class="builtin">int</span>(<span class="builtin">input</span>(<span class="string">f"Data ke-{i+1}: "</span>))
+                <span class="variable">data</span>.<span class="function">append</span>(<span class="variable">nilai</span>)
+                <span class="keyword">break</span>
+            <span class="keyword">except</span> <span class="builtin">ValueError</span>:
+                <span class="builtin">print</span>(<span class="string">"❌ Masukkan angka yang valid!"</span>)
+    
+    <span class="keyword">return</span> <span class="variable">data</span>
+
+<span class="comment"># Fungsi untuk input nilai yang dicari</span>
+<span class="keyword">def</span> <span class="function">input_target</span>():
+    <span class="builtin">print</span>(<span class="string">"\n🎯 NILAI YANG DICARI"</span>)
+    <span class="builtin">print</span>(<span class="string">"-"</span> <span class="operator">*</span> <span class="number">20</span>)
+    
+    <span class="keyword">while</span> <span class="builtin">True</span>:
+        <span class="keyword">try</span>:
+            <span class="variable">target</span> <span class="operator">=</span> <span class="builtin">int</span>(<span class="builtin">input</span>(<span class="string">"Masukkan nilai yang ingin dicari: "</span>))
+            <span class="keyword">return</span> <span class="variable">target</span>
+        <span class="keyword">except</span> <span class="builtin">ValueError</span>:
+            <span class="builtin">print</span>(<span class="string">"❌ Masukkan angka yang valid!"</span>)</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-2xl p-8 shadow-xl mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                        <i class="fas fa-play text-green-500"></i>
+                        Langkah 4: Program Utama Binary Search
+                    </h3>
+                    
+                    <div class="step-card">
+                        <h4 class="font-bold text-gray-800 mb-3">🚀 Main Program dengan Menu</h4>
+                        <p class="text-gray-700 mb-4">Program utama yang lengkap:</p>
+                        
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-file-code text-white"></i>
+                                <span class="text-white font-medium">Main Program</span>
+                            </div>
+                            <div class="code-content">
+<pre><code><span class="comment"># Program Utama</span>
+<span class="keyword">def</span> <span class="function">main</span>():
+    <span class="builtin">print</span>(<span class="string">"🎉 SELAMAT DATANG DI PROGRAM BINARY SEARCH!"</span>)
+    <span class="builtin">print</span>(<span class="string">"="</span> <span class="operator">*</span> <span class="number">55</span>)
+    <span class="builtin">print</span>(<span class="string">"💡 Binary Search adalah algoritma pencarian super cepat!"</span>)
+    <span class="builtin">print</span>(<span class="string">"⚠️  Syarat: Data harus terurut (akan diurutkan otomatis)"</span>)
+    
+    <span class="keyword">while</span> <span class="builtin">True</span>:
+        <span class="builtin">print</span>(<span class="string">"\n📋 MENU:"</span>)
+        <span class="builtin">print</span>(<span class="string">"1. Mulai Pencarian Binary Search"</span>)
+        <span class="builtin">print</span>(<span class="string">"2. Demo dengan Data Contoh"</span>)
+        <span class="builtin">print</span>(<span class="string">"3. Keluar"</span>)
+        
+        <span class="variable">pilihan</span> <span class="operator">=</span> <span class="builtin">input</span>(<span class="string">"\nPilih menu (1/2/3): "</span>)
+        
+        <span class="keyword">if</span> <span class="variable">pilihan</span> <span class="operator">==</span> <span class="string">"1"</span>:
+            <span class="comment"># Input data dari user</span>
+            <span class="variable">data</span> <span class="operator">=</span> <span class="function">input_data</span>()
+            
+            <span class="comment"># Urutkan data terlebih dahulu</span>
+            <span class="builtin">print</span>(<span class="string">"\n"</span> <span class="operator">+</span> <span class="string">"="</span> <span class="operator">*</span> <span class="number">50</span>)
+            <span class="variable">data_terurut</span> <span class="operator">=</span> <span class="function">urutkan_data</span>(<span class="variable">data</span>)
+            
+            <span class="comment"># Input target</span>
+            <span class="variable">target</span> <span class="operator">=</span> <span class="function">input_target</span>()
+            
+            <span class="builtin">print</span>(<span class="string">"\n"</span> <span class="operator">+</span> <span class="string">"="</span> <span class="operator">*</span> <span class="number">50</span>)
+            <span class="builtin">print</span>(<span class="string">"🔍 PROSES BINARY SEARCH DIMULAI!"</span>)
+            <span class="builtin">print</span>(<span class="string">"="</span> <span class="operator">*</span> <span class="number">50</span>)
+            
+            <span class="comment"># Lakukan pencarian</span>
+            <span class="variable">hasil</span> <span class="operator">=</span> <span class="function">binary_search</span>(<span class="variable">data_terurut</span>, <span class="variable">target</span>)
+            
+            <span class="builtin">print</span>(<span class="string">"\n"</span> <span class="operator">+</span> <span class="string">"="</span> <span class="operator">*</span> <span class="number">50</span>)
+            <span class="builtin">print</span>(<span class="string">"📊 HASIL PENCARIAN:"</span>)
+            <span class="keyword">if</span> <span class="variable">hasil</span> <span class="operator">!=</span> <span class="number">-1</span>:
+                <span class="builtin">print</span>(<span class="string">f"✅ Nilai {target} ditemukan di posisi indeks {hasil}"</span>)
+                <span class="builtin">print</span>(<span class="string">f"📍 Posisi ke-{hasil + 1} dalam data terurut"</span>)
+            <span class="keyword">else</span>:
+                <span class="builtin">print</span>(<span class="string">f"❌ Nilai {target} tidak ditemukan dalam data"</span>)
+            <span class="builtin">print</span>(<span class="string">"="</span> <span class="operator">*</span> <span class="number">50</span>)
+            
+        <span class="keyword">elif</span> <span class="variable">pilihan</span> <span class="operator">==</span> <span class="string">"2"</span>:
+            <span class="comment"># Demo dengan data contoh</span>
+            <span class="builtin">print</span>(<span class="string">"\n🎯 DEMO BINARY SEARCH"</span>)
+            <span class="builtin">print</span>(<span class="string">"="</span> <span class="operator">*</span> <span class="number">30</span>)
+            
+            <span class="variable">data_demo</span> <span class="operator">=</span> [<span class="number">64</span>, <span class="number">34</span>, <span class="number">25</span>, <span class="number">12</span>, <span class="number">22</span>, <span class="number">11</span>, <span class="number">90</span>, <span class="number">88</span>, <span class="number">76</span>, <span class="number">50</span>, <span class="number">42</span>]
+            <span class="builtin">print</span>(<span class="string">f"Data contoh: {data_demo}"</span>)
+            
+            <span class="variable">data_terurut</span> <span class="operator">=</span> <span class="function">urutkan_data</span>(<span class="variable">data_demo</span>)
+            <span class="variable">target_demo</span> <span class="operator">=</span> <span class="number">25</span>
+            
+            <span class="builtin">print</span>(<span class="string">f"\n🎯 Mencari nilai: {target_demo}"</span>)
+            <span class="builtin">print</span>(<span class="string">"="</span> <span class="operator">*</span> <span class="number">50</span>)
+            
+            <span class="variable">hasil</span> <span class="operator">=</span> <span class="function">binary_search</span>(<span class="variable">data_terurut</span>, <span class="variable">target_demo</span>)
+            
+            <span class="builtin">print</span>(<span class="string">"\n"</span> <span class="operator">+</span> <span class="string">"="</span> <span class="operator">*</span> <span class="number">50</span>)
+            <span class="builtin">print</span>(<span class="string">"📊 HASIL DEMO:"</span>)
+            <span class="keyword">if</span> <span class="variable">hasil</span> <span class="operator">!=</span> <span class="number">-1</span>:
+                <span class="builtin">print</span>(<span class="string">f"✅ Nilai {target_demo} ditemukan di indeks {hasil}"</span>)
+            <span class="builtin">print</span>(<span class="string">"="</span> <span class="operator">*</span> <span class="number">50</span>)
+            
+        <span class="keyword">elif</span> <span class="variable">pilihan</span> <span class="operator">==</span> <span class="string">"3"</span>:
+            <span class="builtin">print</span>(<span class="string">"\n👋 Terima kasih telah belajar Binary Search!"</span>)
+            <span class="builtin">print</span>(<span class="string">"🎓 Algoritma ini sangat berguna untuk data besar!"</span>)
+            <span class="builtin">print</span>(<span class="string">"⚡ Kompleksitas waktu: O(log n) - Super cepat!"</span>)
+            <span class="keyword">break</span>
+        <span class="keyword">else</span>:
+            <span class="builtin">print</span>(<span class="string">"❌ Pilihan tidak valid! Pilih 1, 2, atau 3."</span>)
+
+<span class="comment"># Jalankan program</span>
+<span class="keyword">if</span> <span class="variable">__name__</span> <span class="operator">==</span> <span class="string">"__main__"</span>:
+    <span class="function">main</span>()</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-xl mb-8">
+                    <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-rocket text-purple-500"></i>
+                        Keunggulan Binary Search
+                    </h4>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-white p-4 rounded-lg">
+                            <h5 class="font-bold text-green-600 mb-2">✅ Kelebihan</h5>
+                            <ul class="text-sm space-y-1 text-gray-700">
+                                <li>• Sangat cepat untuk data besar</li>
+                                <li>• Kompleksitas O(log n)</li>
+                                <li>• Efisien dalam penggunaan memori</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg">
+                            <h5 class="font-bold text-red-600 mb-2">⚠️ Syarat</h5>
+                            <ul class="text-sm space-y-1 text-gray-700">
+                                <li>• Data harus sudah terurut</li>
+                                <li>• Tidak cocok untuk data yang sering berubah</li>
+                                <li>• Butuh waktu untuk sorting jika belum urut</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
                 
                 <div class="text-center">
-                    <div class="bg-gradient-to-r from-green-50 to-blue-50 p-8 rounded-2xl">
-                        <div class="text-6xl mb-4">🎉</div>
-                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Selamat!</h2>
-                        <p class="text-xl text-gray-600 mb-6">
-                            Kamu telah berhasil mempelajari algoritma pencarian dan membuat aplikasi nyata!
-                        </p>
-                        <div class="grid md:grid-cols-3 gap-4 text-center">
-                            <div class="bg-white p-4 rounded-lg shadow-sm">
-                                <div class="text-2xl mb-2">🔍</div>
-                                <p class="font-bold">Linear Search</p>
-                                <p class="text-sm text-gray-600">Sederhana & Fleksibel</p>
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-red-600 to-purple-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                        Lihat Perbandingan Algoritma! <i class="fas fa-chart-bar ml-2"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Perbandingan Section -->
+            <div id="perbandingan" class="section hidden">
+                <div class="interactive-card mb-8">
+                    <div class="flex items-center gap-4 mb-4">
+                        <i class="fas fa-chart-bar text-4xl"></i>
+                        <div>
+                            <h2 class="text-3xl font-bold">Perbandingan & Analisis 📊</h2>
+                            <p class="text-indigo-100">Linear Search vs Binary Search</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white rounded-2xl p-8 shadow-xl">
+                        <h3 class="text-2xl font-bold text-green-600 mb-6 flex items-center gap-3">
+                            <i class="fas fa-arrow-right"></i>
+                            Linear Search
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-green-800 mb-2">✅ Kelebihan</h4>
+                                <ul class="text-green-700 space-y-1 text-sm">
+                                    <li>• Sederhana dan mudah dipahami</li>
+                                    <li>• Tidak perlu data terurut</li>
+                                    <li>• Cocok untuk data kecil</li>
+                                    <li>• Implementasi mudah</li>
+                                </ul>
                             </div>
-                            <div class="bg-white p-4 rounded-lg shadow-sm">
-                                <div class="text-2xl mb-2">⚡</div>
-                                <p class="font-bold">Binary Search</p>
-                                <p class="text-sm text-gray-600">Cepat & Efisien</p>
+                            
+                            <div class="bg-red-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-red-800 mb-2">❌ Kekurangan</h4>
+                                <ul class="text-red-700 space-y-1 text-sm">
+                                    <li>• Lambat untuk data besar</li>
+                                    <li>• Kompleksitas O(n)</li>
+                                    <li>• Tidak efisien</li>
+                                </ul>
                             </div>
-                            <div class="bg-white p-4 rounded-lg shadow-sm">
-                                <div class="text-2xl mb-2">💻</div>
-                                <p class="font-bold">Aplikasi Nyata</p>
-                                <p class="text-sm text-gray-600">Sistem Perpustakaan</p>
+                            
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-blue-800 mb-2">🎯 Kapan Digunakan</h4>
+                                <ul class="text-blue-700 space-y-1 text-sm">
+                                    <li>• Data tidak terurut</li>
+                                    <li>• Jumlah data sedikit (< 100)</li>
+                                    <li>• Implementasi cepat</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl p-8 shadow-xl">
+                        <h3 class="text-2xl font-bold text-purple-600 mb-6 flex items-center gap-3">
+                            <i class="fas fa-divide"></i>
+                            Binary Search
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-green-800 mb-2">✅ Kelebihan</h4>
+                                <ul class="text-green-700 space-y-1 text-sm">
+                                    <li>• Sangat cepat O(log n)</li>
+                                    <li>• Efisien untuk data besar</li>
+                                    <li>• Menghemat waktu</li>
+                                    <li>• Algoritma optimal</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-red-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-red-800 mb-2">❌ Kekurangan</h4>
+                                <ul class="text-red-700 space-y-1 text-sm">
+                                    <li>• Butuh data terurut</li>
+                                    <li>• Lebih kompleks</li>
+                                    <li>• Overhead sorting</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-blue-800 mb-2">🎯 Kapan Digunakan</h4>
+                                <ul class="text-blue-700 space-y-1 text-sm">
+                                    <li>• Data sudah terurut</li>
+                                    <li>• Jumlah data besar (> 1000)</li>
+                                    <li>• Pencarian berulang</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
                 </div>
-            </section>
+                
+                <div class="bg-white rounded-2xl p-8 shadow-xl mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                        <i class="fas fa-stopwatch text-orange-500"></i>
+                        Perbandingan Kecepatan
+                    </h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                                    <th class="border p-4 text-left">Jumlah Data</th>
+                                    <th class="border p-4 text-center">Linear Search<br><small>(Worst Case)</small></th>
+                                    <th class="border p-4 text-center">Binary Search<br><small>(Worst Case)</small></th>
+                                    <th class="border p-4 text-center">Selisih</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-gray-50">
+                                    <td class="border p-4 font-medium">10 data</td>
+                                    <td class="border p-4 text-center">10 langkah</td>
+                                    <td class="border p-4 text-center">4 langkah</td>
+                                    <td class="border p-4 text-center text-green-600 font-bold">2.5x lebih cepat</td>
+                                </tr>
+                                <tr>
+                                    <td class="border p-4 font-medium">100 data</td>
+                                    <td class="border p-4 text-center">100 langkah</td>
+                                    <td class="border p-4 text-center">7 langkah</td>
+                                    <td class="border p-4 text-center text-green-600 font-bold">14x lebih cepat</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="border p-4 font-medium">1,000 data</td>
+                                    <td class="border p-4 text-center">1,000 langkah</td>
+                                    <td class="border p-4 text-center">10 langkah</td>
+                                    <td class="border p-4 text-center text-green-600 font-bold">100x lebih cepat</td>
+                                </tr>
+                                <tr>
+                                    <td class="border p-4 font-medium">1,000,000 data</td>
+                                    <td class="border p-4 text-center">1,000,000 langkah</td>
+                                    <td class="border p-4 text-center">20 langkah</td>
+                                    <td class="border p-4 text-center text-green-600 font-bold">50,000x lebih cepat!</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-blue-50">
+                                    <td colspan="4" class="border p-3 text-center text-sm text-blue-700">
+                                        <strong>Catatan:</strong> Perhitungan berdasarkan worst case scenario (data di posisi terakhir atau tidak ada)
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-8 rounded-2xl mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+                        <i class="fas fa-brain text-purple-500"></i>
+                        Kesimpulan & Tips
+                    </h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-xl">
+                            <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-lightbulb text-yellow-500"></i>
+                                Pilih Linear Search Jika:
+                            </h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check text-green-500 mt-1"></i>
+                                    <span>Data tidak terurut dan sulit diurutkan</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check text-green-500 mt-1"></i>
+                                    <span>Jumlah data sedikit (< 100)</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check text-green-500 mt-1"></i>
+                                    <span>Butuh implementasi cepat</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check text-green-500 mt-1"></i>
+                                    <span>Data sering berubah/ditambah</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl">
+                            <h4 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-rocket text-blue-500"></i>
+                                Pilih Binary Search Jika:
+                            </h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check text-green-500 mt-1"></i>
+                                    <span>Data sudah terurut atau bisa diurutkan</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check text-green-500 mt-1"></i>
+                                    <span>Jumlah data besar (> 1000)</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check text-green-500 mt-1"></i>
+                                    <span>Pencarian dilakukan berulang kali</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check text-green-500 mt-1"></i>
+                                    <span>Kecepatan adalah prioritas</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gradient-to-r from-green-500 to-blue-500 text-white p-8 rounded-2xl text-center">
+                    <h3 class="text-3xl font-bold mb-4">🎉 Selamat!</h3>
+                    <p class="text-xl mb-6">Kamu telah menyelesaikan pembelajaran Algoritma Pencarian!</p>
+                    <div class="grid md:grid-cols-3 gap-4 text-center">
+                        <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+                            <i class="fas fa-check-circle text-3xl mb-2"></i>
+                            <div class="font-bold">Linear Search</div>
+                            <div class="text-sm">Dikuasai ✅</div>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+                            <i class="fas fa-check-circle text-3xl mb-2"></i>
+                            <div class="font-bold">Binary Search</div>
+                            <div class="text-sm">Dikuasai ✅</div>
+                        </div>
+                        <div class="bg-white bg-opacity-20 p-4 rounded-lg">
+                            <i class="fas fa-check-circle text-3xl mb-2"></i>
+                            <div class="font-bold">Praktik Coding</div>
+                            <div class="text-sm">Selesai ✅</div>
+                        </div>
+                    </div>
+                    <p class="mt-6 text-lg">
+                        💡 Terus berlatih dan eksplorasi algoritma lainnya!<br>
+                        🚀 Kamu sudah siap untuk tantangan programming yang lebih besar!
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
-
+    
     <!-- Floating Back to Top Button -->
-    <button onclick="scrollToTop()" class="floating-btn">
-        ↑
+    <button id="backToTop" class="floating-btn bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 rounded-full shadow-lg hidden">
+        <i class="fas fa-arrow-up text-xl"></i>
     </button>
-
+    
     <script>
-        // Mobile menu toggle
+        // Current section tracking
+        let currentSection = 'pengenalan';
+        const sections = ['pengenalan', 'linear-search', 'binary-search', 'praktik-linear', 'praktik-binary', 'perbandingan'];
+        
+        // Mobile menu functionality
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+        
         mobileMenuBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('hidden');
+            sidebar.classList.toggle('-translate-x-full');
+            mobileMenuOverlay.classList.toggle('hidden');
         });
-
-        overlay.addEventListener('click', () => {
-            sidebar.classList.remove('open');
-            overlay.classList.add('hidden');
+        
+        mobileMenuOverlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            mobileMenuOverlay.classList.add('hidden');
         });
-
-        // Navigation
+        
+        // Show section function
         function showSection(sectionId) {
             // Hide all sections
-            const sections = document.querySelectorAll('.content-section');
-            sections.forEach(section => {
-                section.classList.remove('active');
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
             });
-
-            // Show selected section
-            document.getElementById(sectionId).classList.add('active');
-
-            // Update active nav button - perbaikan untuk mendeteksi button yang benar
-            const navButtons = document.querySelectorAll('.nav-btn');
-            navButtons.forEach(btn => {
-                btn.classList.remove('bg-blue-100', 'text-blue-600');
-                
-                // Cek apakah button ini yang diklik berdasarkan onclick attribute
-                const onclickAttr = btn.getAttribute('onclick');
-                if (onclickAttr && onclickAttr.includes(`'${sectionId}'`)) {
-                    btn.classList.add('bg-blue-100', 'text-blue-600');
-                }
-            });
-
+            
+            // Show target section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update current section
+            currentSection = sectionId;
+            
             // Close mobile menu
-            sidebar.classList.remove('open');
-            overlay.classList.add('hidden');
-
-            // Scroll to top dengan delay untuk memastikan section sudah berganti
-            setTimeout(() => {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            }, 100);
-        }
-
-        // Scroll to top function
-        function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
+            sidebar.classList.add('-translate-x-full');
+            mobileMenuOverlay.classList.add('hidden');
+            
+            // Scroll to top immediately
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            
+            // Update active menu item
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('bg-blue-100', 'text-blue-700');
+            });
+            
+            // Find and highlight the correct menu item
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                const onclick = item.getAttribute('onclick');
+                if (onclick && onclick.includes(`'${sectionId}'`)) {
+                    item.classList.add('bg-blue-100', 'text-blue-700');
+                }
             });
         }
-
-        // Linear Search Demo
-        function demoLinearSearch() {
-            const input = document.getElementById('linearSearchInput');
-            const result = document.getElementById('linearSearchResult');
-            const steps = document.getElementById('linearSearchSteps');
-            
-            const target = parseInt(input.value);
-            const array = [5, 2, 8, 1, 9, 3];
-            
-            if (isNaN(target)) {
-                alert('Masukkan angka yang valid!');
-                return;
-            }
-            
-            let stepsHtml = `<h5 class="font-bold mb-2">🔍 Proses Linear Search:</h5>`;
-            stepsHtml += `<p class="mb-2">Array: [${array.join(', ')}]</p>`;
-            stepsHtml += `<p class="mb-2">Mencari: ${target}</p><br>`;
-            
-            let found = false;
-            let foundIndex = -1;
-            
-            for (let i = 0; i < array.length; i++) {
-                stepsHtml += `<p class="mb-1">Step ${i + 1}: Memeriksa index ${i} → ${array[i]}`;
+        
+        // Next section function
+        function nextSection() {
+            const currentIndex = sections.indexOf(currentSection);
+            if (currentIndex < sections.length - 1) {
+                const nextSectionId = sections[currentIndex + 1];
+                showSection(nextSectionId);
                 
-                if (array[i] === target) {
-                    stepsHtml += ` <span class="highlight">✅ DITEMUKAN!</span></p>`;
-                    found = true;
-                    foundIndex = i;
-                    break;
-                } else {
-                    stepsHtml += ` ❌ Bukan yang dicari</p>`;
-                }
+                // Force scroll to top after a small delay to ensure DOM is updated
+                setTimeout(() => {
+                    window.scrollTo({ top: 0, behavior: 'auto' });
+                }, 50);
             }
-            
-            if (found) {
-                stepsHtml += `<br><p class="font-bold text-green-600">🎉 Data ${target} ditemukan di index ${foundIndex}!</p>`;
-            } else {
-                stepsHtml += `<br><p class="font-bold text-red-600">❌ Data ${target} tidak ditemukan dalam array.</p>`;
-            }
-            
-            steps.innerHTML = stepsHtml;
-            result.classList.remove('hidden');
         }
-
-        // Binary Search Demo
-        function demoBinarySearch() {
-            const input = document.getElementById('binarySearchInput');
-            const result = document.getElementById('binarySearchResult');
-            const steps = document.getElementById('binarySearchSteps');
-            
-            const target = parseInt(input.value);
-            const array = [1, 2, 3, 5, 8, 9];
-            
-            if (isNaN(target)) {
-                alert('Masukkan angka yang valid!');
-                return;
-            }
-            
-            let stepsHtml = `<h5 class="font-bold mb-2">⚡ Proses Binary Search:</h5>`;
-            stepsHtml += `<p class="mb-2">Array terurut: [${array.join(', ')}]</p>`;
-            stepsHtml += `<p class="mb-2">Mencari: ${target}</p><br>`;
-            
-            let left = 0;
-            let right = array.length - 1;
-            let step = 1;
-            let found = false;
-            let foundIndex = -1;
-            
-            while (left <= right) {
-                const mid = Math.floor((left + right) / 2);
-                
-                stepsHtml += `<p class="mb-1">Step ${step}: left=${left}, right=${right}, mid=${mid}`;
-                stepsHtml += `<br>Memeriksa array[${mid}] = ${array[mid]}`;
-                
-                if (array[mid] === target) {
-                    stepsHtml += ` <span class="highlight">✅ DITEMUKAN!</span></p>`;
-                    found = true;
-                    foundIndex = mid;
-                    break;
-                } else if (array[mid] > target) {
-                    stepsHtml += `<br>Target lebih kecil, cari di bagian kiri</p><br>`;
-                    right = mid - 1;
-                } else {
-                    stepsHtml += `<br>Target lebih besar, cari di bagian kanan</p><br>`;
-                    left = mid + 1;
-                }
-                
-                step++;
-            }
-            
-            if (found) {
-                stepsHtml += `<p class="font-bold text-green-600">🎉 Data ${target} ditemukan di index ${foundIndex}!</p>`;
+        
+        // Back to top functionality
+        const backToTopBtn = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.remove('hidden');
             } else {
-                stepsHtml += `<p class="font-bold text-red-600">❌ Data ${target} tidak ditemukan dalam array.</p>`;
+                backToTopBtn.classList.add('hidden');
             }
+        });
+        
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('pengenalan');
             
-            steps.innerHTML = stepsHtml;
-            result.classList.remove('hidden');
-        }
-
-        // Initialize first nav button as active
-        document.addEventListener('DOMContentLoaded', function() {
-            const firstNavBtn = document.querySelector('.nav-btn');
-            if (firstNavBtn) {
-                firstNavBtn.classList.add('bg-blue-100', 'text-blue-600');
+            // Highlight first menu item on load
+            const firstMenuItem = document.querySelector('.menu-item');
+            if (firstMenuItem) {
+                firstMenuItem.classList.add('bg-blue-100', 'text-blue-700');
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98989c5ed2b0aa09',t:'MTc1OTYyMjEzMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98a61ada710fb5e7',t:'MTc1OTc2MzYyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
