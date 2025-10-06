@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar Debugging Java NetBeans</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #ffeef8 0%, #f0f9ff 50%, #f0fdf4 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-btn:hover {
+            transform: translateY(-3px);
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .code-block {
+            background: #ffffff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 16px 0;
+            position: relative;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .code-block::before {
+            content: 'NetBeans IDE';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            height: 32px;
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            padding-left: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        .code-block pre {
+            margin-top: 24px;
+            font-size: 16px;
+            color: #2d3748;
+        }
+        
+        .java-keyword { color: #0066cc; font-weight: bold; }
+        .java-string { color: #008000; font-weight: 500; }
+        .java-comment { color: #666666; font-style: italic; }
+        .java-number { color: #cc6600; font-weight: 500; }
+        .java-type { color: #0066cc; font-weight: bold; }
+        .java-method { color: #7b68ee; font-weight: 500; }
+        .java-error { color: #dc2626; font-weight: bold; background-color: #fee2e2; padding: 1px 3px; border-radius: 3px; }
+        .java-correct { color: #059669; font-weight: bold; background-color: #d1fae5; padding: 1px 3px; border-radius: 3px; }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            transform: translateX(5px);
+        }
+        
+        .animate-bounce-slow {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+        }
+        
+        .nav-item.active span {
+            color: white;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenuOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden lg:hidden"></div>
+    
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-2xl z-50 transform -translate-x-full lg:translate-x-0 sidebar-transition">
+        <div class="p-6 bg-gradient-to-r from-pink-200 to-purple-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="text-4xl">🐛</div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">Debug Master</h1>
+                        <p class="text-sm text-gray-600">Java NetBeans</p>
+                    </div>
+                </div>
+                <button id="closeSidebar" class="lg:hidden text-gray-600 hover:text-gray-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <nav class="p-4 space-y-2 overflow-y-auto h-full pb-20">
+            <a href="#" onclick="showSection('intro')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-pink-50 transition-colors">
+                <span class="text-2xl">🚀</span>
+                <span class="font-medium text-gray-700 text-lg">Intro</span>
+            </a>
+            <a href="#" onclick="showSection('pengenalan')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-50 transition-colors">
+                <span class="text-2xl">📚</span>
+                <span class="font-medium text-gray-700 text-lg">Pengenalan</span>
+            </a>
+            <a href="#" onclick="showSection('jenis-bug')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-yellow-50 transition-colors">
+                <span class="text-2xl">🐞</span>
+                <span class="font-medium text-gray-700 text-lg">Jenis-jenis Bug</span>
+            </a>
+            <a href="#" onclick="showSection('tools-netbeans')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-50 transition-colors">
+                <span class="text-2xl">🛠️</span>
+                <span class="font-medium text-gray-700 text-lg">Tools NetBeans</span>
+            </a>
+            <a href="#" onclick="showSection('breakpoint')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-indigo-50 transition-colors">
+                <span class="text-2xl">⏸️</span>
+                <span class="font-medium text-gray-700 text-lg">Breakpoint</span>
+            </a>
+            <a href="#" onclick="showSection('step-debugging')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-teal-50 transition-colors">
+                <span class="text-2xl">👣</span>
+                <span class="font-medium text-gray-700 text-lg">Step Debugging</span>
+            </a>
+            <a href="#" onclick="showSection('praktik')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-orange-50 transition-colors">
+                <span class="text-2xl">💻</span>
+                <span class="font-medium text-gray-700 text-lg">Praktik</span>
+            </a>
+            <a href="#" onclick="showSection('tugas')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-red-50 transition-colors">
+                <span class="text-2xl">📝</span>
+                <span class="font-medium text-gray-700 text-lg">Tugas</span>
+            </a>
+            <a href="#" onclick="showSection('kuis')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-cyan-50 transition-colors">
+                <span class="text-2xl">🎯</span>
+                <span class="font-medium text-gray-700 text-lg">Kuis</span>
+            </a>
+            <a href="#" onclick="showSection('penutup')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-lime-50 transition-colors">
+                <span class="text-2xl">🎉</span>
+                <span class="font-medium text-gray-700 text-lg">Penutup</span>
+            </a>
+        </nav>
+    </div>
+    
+    <!-- Mobile Header -->
+    <div class="lg:hidden bg-white shadow-md p-4 flex items-center justify-between">
+        <button id="openSidebar" class="text-gray-600 hover:text-gray-800">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+        <div class="flex items-center space-x-2">
+            <span class="text-2xl">🐛</span>
+            <span class="font-bold text-gray-800">Debug Master</span>
+        </div>
+        <div class="w-6"></div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-screen">
+        <div class="max-w-4xl mx-auto p-6 lg:p-8">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section fade-in-up">
+                <div class="bg-white rounded-2xl card-shadow p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4 animate-bounce-slow">🐛</div>
+                        <h1 class="text-5xl font-bold text-gray-800 mb-4">Selamat Datang di Debug Master!</h1>
+                        <p class="text-2xl text-gray-600">Mari belajar cara menghilangkan bug dalam program Java</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-pink-100 to-pink-200 p-6 rounded-xl">
+                            <div class="text-3xl mb-3">🤔</div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Pertanyaan Pemantik</h3>
+                            <p class="text-lg text-gray-700">Pernahkah kamu membuat program yang tidak berjalan sesuai harapan? Atau muncul error yang membingungkan?</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-blue-100 to-blue-200 p-6 rounded-xl">
+                            <div class="text-3xl mb-3">🎯</div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Apa yang Dipelajari</h3>
+                            <p class="text-lg text-gray-700">Kamu akan belajar cara menemukan dan memperbaiki bug menggunakan tools debugging di NetBeans.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-green-100 to-emerald-100 p-6 rounded-xl mb-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🏆</span>
+                            Tujuan Pembelajaran
+                        </h3>
+                        <ul class="space-y-3 text-lg text-gray-700">
+                            <li class="flex items-start">
+                                <span class="text-green-500 mr-3 text-xl">✓</span>
+                                Memahami konsep debugging dan pentingnya dalam programming
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-500 mr-3 text-xl">✓</span>
+                                Mengenal berbagai jenis bug yang sering terjadi
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-500 mr-3 text-xl">✓</span>
+                                Menggunakan tools debugging di NetBeans dengan mahir
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-green-500 mr-3 text-xl">✓</span>
+                                Mempraktikkan teknik debugging pada program Java
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-xl mb-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">💡</span>
+                            Pemahaman Bermakna
+                        </h3>
+                        <p class="text-gray-700 text-lg leading-relaxed">
+                            Debugging adalah keterampilan penting yang akan membuatmu menjadi programmer yang lebih baik. 
+                            Dengan menguasai debugging, kamu bisa menyelesaikan masalah dengan lebih cepat dan efisien!
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-xl">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                            <span class="text-2xl mr-3">🔥</span>
+                            Motivasi
+                        </h3>
+                        <p class="text-gray-700 text-lg leading-relaxed">
+                            "Setiap bug yang kamu perbaiki adalah satu langkah menuju menjadi programmer yang lebih hebat. 
+                            Jangan takut dengan error - jadikan itu sebagai guru terbaikmu!"
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('pengenalan')" class="bg-gradient-to-r from-pink-400 to-purple-500 text-white px-10 py-5 rounded-full font-semibold text-xl hover:from-pink-500 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg">
+                        Mulai Belajar! 🚀
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden">
+                <div class="bg-white rounded-2xl card-shadow p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">📚</div>
+                        <h2 class="text-4xl font-bold text-gray-800 mb-4">Pengenalan Debugging</h2>
+                        <p class="text-2xl text-gray-600">Mari kenali dunia debugging lebih dalam!</p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border-l-4 border-blue-400">
+                            <h3 class="text-2xl font-semibold text-gray-800 mb-3 flex items-center">
+                                <span class="text-3xl mr-3">🤖</span>
+                                Apa itu Bug?
+                            </h3>
+                            <p class="text-gray-700 text-xl leading-relaxed mb-4">
+                                Bug adalah kesalahan atau cacat dalam program yang menyebabkan program tidak berjalan sesuai yang diharapkan. 
+                                Istilah "bug" pertama kali digunakan oleh Grace Hopper pada tahun 1947 ketika menemukan seekor ngengat yang tersangkut di komputer!
+                            </p>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-sm text-gray-600 italic">
+                                    💡 Fun Fact: Bug pertama dalam sejarah komputer adalah ngengat sungguhan yang ditemukan di Harvard Mark II computer!
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl border-l-4 border-green-400">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                                <span class="text-2xl mr-3">🔧</span>
+                                Apa itu Debugging?
+                            </h3>
+                            <p class="text-gray-700 text-lg leading-relaxed">
+                                Debugging adalah proses menemukan, menganalisis, dan memperbaiki bug dalam program. 
+                                Ini seperti menjadi detektif yang mencari petunjuk untuk memecahkan misteri mengapa program tidak bekerja dengan benar.
+                            </p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl border-l-4 border-purple-400">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-3 flex items-center">
+                                <span class="text-2xl mr-3">⚡</span>
+                                Mengapa Debugging Penting?
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <div class="flex items-start">
+                                        <span class="text-green-500 mr-2 mt-1">✓</span>
+                                        <span class="text-gray-700">Menghemat waktu development</span>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <span class="text-green-500 mr-2 mt-1">✓</span>
+                                        <span class="text-gray-700">Meningkatkan kualitas software</span>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <span class="text-green-500 mr-2 mt-1">✓</span>
+                                        <span class="text-gray-700">Memahami alur program lebih baik</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-start">
+                                        <span class="text-green-500 mr-2 mt-1">✓</span>
+                                        <span class="text-gray-700">Mencegah bug di masa depan</span>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <span class="text-green-500 mr-2 mt-1">✓</span>
+                                        <span class="text-gray-700">Meningkatkan skill programming</span>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <span class="text-green-500 mr-2 mt-1">✓</span>
+                                        <span class="text-gray-700">Kepuasan menyelesaikan masalah</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('jenis-bug')" class="bg-gradient-to-r from-blue-400 to-indigo-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-blue-500 hover:to-indigo-600 transition-all transform hover:scale-105 shadow-lg">
+                        Lanjut ke Jenis Bug 🐞
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Jenis Bug Section -->
+            <div id="jenis-bug" class="section hidden">
+                <div class="bg-white rounded-2xl card-shadow p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🐞</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Jenis-jenis Bug</h2>
+                        <p class="text-xl text-gray-600">Kenali musuh sebelum berperang!</p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-xl border-l-4 border-red-400">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">💥</span>
+                                1. Syntax Error (Kesalahan Sintaks)
+                            </h3>
+                            <p class="text-gray-700 mb-4">
+                                Kesalahan penulisan kode yang tidak sesuai dengan aturan bahasa pemrograman.
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-gray-800 mb-2">Contoh Syntax Error:</h4>
+                                <div class="code-block">
+                                    <pre class="text-sm"><code><span class="java-comment">// ❌ Salah - kurang titik koma</span>
+<span class="java-keyword">int</span> angka = <span class="java-number">10</span>
+
+<span class="java-comment">// ❌ Salah - kurung kurawal tidak seimbang</span>
+<span class="java-keyword">public</span> <span class="java-keyword">void</span> <span class="java-method">method</span>() {
+    System.out.<span class="java-method">println</span>(<span class="java-string">"Hello"</span>);
+<span class="java-comment">// kurang }</span>
+
+<span class="java-comment">// ❌ Salah - salah penulisan keyword</span>
+<span class="java-error">publc</span> <span class="java-keyword">class</span> <span class="java-type">Test</span> {  <span class="java-comment">// seharusnya "public"</span>
+
+<span class="java-comment">// ✅ Benar</span>
+<span class="java-keyword">int</span> angka = <span class="java-number">10</span>;
+<span class="java-keyword">public</span> <span class="java-keyword">void</span> <span class="java-method">method</span>() {
+    System.out.<span class="java-method">println</span>(<span class="java-string">"Hello"</span>);
+}</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-red-100 p-3 rounded-lg">
+                                <p class="text-sm text-red-700">
+                                    <strong>Ciri-ciri:</strong> Program tidak bisa di-compile, NetBeans menampilkan garis merah di bawah kode yang salah.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-xl border-l-4 border-orange-400">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">⚠️</span>
+                                2. Runtime Error (Kesalahan Saat Berjalan)
+                            </h3>
+                            <p class="text-gray-700 mb-4">
+                                Program bisa di-compile tapi error saat dijalankan.
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-gray-800 mb-2">Contoh Runtime Error:</h4>
+                                <div class="code-block">
+                                    <pre class="text-sm"><code><span class="java-comment">// ❌ Akan error: ArithmeticException (pembagian dengan nol)</span>
+<span class="java-keyword">int</span> pembagi = <span class="java-number">0</span>;
+<span class="java-keyword">int</span> hasil = <span class="java-number">10</span> / <span class="java-error">pembagi</span>;  <span class="java-comment">// Runtime Error!</span>
+
+<span class="java-comment">// ❌ Akan error: ArrayIndexOutOfBoundsException</span>
+<span class="java-keyword">int</span>[] array = {<span class="java-number">1</span>, <span class="java-number">2</span>, <span class="java-number">3</span>};  <span class="java-comment">// index 0, 1, 2</span>
+<span class="java-keyword">int</span> index = <span class="java-number">5</span>;
+System.out.<span class="java-method">println</span>(array[<span class="java-error">index</span>]);  <span class="java-comment">// index 5 tidak ada!</span>
+
+<span class="java-comment">// ❌ Akan error: NullPointerException</span>
+<span class="java-type">String</span> text = <span class="java-keyword">null</span>;
+System.out.<span class="java-method">println</span>(text.<span class="java-method">length</span>());  <span class="java-comment">// text adalah null!</span>
+
+<span class="java-comment">// ✅ Cara memperbaiki dengan validasi:</span>
+<span class="java-keyword">int</span> pembagi = <span class="java-number">5</span>;  <span class="java-comment">// atau input dari user</span>
+<span class="java-keyword">if</span> (pembagi != <span class="java-number">0</span>) {
+    <span class="java-keyword">int</span> hasil = <span class="java-number">10</span> / pembagi;
+    System.out.<span class="java-method">println</span>(<span class="java-string">"Hasil: "</span> + hasil);
+} <span class="java-keyword">else</span> {
+    System.out.<span class="java-method">println</span>(<span class="java-string">"Error: Tidak bisa bagi dengan nol!"</span>);
+}
+
+<span class="java-keyword">int</span> index = <span class="java-number">2</span>;  <span class="java-comment">// atau input dari user</span>
+<span class="java-keyword">if</span> (index >= <span class="java-number">0</span> && index < array.length) {
+    System.out.<span class="java-method">println</span>(<span class="java-string">"Nilai: "</span> + array[index]);
+} <span class="java-keyword">else</span> {
+    System.out.<span class="java-method">println</span>(<span class="java-string">"Error: Index di luar batas array!"</span>);
+}
+
+<span class="java-type">String</span> text = <span class="java-string">"Hello World"</span>;  <span class="java-comment">// atau input dari user</span>
+<span class="java-keyword">if</span> (text != <span class="java-keyword">null</span> && !text.<span class="java-method">isEmpty</span>()) {
+    System.out.<span class="java-method">println</span>(<span class="java-string">"Panjang: "</span> + text.<span class="java-method">length</span>());
+} <span class="java-keyword">else</span> {
+    System.out.<span class="java-method">println</span>(<span class="java-string">"Error: Text kosong atau null!"</span>);
+}</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-orange-100 p-3 rounded-lg">
+                                <p class="text-sm text-orange-700">
+                                    <strong>Ciri-ciri:</strong> Program crash saat berjalan, muncul Exception di console.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border-l-4 border-blue-400">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🤔</span>
+                                3. Logic Error (Kesalahan Logika)
+                            </h3>
+                            <p class="text-gray-700 mb-4">
+                                Program berjalan tanpa error, tapi hasilnya tidak sesuai yang diharapkan.
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-gray-800 mb-2">Contoh Logic Error:</h4>
+                                <div class="code-block">
+                                    <pre class="text-sm"><code><span class="java-comment">// ❌ Salah - seharusnya penjumlahan, bukan pengurangan</span>
+<span class="java-keyword">int</span> totalHarga = harga1 <span class="java-error">-</span> harga2;
+
+<span class="java-comment">// ❌ Salah - kondisi loop yang salah</span>
+<span class="java-keyword">for</span> (<span class="java-keyword">int</span> i = <span class="java-number">0</span>; i <span class="java-error"><=</span> <span class="java-number">10</span>; i++) {  <span class="java-comment">// seharusnya i < 10</span>
+    <span class="java-comment">// akan loop 11 kali, bukan 10 kali</span>
+}
+
+<span class="java-comment">// ❌ Salah - rumus luas persegi yang salah</span>
+<span class="java-keyword">int</span> luas = sisi <span class="java-error">+</span> sisi;  <span class="java-comment">// seharusnya sisi * sisi</span>
+
+<span class="java-comment">// ❌ Salah - kondisi if yang terbalik</span>
+<span class="java-keyword">if</span> (nilai <span class="java-error"><</span> <span class="java-number">60</span>) {
+    System.out.<span class="java-method">println</span>(<span class="java-string">"Lulus"</span>);  <span class="java-comment">// seharusnya "Tidak Lulus"</span>
+}
+
+<span class="java-comment">// ✅ Benar</span>
+<span class="java-keyword">int</span> totalHarga = harga1 <span class="java-correct">+</span> harga2;
+<span class="java-keyword">for</span> (<span class="java-keyword">int</span> i = <span class="java-number">0</span>; i <span class="java-correct"><</span> <span class="java-number">10</span>; i++) {
+    <span class="java-comment">// loop 10 kali</span>
+}
+<span class="java-keyword">int</span> luas = sisi <span class="java-correct">*</span> sisi;
+<span class="java-keyword">if</span> (nilai <span class="java-correct">>=</span> <span class="java-number">60</span>) {
+    System.out.<span class="java-method">println</span>(<span class="java-string">"Lulus"</span>);
+}</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-blue-100 p-3 rounded-lg">
+                                <p class="text-sm text-blue-700">
+                                    <strong>Ciri-ciri:</strong> Program berjalan normal tapi output salah. Paling sulit dideteksi!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('tools-netbeans')" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-yellow-500 hover:to-orange-600 transition-all transform hover:scale-105 shadow-lg">
+                        Pelajari Tools NetBeans 🛠️
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Tools NetBeans Section -->
+            <div id="tools-netbeans" class="section hidden">
+                <div class="bg-white rounded-2xl card-shadow p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🛠️</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Tools Debugging di NetBeans</h2>
+                        <p class="text-xl text-gray-600">Senjata ampuh untuk melawan bug!</p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🎯</span>
+                                1. Debugger NetBeans
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-3">Fitur Utama:</h4>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-start">
+                                            <span class="text-green-500 mr-2 mt-1">✓</span>
+                                            <span class="text-gray-700">Breakpoint management</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-green-500 mr-2 mt-1">✓</span>
+                                            <span class="text-gray-700">Step-by-step execution</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-green-500 mr-2 mt-1">✓</span>
+                                            <span class="text-gray-700">Variable inspection</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-green-500 mr-2 mt-1">✓</span>
+                                            <span class="text-gray-700">Call stack viewing</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800 mb-3">Cara Mengakses:</h4>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="bg-gray-100 p-2 rounded">Menu → Debug → Debug Project</div>
+                                        <div class="bg-gray-100 p-2 rounded">Shortcut: Ctrl + F5</div>
+                                        <div class="bg-gray-100 p-2 rounded">Klik kanan → Debug File</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">📊</span>
+                                2. Variables Window
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <p class="text-gray-700 mb-3">
+                                    Window ini menampilkan nilai semua variabel yang sedang aktif dalam scope saat program di-debug.
+                                </p>
+                                
+                                <div class="bg-blue-100 p-3 rounded-lg mb-3">
+                                    <h4 class="font-semibold text-gray-800 mb-2">Kegunaan Variables Window:</h4>
+                                    <ul class="text-sm text-gray-700 space-y-1">
+                                        <li>• Melihat nilai variabel real-time saat eksekusi</li>
+                                        <li>• Mengubah nilai variabel saat debugging (klik kanan → Set Value)</li>
+                                        <li>• Memonitor perubahan nilai variabel step by step</li>
+                                        <li>• Melihat struktur object dan array secara detail</li>
+                                        <li>• Mengecek apakah variabel null atau memiliki nilai</li>
+                                        <li>• Melihat variabel lokal, parameter method, dan variabel instance</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-indigo-100 p-3 rounded-lg mb-3">
+                                    <h4 class="font-semibold text-gray-800 mb-2">Cara Mengakses:</h4>
+                                    <p class="text-sm text-gray-700 mb-2">
+                                        Menu → Window → Debugging → Variables atau otomatis muncul saat debugging dimulai
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-green-100 p-3 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800 mb-2">Tips Menggunakan Variables Window:</h4>
+                                    <ul class="text-sm text-gray-700 space-y-1">
+                                        <li>• Klik tanda + untuk expand object atau array</li>
+                                        <li>• Variabel yang berubah nilai akan di-highlight</li>
+                                        <li>• Klik kanan variabel untuk mengubah nilainya saat debugging</li>
+                                        <li>• Gunakan untuk memverifikasi apakah nilai sesuai ekspektasi</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">📋</span>
+                                3. Call Stack Window
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <p class="text-gray-700 mb-3">
+                                    Menampilkan urutan pemanggilan method/function yang sedang aktif. Seperti jejak kaki yang menunjukkan dari mana kita datang.
+                                </p>
+                                
+                                <div class="code-block">
+                                    <pre class="text-sm"><code><span class="java-comment">// Contoh Call Stack saat debugging:</span>
+<span class="java-method">main</span>() → <span class="java-method">hitungRata</span>() → <span class="java-method">validasiArray</span>()
+                                    <span class="java-error">↑</span>
+                              <span class="java-comment">(sedang di sini)</span>
+
+<span class="java-comment">// Artinya: program dimulai dari main(), lalu memanggil hitungRata(),</span>
+<span class="java-comment">// kemudian hitungRata() memanggil validasiArray()</span>
+<span class="java-comment">// Saat ini eksekusi sedang berhenti di dalam validasiArray()</span></code></pre>
+                                </div>
+                                
+                                <div class="bg-purple-100 p-3 rounded-lg mt-3 mb-3">
+                                    <h4 class="font-semibold text-gray-800 mb-2">Berguna untuk:</h4>
+                                    <ul class="text-sm text-purple-700 space-y-1">
+                                        <li>• Melacak alur eksekusi program</li>
+                                        <li>• Menemukan di mana error terjadi dalam rantai pemanggilan method</li>
+                                        <li>• Memahami bagaimana method saling memanggil</li>
+                                        <li>• Debugging recursive method</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-indigo-100 p-3 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800 mb-2">Cara Menggunakan:</h4>
+                                    <p class="text-sm text-gray-700">
+                                        Klik pada method di Call Stack untuk melihat kode dan variabel di level tersebut. 
+                                        Ini membantu memahami bagaimana data mengalir antar method.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('breakpoint')" class="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-purple-500 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Pelajari Breakpoint ⏸️
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Breakpoint Section -->
+            <div id="breakpoint" class="section hidden">
+                <div class="bg-white rounded-2xl card-shadow p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">⏸️</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Breakpoint</h2>
+                        <p class="text-xl text-gray-600">Titik henti untuk menganalisis program</p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🎯</span>
+                                Apa itu Breakpoint?
+                            </h3>
+                            
+                            <p class="text-gray-700 text-lg mb-4">
+                                Breakpoint adalah titik henti yang kita tempatkan di kode untuk menghentikan eksekusi program 
+                                sementara waktu. Ini memungkinkan kita untuk memeriksa kondisi program pada titik tertentu.
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-3">Analogi Sederhana:</h4>
+                                <p class="text-gray-700">
+                                    Bayangkan breakpoint seperti rambu "STOP" di jalan. Ketika program "berkendara" dan 
+                                    sampai di rambu STOP (breakpoint), program akan berhenti sementara sehingga kita bisa 
+                                    "turun dari mobil" dan melihat kondisi sekitar (nilai variabel, status program, dll).
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">📍</span>
+                                Cara Membuat dan Mengelola Breakpoint
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-3">Metode 1: Klik di Line Number</h4>
+                                    <div class="bg-white p-4 rounded-lg mb-4">
+                                        <ol class="text-gray-700 space-y-2">
+                                            <li>1. Buka file Java di NetBeans</li>
+                                            <li>2. Klik di sebelah kiri nomor baris (margin kiri)</li>
+                                            <li>3. Akan muncul titik merah (breakpoint)</li>
+                                            <li>4. Klik lagi untuk menghapus breakpoint</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-3">Metode 2: Keyboard Shortcut</h4>
+                                    <div class="bg-white p-4 rounded-lg mb-4">
+                                        <ol class="text-gray-700 space-y-2">
+                                            <li>1. Letakkan cursor di baris yang diinginkan</li>
+                                            <li>2. Tekan <kbd class="bg-gray-200 px-2 py-1 rounded">Ctrl + F8</kbd></li>
+                                            <li>3. Breakpoint akan ditambahkan/dihapus</li>
+                                            <li>4. Shortcut yang sama untuk toggle on/off</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-gray-800 mb-3">Tips Menggunakan Breakpoint:</h4>
+                                <ul class="text-gray-700 space-y-2">
+                                    <li class="flex items-start">
+                                        <span class="text-blue-500 mr-2 mt-1">💡</span>
+                                        <span>Letakkan breakpoint di baris yang mengandung kode, bukan di baris kosong atau komentar</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-blue-500 mr-2 mt-1">💡</span>
+                                        <span>Gunakan breakpoint di awal method untuk memeriksa parameter input</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-blue-500 mr-2 mt-1">💡</span>
+                                        <span>Letakkan breakpoint sebelum dan sesudah operasi penting untuk membandingkan nilai</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-blue-500 mr-2 mt-1">💡</span>
+                                        <span>Hapus breakpoint yang tidak diperlukan untuk menghindari kebingungan</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-3">Contoh Penempatan Breakpoint yang Efektif:</h4>
+                                <div class="code-block">
+                                    <pre class="text-sm"><code><span class="java-keyword">public</span> <span class="java-keyword">static</span> <span class="java-keyword">int</span> <span class="java-method">bagi</span>(<span class="java-keyword">int</span> a, <span class="java-keyword">int</span> b) {
+    <span class="java-comment">// ⭐ Breakpoint 1: Cek parameter input</span>
+    System.out.<span class="java-method">println</span>(<span class="java-string">"Input: a="</span> + a + <span class="java-string">", b="</span> + b);
+    
+    <span class="java-comment">// ⭐ Breakpoint 2: Sebelum operasi kritis</span>
+    <span class="java-keyword">if</span> (b == <span class="java-number">0</span>) {
+        <span class="java-keyword">throw</span> <span class="java-keyword">new</span> <span class="java-type">ArithmeticException</span>(<span class="java-string">"Pembagi tidak boleh nol"</span>);
+    }
+    
+    <span class="java-keyword">int</span> hasil = a / b;
+    <span class="java-comment">// ⭐ Breakpoint 3: Cek hasil sebelum return</span>
+    <span class="java-keyword">return</span> hasil;
+}</code></pre>
+                                </div>
+                                
+                                <div class="bg-green-100 p-3 rounded-lg mt-3">
+                                    <p class="text-sm text-green-700">
+                                        <strong>Strategi:</strong> Letakkan breakpoint di titik-titik kritis seperti awal method, 
+                                        sebelum operasi berisiko, dan sebelum return statement untuk memastikan alur program benar.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('step-debugging')" class="bg-gradient-to-r from-indigo-400 to-purple-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-indigo-500 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg">
+                        Pelajari Step Debugging 👣
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step Debugging Section -->
+            <div id="step-debugging" class="section hidden">
+                <div class="bg-white rounded-2xl card-shadow p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">👣</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Step Debugging</h2>
+                        <p class="text-xl text-gray-600">Melangkah pelan-pelan melalui kode</p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">⚡</span>
+                                Jenis-jenis Step
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                                <div class="space-y-4">
+                                    <div class="bg-white p-4 rounded-lg border-l-4 border-green-400">
+                                        <h4 class="font-semibold text-gray-800 mb-2 flex items-center">
+                                            <span class="mr-2">▶️</span>
+                                            Step Over (F8)
+                                        </h4>
+                                        <p class="text-gray-700 text-sm mb-2">
+                                            Eksekusi baris saat ini dan pindah ke baris berikutnya.
+                                        </p>
+                                        <div class="bg-green-100 p-2 rounded text-xs text-green-700">
+                                            Jika ada method call, akan dieksekusi sekaligus tanpa masuk ke dalam method.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white p-4 rounded-lg border-l-4 border-blue-400">
+                                        <h4 class="font-semibold text-gray-800 mb-2 flex items-center">
+                                            <span class="mr-2">⬇️</span>
+                                            Step Into (F7)
+                                        </h4>
+                                        <p class="text-gray-700 text-sm mb-2">
+                                            Masuk ke dalam method yang dipanggil.
+                                        </p>
+                                        <div class="bg-blue-100 p-2 rounded text-xs text-blue-700">
+                                            Berguna untuk debugging method yang kita buat sendiri.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="bg-white p-4 rounded-lg border-l-4 border-purple-400">
+                                        <h4 class="font-semibold text-gray-800 mb-2 flex items-center">
+                                            <span class="mr-2">⬆️</span>
+                                            Step Out (Ctrl+F7)
+                                        </h4>
+                                        <p class="text-gray-700 text-sm mb-2">
+                                            Keluar dari method saat ini dan kembali ke method pemanggil.
+                                        </p>
+                                        <div class="bg-purple-100 p-2 rounded text-xs text-purple-700">
+                                            Berguna ketika sudah selesai debugging method tertentu.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white p-4 rounded-lg border-l-4 border-orange-400">
+                                        <h4 class="font-semibold text-gray-800 mb-2 flex items-center">
+                                            <span class="mr-2">🏃</span>
+                                            Continue (F5)
+                                        </h4>
+                                        <p class="text-gray-700 text-sm mb-2">
+                                            Lanjutkan eksekusi normal sampai breakpoint berikutnya.
+                                        </p>
+                                        <div class="bg-orange-100 p-2 rounded text-xs text-orange-700">
+                                            Program akan berjalan normal sampai menemui breakpoint lain.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-3">Contoh Skenario Step Debugging:</h4>
+                                <div class="code-block">
+                                    <pre class="text-sm"><code><span class="java-keyword">public</span> <span class="java-keyword">static</span> <span class="java-keyword">void</span> <span class="java-method">main</span>(<span class="java-type">String</span>[] args) {
+    <span class="java-keyword">int</span> a = <span class="java-number">10</span>;                    <span class="java-comment">// ⭐ Breakpoint di sini</span>
+    <span class="java-keyword">int</span> b = <span class="java-number">5</span>;                     <span class="java-comment">// F8: Step Over ke baris ini</span>
+    <span class="java-keyword">int</span> hasil = <span class="java-method">tambah</span>(a, b);      <span class="java-comment">// F7: Step Into masuk ke method tambah()</span>
+                                    <span class="java-comment">// F8: Step Over eksekusi method tanpa masuk</span>
+    System.out.<span class="java-method">println</span>(hasil);    <span class="java-comment">// F8: Step Over ke baris ini</span>
+}
+
+<span class="java-keyword">public</span> <span class="java-keyword">static</span> <span class="java-keyword">int</span> <span class="java-method">tambah</span>(<span class="java-keyword">int</span> x, <span class="java-keyword">int</span> y) {
+    <span class="java-keyword">int</span> sum = x + y;             <span class="java-comment">// Jika Step Into, akan berhenti di sini</span>
+    <span class="java-keyword">return</span> sum;                  <span class="java-comment">// Ctrl+F7: Step Out kembali ke main()</span>
+}</code></pre>
+                                </div>
+                                
+                                <div class="bg-yellow-100 p-3 rounded-lg mt-3">
+                                    <p class="text-sm text-yellow-700">
+                                        <strong>Tips:</strong> Gunakan Step Into hanya untuk method yang kamu buat sendiri. 
+                                        Untuk method bawaan Java (seperti System.out.println), gunakan Step Over.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('praktik')" class="bg-gradient-to-r from-teal-400 to-cyan-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-teal-500 hover:to-cyan-600 transition-all transform hover:scale-105 shadow-lg">
+                        Mulai Praktik 💻
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Praktik Section -->
+            <div id="praktik" class="section hidden">
+                <div class="bg-white rounded-2xl card-shadow p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">💻</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Praktik Debugging</h2>
+                        <p class="text-xl text-gray-600">Saatnya praktek langsung!</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🎯</span>
+                                Praktik 1: Debugging Program Sederhana
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-gray-800 mb-3">Struktur Project:</h4>
+                                <div class="bg-gray-100 p-3 rounded font-mono text-sm">
+                                    DebuggingPraktik/<br>
+                                    └── src/<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;└── debuggingpraktik/<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── KalkulatorSederhana.java
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-gray-800 mb-3">File: KalkulatorSederhana.java</h4>
+                                <div class="code-block">
+                                    <pre class="text-sm"><code><span class="java-keyword">package</span> debuggingpraktik;
+
+<span class="java-keyword">public</span> <span class="java-keyword">class</span> <span class="java-type">KalkulatorSederhana</span> {
+    <span class="java-keyword">public</span> <span class="java-keyword">static</span> <span class="java-keyword">void</span> <span class="java-method">main</span>(<span class="java-type">String</span>[] args) {
+        <span class="java-keyword">int</span> angka1 = <span class="java-number">10</span>;
+        <span class="java-keyword">int</span> angka2 = <span class="java-number">5</span>;
+        
+        System.out.<span class="java-method">println</span>(<span class="java-string">"=== KALKULATOR SEDERHANA ==="</span>);
+        System.out.<span class="java-method">println</span>(<span class="java-string">"Angka 1: "</span> + angka1);
+        System.out.<span class="java-method">println</span>(<span class="java-string">"Angka 2: "</span> + angka2);
+        
+        <span class="java-keyword">int</span> penjumlahan = <span class="java-method">tambah</span>(angka1, angka2);
+        <span class="java-keyword">int</span> pengurangan = <span class="java-method">kurang</span>(angka1, angka2);
+        <span class="java-keyword">int</span> perkalian = <span class="java-method">kali</span>(angka1, angka2);
+        <span class="java-keyword">int</span> pembagian = <span class="java-method">bagi</span>(angka1, angka2);
+        
+        <span class="java-method">tampilkanHasil</span>(penjumlahan, pengurangan, perkalian, pembagian);
+    }
+    
+    <span class="java-keyword">public</span> <span class="java-keyword">static</span> <span class="java-keyword">int</span> <span class="java-method">tambah</span>(<span class="java-keyword">int</span> a, <span class="java-keyword">int</span> b) {
+        <span class="java-keyword">return</span> a + b;
+    }
+    
+    <span class="java-keyword">public</span> <span class="java-keyword">static</span> <span class="java-keyword">int</span> <span class="java-method">kurang</span>(<span class="java-keyword">int</span> a, <span class="java-keyword">int</span> b) {
+        <span class="java-keyword">return</span> a - b;
+    }
+    
+    <span class="java-keyword">public</span> <span class="java-keyword">static</span> <span class="java-keyword">int</span> <span class="java-method">kali</span>(<span class="java-keyword">int</span> a, <span class="java-keyword">int</span> b) {
+        <span class="java-keyword">return</span> a * b;
+    }
+    
+    <span class="java-keyword">public</span> <span class="java-keyword">static</span> <span class="java-keyword">int</span> <span class="java-method">bagi</span>(<span class="java-keyword">int</span> a, <span class="java-keyword">int</span> b) {
+        <span class="java-keyword">return</span> a / b;
+    }
+    
+    <span class="java-keyword">public</span> <span class="java-keyword">static</span> <span class="java-keyword">void</span> <span class="java-method">tampilkanHasil</span>(<span class="java-keyword">int</span> tambah, <span class="java-keyword">int</span> kurang, <span class="java-keyword">int</span> kali, <span class="java-keyword">int</span> bagi) {
+        System.out.<span class="java-method">println</span>(<span class="java-string">"\n=== HASIL OPERASI ==="</span>);
+        System.out.<span class="java-method">println</span>(<span class="java-string">"Penjumlahan: "</span> + tambah);
+        System.out.<span class="java-method">println</span>(<span class="java-string">"Pengurangan: "</span> + kurang);
+        System.out.<span class="java-method">println</span>(<span class="java-string">"Perkalian: "</span> + kali);
+        System.out.<span class="java-method">println</span>(<span class="java-string">"Pembagian: "</span> + bagi);
+    }
+}</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-blue-100 p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-gray-800 mb-3">Langkah-langkah Debugging:</h4>
+                                <ol class="text-gray-700 space-y-2">
+                                    <li><strong>1.</strong> Buat project baru di NetBeans dengan nama "DebuggingPraktik"</li>
+                                    <li><strong>2.</strong> Copy kode di atas ke file KalkulatorSederhana.java</li>
+                                    <li><strong>3.</strong> Letakkan breakpoint di baris 5 (int angka1 = 10;)</li>
+                                    <li><strong>4.</strong> Jalankan program dalam mode debug (Ctrl+F5)</li>
+                                    <li><strong>5.</strong> Gunakan Step Over (F8) untuk melihat eksekusi baris per baris</li>
+                                    <li><strong>6.</strong> Perhatikan nilai variabel di Variables window</li>
+                                    <li><strong>7.</strong> Gunakan Step Into (F7) saat memanggil method tambah()</li>
+                                    <li><strong>8.</strong> Amati bagaimana parameter diteruskan ke method</li>
+                                    <li><strong>9.</strong> Gunakan Step Out (Ctrl+F7) untuk keluar dari method</li>
+                                    <li><strong>10.</strong> Lanjutkan dengan Continue (F5) untuk menyelesaikan program</li>
+                                </ol>
+                            </div>
+                            
+                            <div class="bg-green-100 p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-3">Praktik 2: Debugging Program dengan Bug</h4>
+                                <p class="text-gray-700 mb-3">Coba debug program berikut yang memiliki bug:</p>
+                                <div class="code-block">
+                                    <pre class="text-sm"><code><span class="java-keyword">package</span> debuggingpraktik;
+
+<span class="java-keyword">public</span> <span class="java-keyword">class</span> <span class="java-type">ProgramBermasalah</span> {
+    <span class="java-keyword">public</span> <span class="java-keyword">static</span> <span class="java-keyword">void</span> <span class="java-method">main</span>(<span class="java-type">String</span>[] args) {
+        <span class="java-keyword">int</span>[] nilai = {<span class="java-number">85</span>, <span class="java-number">90</span>, <span class="java-number">78</span>, <span class="java-number">92</span>, <span class="java-number">88</span>};
+        
+        System.out.<span class="java-method">println</span>(<span class="java-string">"=== PROGRAM HITUNG RATA-RATA ==="</span>);
+        System.out.<span class="java-method">println</span>(<span class="java-string">"Jumlah nilai: "</span> + nilai.length);
+        
+        <span class="java-comment">// Hitung rata-rata (ada bug di method ini)</span>
+        <span class="java-keyword">double</span> rata = <span class="java-method">hitungRata</span>(nilai);
+        System.out.<span class="java-method">println</span>(<span class="java-string">"Rata-rata: "</span> + rata);
+        
+        <span class="java-comment">// Bug 2: pembagian dengan nol</span>
+        <span class="java-keyword">int</span> pembagi = <span class="java-number">0</span>;
+        <span class="java-keyword">int</span> hasil = <span class="java-number">100</span> / <span class="java-error">pembagi</span>;  <span class="java-comment">// Runtime Error!</span>
+        System.out.<span class="java-method">println</span>(<span class="java-string">"Hasil pembagian: "</span> + hasil);
+        
+        <span class="java-comment">// Bug 3: akses array di luar batas</span>
+        System.out.<span class="java-method">println</span>(<span class="java-string">"Nilai ke-10: "</span> + nilai[<span class="java-error">10</span>]);  <span class="java-comment">// Runtime Error!</span>
+    }
+    
+    <span class="java-keyword">public</span> <span class="java-keyword">static</span> <span class="java-keyword">double</span> <span class="java-method">hitungRata</span>(<span class="java-keyword">int</span>[] arr) {
+        <span class="java-keyword">int</span> total = <span class="java-number">0</span>;
+        
+        <span class="java-comment">// Bug 1: kondisi loop salah (Logic Error)</span>
+        <span class="java-keyword">for</span> (<span class="java-keyword">int</span> i = <span class="java-number">0</span>; i <span class="java-error"><=</span> arr.length; i++) {  
+            <span class="java-comment">// Seharusnya i < arr.length, bukan i <= arr.length</span>
+            <span class="java-comment">// Ini akan menyebabkan ArrayIndexOutOfBoundsException</span>
+            total += arr[i];
+        }
+        
+        <span class="java-keyword">return</span> (<span class="java-keyword">double</span>) total / arr.length;
+    }
+}</code></pre>
+                                </div>
+                                <div class="bg-red-100 p-4 rounded-lg mt-4">
+                                    <h5 class="font-semibold text-gray-800 mb-3">🎯 Tugas Debugging:</h5>
+                                    <p class="text-gray-700 mb-3">
+                                        <strong>Temukan dan perbaiki 3 bug dalam program ini menggunakan debugger NetBeans!</strong>
+                                    </p>
+                                    
+                                    <div class="space-y-2 text-sm text-gray-700">
+                                        <p><strong>Langkah-langkah:</strong></p>
+                                        <ol class="list-decimal list-inside space-y-1 ml-4">
+                                            <li>Copy kode ke NetBeans dan jalankan tanpa debug dulu</li>
+                                            <li>Perhatikan error yang muncul di console</li>
+                                            <li>Letakkan breakpoint di baris pertama method main()</li>
+                                            <li>Jalankan dalam mode debug (Ctrl+F5)</li>
+                                            <li>Gunakan Step Over untuk menemukan di mana program crash</li>
+                                            <li>Perbaiki bug satu per satu dan test kembali</li>
+                                        </ol>
+                                        
+                                        <div class="mt-3 p-2 bg-yellow-50 rounded">
+                                            <p><strong>Hint:</strong> Bug pertama ada di method hitungRata(), bug kedua dan ketiga ada di method main()</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('tugas')" class="bg-gradient-to-r from-orange-400 to-red-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-orange-500 hover:to-red-600 transition-all transform hover:scale-105 shadow-lg">
+                        Kerjakan Tugas 📝
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Tugas Section -->
+            <div id="tugas" class="section hidden">
+                <div class="bg-white rounded-2xl card-shadow p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">📝</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Tugas</h2>
+                        <p class="text-xl text-gray-600">Uji pemahamanmu tentang debugging!</p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">📋</span>
+                                Soal Essay
+                            </h3>
+                            
+                            <div class="space-y-6">
+                                <div class="bg-white p-4 rounded-lg border-l-4 border-blue-400">
+                                    <h4 class="font-semibold text-gray-800 mb-3">1. Konsep Debugging (25 poin)</h4>
+                                    <p class="text-gray-700 mb-3">
+                                        Jelaskan dengan kata-katamu sendiri apa itu debugging dan mengapa debugging penting dalam pengembangan software. 
+                                        Berikan contoh situasi di mana debugging sangat diperlukan.
+                                    </p>
+                                    <textarea class="w-full p-3 border border-gray-300 rounded-lg h-24 resize-none" 
+                                              placeholder="Tulis jawabanmu di sini..."></textarea>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg border-l-4 border-green-400">
+                                    <h4 class="font-semibold text-gray-800 mb-3">2. Jenis-jenis Bug (25 poin)</h4>
+                                    <p class="text-gray-700 mb-3">
+                                        Sebutkan dan jelaskan 3 jenis bug yang telah dipelajari. Untuk setiap jenis bug, berikan contoh kode sederhana 
+                                        yang menunjukkan bug tersebut dan cara memperbaikinya.
+                                    </p>
+                                    <textarea class="w-full p-3 border border-gray-300 rounded-lg h-32 resize-none" 
+                                              placeholder="Tulis jawabanmu di sini..."></textarea>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg border-l-4 border-purple-400">
+                                    <h4 class="font-semibold text-gray-800 mb-3">3. Tools Debugging NetBeans (25 poin)</h4>
+                                    <p class="text-gray-700 mb-3">
+                                        Jelaskan perbedaan antara Step Over, Step Into, dan Step Out dalam debugging. 
+                                        Kapan sebaiknya menggunakan masing-masing teknik tersebut?
+                                    </p>
+                                    <textarea class="w-full p-3 border border-gray-300 rounded-lg h-24 resize-none" 
+                                              placeholder="Tulis jawabanmu di sini..."></textarea>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg border-l-4 border-orange-400">
+                                    <h4 class="font-semibold text-gray-800 mb-3">4. Praktik Debugging (25 poin)</h4>
+                                    <p class="text-gray-700 mb-3">
+                                        Buat program Java sederhana yang menghitung luas dan keliling persegi panjang. 
+                                        Sengaja masukkan 2 bug ke dalam program, lalu jelaskan bagaimana cara menemukan dan memperbaikinya 
+                                        menggunakan teknik debugging yang telah dipelajari.
+                                    </p>
+                                    <textarea class="w-full p-3 border border-gray-300 rounded-lg h-32 resize-none" 
+                                              placeholder="Tulis kode program dan penjelasan debugging..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">⏰</span>
+                                Informasi Pengumpulan
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800 mb-2">Deadline:</h4>
+                                    <p class="text-gray-700">1 minggu setelah pembelajaran</p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800 mb-2">Format Pengumpulan:</h4>
+                                    <p class="text-gray-700">File Word/PDF + File Java</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('kuis')" class="bg-gradient-to-r from-red-400 to-pink-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-red-500 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Ikuti Kuis 🎯
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden">
+                <div class="bg-white rounded-2xl card-shadow p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🎯</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Kuis Debugging</h2>
+                        <p class="text-xl text-gray-600">Uji pemahamanmu dengan 10 soal pilihan ganda!</p>
+                    </div>
+                    
+                    <!-- Input Nama -->
+                    <div id="namaInput" class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl mb-6">
+                        <h3 class="text-xl font-semibold text-gray-800 mb-4 text-center">Masukkan Nama Kamu</h3>
+                        <div class="max-w-md mx-auto">
+                            <input type="text" id="studentName" class="w-full p-3 border border-gray-300 rounded-lg text-center text-lg" 
+                                   placeholder="Nama lengkap...">
+                            <button onclick="startQuiz()" class="w-full mt-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all">
+                                Mulai Kuis 🚀
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Kuis Content -->
+                    <div id="kuisContent" class="hidden">
+                        <div class="mb-6 bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-xl">
+                            <div class="flex justify-between items-center">
+                                <span class="text-lg font-semibold text-gray-800">Soal <span id="currentQuestion">1</span> dari 10</span>
+                                <span class="text-lg font-semibold text-gray-800">Skor: <span id="currentScore">0</span></span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                <div id="progressBar" class="bg-gradient-to-r from-green-400 to-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 10%"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="questionContainer" class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl mb-6">
+                            <!-- Questions will be loaded here -->
+                        </div>
+                        
+                        <div class="text-center">
+                            <button id="nextButton" onclick="nextQuestion()" class="bg-gradient-to-r from-purple-500 to-pink-600 text-white px-8 py-3 rounded-full font-semibold hover:from-purple-600 hover:to-pink-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                Soal Berikutnya
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Hasil Kuis -->
+                    <div id="hasilKuis" class="hidden">
+                        <div class="text-center">
+                            <div class="text-6xl mb-4">🎉</div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">Kuis Selesai!</h3>
+                            
+                            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl mb-6 max-w-md mx-auto">
+                                <h4 class="text-xl font-semibold text-gray-800 mb-4">Hasil Kuis</h4>
+                                <div class="space-y-2">
+                                    <p class="text-lg"><strong>Nama:</strong> <span id="finalName"></span></p>
+                                    <p class="text-lg"><strong>Skor:</strong> <span id="finalScore"></span>/100</p>
+                                    <p class="text-lg"><strong>Benar:</strong> <span id="correctAnswers"></span>/10</p>
+                                    <div id="gradeMessage" class="mt-4 p-3 rounded-lg font-semibold"></div>
+                                </div>
+                            </div>
+                            
+                            <button onclick="restartQuiz()" class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-8 py-3 rounded-full font-semibold hover:from-blue-600 hover:to-indigo-700 transition-all transform hover:scale-105">
+                                Ulangi Kuis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('penutup')" class="bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-cyan-500 hover:to-blue-600 transition-all transform hover:scale-105 shadow-lg">
+                        Ke Penutup 🎉
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden">
+                <div class="bg-white rounded-2xl card-shadow p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🎉</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Selamat!</h2>
+                        <p class="text-xl text-gray-600">Kamu telah menyelesaikan pembelajaran debugging!</p>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🤔</span>
+                                Refleksi Pembelajaran
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800 mb-2">Apa yang paling menarik dari pembelajaran ini?</h4>
+                                    <textarea class="w-full p-3 border border-gray-300 rounded-lg h-20 resize-none" 
+                                              placeholder="Tulis refleksimu..."></textarea>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800 mb-2">Bagian mana yang masih perlu diperdalam?</h4>
+                                    <textarea class="w-full p-3 border border-gray-300 rounded-lg h-20 resize-none" 
+                                              placeholder="Tulis refleksimu..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">📚</span>
+                                Kesimpulan Pembelajaran
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-3">Yang Telah Dipelajari:</h4>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-start">
+                                            <span class="text-green-500 mr-2 mt-1">✓</span>
+                                            <span class="text-gray-700">Konsep dasar debugging</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-green-500 mr-2 mt-1">✓</span>
+                                            <span class="text-gray-700">Jenis-jenis bug dalam programming</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-green-500 mr-2 mt-1">✓</span>
+                                            <span class="text-gray-700">Tools debugging di NetBeans</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-green-500 mr-2 mt-1">✓</span>
+                                            <span class="text-gray-700">Penggunaan breakpoint</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-green-500 mr-2 mt-1">✓</span>
+                                            <span class="text-gray-700">Teknik step debugging</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-3">Skill yang Dikuasai:</h4>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-start">
+                                            <span class="text-blue-500 mr-2 mt-1">🎯</span>
+                                            <span class="text-gray-700">Mengidentifikasi dan menganalisis bug</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-blue-500 mr-2 mt-1">🎯</span>
+                                            <span class="text-gray-700">Menggunakan debugger NetBeans</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-blue-500 mr-2 mt-1">🎯</span>
+                                            <span class="text-gray-700">Debugging secara sistematis</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="text-blue-500 mr-2 mt-1">🎯</span>
+                                            <span class="text-gray-700">Memperbaiki berbagai jenis error</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-xl mb-6">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🎯</span>
+                                Tips Debugging yang Efektif
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <h4 class="font-semibold text-gray-800 text-sm mb-1">1. Baca Error Message dengan Teliti</h4>
+                                        <p class="text-xs text-gray-600">Error message memberikan petunjuk lokasi dan jenis masalah</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <h4 class="font-semibold text-gray-800 text-sm mb-1">2. Gunakan System.out.println()</h4>
+                                        <p class="text-xs text-gray-600">Untuk debugging cepat, print nilai variabel di titik-titik kritis</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <h4 class="font-semibold text-gray-800 text-sm mb-1">3. Debugging Secara Bertahap</h4>
+                                        <p class="text-xs text-gray-600">Jangan langsung debug seluruh program, fokus pada bagian bermasalah</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <h4 class="font-semibold text-gray-800 text-sm mb-1">4. Periksa Kondisi Batas</h4>
+                                        <p class="text-xs text-gray-600">Bug sering terjadi di kondisi ekstrem (array kosong, nilai nol, dll)</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <h4 class="font-semibold text-gray-800 text-sm mb-1">5. Dokumentasikan Bug</h4>
+                                        <p class="text-xs text-gray-600">Catat bug yang ditemukan untuk pembelajaran di masa depan</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <h4 class="font-semibold text-gray-800 text-sm mb-1">6. Istirahat Sejenak</h4>
+                                        <p class="text-xs text-gray-600">Kadang solusi muncul saat kita tidak terlalu fokus pada masalah</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl text-center">
+                            <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center justify-center">
+                                <span class="text-2xl mr-3">💪</span>
+                                Pesan Motivasi
+                            </h3>
+                            
+                            <div class="max-w-2xl mx-auto">
+                                <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                                    "Debugging bukan hanya tentang memperbaiki error, tapi juga tentang memahami bagaimana program bekerja. 
+                                    Setiap bug yang kamu perbaiki adalah satu langkah menuju menjadi programmer yang lebih baik!"
+                                </p>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <p class="text-gray-600 italic">
+                                        "The best debugger ever made is a careful reading of the code." - Brian Kernighan
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('intro')" class="bg-gradient-to-r from-pink-400 to-purple-500 text-white px-8 py-4 rounded-full font-semibold text-lg hover:from-pink-500 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg">
+                        Kembali ke Awal 🔄
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Floating Back to Top Button -->
+    <button id="backToTop" class="floating-btn bg-gradient-to-r from-pink-400 to-purple-500 text-white p-3 rounded-full shadow-lg hover:from-pink-500 hover:to-purple-600 transition-all transform hover:scale-110 hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+    
+    <script>
+        // Quiz data
+        const quizData = [
+            {
+                question: "Apa yang dimaksud dengan debugging?",
+                options: [
+                    "Proses menulis kode program",
+                    "Proses menemukan dan memperbaiki bug dalam program",
+                    "Proses menjalankan program",
+                    "Proses mengcompile program"
+                ],
+                correct: 1
+            },
+            {
+                question: "Jenis bug yang menyebabkan program tidak bisa di-compile adalah:",
+                options: [
+                    "Logic Error",
+                    "Runtime Error", 
+                    "Syntax Error",
+                    "Performance Bug"
+                ],
+                correct: 2
+            },
+            {
+                question: "Shortcut keyboard untuk menjalankan program dalam mode debug di NetBeans adalah:",
+                options: [
+                    "F5",
+                    "Ctrl + F5",
+                    "F8",
+                    "Ctrl + F8"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa fungsi dari breakpoint?",
+                options: [
+                    "Menghentikan program secara permanen",
+                    "Menghapus bug dari program",
+                    "Menghentikan eksekusi program sementara pada titik tertentu",
+                    "Mempercepat eksekusi program"
+                ],
+                correct: 2
+            },
+            {
+                question: "Step Over (F8) berfungsi untuk:",
+                options: [
+                    "Masuk ke dalam method yang dipanggil",
+                    "Keluar dari method saat ini",
+                    "Eksekusi baris saat ini dan pindah ke baris berikutnya",
+                    "Menghentikan debugging"
+                ],
+                correct: 2
+            },
+            {
+                question: "Jenis error yang terjadi saat program berjalan tanpa crash tetapi hasilnya tidak sesuai harapan adalah:",
+                options: [
+                    "Syntax Error",
+                    "Runtime Error",
+                    "Logic Error", 
+                    "Compile Error"
+                ],
+                correct: 2
+            },
+            {
+                question: "Window yang menampilkan nilai variabel saat debugging adalah:",
+                options: [
+                    "Output Window",
+                    "Variables Window",
+                    "Call Stack Window",
+                    "Project Window"
+                ],
+                correct: 1
+            },
+            {
+                question: "Step Into (F7) digunakan untuk:",
+                options: [
+                    "Melompati method yang dipanggil",
+                    "Masuk ke dalam method yang dipanggil",
+                    "Keluar dari debugging",
+                    "Menghapus breakpoint"
+                ],
+                correct: 1
+            },
+            {
+                question: "Untuk melihat urutan pemanggilan method saat debugging, window yang digunakan adalah:",
+                options: [
+                    "Variables Window",
+                    "Output Window",
+                    "Call Stack Window",
+                    "Project Window"
+                ],
+                correct: 2
+            },
+            {
+                question: "Cara membuat breakpoint di NetBeans adalah:",
+                options: [
+                    "Klik kanan pada kode",
+                    "Klik di sebelah kiri nomor baris",
+                    "Tekan F5",
+                    "Pilih menu Run"
+                ],
+                correct: 1
+            }
+        ];
+        
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let studentName = '';
+        let selectedAnswer = null;
+        
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Remove active class from all nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show target section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                targetSection.classList.add('fade-in-up');
+                
+                // Add active class to corresponding nav item
+                const activeNavItem = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+                if (activeNavItem) {
+                    activeNavItem.classList.add('active');
+                }
+                
+                // Scroll to top smoothly
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                closeMobileMenu();
+            }
+        }
+        
+        function nextSection(sectionId) {
+            // Scroll to top first, then show section after a small delay
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => {
+                showSection(sectionId);
+            }, 300);
+        }
+        
+        // Mobile menu functions
+        function openMobileMenu() {
+            document.getElementById('sidebar').classList.remove('-translate-x-full');
+            document.getElementById('mobileMenuOverlay').classList.remove('hidden');
+        }
+        
+        function closeMobileMenu() {
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            document.getElementById('mobileMenuOverlay').classList.add('hidden');
+        }
+        
+        // Quiz functions
+        function startQuiz() {
+            const nameInput = document.getElementById('studentName');
+            if (nameInput.value.trim() === '') {
+                alert('Silakan masukkan nama terlebih dahulu!');
+                return;
+            }
+            
+            studentName = nameInput.value.trim();
+            document.getElementById('namaInput').classList.add('hidden');
+            document.getElementById('kuisContent').classList.remove('hidden');
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            loadQuestion();
+        }
+        
+        function loadQuestion() {
+            const question = quizData[currentQuestionIndex];
+            const container = document.getElementById('questionContainer');
+            
+            container.innerHTML = `
+                <h4 class="text-lg font-semibold text-gray-800 mb-4">
+                    ${currentQuestionIndex + 1}. ${question.question}
+                </h4>
+                <div class="space-y-3">
+                    ${question.options.map((option, index) => `
+                        <label class="quiz-option flex items-center p-3 bg-white rounded-lg cursor-pointer hover:bg-purple-50 transition-colors">
+                            <input type="radio" name="answer" value="${index}" class="mr-3" onchange="selectAnswer(${index})">
+                            <span class="text-gray-700">${option}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+            
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('progressBar').style.width = `${((currentQuestionIndex + 1) / 10) * 100}%`;
+            document.getElementById('nextButton').disabled = true;
+            selectedAnswer = null;
+        }
+        
+        function selectAnswer(answerIndex) {
+            selectedAnswer = answerIndex;
+            document.getElementById('nextButton').disabled = false;
+        }
+        
+        function nextQuestion() {
+            if (selectedAnswer === null) return;
+            
+            if (selectedAnswer === quizData[currentQuestionIndex].correct) {
+                score += 10;
+            }
+            
+            document.getElementById('currentScore').textContent = score;
+            
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                showQuizResult();
+            }
+        }
+        
+        function showQuizResult() {
+            document.getElementById('kuisContent').classList.add('hidden');
+            document.getElementById('hasilKuis').classList.remove('hidden');
+            
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('correctAnswers').textContent = score / 10;
+            
+            const gradeMessage = document.getElementById('gradeMessage');
+            if (score >= 80) {
+                gradeMessage.textContent = 'Excellent! Kamu sangat memahami materi debugging!';
+                gradeMessage.className = 'mt-4 p-3 rounded-lg font-semibold bg-green-100 text-green-800';
+            } else if (score >= 60) {
+                gradeMessage.textContent = 'Good! Kamu cukup memahami materi, terus belajar ya!';
+                gradeMessage.className = 'mt-4 p-3 rounded-lg font-semibold bg-yellow-100 text-yellow-800';
+            } else {
+                gradeMessage.textContent = 'Perlu belajar lagi. Jangan menyerah, kamu pasti bisa!';
+                gradeMessage.className = 'mt-4 p-3 rounded-lg font-semibold bg-red-100 text-red-800';
+            }
+        }
+        
+        function restartQuiz() {
+            document.getElementById('hasilKuis').classList.add('hidden');
+            document.getElementById('namaInput').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial active nav item (intro section)
+            const introNavItem = document.querySelector(`[onclick="showSection('intro')"]`);
+            if (introNavItem) {
+                introNavItem.classList.add('active');
+            }
+            
+            // Mobile menu events
+            document.getElementById('openSidebar').addEventListener('click', openMobileMenu);
+            document.getElementById('closeSidebar').addEventListener('click', closeMobileMenu);
+            document.getElementById('mobileMenuOverlay').addEventListener('click', closeMobileMenu);
+            
+            // Back to top button
+            const backToTopBtn = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('hidden');
+                } else {
+                    backToTopBtn.classList.add('hidden');
+                }
+            });
+            
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98a4de32e7800fad',t:'MTc1OTc1MDY1OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
