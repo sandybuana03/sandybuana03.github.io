@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whack-a-Mole Game</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+        }
+
+        .game-container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .hole {
+            width: 120px;
+            height: 120px;
+            background: #2d3748;
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow: inset 0 8px 16px rgba(0,0,0,0.3);
+            transition: all 0.1s ease;
+        }
+
+        .hole:hover {
+            transform: scale(1.05);
+        }
+
+        .mole {
+            width: 80px;
+            height: 80px;
+            background: #8b4513;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.2s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .mole::before {
+            content: '🐹';
+            font-size: 2.5rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .mole.active {
+            transform: translate(-50%, -50%) scale(1);
+            animation: wiggle 0.5s ease-in-out infinite alternate;
+        }
+
+        .mole.hit {
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.1s ease;
+        }
+
+        @keyframes wiggle {
+            0% { transform: translate(-50%, -50%) scale(1) rotate(-5deg); }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(5deg); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-start {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-start:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-reset {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(244, 67, 54, 0.3);
+        }
+
+        .game-over {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .game-over.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .score-popup {
+            position: absolute;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4CAF50;
+            pointer-events: none;
+            animation: scoreFloat 1s ease-out forwards;
+        }
+
+        @keyframes scoreFloat {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .game-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+                padding: 15px;
+            }
+
+            .hole {
+                width: 80px;
+                height: 80px;
+            }
+
+            .mole {
+                width: 60px;
+                height: 60px;
+            }
+
+            .mole::before {
+                font-size: 2rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .game-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🔨 Whack-a-Mole 🐹</h1>
+        
+        <div class="game-info">
+            <div class="info-item">
+                <div class="info-label">Skor</div>
+                <div class="info-value" id="score">0</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Waktu</div>
+                <div class="info-value" id="timer">30</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Skor Tertinggi</div>
+                <div class="info-value" id="highScore">0</div>
+            </div>
+        </div>
+
+        <div class="game-grid" id="gameGrid">
+            <div class="hole" data-index="0">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="1">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="2">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="3">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="4">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="5">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="6">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="7">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-index="8">
+                <div class="mole"></div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-start" id="startBtn">Mulai Game</button>
+            <button class="btn btn-reset" id="resetBtn">Reset Skor</button>
+        </div>
+
+        <div class="game-over" id="gameOver">
+            <h2>🎉 Game Selesai! 🎉</h2>
+            <p>Skor Akhir: <span id="finalScore">0</span></p>
+            <p id="newRecord" style="display: none; color: #4CAF50; font-weight: bold;">🏆 Rekor Baru! 🏆</p>
+        </div>
+    </div>
+
+    <script>
+        class WhackAMoleGame {
+            constructor() {
+                this.score = 0;
+                this.timeLeft = 30;
+                this.isGameActive = false;
+                this.moleInterval = null;
+                this.gameTimer = null;
+                this.activeMoles = new Set();
+                
+                this.initElements();
+                this.loadHighScore();
+                this.bindEvents();
+            }
+
+            initElements() {
+                this.scoreElement = document.getElementById('score');
+                this.timerElement = document.getElementById('timer');
+                this.highScoreElement = document.getElementById('highScore');
+                this.startBtn = document.getElementById('startBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.gameGrid = document.getElementById('gameGrid');
+                this.gameOver = document.getElementById('gameOver');
+                this.finalScore = document.getElementById('finalScore');
+                this.newRecord = document.getElementById('newRecord');
+                this.holes = document.querySelectorAll('.hole');
+                this.moles = document.querySelectorAll('.mole');
+            }
+
+            loadHighScore() {
+                const savedHighScore = localStorage.getItem('whackAMoleHighScore');
+                this.highScore = savedHighScore ? parseInt(savedHighScore) : 0;
+                this.highScoreElement.textContent = this.highScore;
+            }
+
+            saveHighScore() {
+                localStorage.setItem('whackAMoleHighScore', this.highScore.toString());
+            }
+
+            bindEvents() {
+                this.startBtn.addEventListener('click', () => this.startGame());
+                this.resetBtn.addEventListener('click', () => this.resetHighScore());
+                
+                this.moles.forEach((mole, index) => {
+                    mole.addEventListener('click', () => this.hitMole(index));
+                });
+            }
+
+            startGame() {
+                this.score = 0;
+                this.timeLeft = 30;
+                this.isGameActive = true;
+                this.activeMoles.clear();
+                
+                this.updateDisplay();
+                this.startBtn.disabled = true;
+                this.startBtn.textContent = 'Game Berjalan...';
+                this.gameOver.classList.remove('show');
+                
+                // Sembunyikan semua mole
+                this.moles.forEach(mole => {
+                    mole.classList.remove('active', 'hit');
+                });
+                
+                // Mulai timer game
+                this.gameTimer = setInterval(() => {
+                    this.timeLeft--;
+                    this.timerElement.textContent = this.timeLeft;
+                    
+                    if (this.timeLeft <= 0) {
+                        this.endGame();
+                    }
+                }, 1000);
+                
+                // Mulai memunculkan mole
+                this.startMoleSpawning();
+            }
+
+            startMoleSpawning() {
+                this.moleInterval = setInterval(() => {
+                    if (this.isGameActive) {
+                        this.spawnMole();
+                    }
+                }, 800);
+            }
+
+            spawnMole() {
+                // Pilih hole acak yang tidak sedang aktif
+                const availableHoles = [];
+                this.holes.forEach((hole, index) => {
+                    if (!this.activeMoles.has(index)) {
+                        availableHoles.push(index);
+                    }
+                });
+                
+                if (availableHoles.length === 0) return;
+                
+                const randomIndex = availableHoles[Math.floor(Math.random() * availableHoles.length)];
+                const mole = this.moles[randomIndex];
+                
+                // Aktifkan mole
+                mole.classList.add('active');
+                this.activeMoles.add(randomIndex);
+                
+                // Sembunyikan mole setelah 1.5 detik
+                setTimeout(() => {
+                    if (mole.classList.contains('active')) {
+                        mole.classList.remove('active');
+                        this.activeMoles.delete(randomIndex);
+                    }
+                }, 1500);
+            }
+
+            hitMole(index) {
+                if (!this.isGameActive) return;
+                
+                const mole = this.moles[index];
+                if (!mole.classList.contains('active')) return;
+                
+                // Tambah skor
+                this.score += 10;
+                this.scoreElement.textContent = this.score;
+                
+                // Animasi hit
+                mole.classList.remove('active');
+                mole.classList.add('hit');
+                this.activeMoles.delete(index);
+                
+                // Tampilkan popup skor
+                this.showScorePopup(index);
+                
+                // Reset animasi hit
+                setTimeout(() => {
+                    mole.classList.remove('hit');
+                }, 200);
+            }
+
+            showScorePopup(holeIndex) {
+                const hole = this.holes[holeIndex];
+                const popup = document.createElement('div');
+                popup.className = 'score-popup';
+                popup.textContent = '+10';
+                
+                const rect = hole.getBoundingClientRect();
+                const containerRect = this.gameGrid.getBoundingClientRect();
+                
+                popup.style.left = (rect.left - containerRect.left + rect.width / 2) + 'px';
+                popup.style.top = (rect.top - containerRect.top + rect.height / 2) + 'px';
+                
+                this.gameGrid.appendChild(popup);
+                
+                setTimeout(() => {
+                    popup.remove();
+                }, 1000);
+            }
+
+            endGame() {
+                this.isGameActive = false;
+                clearInterval(this.gameTimer);
+                clearInterval(this.moleInterval);
+                
+                // Sembunyikan semua mole aktif
+                this.moles.forEach(mole => {
+                    mole.classList.remove('active', 'hit');
+                });
+                this.activeMoles.clear();
+                
+                // Update high score
+                let isNewRecord = false;
+                if (this.score > this.highScore) {
+                    this.highScore = this.score;
+                    this.highScoreElement.textContent = this.highScore;
+                    this.saveHighScore();
+                    isNewRecord = true;
+                }
+                
+                // Tampilkan hasil
+                this.finalScore.textContent = this.score;
+                this.newRecord.style.display = isNewRecord ? 'block' : 'none';
+                this.gameOver.classList.add('show');
+                
+                // Reset tombol start
+                this.startBtn.disabled = false;
+                this.startBtn.textContent = 'Mulai Game';
+            }
+
+            resetHighScore() {
+                if (confirm('Apakah Anda yakin ingin mereset skor tertinggi?')) {
+                    this.highScore = 0;
+                    this.highScoreElement.textContent = this.highScore;
+                    localStorage.removeItem('whackAMoleHighScore');
+                }
+            }
+
+            updateDisplay() {
+                this.scoreElement.textContent = this.score;
+                this.timerElement.textContent = this.timeLeft;
+            }
+        }
+
+        // Inisialisasi game saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            new WhackAMoleGame();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98b359bc605ef4e4',t:'MTc1OTkwMjUyMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
