@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praktik MySQL - Pembelajaran Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .code-header {
+            background: linear-gradient(90deg, #f59e0b, #f97316);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .code-content {
+            padding: 20px;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        
+        .syntax-keyword { color: #60a5fa; }
+        .syntax-string { color: #34d399; }
+        .syntax-comment { color: #94a3b8; font-style: italic; }
+        .syntax-number { color: #fbbf24; }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .floating-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(59, 130, 246, 0.6);
+        }
+        
+        .menu-item {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            margin: 8px 0;
+        }
+        
+        .menu-item:hover {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            transform: translateX(10px);
+            color: white;
+        }
+        
+        .menu-item.active {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            transform: translateX(10px);
+        }
+        
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .step-card {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border-left: 5px solid #3b82f6;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .step-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .input-demo {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 16px;
+            width: 100%;
+            margin: 10px 0;
+            transition: border-color 0.3s ease;
+        }
+        
+        .input-demo:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .code-content {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-full">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="md:hidden fixed top-4 left-4 z-50 bg-blue-600 text-white p-3 rounded-lg shadow-lg">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar fixed left-0 top-0 w-80 h-full bg-white shadow-2xl z-40 overflow-y-auto">
+        <div class="p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="fas fa-database text-3xl"></i>
+                <div>
+                    <h1 class="text-xl font-bold">MySQL Praktik</h1>
+                    <p class="text-blue-100 text-sm">Basis Data & Tabel</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="p-4">
+            <div class="menu-item p-4 cursor-pointer active" data-section="pengenalan">
+                <i class="fas fa-play-circle mr-3 text-lg"></i>
+                <span class="font-semibold">Pengenalan</span>
+            </div>
+            <div class="menu-item p-4 cursor-pointer" data-section="persiapan">
+                <i class="fas fa-tools mr-3 text-lg"></i>
+                <span class="font-semibold">Persiapan Tools</span>
+            </div>
+            <div class="menu-item p-4 cursor-pointer" data-section="database">
+                <i class="fas fa-plus-circle mr-3 text-lg"></i>
+                <span class="font-semibold">Membuat Database</span>
+            </div>
+            <div class="menu-item p-4 cursor-pointer" data-section="tabel">
+                <i class="fas fa-table mr-3 text-lg"></i>
+                <span class="font-semibold">Membuat Tabel</span>
+            </div>
+            <div class="menu-item p-4 cursor-pointer" data-section="insert">
+                <i class="fas fa-edit mr-3 text-lg"></i>
+                <span class="font-semibold">Input Data</span>
+            </div>
+            <div class="menu-item p-4 cursor-pointer" data-section="select">
+                <i class="fas fa-search mr-3 text-lg"></i>
+                <span class="font-semibold">Menampilkan Data</span>
+            </div>
+            <div class="menu-item p-4 cursor-pointer" data-section="update">
+                <i class="fas fa-sync mr-3 text-lg"></i>
+                <span class="font-semibold">Update Data</span>
+            </div>
+            <div class="menu-item p-4 cursor-pointer" data-section="delete">
+                <i class="fas fa-trash mr-3 text-lg"></i>
+                <span class="font-semibold">Hapus Data</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-80 min-h-full">
+        <!-- Pengenalan Section -->
+        <div id="pengenalan" class="content-section active">
+            <div class="max-w-4xl mx-auto p-6">
+                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🗄️</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Praktik Membuat Basis Data & Tabel MySQL</h1>
+                        <p class="text-xl text-gray-600">Pembelajaran interaktif untuk siswa SMK</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl">
+                            <div class="text-3xl mb-3">🎯</div>
+                            <h3 class="text-xl font-bold text-blue-800 mb-3">Tujuan Pembelajaran</h3>
+                            <ul class="text-gray-700 space-y-2">
+                                <li>✅ Memahami konsep database MySQL</li>
+                                <li>✅ Mampu membuat database dan tabel</li>
+                                <li>✅ Menguasai operasi CRUD dasar</li>
+                                <li>✅ Praktik langsung dengan studi kasus</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl">
+                            <div class="text-3xl mb-3">📚</div>
+                            <h3 class="text-xl font-bold text-green-800 mb-3">Yang Akan Dipelajari</h3>
+                            <ul class="text-gray-700 space-y-2">
+                                <li>🔧 Persiapan tools MySQL</li>
+                                <li>🏗️ Membuat database dan tabel</li>
+                                <li>📝 Input dan manipulasi data</li>
+                                <li>🔍 Query dan pencarian data</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="text-3xl">💡</div>
+                            <h3 class="text-xl font-bold text-purple-800">Studi Kasus: Sistem Perpustakaan Sekolah</h3>
+                        </div>
+                        <p class="text-gray-700 text-lg leading-relaxed">
+                            Dalam pembelajaran ini, kita akan membuat database perpustakaan sekolah yang mencakup data buku, siswa, dan peminjaman. 
+                            Setiap langkah akan dijelaskan secara detail dengan contoh praktis yang mudah dipahami.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('persiapan')" class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Mulai Pembelajaran <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Persiapan Section -->
+        <div id="persiapan" class="content-section">
+            <div class="max-w-4xl mx-auto p-6">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🔧</div>
+                        <h1 class="text-3xl font-bold text-gray-800 mb-4">Persiapan Tools MySQL</h1>
+                        <p class="text-lg text-gray-600">Langkah pertama sebelum praktik</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">1</div>
+                            <h3 class="text-xl font-bold text-gray-800">Download dan Install XAMPP</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">XAMPP adalah paket software yang berisi Apache (web server), MySQL (database), PHP (bahasa pemrograman), dan phpMyAdmin (interface web untuk MySQL).</p>
+                        <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                            <h4 class="font-semibold text-blue-800 mb-2">Langkah Install XAMPP:</h4>
+                            <ol class="text-gray-700 space-y-1 list-decimal list-inside">
+                                <li>Kunjungi <strong>apachefriends.org</strong> (website resmi XAMPP)</li>
+                                <li>Download XAMPP sesuai sistem operasi (Windows/Mac/Linux)</li>
+                                <li>Jalankan file installer yang sudah didownload</li>
+                                <li>Ikuti wizard instalasi (pilih komponen: Apache, MySQL, PHP, phpMyAdmin)</li>
+                                <li>Pilih folder instalasi (default: C:\xampp di Windows)</li>
+                                <li>Tunggu proses instalasi selesai</li>
+                            </ol>
+                        </div>
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+                            <p class="text-yellow-800">💡 <strong>Tips:</strong> Pastikan antivirus tidak memblokir XAMPP selama instalasi</p>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">2</div>
+                            <h3 class="text-xl font-bold text-gray-800">Menjalankan XAMPP</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Setelah install, buka XAMPP Control Panel dan start service berikut:</p>
+                        <div class="bg-green-50 p-4 rounded-lg mb-4">
+                            <h4 class="font-semibold text-green-800 mb-2">Cara Menjalankan:</h4>
+                            <ol class="text-gray-700 space-y-1 list-decimal list-inside">
+                                <li>Buka <strong>XAMPP Control Panel</strong> (cari di Start Menu Windows)</li>
+                                <li>Klik tombol <strong>"Start"</strong> pada baris <strong>Apache</strong></li>
+                                <li>Klik tombol <strong>"Start"</strong> pada baris <strong>MySQL</strong></li>
+                                <li>Tunggu hingga status berubah menjadi hijau dan running</li>
+                            </ol>
+                        </div>
+                        <ul class="list-disc list-inside text-gray-700 space-y-2 ml-4">
+                            <li><strong>Apache</strong> - Web server untuk menjalankan phpMyAdmin (Port 80)</li>
+                            <li><strong>MySQL</strong> - Database server untuk menyimpan data (Port 3306)</li>
+                        </ul>
+                        <div class="bg-red-50 border-l-4 border-red-400 p-4 rounded mt-4">
+                            <p class="text-red-800">⚠️ <strong>Troubleshooting:</strong> Jika port 80 atau 3306 sudah digunakan, ubah port di Config atau matikan aplikasi yang menggunakan port tersebut</p>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">3</div>
+                            <h3 class="text-xl font-bold text-gray-800">Akses phpMyAdmin</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Setelah Apache dan MySQL running, buka browser dan ketik alamat berikut:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-globe"></i>
+                                <span>URL Browser</span>
+                            </div>
+                            <div class="code-content">http://localhost/phpmyadmin</div>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg mt-4">
+                            <h4 class="font-semibold text-green-800 mb-2">Yang Akan Muncul:</h4>
+                            <ul class="text-gray-700 space-y-1 list-disc list-inside">
+                                <li>Halaman login phpMyAdmin (biasanya tanpa password)</li>
+                                <li>Panel navigasi database di sebelah kiri</li>
+                                <li>Area kerja utama di tengah</li>
+                                <li>Tab menu: Databases, SQL, User accounts, dll</li>
+                            </ul>
+                        </div>
+                        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded mt-4">
+                            <p class="text-blue-800">💡 <strong>Default Login:</strong> Username: root, Password: (kosong) - untuk instalasi baru XAMPP</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-6 mt-6">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                            <h3 class="text-lg font-bold text-green-800">Checklist Persiapan</h3>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-3 text-gray-700">
+                                <input type="checkbox" class="w-5 h-5 text-green-600 rounded">
+                                <span>XAMPP sudah terinstall</span>
+                            </label>
+                            <label class="flex items-center gap-3 text-gray-700">
+                                <input type="checkbox" class="w-5 h-5 text-green-600 rounded">
+                                <span>Apache dan MySQL sudah running</span>
+                            </label>
+                            <label class="flex items-center gap-3 text-gray-700">
+                                <input type="checkbox" class="w-5 h-5 text-green-600 rounded">
+                                <span>phpMyAdmin bisa diakses</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="nextSection('database')" class="bg-gradient-to-r from-green-600 to-blue-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-green-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Lanjut: Membuat Database <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Database Section -->
+        <div id="database" class="content-section">
+            <div class="max-w-4xl mx-auto p-6">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🏗️</div>
+                        <h1 class="text-3xl font-bold text-gray-800 mb-4">Membuat Database</h1>
+                        <p class="text-lg text-gray-600">Langkah pertama dalam membangun sistem database</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">1</div>
+                            <h3 class="text-xl font-bold text-gray-800">Buka phpMyAdmin</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Pastikan XAMPP sudah running, lalu buka phpMyAdmin di browser.</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-globe"></i>
+                                <span>URL Browser</span>
+                            </div>
+                            <div class="code-content">http://localhost/phpmyadmin</div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">2</div>
+                            <h3 class="text-xl font-bold text-gray-800">Membuat Database Baru</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Ikuti langkah berikut untuk membuat database:</p>
+                        
+                        <div class="bg-purple-50 p-4 rounded-lg mb-4">
+                            <h4 class="font-semibold text-purple-800 mb-2">Langkah Detail:</h4>
+                            <ol class="text-gray-700 space-y-1 list-decimal list-inside">
+                                <li>Di halaman phpMyAdmin, klik tab <strong>"Databases"</strong> di menu atas</li>
+                                <li>Pada bagian "Create database", masukkan nama database</li>
+                                <li>Pilih Collation: <strong>utf8mb4_general_ci</strong> (untuk support karakter Indonesia)</li>
+                                <li>Klik tombol <strong>"Create"</strong></li>
+                                <li>Database baru akan muncul di panel kiri</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Database:</label>
+                            <input type="text" class="input-demo" placeholder="Ketik: perpustakaan_sekolah" value="perpustakaan_sekolah">
+                            <p class="text-sm text-gray-600 mt-2">💡 Gunakan underscore (_) untuk mengganti spasi, hindari karakter khusus</p>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">3</div>
+                            <h3 class="text-xl font-bold text-gray-800">Menggunakan SQL Command</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Alternatif lain, kita bisa menggunakan perintah SQL langsung:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-code"></i>
+                                <span>create_database.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-comment">-- Membuat database dengan collation UTF-8</span>
+<span class="syntax-keyword">CREATE DATABASE</span> <span class="syntax-string">perpustakaan_sekolah</span> 
+<span class="syntax-keyword">CHARACTER SET</span> <span class="syntax-string">utf8mb4</span> 
+<span class="syntax-keyword">COLLATE</span> <span class="syntax-string">utf8mb4_general_ci</span>;
+
+<span class="syntax-comment">-- Menggunakan database yang baru dibuat</span>
+<span class="syntax-keyword">USE</span> <span class="syntax-string">perpustakaan_sekolah</span>;</div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-purple-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">4</div>
+                            <h3 class="text-xl font-bold text-gray-800">Verifikasi Database</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Setelah database dibuat, pastikan database muncul di daftar sebelah kiri phpMyAdmin.</p>
+                        <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded">
+                            <p class="text-green-800">✅ <strong>Berhasil!</strong> Database "perpustakaan_sekolah" sudah siap digunakan</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mt-6">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-lightbulb text-yellow-600 text-2xl"></i>
+                            <h3 class="text-lg font-bold text-yellow-800">Tips Penamaan Database</h3>
+                        </div>
+                        <ul class="text-gray-700 space-y-2">
+                            <li>• Gunakan huruf kecil semua</li>
+                            <li>• Ganti spasi dengan underscore (_)</li>
+                            <li>• Hindari karakter khusus seperti @, #, %, dll</li>
+                            <li>• Buat nama yang deskriptif dan mudah diingat</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="nextSection('tabel')" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Lanjut: Membuat Tabel <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabel Section -->
+        <div id="tabel" class="content-section">
+            <div class="max-w-4xl mx-auto p-6">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📋</div>
+                        <h1 class="text-3xl font-bold text-gray-800 mb-4">Membuat Tabel</h1>
+                        <p class="text-lg text-gray-600">Struktur untuk menyimpan data secara terorganisir</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-indigo-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">1</div>
+                            <h3 class="text-xl font-bold text-gray-800">Tabel Buku</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Pertama, kita buat tabel untuk menyimpan data buku:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-table"></i>
+                                <span>tabel_buku.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-keyword">CREATE TABLE</span> <span class="syntax-string">buku</span> (
+    <span class="syntax-string">id_buku</span> <span class="syntax-keyword">INT</span> <span class="syntax-keyword">AUTO_INCREMENT</span> <span class="syntax-keyword">PRIMARY KEY</span>,
+    <span class="syntax-string">judul</span> <span class="syntax-keyword">VARCHAR</span>(<span class="syntax-number">200</span>) <span class="syntax-keyword">NOT NULL</span>,
+    <span class="syntax-string">pengarang</span> <span class="syntax-keyword">VARCHAR</span>(<span class="syntax-number">100</span>) <span class="syntax-keyword">NOT NULL</span>,
+    <span class="syntax-string">penerbit</span> <span class="syntax-keyword">VARCHAR</span>(<span class="syntax-number">100</span>),
+    <span class="syntax-string">tahun_terbit</span> <span class="syntax-keyword">YEAR</span>,
+    <span class="syntax-string">kategori</span> <span class="syntax-keyword">ENUM</span>(<span class="syntax-string">'Novel'</span>, <span class="syntax-string">'Pelajaran'</span>, <span class="syntax-string">'Referensi'</span>, <span class="syntax-string">'Komik'</span>, <span class="syntax-string">'Biografi'</span>) <span class="syntax-keyword">DEFAULT</span> <span class="syntax-string">'Pelajaran'</span>,
+    <span class="syntax-string">stok</span> <span class="syntax-keyword">INT</span> <span class="syntax-keyword">DEFAULT</span> <span class="syntax-number">0</span> <span class="syntax-keyword">CHECK</span> (<span class="syntax-string">stok</span> >= <span class="syntax-number">0</span>),
+    <span class="syntax-string">created_at</span> <span class="syntax-keyword">TIMESTAMP</span> <span class="syntax-keyword">DEFAULT</span> <span class="syntax-keyword">CURRENT_TIMESTAMP</span>
+);</div>
+                        </div>
+                        
+                        <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                            <h4 class="font-semibold text-blue-800 mb-2">Penjelasan Struktur:</h4>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li><strong>id_buku:</strong> Nomor unik untuk setiap buku (otomatis bertambah, primary key)</li>
+                                <li><strong>judul:</strong> Judul buku (maksimal 200 karakter, wajib diisi)</li>
+                                <li><strong>pengarang:</strong> Nama pengarang (maksimal 100 karakter, wajib diisi)</li>
+                                <li><strong>penerbit:</strong> Nama penerbit (maksimal 100 karakter, opsional)</li>
+                                <li><strong>tahun_terbit:</strong> Tahun terbit buku (format YYYY)</li>
+                                <li><strong>kategori:</strong> Kategori buku (pilihan terbatas: Novel, Pelajaran, Referensi, Komik, Biografi)</li>
+                                <li><strong>stok:</strong> Jumlah buku tersedia (default 0, tidak boleh negatif)</li>
+                                <li><strong>created_at:</strong> Waktu pembuatan record (otomatis diisi)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-indigo-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">2</div>
+                            <h3 class="text-xl font-bold text-gray-800">Tabel Siswa</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Selanjutnya, buat tabel untuk data siswa:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-users"></i>
+                                <span>tabel_siswa.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-keyword">CREATE TABLE</span> <span class="syntax-string">siswa</span> (
+    <span class="syntax-string">id_siswa</span> <span class="syntax-keyword">INT</span> <span class="syntax-keyword">AUTO_INCREMENT</span> <span class="syntax-keyword">PRIMARY KEY</span>,
+    <span class="syntax-string">nis</span> <span class="syntax-keyword">VARCHAR</span>(<span class="syntax-number">20</span>) <span class="syntax-keyword">UNIQUE</span> <span class="syntax-keyword">NOT NULL</span>,
+    <span class="syntax-string">nama</span> <span class="syntax-keyword">VARCHAR</span>(<span class="syntax-number">100</span>) <span class="syntax-keyword">NOT NULL</span>,
+    <span class="syntax-string">kelas</span> <span class="syntax-keyword">VARCHAR</span>(<span class="syntax-number">15</span>) <span class="syntax-keyword">NOT NULL</span>,
+    <span class="syntax-string">alamat</span> <span class="syntax-keyword">TEXT</span>,
+    <span class="syntax-string">no_hp</span> <span class="syntax-keyword">VARCHAR</span>(<span class="syntax-number">15</span>),
+    <span class="syntax-string">email</span> <span class="syntax-keyword">VARCHAR</span>(<span class="syntax-number">100</span>),
+    <span class="syntax-string">status</span> <span class="syntax-keyword">ENUM</span>(<span class="syntax-string">'aktif'</span>, <span class="syntax-string">'lulus'</span>, <span class="syntax-string">'pindah'</span>) <span class="syntax-keyword">DEFAULT</span> <span class="syntax-string">'aktif'</span>,
+    <span class="syntax-string">created_at</span> <span class="syntax-keyword">TIMESTAMP</span> <span class="syntax-keyword">DEFAULT</span> <span class="syntax-keyword">CURRENT_TIMESTAMP</span>
+);</div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-indigo-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">3</div>
+                            <h3 class="text-xl font-bold text-gray-800">Tabel Peminjaman</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Terakhir, buat tabel untuk mencatat peminjaman:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-handshake"></i>
+                                <span>tabel_peminjaman.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-keyword">CREATE TABLE</span> <span class="syntax-string">peminjaman</span> (
+    <span class="syntax-string">id_pinjam</span> <span class="syntax-keyword">INT</span> <span class="syntax-keyword">AUTO_INCREMENT</span> <span class="syntax-keyword">PRIMARY KEY</span>,
+    <span class="syntax-string">id_siswa</span> <span class="syntax-keyword">INT</span> <span class="syntax-keyword">NOT NULL</span>,
+    <span class="syntax-string">id_buku</span> <span class="syntax-keyword">INT</span> <span class="syntax-keyword">NOT NULL</span>,
+    <span class="syntax-string">tanggal_pinjam</span> <span class="syntax-keyword">DATE</span> <span class="syntax-keyword">NOT NULL</span> <span class="syntax-keyword">DEFAULT</span> (<span class="syntax-keyword">CURDATE</span>()),
+    <span class="syntax-string">tanggal_harus_kembali</span> <span class="syntax-keyword">DATE</span> <span class="syntax-keyword">NOT NULL</span>,
+    <span class="syntax-string">tanggal_kembali</span> <span class="syntax-keyword">DATE</span>,
+    <span class="syntax-string">denda</span> <span class="syntax-keyword">DECIMAL</span>(<span class="syntax-number">10</span>,<span class="syntax-number">2</span>) <span class="syntax-keyword">DEFAULT</span> <span class="syntax-number">0</span>,
+    <span class="syntax-string">status</span> <span class="syntax-keyword">ENUM</span>(<span class="syntax-string">'dipinjam'</span>, <span class="syntax-string">'dikembalikan'</span>, <span class="syntax-string">'terlambat'</span>) <span class="syntax-keyword">DEFAULT</span> <span class="syntax-string">'dipinjam'</span>,
+    <span class="syntax-string">created_at</span> <span class="syntax-keyword">TIMESTAMP</span> <span class="syntax-keyword">DEFAULT</span> <span class="syntax-keyword">CURRENT_TIMESTAMP</span>,
+    <span class="syntax-keyword">FOREIGN KEY</span> (<span class="syntax-string">id_siswa</span>) <span class="syntax-keyword">REFERENCES</span> <span class="syntax-string">siswa</span>(<span class="syntax-string">id_siswa</span>) <span class="syntax-keyword">ON DELETE</span> <span class="syntax-keyword">CASCADE</span>,
+    <span class="syntax-keyword">FOREIGN KEY</span> (<span class="syntax-string">id_buku</span>) <span class="syntax-keyword">REFERENCES</span> <span class="syntax-string">buku</span>(<span class="syntax-string">id_buku</span>) <span class="syntax-keyword">ON DELETE</span> <span class="syntax-keyword">CASCADE</span>
+);</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-purple-50 border border-purple-200 rounded-xl p-6 mt-6">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-info-circle text-purple-600 text-2xl"></i>
+                            <h3 class="text-lg font-bold text-purple-800">Penjelasan Tipe Data MySQL</h3>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-4 text-base">
+                            <div>
+                                <p><strong>INT:</strong> Angka bulat (-2 miliar hingga +2 miliar)</p>
+                                <p><strong>VARCHAR(n):</strong> Teks dengan panjang maksimal n karakter</p>
+                                <p><strong>TEXT:</strong> Teks panjang (hingga 65,535 karakter)</p>
+                                <p><strong>DECIMAL(m,d):</strong> Angka desimal (m=total digit, d=digit desimal)</p>
+                                <p><strong>TIMESTAMP:</strong> Tanggal dan waktu otomatis</p>
+                            </div>
+                            <div>
+                                <p><strong>DATE:</strong> Tanggal saja (YYYY-MM-DD)</p>
+                                <p><strong>YEAR:</strong> Tahun 4 digit (YYYY)</p>
+                                <p><strong>ENUM:</strong> Pilihan nilai tertentu yang sudah ditentukan</p>
+                                <p><strong>AUTO_INCREMENT:</strong> Nomor otomatis bertambah</p>
+                                <p><strong>PRIMARY KEY:</strong> Kunci utama (unik, tidak boleh kosong)</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 bg-blue-50 rounded">
+                            <p class="text-blue-800 text-sm"><strong>Constraint Penting:</strong></p>
+                            <ul class="text-blue-700 text-xs mt-1 space-y-1">
+                                <li>• <strong>NOT NULL:</strong> Kolom wajib diisi</li>
+                                <li>• <strong>UNIQUE:</strong> Nilai harus unik (tidak boleh sama)</li>
+                                <li>• <strong>DEFAULT:</strong> Nilai default jika tidak diisi</li>
+                                <li>• <strong>CHECK:</strong> Validasi kondisi tertentu</li>
+                                <li>• <strong>FOREIGN KEY:</strong> Referensi ke tabel lain</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="nextSection('insert')" class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Lanjut: Input Data <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insert Section -->
+        <div id="insert" class="content-section">
+            <div class="max-w-4xl mx-auto p-6">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📝</div>
+                        <h1 class="text-3xl font-bold text-gray-800 mb-4">Input Data ke Tabel</h1>
+                        <p class="text-lg text-gray-600">Mengisi tabel dengan data menggunakan INSERT</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">1</div>
+                            <h3 class="text-xl font-bold text-gray-800">Input Data Buku</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Mari input beberapa data buku ke dalam tabel:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-plus"></i>
+                                <span>insert_buku.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-keyword">INSERT INTO</span> <span class="syntax-string">buku</span> (<span class="syntax-string">judul</span>, <span class="syntax-string">pengarang</span>, <span class="syntax-string">penerbit</span>, <span class="syntax-string">tahun_terbit</span>, <span class="syntax-string">kategori</span>, <span class="syntax-string">stok</span>) 
+<span class="syntax-keyword">VALUES</span> 
+(<span class="syntax-string">'Laskar Pelangi'</span>, <span class="syntax-string">'Andrea Hirata'</span>, <span class="syntax-string">'Bentang Pustaka'</span>, <span class="syntax-number">2005</span>, <span class="syntax-string">'Novel'</span>, <span class="syntax-number">5</span>),
+(<span class="syntax-string">'Bumi Manusia'</span>, <span class="syntax-string">'Pramoedya Ananta Toer'</span>, <span class="syntax-string">'Hasta Mitra'</span>, <span class="syntax-number">1980</span>, <span class="syntax-string">'Novel'</span>, <span class="syntax-number">3</span>),
+(<span class="syntax-string">'Matematika SMK Kelas X'</span>, <span class="syntax-string">'Tim Penulis'</span>, <span class="syntax-string">'Erlangga'</span>, <span class="syntax-number">2020</span>, <span class="syntax-string">'Pelajaran'</span>, <span class="syntax-number">10</span>);</div>
+                        </div>
+                        
+                        <div class="mt-4 p-4 bg-green-50 rounded-lg">
+                            <h4 class="font-semibold text-green-800 mb-2">Coba Input Data Sendiri:</h4>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Judul Buku:</label>
+                                    <input type="text" class="input-demo" placeholder="Contoh: Harry Potter">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Pengarang:</label>
+                                    <input type="text" class="input-demo" placeholder="Contoh: J.K. Rowling">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Penerbit:</label>
+                                    <input type="text" class="input-demo" placeholder="Contoh: Gramedia">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Stok:</label>
+                                    <input type="number" class="input-demo" placeholder="Contoh: 7">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">2</div>
+                            <h3 class="text-xl font-bold text-gray-800">Input Data Siswa</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Sekarang input data siswa:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-user-plus"></i>
+                                <span>insert_siswa.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-keyword">INSERT INTO</span> <span class="syntax-string">siswa</span> (<span class="syntax-string">nis</span>, <span class="syntax-string">nama</span>, <span class="syntax-string">kelas</span>, <span class="syntax-string">alamat</span>, <span class="syntax-string">no_hp</span>, <span class="syntax-string">email</span>) 
+<span class="syntax-keyword">VALUES</span> 
+(<span class="syntax-string">'2024001'</span>, <span class="syntax-string">'Ahmad Rizki Pratama'</span>, <span class="syntax-string">'XII RPL 1'</span>, <span class="syntax-string">'Jl. Merdeka No. 123, Jakarta'</span>, <span class="syntax-string">'081234567890'</span>, <span class="syntax-string">'ahmad.rizki@email.com'</span>),
+(<span class="syntax-string">'2024002'</span>, <span class="syntax-string">'Siti Nurhaliza'</span>, <span class="syntax-string">'XII RPL 1'</span>, <span class="syntax-string">'Jl. Sudirman No. 456, Bandung'</span>, <span class="syntax-string">'081234567891'</span>, <span class="syntax-string">'siti.nur@email.com'</span>),
+(<span class="syntax-string">'2024003'</span>, <span class="syntax-string">'Budi Santoso'</span>, <span class="syntax-string">'XII TKJ 1'</span>, <span class="syntax-string">'Jl. Gatot Subroto No. 789, Surabaya'</span>, <span class="syntax-string">'081234567892'</span>, <span class="syntax-string">'budi.santoso@email.com'</span>),
+(<span class="syntax-string">'2024004'</span>, <span class="syntax-string">'Dewi Sartika'</span>, <span class="syntax-string">'XII RPL 2'</span>, <span class="syntax-string">'Jl. Diponegoro No. 321, Yogyakarta'</span>, <span class="syntax-string">'081234567893'</span>, <span class="syntax-string">'dewi.sartika@email.com'</span>);</div>
+                        </div>
+                        
+                        <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                            <h4 class="font-semibold text-blue-800 mb-2">Input Data Siswa Baru:</h4>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">NIS:</label>
+                                    <input type="text" class="input-demo" placeholder="Contoh: 2024004">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Lengkap:</label>
+                                    <input type="text" class="input-demo" placeholder="Contoh: Dewi Sartika">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Kelas:</label>
+                                    <input type="text" class="input-demo" placeholder="Contoh: XII RPL 2">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">No. HP:</label>
+                                    <input type="text" class="input-demo" placeholder="Contoh: 081234567893">
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Alamat:</label>
+                                <textarea class="input-demo" rows="2" placeholder="Contoh: Jl. Diponegoro No. 321"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-green-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">3</div>
+                            <h3 class="text-xl font-bold text-gray-800">Input Data Peminjaman</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Terakhir, input data peminjaman buku:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-handshake"></i>
+                                <span>insert_peminjaman.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-comment">-- Input data peminjaman (tanggal harus kembali = tanggal pinjam + 7 hari)</span>
+<span class="syntax-keyword">INSERT INTO</span> <span class="syntax-string">peminjaman</span> (<span class="syntax-string">id_siswa</span>, <span class="syntax-string">id_buku</span>, <span class="syntax-string">tanggal_pinjam</span>, <span class="syntax-string">tanggal_harus_kembali</span>) 
+<span class="syntax-keyword">VALUES</span> 
+(<span class="syntax-number">1</span>, <span class="syntax-number">1</span>, <span class="syntax-string">'2024-01-15'</span>, <span class="syntax-string">'2024-01-22'</span>),
+(<span class="syntax-number">2</span>, <span class="syntax-number">3</span>, <span class="syntax-string">'2024-01-16'</span>, <span class="syntax-string">'2024-01-23'</span>),
+(<span class="syntax-number">3</span>, <span class="syntax-number">2</span>, <span class="syntax-string">'2024-01-17'</span>, <span class="syntax-string">'2024-01-24'</span>),
+(<span class="syntax-number">4</span>, <span class="syntax-number">1</span>, <span class="syntax-string">'2024-01-18'</span>, <span class="syntax-string">'2024-01-25'</span>);
+
+<span class="syntax-comment">-- Contoh data peminjaman yang sudah dikembalikan</span>
+<span class="syntax-keyword">INSERT INTO</span> <span class="syntax-string">peminjaman</span> (<span class="syntax-string">id_siswa</span>, <span class="syntax-string">id_buku</span>, <span class="syntax-string">tanggal_pinjam</span>, <span class="syntax-string">tanggal_harus_kembali</span>, <span class="syntax-string">tanggal_kembali</span>, <span class="syntax-string">status</span>) 
+<span class="syntax-keyword">VALUES</span> 
+(<span class="syntax-number">1</span>, <span class="syntax-number">2</span>, <span class="syntax-string">'2024-01-10'</span>, <span class="syntax-string">'2024-01-17'</span>, <span class="syntax-string">'2024-01-16'</span>, <span class="syntax-string">'dikembalikan'</span>);</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-orange-50 border border-orange-200 rounded-xl p-6 mt-6">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-exclamation-triangle text-orange-600 text-2xl"></i>
+                            <h3 class="text-lg font-bold text-orange-800">Penting untuk Diingat</h3>
+                        </div>
+                        <ul class="text-gray-700 space-y-2">
+                            <li>• Gunakan tanda kutip tunggal (') untuk data teks</li>
+                            <li>• Angka tidak perlu tanda kutip</li>
+                            <li>• Format tanggal: 'YYYY-MM-DD'</li>
+                            <li>• Pastikan urutan kolom sesuai dengan urutan VALUES</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="nextSection('select')" class="bg-gradient-to-r from-green-600 to-teal-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-green-700 hover:to-teal-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Lanjut: Menampilkan Data <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Select Section -->
+        <div id="select" class="content-section">
+            <div class="max-w-4xl mx-auto p-6">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🔍</div>
+                        <h1 class="text-3xl font-bold text-gray-800 mb-4">Menampilkan Data</h1>
+                        <p class="text-lg text-gray-600">Menggunakan SELECT untuk melihat data dalam tabel</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">1</div>
+                            <h3 class="text-xl font-bold text-gray-800">SELECT Dasar</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Menampilkan semua data dari tabel buku:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-eye"></i>
+                                <span>select_all_buku.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-keyword">SELECT</span> * <span class="syntax-keyword">FROM</span> <span class="syntax-string">buku</span>;</div>
+                        </div>
+                        <p class="text-gray-700 mt-4">Tanda * artinya semua kolom akan ditampilkan.</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">2</div>
+                            <h3 class="text-xl font-bold text-gray-800">SELECT Kolom Tertentu</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Menampilkan kolom tertentu saja:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-columns"></i>
+                                <span>select_kolom_tertentu.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-keyword">SELECT</span> <span class="syntax-string">judul</span>, <span class="syntax-string">pengarang</span>, <span class="syntax-string">stok</span> <span class="syntax-keyword">FROM</span> <span class="syntax-string">buku</span>;</div>
+                        </div>
+                        
+                        <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                            <h4 class="font-semibold text-blue-800 mb-2">Coba Query Sendiri:</h4>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Pilih kolom yang ingin ditampilkan:</label>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox" checked> <span class="text-sm">judul</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox" checked> <span class="text-sm">pengarang</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox"> <span class="text-sm">penerbit</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox"> <span class="text-sm">tahun_terbit</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox" checked> <span class="text-sm">stok</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">3</div>
+                            <h3 class="text-xl font-bold text-gray-800">SELECT dengan WHERE</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Menampilkan data dengan kondisi tertentu:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-filter"></i>
+                                <span>select_with_where.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-comment">-- Menampilkan buku dengan kategori 'Novel'</span>
+<span class="syntax-keyword">SELECT</span> * <span class="syntax-keyword">FROM</span> <span class="syntax-string">buku</span> <span class="syntax-keyword">WHERE</span> <span class="syntax-string">kategori</span> = <span class="syntax-string">'Novel'</span>;
+
+<span class="syntax-comment">-- Menampilkan buku dengan stok lebih dari 5</span>
+<span class="syntax-keyword">SELECT</span> <span class="syntax-string">judul</span>, <span class="syntax-string">pengarang</span>, <span class="syntax-string">stok</span> <span class="syntax-keyword">FROM</span> <span class="syntax-string">buku</span> <span class="syntax-keyword">WHERE</span> <span class="syntax-string">stok</span> > <span class="syntax-number">5</span>;
+
+<span class="syntax-comment">-- Menampilkan siswa dari kelas XII RPL 1</span>
+<span class="syntax-keyword">SELECT</span> <span class="syntax-string">nama</span>, <span class="syntax-string">nis</span>, <span class="syntax-string">no_hp</span> <span class="syntax-keyword">FROM</span> <span class="syntax-string">siswa</span> <span class="syntax-keyword">WHERE</span> <span class="syntax-string">kelas</span> = <span class="syntax-string">'XII RPL 1'</span>;
+
+<span class="syntax-comment">-- Mencari buku berdasarkan pengarang (menggunakan LIKE)</span>
+<span class="syntax-keyword">SELECT</span> * <span class="syntax-keyword">FROM</span> <span class="syntax-string">buku</span> <span class="syntax-keyword">WHERE</span> <span class="syntax-string">pengarang</span> <span class="syntax-keyword">LIKE</span> <span class="syntax-string">'%Andrea%'</span>;
+
+<span class="syntax-comment">-- Menampilkan buku yang diterbitkan setelah tahun 2000</span>
+<span class="syntax-keyword">SELECT</span> <span class="syntax-string">judul</span>, <span class="syntax-string">tahun_terbit</span> <span class="syntax-keyword">FROM</span> <span class="syntax-string">buku</span> <span class="syntax-keyword">WHERE</span> <span class="syntax-string">tahun_terbit</span> > <span class="syntax-number">2000</span>;</div>
+                        </div>
+                        
+                        <div class="mt-4 p-4 bg-green-50 rounded-lg">
+                            <h4 class="font-semibold text-green-800 mb-2">Latihan WHERE:</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Cari buku berdasarkan pengarang:</label>
+                                    <input type="text" class="input-demo" placeholder="Ketik nama pengarang, contoh: Andrea Hirata">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Cari siswa berdasarkan kelas:</label>
+                                    <input type="text" class="input-demo" placeholder="Ketik kelas, contoh: XII TKJ 1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">4</div>
+                            <h3 class="text-xl font-bold text-gray-800">JOIN Tabel</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Menggabungkan data dari beberapa tabel:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-link"></i>
+                                <span>select_join.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-comment">-- Menampilkan data peminjaman lengkap</span>
+<span class="syntax-keyword">SELECT</span> 
+    <span class="syntax-string">s.nama</span> <span class="syntax-keyword">AS</span> <span class="syntax-string">nama_siswa</span>,
+    <span class="syntax-string">s.kelas</span>,
+    <span class="syntax-string">b.judul</span> <span class="syntax-keyword">AS</span> <span class="syntax-string">judul_buku</span>,
+    <span class="syntax-string">p.tanggal_pinjam</span>,
+    <span class="syntax-string">p.status</span>
+<span class="syntax-keyword">FROM</span> <span class="syntax-string">peminjaman</span> <span class="syntax-string">p</span>
+<span class="syntax-keyword">JOIN</span> <span class="syntax-string">siswa</span> <span class="syntax-string">s</span> <span class="syntax-keyword">ON</span> <span class="syntax-string">p.id_siswa</span> = <span class="syntax-string">s.id_siswa</span>
+<span class="syntax-keyword">JOIN</span> <span class="syntax-string">buku</span> <span class="syntax-string">b</span> <span class="syntax-keyword">ON</span> <span class="syntax-string">p.id_buku</span> = <span class="syntax-string">b.id_buku</span>;</div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">5</div>
+                            <h3 class="text-xl font-bold text-gray-800">ORDER BY dan LIMIT</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Mengurutkan dan membatasi hasil query:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-sort"></i>
+                                <span>select_order_limit.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-comment">-- Mengurutkan buku berdasarkan judul A-Z</span>
+<span class="syntax-keyword">SELECT</span> * <span class="syntax-keyword">FROM</span> <span class="syntax-string">buku</span> <span class="syntax-keyword">ORDER BY</span> <span class="syntax-string">judul</span> <span class="syntax-keyword">ASC</span>;
+
+<span class="syntax-comment">-- Mengurutkan buku berdasarkan stok terbanyak</span>
+<span class="syntax-keyword">SELECT</span> <span class="syntax-string">judul</span>, <span class="syntax-string">stok</span> <span class="syntax-keyword">FROM</span> <span class="syntax-string">buku</span> <span class="syntax-keyword">ORDER BY</span> <span class="syntax-string">stok</span> <span class="syntax-keyword">DESC</span>;
+
+<span class="syntax-comment">-- Menampilkan 3 buku terbaru</span>
+<span class="syntax-keyword">SELECT</span> * <span class="syntax-keyword">FROM</span> <span class="syntax-string">buku</span> <span class="syntax-keyword">ORDER BY</span> <span class="syntax-string">created_at</span> <span class="syntax-keyword">DESC</span> <span class="syntax-keyword">LIMIT</span> <span class="syntax-number">3</span>;
+
+<span class="syntax-comment">-- Menampilkan siswa dengan nama diurutkan A-Z</span>
+<span class="syntax-keyword">SELECT</span> <span class="syntax-string">nama</span>, <span class="syntax-string">kelas</span> <span class="syntax-keyword">FROM</span> <span class="syntax-string">siswa</span> <span class="syntax-keyword">ORDER BY</span> <span class="syntax-string">nama</span> <span class="syntax-keyword">ASC</span>;</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-cyan-50 border border-cyan-200 rounded-xl p-6 mt-6">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-lightbulb text-cyan-600 text-2xl"></i>
+                            <h3 class="text-lg font-bold text-cyan-800">Operator dan Fungsi Penting</h3>
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-4 text-base">
+                            <div>
+                                <p><strong>=</strong> : Sama dengan</p>
+                                <p><strong>></strong> : Lebih besar dari</p>
+                                <p><strong><</strong> : Lebih kecil dari</p>
+                                <p><strong>>=</strong> : Lebih besar sama dengan</p>
+                                <p><strong><=</strong> : Lebih kecil sama dengan</p>
+                                <p><strong>!=</strong> : Tidak sama dengan</p>
+                            </div>
+                            <div>
+                                <p><strong>LIKE '%text%'</strong> : Mengandung text</p>
+                                <p><strong>IN (1,2,3)</strong> : Dalam daftar nilai</p>
+                                <p><strong>BETWEEN</strong> : Antara dua nilai</p>
+                                <p><strong>ORDER BY ASC</strong> : Urut naik A-Z</p>
+                                <p><strong>ORDER BY DESC</strong> : Urut turun Z-A</p>
+                                <p><strong>LIMIT n</strong> : Batasi n record</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="nextSection('update')" class="bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Lanjut: Update Data <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Update Section -->
+        <div id="update" class="content-section">
+            <div class="max-w-4xl mx-auto p-6">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🔄</div>
+                        <h1 class="text-3xl font-bold text-gray-800 mb-4">Update Data</h1>
+                        <p class="text-lg text-gray-600">Mengubah data yang sudah ada dalam tabel</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-orange-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">1</div>
+                            <h3 class="text-xl font-bold text-gray-800">UPDATE Dasar</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Mengubah stok buku tertentu:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-edit"></i>
+                                <span>update_stok_buku.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-comment">-- Mengubah stok buku dengan id_buku = 1</span>
+<span class="syntax-keyword">UPDATE</span> <span class="syntax-string">buku</span> 
+<span class="syntax-keyword">SET</span> <span class="syntax-string">stok</span> = <span class="syntax-number">8</span> 
+<span class="syntax-keyword">WHERE</span> <span class="syntax-string">id_buku</span> = <span class="syntax-number">1</span>;</div>
+                        </div>
+                        
+                        <div class="mt-4 p-4 bg-orange-50 rounded-lg">
+                            <h4 class="font-semibold text-orange-800 mb-2">Coba Update Stok:</h4>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">ID Buku:</label>
+                                    <input type="number" class="input-demo" placeholder="Contoh: 2">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Stok Baru:</label>
+                                    <input type="number" class="input-demo" placeholder="Contoh: 15">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-orange-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">2</div>
+                            <h3 class="text-xl font-bold text-gray-800">UPDATE Multiple Kolom</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Mengubah beberapa kolom sekaligus:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-edit"></i>
+                                <span>update_multiple_kolom.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-comment">-- Mengubah data siswa</span>
+<span class="syntax-keyword">UPDATE</span> <span class="syntax-string">siswa</span> 
+<span class="syntax-keyword">SET</span> 
+    <span class="syntax-string">alamat</span> = <span class="syntax-string">'Jl. Pemuda No. 100'</span>,
+    <span class="syntax-string">no_hp</span> = <span class="syntax-string">'081234567999'</span>
+<span class="syntax-keyword">WHERE</span> <span class="syntax-string">nis</span> = <span class="syntax-string">'2024001'</span>;</div>
+                        </div>
+                        
+                        <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                            <h4 class="font-semibold text-blue-800 mb-2">Update Data Siswa:</h4>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">NIS Siswa:</label>
+                                    <input type="text" class="input-demo" placeholder="Contoh: 2024002">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">No. HP Baru:</label>
+                                    <input type="text" class="input-demo" placeholder="Contoh: 081234567888">
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Alamat Baru:</label>
+                                <textarea class="input-demo" rows="2" placeholder="Contoh: Jl. Kartini No. 456"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-orange-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">3</div>
+                            <h3 class="text-xl font-bold text-gray-800">UPDATE Status Peminjaman</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Mengubah status peminjaman ketika buku dikembalikan:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-undo"></i>
+                                <span>update_status_kembali.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-comment">-- Mengubah status menjadi 'dikembalikan' dan set tanggal kembali</span>
+<span class="syntax-keyword">UPDATE</span> <span class="syntax-string">peminjaman</span> 
+<span class="syntax-keyword">SET</span> 
+    <span class="syntax-string">status</span> = <span class="syntax-string">'dikembalikan'</span>,
+    <span class="syntax-string">tanggal_kembali</span> = <span class="syntax-string">'2024-01-25'</span>
+<span class="syntax-keyword">WHERE</span> <span class="syntax-string">id_pinjam</span> = <span class="syntax-number">1</span>;</div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-orange-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">4</div>
+                            <h3 class="text-xl font-bold text-gray-800">UPDATE dengan Kondisi</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Mengubah data berdasarkan kondisi tertentu:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-filter"></i>
+                                <span>update_dengan_kondisi.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-comment">-- Menambah stok semua buku kategori 'Pelajaran' sebanyak 5</span>
+<span class="syntax-keyword">UPDATE</span> <span class="syntax-string">buku</span> 
+<span class="syntax-keyword">SET</span> <span class="syntax-string">stok</span> = <span class="syntax-string">stok</span> + <span class="syntax-number">5</span> 
+<span class="syntax-keyword">WHERE</span> <span class="syntax-string">kategori</span> = <span class="syntax-string">'Pelajaran'</span>;
+
+<span class="syntax-comment">-- Mengubah kelas semua siswa dari 'XII RPL 1' menjadi 'XII RPL A'</span>
+<span class="syntax-keyword">UPDATE</span> <span class="syntax-string">siswa</span> 
+<span class="syntax-keyword">SET</span> <span class="syntax-string">kelas</span> = <span class="syntax-string">'XII RPL A'</span> 
+<span class="syntax-keyword">WHERE</span> <span class="syntax-string">kelas</span> = <span class="syntax-string">'XII RPL 1'</span>;</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-6 mt-6">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                            <h3 class="text-lg font-bold text-red-800">⚠️ Peringatan Penting</h3>
+                        </div>
+                        <ul class="text-gray-700 space-y-2">
+                            <li>• <strong>SELALU gunakan WHERE</strong> dalam UPDATE untuk menghindari mengubah semua data</li>
+                            <li>• Lakukan SELECT terlebih dahulu untuk memastikan data yang akan diubah</li>
+                            <li>• Backup data penting sebelum melakukan UPDATE besar-besaran</li>
+                            <li>• Periksa hasil UPDATE dengan SELECT setelahnya</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="nextSection('delete')" class="bg-gradient-to-r from-orange-600 to-red-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-orange-700 hover:to-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Lanjut: Hapus Data <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Section -->
+        <div id="delete" class="content-section">
+            <div class="max-w-4xl mx-auto p-6">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🗑️</div>
+                        <h1 class="text-3xl font-bold text-gray-800 mb-4">Hapus Data</h1>
+                        <p class="text-lg text-gray-600">Menghapus data dari tabel dengan perintah DELETE</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">1</div>
+                            <h3 class="text-xl font-bold text-gray-800">DELETE dengan WHERE</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Menghapus data tertentu berdasarkan kondisi:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-trash"></i>
+                                <span>delete_data_tertentu.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-comment">-- Menghapus buku dengan id_buku = 3</span>
+<span class="syntax-keyword">DELETE FROM</span> <span class="syntax-string">buku</span> 
+<span class="syntax-keyword">WHERE</span> <span class="syntax-string">id_buku</span> = <span class="syntax-number">3</span>;
+
+<span class="syntax-comment">-- Menghapus siswa dengan NIS tertentu</span>
+<span class="syntax-keyword">DELETE FROM</span> <span class="syntax-string">siswa</span> 
+<span class="syntax-keyword">WHERE</span> <span class="syntax-string">nis</span> = <span class="syntax-string">'2024003'</span>;</div>
+                        </div>
+                        
+                        <div class="mt-4 p-4 bg-red-50 rounded-lg">
+                            <h4 class="font-semibold text-red-800 mb-2">Simulasi Hapus Data:</h4>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Hapus Buku dengan ID:</label>
+                                    <input type="number" class="input-demo" placeholder="Contoh: 5">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Hapus Siswa dengan NIS:</label>
+                                    <input type="text" class="input-demo" placeholder="Contoh: 2024005">
+                                </div>
+                            </div>
+                            <p class="text-sm text-red-600 mt-2">⚠️ Ini hanya simulasi, data tidak benar-benar terhapus</p>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">2</div>
+                            <h3 class="text-xl font-bold text-gray-800">DELETE dengan Kondisi Multiple</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Menghapus data berdasarkan beberapa kondisi:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-filter"></i>
+                                <span>delete_multiple_kondisi.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-comment">-- Menghapus buku dengan stok 0 dan kategori tertentu</span>
+<span class="syntax-keyword">DELETE FROM</span> <span class="syntax-string">buku</span> 
+<span class="syntax-keyword">WHERE</span> <span class="syntax-string">stok</span> = <span class="syntax-number">0</span> <span class="syntax-keyword">AND</span> <span class="syntax-string">kategori</span> = <span class="syntax-string">'Novel'</span>;
+
+<span class="syntax-comment">-- Menghapus peminjaman yang sudah dikembalikan lebih dari 1 bulan</span>
+<span class="syntax-keyword">DELETE FROM</span> <span class="syntax-string">peminjaman</span> 
+<span class="syntax-keyword">WHERE</span> <span class="syntax-string">status</span> = <span class="syntax-string">'dikembalikan'</span> 
+<span class="syntax-keyword">AND</span> <span class="syntax-string">tanggal_kembali</span> < <span class="syntax-string">'2024-01-01'</span>;</div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">3</div>
+                            <h3 class="text-xl font-bold text-gray-800">Langkah Aman Sebelum DELETE</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Selalu lakukan SELECT terlebih dahulu untuk memastikan data yang akan dihapus:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>safe_delete_process.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-comment">-- LANGKAH 1: Cek data yang akan dihapus</span>
+<span class="syntax-keyword">SELECT</span> * <span class="syntax-keyword">FROM</span> <span class="syntax-string">buku</span> 
+<span class="syntax-keyword">WHERE</span> <span class="syntax-string">stok</span> = <span class="syntax-number">0</span>;
+
+<span class="syntax-comment">-- LANGKAH 2: Jika yakin, baru hapus</span>
+<span class="syntax-keyword">DELETE FROM</span> <span class="syntax-string">buku</span> 
+<span class="syntax-keyword">WHERE</span> <span class="syntax-string">stok</span> = <span class="syntax-number">0</span>;
+
+<span class="syntax-comment">-- LANGKAH 3: Verifikasi hasil</span>
+<span class="syntax-keyword">SELECT</span> <span class="syntax-keyword">COUNT</span>(*) <span class="syntax-keyword">FROM</span> <span class="syntax-string">buku</span>;</div>
+                        </div>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">4</div>
+                            <h3 class="text-xl font-bold text-gray-800">Menghapus Semua Data (TRUNCATE)</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Untuk menghapus semua data dalam tabel:</p>
+                        <div class="code-block">
+                            <div class="code-header">
+                                <i class="fas fa-broom"></i>
+                                <span>truncate_table.sql</span>
+                            </div>
+                            <div class="code-content"><span class="syntax-comment">-- Menghapus semua data peminjaman (HATI-HATI!)</span>
+<span class="syntax-keyword">TRUNCATE TABLE</span> <span class="syntax-string">peminjaman</span>;
+
+<span class="syntax-comment">-- Alternatif dengan DELETE (lebih lambat tapi bisa di-rollback)</span>
+<span class="syntax-keyword">DELETE FROM</span> <span class="syntax-string">peminjaman</span>;</div>
+                        </div>
+                        
+                        <div class="mt-4 p-4 bg-yellow-50 rounded-lg">
+                            <h4 class="font-semibold text-yellow-800 mb-2">Perbedaan TRUNCATE vs DELETE:</h4>
+                            <ul class="text-sm text-gray-700 space-y-1">
+                                <li><strong>TRUNCATE:</strong> Lebih cepat, reset AUTO_INCREMENT, tidak bisa pakai WHERE</li>
+                                <li><strong>DELETE:</strong> Lebih lambat, bisa pakai WHERE, bisa di-rollback</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-red-100 border-2 border-red-300 rounded-xl p-6 mt-6">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-exclamation-circle text-red-700 text-3xl"></i>
+                            <h3 class="text-xl font-bold text-red-800">🚨 PERINGATAN KERAS!</h3>
+                        </div>
+                        <ul class="text-red-700 space-y-2 font-semibold">
+                            <li>• <strong>JANGAN PERNAH</strong> jalankan DELETE tanpa WHERE di data production!</li>
+                            <li>• Selalu backup database sebelum operasi DELETE besar</li>
+                            <li>• Gunakan SELECT dulu untuk memastikan data yang akan dihapus</li>
+                            <li>• Pertimbangkan menggunakan soft delete (menandai sebagai deleted) daripada hard delete</li>
+                            <li>• Hati-hati dengan foreign key constraints saat menghapus data</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-orange-50 border border-orange-200 rounded-xl p-6 mt-6">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-tasks text-orange-600 text-2xl"></i>
+                            <h3 class="text-lg font-bold text-orange-800">📝 Latihan Mandiri</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">Coba kerjakan latihan berikut untuk menguji pemahaman:</p>
+                        <div class="space-y-3">
+                            <div class="p-3 bg-white rounded border-l-4 border-orange-400">
+                                <p class="font-semibold text-gray-800">Latihan 1: Buat tabel "guru"</p>
+                                <p class="text-sm text-gray-600">Kolom: id_guru, nip, nama, mata_pelajaran, no_hp</p>
+                            </div>
+                            <div class="p-3 bg-white rounded border-l-4 border-orange-400">
+                                <p class="font-semibold text-gray-800">Latihan 2: Input 3 data guru</p>
+                                <p class="text-sm text-gray-600">Isi dengan data guru yang mengajar di sekolah</p>
+                            </div>
+                            <div class="p-3 bg-white rounded border-l-4 border-orange-400">
+                                <p class="font-semibold text-gray-800">Latihan 3: Query kompleks</p>
+                                <p class="text-sm text-gray-600">Tampilkan semua peminjaman yang terlambat dikembalikan</p>
+                            </div>
+                            <div class="p-3 bg-white rounded border-l-4 border-orange-400">
+                                <p class="font-semibold text-gray-800">Latihan 4: Update stok otomatis</p>
+                                <p class="text-sm text-gray-600">Kurangi stok buku ketika dipinjam, tambah ketika dikembalikan</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-6 mt-6">
+                        <div class="flex items-center gap-3 mb-3">
+                            <i class="fas fa-trophy text-green-600 text-2xl"></i>
+                            <h3 class="text-lg font-bold text-green-800">🎉 Selamat! Pembelajaran Selesai</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">
+                            Kamu telah menyelesaikan semua materi praktik MySQL dasar! Sekarang kamu sudah bisa:
+                        </p>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <ul class="text-gray-700 space-y-2">
+                                <li>✅ Membuat database dan tabel dengan constraint</li>
+                                <li>✅ Input data dengan INSERT (single & multiple)</li>
+                                <li>✅ Menampilkan data dengan SELECT dan WHERE</li>
+                                <li>✅ Mengubah data dengan UPDATE</li>
+                                <li>✅ Menghapus data dengan DELETE</li>
+                            </ul>
+                            <ul class="text-gray-700 space-y-2">
+                                <li>✅ Menggunakan JOIN untuk menggabungkan tabel</li>
+                                <li>✅ Mengurutkan data dengan ORDER BY</li>
+                                <li>✅ Membatasi hasil dengan LIMIT</li>
+                                <li>✅ Menggunakan operator LIKE, IN, BETWEEN</li>
+                                <li>✅ Praktik dengan studi kasus perpustakaan</li>
+                            </ul>
+                        </div>
+                        <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                            <h4 class="font-semibold text-blue-800 mb-2">Materi Lanjutan yang Bisa Dipelajari:</h4>
+                            <div class="grid md:grid-cols-2 gap-4 text-base">
+                                <ul class="text-gray-700 space-y-1">
+                                    <li>• Fungsi agregat (COUNT, SUM, AVG, MAX, MIN)</li>
+                                    <li>• GROUP BY dan HAVING</li>
+                                    <li>• Subquery dan nested query</li>
+                                    <li>• INDEX untuk optimasi performa</li>
+                                </ul>
+                                <ul class="text-gray-700 space-y-1">
+                                    <li>• VIEW untuk menyimpan query</li>
+                                    <li>• Stored procedure dan function</li>
+                                    <li>• Trigger untuk automasi</li>
+                                    <li>• Backup dan restore database</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-4 bg-purple-50 rounded-lg">
+                            <h4 class="font-semibold text-purple-800 mb-2">Tips Praktik Lanjutan:</h4>
+                            <ul class="text-gray-700 space-y-1 text-sm">
+                                <li>• Buat database untuk kasus nyata (toko, sekolah, klinik)</li>
+                                <li>• Praktikkan dengan data yang lebih banyak (ratusan record)</li>
+                                <li>• Pelajari normalisasi database untuk struktur yang efisien</li>
+                                <li>• Coba integrasikan dengan bahasa pemrograman (PHP, Python, Java)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="nextSection('pengenalan')" class="bg-gradient-to-r from-green-600 to-blue-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-green-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Kembali ke Awal <i class="fas fa-redo ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <div class="floating-btn" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        // Menu functionality
+        const menuItems = document.querySelectorAll('.menu-item');
+        const contentSections = document.querySelectorAll('.content-section');
+        const sidebar = document.getElementById('sidebar');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+
+        // Mobile menu toggle
+        mobileMenuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 768 && !sidebar.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Menu item click handler
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const targetSection = item.getAttribute('data-section');
+                showSection(targetSection);
+                
+                // Close mobile menu
+                if (window.innerWidth < 768) {
+                    sidebar.classList.remove('open');
+                }
+            });
+        });
+
+        function showSection(sectionId) {
+            // Hide all sections
+            contentSections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show target section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            // Update active menu item
+            menuItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const activeMenuItem = document.querySelector(`[data-section="${sectionId}"]`);
+            if (activeMenuItem) {
+                activeMenuItem.classList.add('active');
+            }
+            
+            // Scroll to top immediately
+            window.scrollTo(0, 0);
+        }
+
+        function nextSection(sectionId) {
+            // First scroll to top immediately
+            window.scrollTo(0, 0);
+            
+            // Small delay to ensure scroll completes, then show section
+            setTimeout(() => {
+                showSection(sectionId);
+            }, 50);
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Show/hide floating button based on scroll
+        window.addEventListener('scroll', () => {
+            const floatingBtn = document.querySelector('.floating-btn');
+            if (window.scrollY > 300) {
+                floatingBtn.style.display = 'flex';
+            } else {
+                floatingBtn.style.display = 'none';
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Ensure we start at the top
+            window.scrollTo(0, 0);
+            
+            // Set initial active section
+            showSection('pengenalan');
+            
+            // Force update menu active state
+            setTimeout(() => {
+                const initialMenuItem = document.querySelector('[data-section="pengenalan"]');
+                if (initialMenuItem) {
+                    menuItems.forEach(item => item.classList.remove('active'));
+                    initialMenuItem.classList.add('active');
+                }
+            }, 100);
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98b15c2ce0f96cf1',t:'MTc1OTg4MTY0OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
