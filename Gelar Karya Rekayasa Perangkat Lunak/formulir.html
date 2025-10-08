@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Pendaftaran Multi-Langkah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .step-container {
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .step-container.active {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        .step-container.prev {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+        
+        .progress-fill {
+            transition: width 0.5s ease-in-out;
+        }
+        
+        .step-indicator {
+            transition: all 0.3s ease;
+        }
+        
+        .step-indicator.completed {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .step-indicator.active {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+        
+        .form-input {
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-secondary {
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-1px);
+        }
+        
+        .error-message {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .success-animation {
+            animation: bounce 0.6s ease-in-out;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-full font-sans">
+    <div class="min-h-full flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
+                <h1 class="text-2xl font-bold text-center">Formulir Pendaftaran</h1>
+                <p class="text-center text-blue-100 mt-2">Lengkapi informasi Anda dalam beberapa langkah mudah</p>
+            </div>
+            
+            <!-- Progress Indicator -->
+            <div class="p-6 bg-gray-50">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex space-x-4">
+                        <div class="step-indicator active w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-semibold text-sm" data-step="1">1</div>
+                        <div class="step-indicator w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-semibold text-sm" data-step="2">2</div>
+                        <div class="step-indicator w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-semibold text-sm" data-step="3">3</div>
+                        <div class="step-indicator w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-semibold text-sm" data-step="4">4</div>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        Langkah <span id="current-step">1</span> dari 4
+                    </div>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="progress-fill bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full" style="width: 25%"></div>
+                </div>
+            </div>
+            
+            <!-- Form Container -->
+            <div class="relative overflow-hidden" style="min-height: 650px;">
+                
+                <!-- Step 1: Info Pribadi -->
+                <div class="step-container active absolute inset-0 p-6" data-step="1">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6">📋 Informasi Pribadi</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap *</label>
+                            <input type="text" id="fullName" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Masukkan nama lengkap Anda">
+                            <div class="error-message text-red-500 text-sm mt-1 hidden" id="fullName-error"></div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                            <input type="email" id="email" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="contoh@email.com">
+                            <div class="error-message text-red-500 text-sm mt-1 hidden" id="email-error"></div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon *</label>
+                            <input type="tel" id="phone" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="08xxxxxxxxxx">
+                            <div class="error-message text-red-500 text-sm mt-1 hidden" id="phone-error"></div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Lahir *</label>
+                            <input type="date" id="birthDate" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <div class="error-message text-red-500 text-sm mt-1 hidden" id="birthDate-error"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end mt-8">
+                        <button class="btn-primary px-6 py-3 text-white rounded-lg font-medium" onclick="nextStep()">
+                            Selanjutnya →
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Alamat -->
+                <div class="step-container absolute inset-0 p-6" data-step="2">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6">🏠 Informasi Alamat</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Alamat Lengkap *</label>
+                            <textarea id="address" rows="3" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Jalan, RT/RW, Kelurahan"></textarea>
+                            <div class="error-message text-red-500 text-sm mt-1 hidden" id="address-error"></div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Kota *</label>
+                                <input type="text" id="city" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Nama kota">
+                                <div class="error-message text-red-500 text-sm mt-1 hidden" id="city-error"></div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Kode Pos *</label>
+                                <input type="text" id="postalCode" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="12345">
+                                <div class="error-message text-red-500 text-sm mt-1 hidden" id="postalCode-error"></div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Provinsi *</label>
+                            <select id="province" class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="">Pilih Provinsi</option>
+                                <option value="DKI Jakarta">DKI Jakarta</option>
+                                <option value="Jawa Barat">Jawa Barat</option>
+                                <option value="Jawa Tengah">Jawa Tengah</option>
+                                <option value="Jawa Timur">Jawa Timur</option>
+                                <option value="Banten">Banten</option>
+                                <option value="Yogyakarta">Yogyakarta</option>
+                                <option value="Bali">Bali</option>
+                                <option value="Sumatera Utara">Sumatera Utara</option>
+                                <option value="Sumatera Barat">Sumatera Barat</option>
+                                <option value="Sumatera Selatan">Sumatera Selatan</option>
+                            </select>
+                            <div class="error-message text-red-500 text-sm mt-1 hidden" id="province-error"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button class="btn-secondary px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300" onclick="prevStep()">
+                            ← Sebelumnya
+                        </button>
+                        <button class="btn-primary px-6 py-3 text-white rounded-lg font-medium" onclick="nextStep()">
+                            Selanjutnya →
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Preferensi -->
+                <div class="step-container absolute inset-0 p-6" data-step="3">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6">⚙️ Preferensi & Minat</h2>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Kategori Minat *</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                                    <input type="checkbox" name="interests" value="teknologi" class="mr-3 text-blue-600">
+                                    <span>💻 Teknologi</span>
+                                </label>
+                                <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                                    <input type="checkbox" name="interests" value="olahraga" class="mr-3 text-blue-600">
+                                    <span>⚽ Olahraga</span>
+                                </label>
+                                <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                                    <input type="checkbox" name="interests" value="seni" class="mr-3 text-blue-600">
+                                    <span>🎨 Seni</span>
+                                </label>
+                                <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                                    <input type="checkbox" name="interests" value="musik" class="mr-3 text-blue-600">
+                                    <span>🎵 Musik</span>
+                                </label>
+                                <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                                    <input type="checkbox" name="interests" value="kuliner" class="mr-3 text-blue-600">
+                                    <span>🍕 Kuliner</span>
+                                </label>
+                                <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                                    <input type="checkbox" name="interests" value="travel" class="mr-3 text-blue-600">
+                                    <span>✈️ Travel</span>
+                                </label>
+                            </div>
+                            <div class="error-message text-red-500 text-sm mt-1 hidden" id="interests-error"></div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Metode Komunikasi Preferensi *</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                                    <input type="radio" name="communication" value="email" class="mr-3 text-blue-600">
+                                    <span>📧 Email</span>
+                                </label>
+                                <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                                    <input type="radio" name="communication" value="sms" class="mr-3 text-blue-600">
+                                    <span>📱 SMS</span>
+                                </label>
+                                <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                                    <input type="radio" name="communication" value="whatsapp" class="mr-3 text-blue-600">
+                                    <span>💬 WhatsApp</span>
+                                </label>
+                            </div>
+                            <div class="error-message text-red-500 text-sm mt-1 hidden" id="communication-error"></div>
+                        </div>
+                        
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="newsletter" class="mr-3 text-blue-600">
+                                <span class="text-sm text-gray-700">Saya ingin menerima newsletter dan update terbaru</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button class="btn-secondary px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300" onclick="prevStep()">
+                            ← Sebelumnya
+                        </button>
+                        <button class="btn-primary px-6 py-3 text-white rounded-lg font-medium" onclick="nextStep()">
+                            Selanjutnya →
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 4: Konfirmasi -->
+                <div class="step-container absolute inset-0 p-6" data-step="4">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-6">✅ Konfirmasi Data</h2>
+                    
+                    <div class="bg-gray-50 rounded-lg p-6 space-y-4 max-h-64 overflow-y-auto">
+                        <div id="summary-content" class="space-y-4">
+                            <!-- Summary akan diisi oleh JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <label class="flex items-center">
+                            <input type="checkbox" id="terms" class="mr-3 text-blue-600">
+                            <span class="text-sm text-gray-700">Saya menyetujui <a href="#" class="text-blue-600 hover:underline">syarat dan ketentuan</a> yang berlaku</span>
+                        </label>
+                        <div class="error-message text-red-500 text-sm mt-1 hidden" id="terms-error"></div>
+                    </div>
+                    
+                    <div class="flex justify-between mt-8">
+                        <button class="btn-secondary px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300" onclick="prevStep()">
+                            ← Sebelumnya
+                        </button>
+                        <button class="btn-primary px-8 py-3 text-white rounded-lg font-medium" onclick="submitForm()">
+                            🚀 Kirim Data
+                        </button>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full text-center success-animation">
+            <div class="text-6xl mb-4">🎉</div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Pendaftaran Berhasil!</h3>
+            <p class="text-gray-600 mb-6">Data Anda telah berhasil disimpan dan formulir PDF telah diunduh. Terima kasih telah mendaftar!</p>
+            <button class="btn-primary px-6 py-3 text-white rounded-lg font-medium w-full" onclick="closeModal()">
+                Tutup
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // State management
+        let currentStep = 1;
+        const totalSteps = 4;
+        const formData = {};
+        
+        // Validation rules
+        const validationRules = {
+            1: ['fullName', 'email', 'phone', 'birthDate'],
+            2: ['address', 'city', 'postalCode', 'province'],
+            3: ['interests', 'communication'],
+            4: ['terms']
+        };
+        
+        // Initialize form
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgressIndicator();
+            loadSavedData();
+        });
+        
+        // Navigation functions
+        function nextStep() {
+            if (validateCurrentStep()) {
+                saveCurrentStepData();
+                if (currentStep < totalSteps) {
+                    moveToStep(currentStep + 1);
+                }
+            }
+        }
+        
+        function prevStep() {
+            if (currentStep > 1) {
+                moveToStep(currentStep - 1);
+            }
+        }
+        
+        function moveToStep(step) {
+            const currentContainer = document.querySelector(`.step-container[data-step="${currentStep}"]`);
+            const nextContainer = document.querySelector(`.step-container[data-step="${step}"]`);
+            
+            // Animate out current step
+            currentContainer.classList.remove('active');
+            currentContainer.classList.add(step > currentStep ? 'prev' : 'next');
+            
+            // Animate in next step
+            setTimeout(() => {
+                nextContainer.classList.add('active');
+                nextContainer.classList.remove('prev', 'next');
+                
+                currentStep = step;
+                updateProgressIndicator();
+                
+                if (step === 4) {
+                    generateSummary();
+                }
+            }, 200);
+        }
+        
+        // Progress indicator update
+        function updateProgressIndicator() {
+            const indicators = document.querySelectorAll('.step-indicator');
+            const progressFill = document.querySelector('.progress-fill');
+            const currentStepSpan = document.getElementById('current-step');
+            
+            indicators.forEach((indicator, index) => {
+                const stepNumber = index + 1;
+                indicator.classList.remove('active', 'completed');
+                
+                if (stepNumber < currentStep) {
+                    indicator.classList.add('completed');
+                    indicator.innerHTML = '✓';
+                } else if (stepNumber === currentStep) {
+                    indicator.classList.add('active');
+                    indicator.innerHTML = stepNumber;
+                } else {
+                    indicator.innerHTML = stepNumber;
+                }
+            });
+            
+            const progressPercentage = (currentStep / totalSteps) * 100;
+            progressFill.style.width = `${progressPercentage}%`;
+            currentStepSpan.textContent = currentStep;
+        }
+        
+        // Validation functions
+        function validateCurrentStep() {
+            const fieldsToValidate = validationRules[currentStep];
+            let isValid = true;
+            
+            fieldsToValidate.forEach(fieldName => {
+                if (!validateField(fieldName)) {
+                    isValid = false;
+                }
+            });
+            
+            return isValid;
+        }
+        
+        function validateField(fieldName) {
+            const field = document.getElementById(fieldName);
+            const errorElement = document.getElementById(`${fieldName}-error`);
+            let isValid = true;
+            let errorMessage = '';
+            
+            // Clear previous errors
+            if (errorElement) {
+                errorElement.classList.add('hidden');
+                errorElement.textContent = '';
+            }
+            
+            switch (fieldName) {
+                case 'fullName':
+                    if (!field.value.trim()) {
+                        errorMessage = 'Nama lengkap harus diisi';
+                        isValid = false;
+                    } else if (field.value.trim().length < 2) {
+                        errorMessage = 'Nama lengkap minimal 2 karakter';
+                        isValid = false;
+                    }
+                    break;
+                    
+                case 'email':
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!field.value.trim()) {
+                        errorMessage = 'Email harus diisi';
+                        isValid = false;
+                    } else if (!emailRegex.test(field.value)) {
+                        errorMessage = 'Format email tidak valid';
+                        isValid = false;
+                    }
+                    break;
+                    
+                case 'phone':
+                    const phoneRegex = /^(\+62|62|0)[0-9]{9,13}$/;
+                    if (!field.value.trim()) {
+                        errorMessage = 'Nomor telepon harus diisi';
+                        isValid = false;
+                    } else if (!phoneRegex.test(field.value.replace(/\s/g, ''))) {
+                        errorMessage = 'Format nomor telepon tidak valid';
+                        isValid = false;
+                    }
+                    break;
+                    
+                case 'birthDate':
+                    if (!field.value) {
+                        errorMessage = 'Tanggal lahir harus diisi';
+                        isValid = false;
+                    } else {
+                        const birthDate = new Date(field.value);
+                        const today = new Date();
+                        const age = today.getFullYear() - birthDate.getFullYear();
+                        if (age < 13 || age > 100) {
+                            errorMessage = 'Usia harus antara 13-100 tahun';
+                            isValid = false;
+                        }
+                    }
+                    break;
+                    
+                case 'address':
+                    if (!field.value.trim()) {
+                        errorMessage = 'Alamat harus diisi';
+                        isValid = false;
+                    } else if (field.value.trim().length < 10) {
+                        errorMessage = 'Alamat minimal 10 karakter';
+                        isValid = false;
+                    }
+                    break;
+                    
+                case 'city':
+                    if (!field.value.trim()) {
+                        errorMessage = 'Kota harus diisi';
+                        isValid = false;
+                    }
+                    break;
+                    
+                case 'postalCode':
+                    const postalRegex = /^[0-9]{5}$/;
+                    if (!field.value.trim()) {
+                        errorMessage = 'Kode pos harus diisi';
+                        isValid = false;
+                    } else if (!postalRegex.test(field.value)) {
+                        errorMessage = 'Kode pos harus 5 digit angka';
+                        isValid = false;
+                    }
+                    break;
+                    
+                case 'province':
+                    if (!field.value) {
+                        errorMessage = 'Provinsi harus dipilih';
+                        isValid = false;
+                    }
+                    break;
+                    
+                case 'interests':
+                    const checkedInterests = document.querySelectorAll('input[name="interests"]:checked');
+                    if (checkedInterests.length === 0) {
+                        errorMessage = 'Pilih minimal satu kategori minat';
+                        isValid = false;
+                    }
+                    break;
+                    
+                case 'communication':
+                    const checkedCommunication = document.querySelector('input[name="communication"]:checked');
+                    if (!checkedCommunication) {
+                        errorMessage = 'Pilih metode komunikasi preferensi';
+                        isValid = false;
+                    }
+                    break;
+                    
+                case 'terms':
+                    if (!field.checked) {
+                        errorMessage = 'Anda harus menyetujui syarat dan ketentuan';
+                        isValid = false;
+                    }
+                    break;
+            }
+            
+            if (!isValid && errorElement) {
+                errorElement.textContent = errorMessage;
+                errorElement.classList.remove('hidden');
+                
+                if (field) {
+                    field.classList.add('border-red-500');
+                    setTimeout(() => {
+                        field.classList.remove('border-red-500');
+                    }, 3000);
+                }
+            }
+            
+            return isValid;
+        }
+        
+        // Data management
+        function saveCurrentStepData() {
+            switch (currentStep) {
+                case 1:
+                    formData.fullName = document.getElementById('fullName').value;
+                    formData.email = document.getElementById('email').value;
+                    formData.phone = document.getElementById('phone').value;
+                    formData.birthDate = document.getElementById('birthDate').value;
+                    break;
+                    
+                case 2:
+                    formData.address = document.getElementById('address').value;
+                    formData.city = document.getElementById('city').value;
+                    formData.postalCode = document.getElementById('postalCode').value;
+                    formData.province = document.getElementById('province').value;
+                    break;
+                    
+                case 3:
+                    const interests = Array.from(document.querySelectorAll('input[name="interests"]:checked'))
+                        .map(cb => cb.value);
+                    formData.interests = interests;
+                    
+                    const communication = document.querySelector('input[name="communication"]:checked');
+                    formData.communication = communication ? communication.value : '';
+                    
+                    formData.newsletter = document.getElementById('newsletter').checked;
+                    break;
+            }
+            
+            // Save to localStorage for persistence
+            localStorage.setItem('wizardFormData', JSON.stringify(formData));
+        }
+        
+        function loadSavedData() {
+            const savedData = localStorage.getItem('wizardFormData');
+            if (savedData) {
+                Object.assign(formData, JSON.parse(savedData));
+                populateFormFields();
+            }
+        }
+        
+        function populateFormFields() {
+            // Populate step 1
+            if (formData.fullName) document.getElementById('fullName').value = formData.fullName;
+            if (formData.email) document.getElementById('email').value = formData.email;
+            if (formData.phone) document.getElementById('phone').value = formData.phone;
+            if (formData.birthDate) document.getElementById('birthDate').value = formData.birthDate;
+            
+            // Populate step 2
+            if (formData.address) document.getElementById('address').value = formData.address;
+            if (formData.city) document.getElementById('city').value = formData.city;
+            if (formData.postalCode) document.getElementById('postalCode').value = formData.postalCode;
+            if (formData.province) document.getElementById('province').value = formData.province;
+            
+            // Populate step 3
+            if (formData.interests) {
+                formData.interests.forEach(interest => {
+                    const checkbox = document.querySelector(`input[name="interests"][value="${interest}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+            
+            if (formData.communication) {
+                const radio = document.querySelector(`input[name="communication"][value="${formData.communication}"]`);
+                if (radio) radio.checked = true;
+            }
+            
+            if (formData.newsletter) {
+                document.getElementById('newsletter').checked = formData.newsletter;
+            }
+        }
+        
+        // Summary generation
+        function generateSummary() {
+            const summaryContent = document.getElementById('summary-content');
+            
+            const interestLabels = {
+                'teknologi': '💻 Teknologi',
+                'olahraga': '⚽ Olahraga',
+                'seni': '🎨 Seni',
+                'musik': '🎵 Musik',
+                'kuliner': '🍕 Kuliner',
+                'travel': '✈️ Travel'
+            };
+            
+            const communicationLabels = {
+                'email': '📧 Email',
+                'sms': '📱 SMS',
+                'whatsapp': '💬 WhatsApp'
+            };
+            
+            const formatDate = (dateString) => {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+            };
+            
+            summaryContent.innerHTML = `
+                <div class="slide-up">
+                    <h3 class="font-semibold text-gray-800 mb-3">📋 Informasi Pribadi</h3>
+                    <div class="bg-white p-4 rounded-lg space-y-2">
+                        <p><span class="font-medium">Nama:</span> ${formData.fullName}</p>
+                        <p><span class="font-medium">Email:</span> ${formData.email}</p>
+                        <p><span class="font-medium">Telepon:</span> ${formData.phone}</p>
+                        <p><span class="font-medium">Tanggal Lahir:</span> ${formatDate(formData.birthDate)}</p>
+                    </div>
+                </div>
+                
+                <div class="slide-up">
+                    <h3 class="font-semibold text-gray-800 mb-3">🏠 Alamat</h3>
+                    <div class="bg-white p-4 rounded-lg space-y-2">
+                        <p><span class="font-medium">Alamat:</span> ${formData.address}</p>
+                        <p><span class="font-medium">Kota:</span> ${formData.city}</p>
+                        <p><span class="font-medium">Kode Pos:</span> ${formData.postalCode}</p>
+                        <p><span class="font-medium">Provinsi:</span> ${formData.province}</p>
+                    </div>
+                </div>
+                
+                <div class="slide-up">
+                    <h3 class="font-semibold text-gray-800 mb-3">⚙️ Preferensi</h3>
+                    <div class="bg-white p-4 rounded-lg space-y-2">
+                        <p><span class="font-medium">Minat:</span> ${formData.interests.map(i => interestLabels[i]).join(', ')}</p>
+                        <p><span class="font-medium">Komunikasi:</span> ${communicationLabels[formData.communication]}</p>
+                        <p><span class="font-medium">Newsletter:</span> ${formData.newsletter ? 'Ya' : 'Tidak'}</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // PDF Generation function
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Set font
+            doc.setFont('helvetica');
+            
+            // Header
+            doc.setFontSize(20);
+            doc.setTextColor(59, 130, 246);
+            doc.text('FORMULIR PENDAFTARAN', 105, 25, { align: 'center' });
+            
+            // Line under header
+            doc.setDrawColor(59, 130, 246);
+            doc.setLineWidth(0.5);
+            doc.line(20, 30, 190, 30);
+            
+            let yPosition = 45;
+            
+            // Personal Information Section
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text('INFORMASI PRIBADI', 20, yPosition);
+            yPosition += 10;
+            
+            doc.setFontSize(10);
+            doc.text(`Nama Lengkap: ${formData.fullName}`, 25, yPosition);
+            yPosition += 7;
+            doc.text(`Email: ${formData.email}`, 25, yPosition);
+            yPosition += 7;
+            doc.text(`Nomor Telepon: ${formData.phone}`, 25, yPosition);
+            yPosition += 7;
+            
+            const formatDate = (dateString) => {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('id-ID', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+            };
+            
+            doc.text(`Tanggal Lahir: ${formatDate(formData.birthDate)}`, 25, yPosition);
+            yPosition += 15;
+            
+            // Address Section
+            doc.setFontSize(14);
+            doc.text('INFORMASI ALAMAT', 20, yPosition);
+            yPosition += 10;
+            
+            doc.setFontSize(10);
+            doc.text(`Alamat: ${formData.address}`, 25, yPosition);
+            yPosition += 7;
+            doc.text(`Kota: ${formData.city}`, 25, yPosition);
+            yPosition += 7;
+            doc.text(`Kode Pos: ${formData.postalCode}`, 25, yPosition);
+            yPosition += 7;
+            doc.text(`Provinsi: ${formData.province}`, 25, yPosition);
+            yPosition += 15;
+            
+            // Preferences Section
+            doc.setFontSize(14);
+            doc.text('PREFERENSI & MINAT', 20, yPosition);
+            yPosition += 10;
+            
+            const interestLabels = {
+                'teknologi': 'Teknologi',
+                'olahraga': 'Olahraga',
+                'seni': 'Seni',
+                'musik': 'Musik',
+                'kuliner': 'Kuliner',
+                'travel': 'Travel'
+            };
+            
+            const communicationLabels = {
+                'email': 'Email',
+                'sms': 'SMS',
+                'whatsapp': 'WhatsApp'
+            };
+            
+            doc.setFontSize(10);
+            doc.text(`Kategori Minat: ${formData.interests.map(i => interestLabels[i]).join(', ')}`, 25, yPosition);
+            yPosition += 7;
+            doc.text(`Metode Komunikasi: ${communicationLabels[formData.communication]}`, 25, yPosition);
+            yPosition += 7;
+            doc.text(`Newsletter: ${formData.newsletter ? 'Ya' : 'Tidak'}`, 25, yPosition);
+            yPosition += 20;
+            
+            // Footer
+            doc.setFontSize(8);
+            doc.setTextColor(128, 128, 128);
+            doc.text(`Dokumen ini dibuat pada: ${new Date().toLocaleDateString('id-ID')} ${new Date().toLocaleTimeString('id-ID')}`, 20, yPosition);
+            doc.text(`ID Pendaftaran: ${Date.now()}`, 20, yPosition + 5);
+            
+            // Save PDF
+            const fileName = `Formulir_Pendaftaran_${formData.fullName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(fileName);
+        }
+        
+        // Form submission
+        function submitForm() {
+            if (validateCurrentStep()) {
+                saveCurrentStepData();
+                
+                // Simulate form submission
+                const submitButton = event.target;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '⏳ Mengirim...';
+                
+                setTimeout(() => {
+                    // Save final data to localStorage
+                    const finalData = {
+                        ...formData,
+                        submittedAt: new Date().toISOString(),
+                        id: Date.now()
+                    };
+                    
+                    localStorage.setItem('submittedFormData', JSON.stringify(finalData));
+                    localStorage.removeItem('wizardFormData'); // Clear draft
+                    
+                    // Generate and download PDF
+                    generatePDF();
+                    
+                    // Show success modal
+                    document.getElementById('success-modal').classList.remove('hidden');
+                    
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '🚀 Kirim Data';
+                }, 2000);
+            }
+        }
+        
+        // Modal functions
+        function closeModal() {
+            document.getElementById('success-modal').classList.add('hidden');
+            
+            // Reset form
+            currentStep = 1;
+            Object.keys(formData).forEach(key => delete formData[key]);
+            
+            // Reset all form fields
+            document.querySelectorAll('input, select, textarea').forEach(field => {
+                if (field.type === 'checkbox' || field.type === 'radio') {
+                    field.checked = false;
+                } else {
+                    field.value = '';
+                }
+            });
+            
+            // Reset to first step
+            document.querySelectorAll('.step-container').forEach(container => {
+                container.classList.remove('active', 'prev', 'next');
+            });
+            document.querySelector('.step-container[data-step="1"]').classList.add('active');
+            
+            updateProgressIndicator();
+        }
+        
+        // Real-time validation
+        document.addEventListener('input', function(e) {
+            if (e.target.matches('input, select, textarea')) {
+                const fieldName = e.target.id || e.target.name;
+                if (fieldName && validationRules[currentStep].includes(fieldName)) {
+                    setTimeout(() => validateField(fieldName), 500);
+                }
+            }
+        });
+        
+        // Prevent form submission on Enter key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.target.matches('input:not([type="submit"])')) {
+                e.preventDefault();
+                nextStep();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98b37b15f4366cf1',t:'MTc1OTkwMzg4Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
