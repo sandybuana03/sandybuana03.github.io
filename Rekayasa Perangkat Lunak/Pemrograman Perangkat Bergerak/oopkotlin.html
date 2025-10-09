@@ -1,0 +1,2315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar OOP Kotlin untuk Android</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #f0f8ff 100%);
+            color: #4a5568;
+            line-height: 1.6;
+            height: 100%;
+            font-size: 18px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100%;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #ffd6e8 0%, #e6f3ff 100%);
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            color: #ff6b9d;
+            font-size: 1.5rem;
+            margin: 10px 0;
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(5px);
+            border-left-color: #ff6b9d;
+        }
+
+        .nav-item.active {
+            background: #ff6b9d;
+            color: white;
+            border-left-color: #e91e63;
+        }
+
+        .nav-item span {
+            margin-left: 10px;
+            font-weight: 500;
+            font-size: 16px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        .content-section {
+            display: none;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #ff6b9d;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #ff6b9d;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.6);
+        }
+
+        /* Next Button */
+        .next-btn {
+            background: linear-gradient(45deg, #ff6b9d, #4ecdc4);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Content Styling */
+        h2 {
+            color: #ff6b9d;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h3 {
+            color: #4ecdc4;
+            font-size: 1.8rem;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fff5f8 0%, #f0fdff 100%);
+            border-left: 5px solid #ff6b9d;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-size: 1.1rem;
+        }
+
+        .code-demo {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 16px;
+            line-height: 1.6;
+            overflow-x: auto;
+            border: 1px solid #2d3748;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .code-demo::before {
+            content: "Kotlin";
+            position: absolute;
+            top: 8px;
+            right: 15px;
+            background: #4299e1;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .code-demo .keyword {
+            color: #f56565;
+            font-weight: bold;
+        }
+
+        .code-demo .class-name {
+            color: #68d391;
+            font-weight: bold;
+        }
+
+        .code-demo .function {
+            color: #4299e1;
+        }
+
+        .code-demo .string {
+            color: #fbb6ce;
+        }
+
+        .code-demo .comment {
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .code-demo .number {
+            color: #f6ad55;
+        }
+
+        .code-demo .property {
+            color: #9f7aea;
+        }
+
+        .code-line {
+            display: block;
+            padding: 2px 0;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .code-line:hover {
+            background: rgba(255,255,255,0.05);
+            border-left-color: #4299e1;
+        }
+
+        .code-line.indent-0 { padding-left: 10px; }
+        .code-line.indent-1 { padding-left: 30px; }
+        .code-line.indent-2 { padding-left: 50px; }
+        .code-line.indent-3 { padding-left: 70px; }
+        .code-line.indent-4 { padding-left: 90px; }
+
+        .quiz-container {
+            background: linear-gradient(135deg, #fff5f8 0%, #f0fdff 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .quiz-question {
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .quiz-question.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .quiz-option {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .quiz-option:hover {
+            background: #f7fafc;
+            border-color: #ff6b9d;
+        }
+
+        .quiz-option.selected {
+            background: #ff6b9d;
+            color: white;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 18px;
+            margin: 10px 0;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #ff6b9d;
+        }
+
+        .btn {
+            background: #4ecdc4;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background: #45b7aa;
+            transform: translateY(-2px);
+        }
+
+        .emoji {
+            font-size: 2rem;
+            margin: 0 10px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.visible {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+                padding-top: 80px;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .nav-item {
+                font-size: 16px;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content-section {
+                padding: 15px;
+            }
+
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            .next-btn {
+                width: 100%;
+                padding: 18px;
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="emoji">🎯</div>
+                <h1>OOP Kotlin</h1>
+                <p style="font-size: 0.9rem; color: #666;">untuk Android</p>
+            </div>
+            
+            <div class="nav-item active" onclick="navigateToSection('intro')">
+                <span class="emoji">🚀</span>
+                <span>Intro</span>
+            </div>
+            
+            <div class="nav-item" onclick="navigateToSection('pengenalan')">
+                <span class="emoji">👋</span>
+                <span>Pengenalan</span>
+            </div>
+            
+            <div class="nav-item" onclick="navigateToSection('class-object')">
+                <span class="emoji">🏗️</span>
+                <span>Class & Object</span>
+            </div>
+            
+            <div class="nav-item" onclick="navigateToSection('properties-methods')">
+                <span class="emoji">⚙️</span>
+                <span>Properties & Methods</span>
+            </div>
+            
+            <div class="nav-item" onclick="navigateToSection('constructor')">
+                <span class="emoji">🔧</span>
+                <span>Constructor</span>
+            </div>
+            
+            <div class="nav-item" onclick="navigateToSection('inheritance')">
+                <span class="emoji">🌳</span>
+                <span>Inheritance</span>
+            </div>
+            
+            <div class="nav-item" onclick="navigateToSection('encapsulation')">
+                <span class="emoji">🔒</span>
+                <span>Encapsulation</span>
+            </div>
+            
+            <div class="nav-item" onclick="navigateToSection('polymorphism')">
+                <span class="emoji">🎭</span>
+                <span>Polymorphism</span>
+            </div>
+            
+            <div class="nav-item" onclick="navigateToSection('tugas')">
+                <span class="emoji">📝</span>
+                <span>Tugas</span>
+            </div>
+            
+            <div class="nav-item" onclick="navigateToSection('kuis')">
+                <span class="emoji">🧠</span>
+                <span>Kuis</span>
+            </div>
+            
+            <div class="nav-item" onclick="navigateToSection('penutup')">
+                <span class="emoji">🎉</span>
+                <span>Penutup</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Intro Section -->
+            <div class="content-section active" id="intro">
+                <h2>🚀 Selamat Datang di Dunia OOP Kotlin!</h2>
+                
+                <div class="highlight-box">
+                    <h3>🤔 Pertanyaan Pemantik</h3>
+                    <p><strong>Pernahkah kalian berpikir bagaimana aplikasi Android seperti Instagram, WhatsApp, atau game favorit kalian dibuat?</strong></p>
+                    <p>Ternyata, semua aplikasi itu dibuat menggunakan konsep yang disebut <strong>Object-Oriented Programming (OOP)</strong>! 🎮✨</p>
+                </div>
+
+                <h3>📚 Apa yang Akan Dipelajari?</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0;">
+                    <div style="background: #fff5f8; padding: 20px; border-radius: 15px; text-align: center;">
+                        <div class="emoji">🏗️</div>
+                        <strong>Class & Object</strong>
+                        <p>Dasar pembuatan objek</p>
+                    </div>
+                    <div style="background: #f0fdff; padding: 20px; border-radius: 15px; text-align: center;">
+                        <div class="emoji">⚙️</div>
+                        <strong>Properties & Methods</strong>
+                        <p>Karakteristik dan perilaku objek</p>
+                    </div>
+                    <div style="background: #fff5f8; padding: 20px; border-radius: 15px; text-align: center;">
+                        <div class="emoji">🌳</div>
+                        <strong>Inheritance</strong>
+                        <p>Pewarisan sifat antar class</p>
+                    </div>
+                    <div style="background: #f0fdff; padding: 20px; border-radius: 15px; text-align: center;">
+                        <div class="emoji">🔒</div>
+                        <strong>Encapsulation</strong>
+                        <p>Penyembunyian data</p>
+                    </div>
+                </div>
+
+                <h3>🎯 Tujuan Pembelajaran</h3>
+                <ul style="font-size: 1.1rem;">
+                    <li>Memahami konsep dasar OOP dalam Kotlin</li>
+                    <li>Mampu membuat class dan object sederhana</li>
+                    <li>Menerapkan inheritance, encapsulation, dan polymorphism</li>
+                    <li>Siap membuat aplikasi Android dengan konsep OOP</li>
+                </ul>
+
+                <div class="highlight-box">
+                    <h3>💡 Pemahaman Bermakna</h3>
+                    <p>OOP adalah cara berpikir seperti dunia nyata! Bayangkan kalian punya <strong>blueprint rumah</strong> (class), lalu kalian bisa membangun banyak <strong>rumah</strong> (object) dari blueprint yang sama. Setiap rumah punya <strong>karakteristik</strong> (properties) seperti warna, ukuran, dan <strong>fungsi</strong> (methods) seperti buka pintu, nyalakan lampu! 🏠✨</p>
+                </div>
+
+                <h3>🔥 Motivasi</h3>
+                <p style="font-size: 1.2rem; text-align: center; color: #ff6b9d; font-weight: bold;">
+                    "Dengan menguasai OOP Kotlin, kalian bisa membuat aplikasi Android yang keren dan berguna untuk banyak orang! Mari mulai perjalanan menjadi Android Developer! 🚀📱"
+                </p>
+
+                <button class="next-btn" onclick="nextSection()">Mulai Belajar! 🎉</button>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div class="content-section" id="pengenalan">
+                <h2>👋 Pengenalan Object-Oriented Programming</h2>
+                
+                <div class="highlight-box">
+                    <h3>🤖 Apa itu OOP?</h3>
+                    <p><strong>Object-Oriented Programming (OOP)</strong> adalah cara menulis program dengan meniru cara kerja dunia nyata. Kita membuat "objek-objek" yang punya sifat dan bisa melakukan sesuatu, persis seperti benda-benda di sekitar kita!</p>
+                </div>
+
+                <h3>🌟 Mengapa OOP Penting untuk Android?</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+                    <div style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px;">
+                        <div class="emoji">🧩</div>
+                        <h4>Mudah Diorganisir</h4>
+                        <p>Kode jadi rapi dan mudah dipahami, seperti menyusun mainan di kotak-kotak terpisah!</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #f0fdff, #fff5f8); padding: 25px; border-radius: 15px;">
+                        <div class="emoji">🔄</div>
+                        <h4>Bisa Dipakai Ulang</h4>
+                        <p>Sekali buat, bisa dipakai berkali-kali! Hemat waktu dan tenaga!</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px;">
+                        <div class="emoji">👥</div>
+                        <h4>Kerja Tim Jadi Mudah</h4>
+                        <p>Banyak programmer bisa bekerja sama tanpa bingung!</p>
+                    </div>
+                </div>
+
+                <h3>🎭 Analogi Sederhana: Pabrik Mobil</h3>
+                <div style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <p><strong>Bayangkan kalian punya pabrik mobil:</strong></p>
+                    <ul style="font-size: 1.1rem;">
+                        <li>🏭 <strong>Blueprint/Desain Mobil</strong> = Class (rencana/template)</li>
+                        <li>🚗 <strong>Mobil yang Diproduksi</strong> = Object (hasil nyata)</li>
+                        <li>🎨 <strong>Warna, Merek, Tahun</strong> = Properties (ciri-ciri)</li>
+                        <li>⚡ <strong>Nyalakan Mesin, Rem, Klakson</strong> = Methods (aksi yang bisa dilakukan)</li>
+                    </ul>
+                </div>
+
+                <h3>📱 Contoh dalam Aplikasi Android</h3>
+                <div class="code-demo">
+<span class="code-line indent-0"><span class="comment">// Contoh sederhana: Class Pengguna aplikasi</span></span>
+<span class="code-line indent-0"><span class="keyword">class</span> <span class="class-name">User</span> {</span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">nama</span>: <span class="class-name">String</span> = <span class="string">""</span></span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">umur</span>: <span class="class-name">Int</span> = <span class="number">0</span></span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">email</span>: <span class="class-name">String</span> = <span class="string">""</span></span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">login</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"$nama berhasil login!"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">logout</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"$nama telah logout"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="comment">// Membuat object dari class User</span></span>
+<span class="code-line indent-0"><span class="keyword">val</span> <span class="property">pengguna1</span> = <span class="class-name">User</span>()</span>
+<span class="code-line indent-0"><span class="property">pengguna1</span>.<span class="property">nama</span> = <span class="string">"Budi"</span></span>
+<span class="code-line indent-0"><span class="property">pengguna1</span>.<span class="property">umur</span> = <span class="number">17</span></span>
+<span class="code-line indent-0"><span class="property">pengguna1</span>.<span class="property">email</span> = <span class="string">"budi@gmail.com"</span></span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="property">pengguna1</span>.<span class="function">login</span>() <span class="comment">// Output: Budi berhasil login!</span></span>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎯 Poin Penting</h3>
+                    <p>OOP membuat kode kita seperti <strong>LEGO</strong>! Kita bisa menyusun blok-blok kecil (class) menjadi aplikasi yang besar dan kompleks. Setiap blok punya fungsi spesifik dan bisa digabungkan dengan blok lain! 🧱✨</p>
+                </div>
+
+                <button class="next-btn" onclick="nextSection()">Lanjut ke Class & Object! 🏗️</button>
+            </div>
+
+            <!-- Class & Object Section -->
+            <div class="content-section" id="class-object">
+                <h2>🏗️ Class & Object - Fondasi OOP</h2>
+                
+                <div class="highlight-box">
+                    <h3>🎯 Apa itu Class?</h3>
+                    <p><strong>Class</strong> adalah <em>blueprint</em> atau <em>template</em> untuk membuat object. Seperti cetakan kue - sekali buat cetakan, bisa bikin banyak kue dengan bentuk yang sama! 🍪</p>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎪 Apa itu Object?</h3>
+                    <p><strong>Object</strong> adalah hasil nyata dari class. Seperti kue yang sudah jadi dari cetakan. Setiap kue (object) bisa punya rasa berbeda meski bentuknya sama! 🧁</p>
+                </div>
+
+                <h3>📝 Cara Membuat Class di Kotlin</h3>
+                <div class="code-demo">
+<span class="code-line"><span class="comment">// Syntax dasar membuat class</span></span>
+<span class="code-line"><span class="keyword">class</span> <span class="class-name">NamaClass</span> {</span>
+<span class="code-line">    <span class="comment">// Properties (karakteristik)</span></span>
+<span class="code-line">    <span class="comment">// Methods (perilaku/fungsi)</span></span>
+<span class="code-line">}</span>
+<span class="code-line"></span>
+<span class="code-line indent-0"><span class="comment">// Contoh: Class Smartphone</span></span>
+<span class="code-line indent-0"><span class="keyword">class</span> <span class="class-name">Smartphone</span> {</span>
+<span class="code-line indent-1"><span class="comment">// Properties</span></span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">merek</span>: <span class="class-name">String</span> = <span class="string">""</span></span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">model</span>: <span class="class-name">String</span> = <span class="string">""</span></span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">warna</span>: <span class="class-name">String</span> = <span class="string">""</span></span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">harga</span>: <span class="class-name">Int</span> = <span class="number">0</span></span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="comment">// Methods</span></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">nyalakan</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"📱 Smartphone $merek $model menyala!"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">matikan</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"📱 Smartphone $merek $model dimatikan"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">telepon</span>(<span class="property">nomorTujuan</span>: <span class="class-name">String</span>) {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"📞 Menelepon ke $nomorTujuan..."</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+                </div>
+
+                <h3>🎨 Membuat Object dari Class</h3>
+                <div class="code-demo">
+<span class="code-line indent-0"><span class="comment">// Membuat object dari class Smartphone</span></span>
+<span class="code-line indent-0"><span class="keyword">val</span> <span class="property">hp1</span> = <span class="class-name">Smartphone</span>()</span>
+<span class="code-line indent-0"><span class="keyword">val</span> <span class="property">hp2</span> = <span class="class-name">Smartphone</span>()</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="comment">// Mengisi properties</span></span>
+<span class="code-line indent-0"><span class="property">hp1</span>.<span class="property">merek</span> = <span class="string">"Samsung"</span></span>
+<span class="code-line indent-0"><span class="property">hp1</span>.<span class="property">model</span> = <span class="string">"Galaxy A54"</span></span>
+<span class="code-line indent-0"><span class="property">hp1</span>.<span class="property">warna</span> = <span class="string">"Biru"</span></span>
+<span class="code-line indent-0"><span class="property">hp1</span>.<span class="property">harga</span> = <span class="number">5000000</span></span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="property">hp2</span>.<span class="property">merek</span> = <span class="string">"iPhone"</span></span>
+<span class="code-line indent-0"><span class="property">hp2</span>.<span class="property">model</span> = <span class="string">"15"</span></span>
+<span class="code-line indent-0"><span class="property">hp2</span>.<span class="property">warna</span> = <span class="string">"Pink"</span></span>
+<span class="code-line indent-0"><span class="property">hp2</span>.<span class="property">harga</span> = <span class="number">15000000</span></span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="comment">// Menggunakan methods</span></span>
+<span class="code-line indent-0"><span class="property">hp1</span>.<span class="function">nyalakan</span>()  <span class="comment">// Output: 📱 Smartphone Samsung Galaxy A54 menyala!</span></span>
+<span class="code-line indent-0"><span class="property">hp2</span>.<span class="function">telepon</span>(<span class="string">"081234567890"</span>)  <span class="comment">// Output: 📞 Menelepon ke 081234567890...</span></span>
+                </div>
+
+                <h3>🎮 Demo Interaktif: Buat Karakter Game!</h3>
+                <div style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h4>🧙‍♂️ Karakter Game Creator</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+                        <input type="text" id="namaKarakter" placeholder="Nama Karakter" class="input-field">
+                        <input type="text" id="kelasKarakter" placeholder="Kelas (Warrior/Mage/Archer)" class="input-field">
+                        <input type="number" id="levelKarakter" placeholder="Level (1-100)" class="input-field">
+                    </div>
+                    <button class="btn" onclick="buatKarakter()">🎯 Buat Karakter!</button>
+                    <button class="btn" onclick="serangKarakter()">⚔️ Serang!</button>
+                    <button class="btn" onclick="levelUpKarakter()">⬆️ Level Up!</button>
+                    
+                    <div id="hasilKarakter" style="margin-top: 20px; padding: 15px; background: white; border-radius: 10px; min-height: 50px;"></div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎯 Poin Penting</h3>
+                    <ul>
+                        <li><strong>Class</strong> = Template/Blueprint (seperti resep masakan)</li>
+                        <li><strong>Object</strong> = Instance nyata (seperti masakan yang sudah jadi)</li>
+                        <li>Satu class bisa membuat banyak object yang berbeda-beda</li>
+                        <li>Setiap object punya data (properties) dan perilaku (methods) sendiri</li>
+                    </ul>
+                </div>
+
+                <button class="next-btn" onclick="nextSection()">Lanjut ke Properties & Methods! ⚙️</button>
+            </div>
+
+            <!-- Properties & Methods Section -->
+            <div class="content-section" id="properties-methods">
+                <h2>⚙️ Properties & Methods - Jiwa dari Object</h2>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+                    <div class="highlight-box">
+                        <h3>🎨 Properties (Karakteristik)</h3>
+                        <p><strong>Properties</strong> adalah ciri-ciri atau data yang dimiliki object. Seperti nama, warna, ukuran, dll.</p>
+                        <div class="emoji">📊</div>
+                    </div>
+                    <div class="highlight-box">
+                        <h3>⚡ Methods (Perilaku)</h3>
+                        <p><strong>Methods</strong> adalah aksi atau fungsi yang bisa dilakukan object. Seperti berjalan, berbicara, menghitung, dll.</p>
+                        <div class="emoji">🎬</div>
+                    </div>
+                </div>
+
+                <h3>📱 Contoh: Class Aplikasi Media Sosial</h3>
+                <div class="code-demo">
+<span class="code-line indent-0"><span class="keyword">class</span> <span class="class-name">PostInstagram</span> {</span>
+<span class="code-line indent-1"><span class="comment">// Properties - Data yang dimiliki setiap post</span></span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">username</span>: <span class="class-name">String</span> = <span class="string">""</span></span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">caption</span>: <span class="class-name">String</span> = <span class="string">""</span></span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">jumlahLike</span>: <span class="class-name">Int</span> = <span class="number">0</span></span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">jumlahKomentar</span>: <span class="class-name">Int</span> = <span class="number">0</span></span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">waktuPosting</span>: <span class="class-name">String</span> = <span class="string">""</span></span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="comment">// Methods - Aksi yang bisa dilakukan</span></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">like</span>() {</span>
+<span class="code-line indent-2"><span class="property">jumlahLike</span>++</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"❤️ Post di-like! Total like: $jumlahLike"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">unlike</span>() {</span>
+<span class="code-line indent-2"><span class="keyword">if</span> (<span class="property">jumlahLike</span> > <span class="number">0</span>) {</span>
+<span class="code-line indent-3"><span class="property">jumlahLike</span>--</span>
+<span class="code-line indent-3"><span class="function">println</span>(<span class="string">"💔 Like dibatalkan. Total like: $jumlahLike"</span>)</span>
+<span class="code-line indent-2">}</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">tambahKomentar</span>(<span class="property">komentar</span>: <span class="class-name">String</span>) {</span>
+<span class="code-line indent-2"><span class="property">jumlahKomentar</span>++</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"💬 Komentar ditambahkan: '$komentar'"</span>)</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"Total komentar: $jumlahKomentar"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">tampilkanPost</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"""</span></span>
+<span class="code-line indent-2"><span class="string">        📸 POST INSTAGRAM</span></span>
+<span class="code-line indent-2"><span class="string">        👤 @$username</span></span>
+<span class="code-line indent-2"><span class="string">        📝 $caption</span></span>
+<span class="code-line indent-2"><span class="string">        ❤️ $jumlahLike likes</span></span>
+<span class="code-line indent-2"><span class="string">        💬 $jumlahKomentar comments</span></span>
+<span class="code-line indent-2"><span class="string">        📅 $waktuPosting</span></span>
+<span class="code-line indent-2"><span class="string">""".trimIndent()</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+                </div>
+
+                <h3>🎮 Demo Interaktif: Simulasi Instagram Post</h3>
+                <div style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h4>📸 Buat Post Instagram</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 15px 0;">
+                        <input type="text" id="usernamePost" placeholder="Username (tanpa @)" class="input-field">
+                        <input type="text" id="captionPost" placeholder="Caption post" class="input-field">
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <button class="btn" onclick="buatPost()">📸 Buat Post</button>
+                        <button class="btn" onclick="likePost()">❤️ Like</button>
+                        <button class="btn" onclick="komentarPost()">💬 Komentar</button>
+                    </div>
+                    
+                    <div id="hasilPost" style="margin-top: 20px; padding: 15px; background: white; border-radius: 10px; min-height: 50px; font-family: monospace;"></div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎯 Poin Penting Properties & Methods</h3>
+                    <ul>
+                        <li><strong>var</strong> = properties yang bisa diubah</li>
+                        <li><strong>val</strong> = properties yang tidak bisa diubah (konstanta)</li>
+                        <li><strong>Methods</strong> bisa punya parameter dan return value</li>
+                        <li>Properties dan methods membuat object "hidup" dan fungsional</li>
+                    </ul>
+                </div>
+
+                <button class="next-btn" onclick="nextSection()">Lanjut ke Constructor! 🔧</button>
+            </div>
+
+            <!-- Constructor Section -->
+            <div class="content-section" id="constructor">
+                <h2>🔧 Constructor - Membangun Object dengan Gaya</h2>
+                
+                <div class="highlight-box">
+                    <h3>🏗️ Apa itu Constructor?</h3>
+                    <p><strong>Constructor</strong> adalah method khusus yang dipanggil saat object dibuat. Seperti <em>setup awal</em> saat kita beli HP baru - langsung diisi nama, password, dll! 📱✨</p>
+                </div>
+
+                <h3>🎯 Primary Constructor</h3>
+                <div class="code-demo">
+<span class="code-line indent-0"><span class="comment">// Primary Constructor - langsung di header class</span></span>
+<span class="code-line indent-0"><span class="keyword">class</span> <span class="class-name">Siswa</span>(<span class="keyword">val</span> <span class="property">nama</span>: <span class="class-name">String</span>, <span class="keyword">val</span> <span class="property">kelas</span>: <span class="class-name">String</span>, <span class="keyword">var</span> <span class="property">umur</span>: <span class="class-name">Int</span>) {</span>
+<span class="code-line indent-1"><span class="comment">// Properties otomatis dibuat dari parameter constructor</span></span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="comment">// Init block - dijalankan saat object dibuat</span></span>
+<span class="code-line indent-1"><span class="keyword">init</span> {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🎓 Siswa baru: $nama dari kelas $kelas, umur $umur tahun"</span>)</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"📚 Selamat datang di sekolah!"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">belajar</span>(<span class="property">mataPelajaran</span>: <span class="class-name">String</span>) {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"📖 $nama sedang belajar $mataPelajaran"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="comment">// Cara membuat object dengan primary constructor</span></span>
+<span class="code-line indent-0"><span class="keyword">val</span> <span class="property">siswa1</span> = <span class="class-name">Siswa</span>(<span class="string">"Budi"</span>, <span class="string">"XII RPL 1"</span>, <span class="number">17</span>)</span>
+<span class="code-line indent-0"><span class="keyword">val</span> <span class="property">siswa2</span> = <span class="class-name">Siswa</span>(<span class="string">"Sari"</span>, <span class="string">"XII RPL 2"</span>, <span class="number">16</span>)</span>
+                </div>
+
+                <h3>🔧 Secondary Constructor</h3>
+                <div class="code-demo">
+<span class="code-line indent-0"><span class="comment">// Class dengan Primary dan Secondary Constructor</span></span>
+<span class="code-line indent-0"><span class="keyword">class</span> <span class="class-name">Mahasiswa</span>(<span class="keyword">val</span> <span class="property">nama</span>: <span class="class-name">String</span>) {</span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">nim</span>: <span class="class-name">String</span> = <span class="string">""</span></span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">jurusan</span>: <span class="class-name">String</span> = <span class="string">""</span></span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">semester</span>: <span class="class-name">Int</span> = <span class="number">1</span></span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="comment">// Secondary Constructor</span></span>
+<span class="code-line indent-1"><span class="keyword">constructor</span>(<span class="property">nama</span>: <span class="class-name">String</span>, <span class="property">nim</span>: <span class="class-name">String</span>, <span class="property">jurusan</span>: <span class="class-name">String</span>) : <span class="keyword">this</span>(<span class="property">nama</span>) {</span>
+<span class="code-line indent-2"><span class="keyword">this</span>.<span class="property">nim</span> = <span class="property">nim</span></span>
+<span class="code-line indent-2"><span class="keyword">this</span>.<span class="property">jurusan</span> = <span class="property">jurusan</span></span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🎓 Mahasiswa $nama ($nim) jurusan $jurusan terdaftar!"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">daftar</span>(<span class="property">mataKuliah</span>: <span class="class-name">String</span>) {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"📚 $nama mendaftar mata kuliah: $mataKuliah"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="comment">// Penggunaan berbagai constructor</span></span>
+<span class="code-line indent-0"><span class="keyword">val</span> <span class="property">mhs1</span> = <span class="class-name">Mahasiswa</span>(<span class="string">"Andi"</span>)  <span class="comment">// Primary constructor</span></span>
+<span class="code-line indent-0"><span class="keyword">val</span> <span class="property">mhs2</span> = <span class="class-name">Mahasiswa</span>(<span class="string">"Siti"</span>, <span class="string">"2023001"</span>, <span class="string">"Informatika"</span>)  <span class="comment">// Secondary constructor</span></span>
+                </div>
+
+                <h3>🎮 Demo Interaktif: Karakter RPG dengan Constructor</h3>
+                <div style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h4>🧙‍♂️ RPG Character Creator</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+                        <input type="text" id="namaRPG" placeholder="Nama Karakter" class="input-field">
+                        <select id="kelasRPG" class="input-field">
+                            <option value="">Pilih Kelas</option>
+                            <option value="Warrior">⚔️ Warrior</option>
+                            <option value="Mage">🔮 Mage</option>
+                            <option value="Archer">🏹 Archer</option>
+                        </select>
+                        <input type="number" id="levelRPG" placeholder="Level (1-50)" min="1" max="50" class="input-field">
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <button class="btn" onclick="buatKarakterRPG()">🎯 Buat Karakter</button>
+                        <button class="btn" onclick="serangRPG()">⚔️ Serang</button>
+                        <button class="btn" onclick="skillRPG()">✨ Gunakan Skill</button>
+                    </div>
+                    
+                    <div id="hasilRPG" style="margin-top: 20px; padding: 15px; background: white; border-radius: 10px; min-height: 50px; font-family: monospace;"></div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎯 Poin Penting Constructor</h3>
+                    <ul>
+                        <li><strong>Primary Constructor</strong> = di header class, lebih ringkas</li>
+                        <li><strong>init block</strong> = dijalankan setiap kali object dibuat</li>
+                        <li>Constructor memastikan object siap pakai sejak awal</li>
+                    </ul>
+                </div>
+
+                <button class="next-btn" onclick="nextSection()">Lanjut ke Inheritance! 🌳</button>
+            </div>
+
+            <!-- Inheritance Section -->
+            <div class="content-section" id="inheritance">
+                <h2>🌳 Inheritance - Pewarisan Sifat</h2>
+                
+                <div class="highlight-box">
+                    <h3>👨‍👩‍👧‍👦 Apa itu Inheritance?</h3>
+                    <p><strong>Inheritance</strong> adalah kemampuan class untuk mewarisi properties dan methods dari class lain. Seperti anak mewarisi sifat dari orang tua! 👶➡️👨</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+                    <div style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px;">
+                        <div class="emoji">👨‍🏫</div>
+                        <h4>Parent Class (Superclass)</h4>
+                        <p>Class induk yang memberikan warisan sifat dan perilaku</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #f0fdff, #fff5f8); padding: 25px; border-radius: 15px;">
+                        <div class="emoji">👶</div>
+                        <h4>Child Class (Subclass)</h4>
+                        <p>Class anak yang menerima warisan dan bisa menambah sifat baru</p>
+                    </div>
+                </div>
+
+                <h3>🎯 Contoh Sederhana: Hewan</h3>
+                <div class="code-demo">
+<span class="code-line indent-0"><span class="comment">// Parent Class - Class induk</span></span>
+<span class="code-line indent-0"><span class="keyword">open class</span> <span class="class-name">Hewan</span>(<span class="keyword">val</span> <span class="property">nama</span>: <span class="class-name">String</span>, <span class="keyword">val</span> <span class="property">jenis</span>: <span class="class-name">String</span>) {</span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">umur</span>: <span class="class-name">Int</span> = <span class="number">0</span></span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">berat</span>: <span class="class-name">Double</span> = <span class="number">0.0</span></span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="comment">// Method yang bisa diwariskan</span></span>
+<span class="code-line indent-1"><span class="keyword">open fun</span> <span class="function">makan</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🍽️ $nama sedang makan"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">open fun</span> <span class="function">tidur</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"😴 $nama sedang tidur"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">open fun</span> <span class="function">bersuara</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🔊 $nama mengeluarkan suara"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">info</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"📋 Nama: $nama, Jenis: $jenis, Umur: $umur tahun, Berat: $berat kg"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="comment">// Child Class - Class anak</span></span>
+<span class="code-line indent-0"><span class="keyword">class</span> <span class="class-name">Kucing</span>(<span class="property">nama</span>: <span class="class-name">String</span>) : <span class="class-name">Hewan</span>(<span class="property">nama</span>, <span class="string">"Kucing"</span>) {</span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">ras</span>: <span class="class-name">String</span> = <span class="string">"Domestik"</span></span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="comment">// Override method dari parent</span></span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">bersuara</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🐱 $nama berkata: Meow meow!"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">makan</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🐱 $nama makan ikan dengan lahap"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="comment">// Method khusus kucing</span></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">memanjat</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🌳 $nama memanjat pohon dengan lincah"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">bermain</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🧶 $nama bermain dengan benang"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="keyword">class</span> <span class="class-name">Anjing</span>(<span class="property">nama</span>: <span class="class-name">String</span>) : <span class="class-name">Hewan</span>(<span class="property">nama</span>, <span class="string">"Anjing"</span>) {</span>
+<span class="code-line indent-1"><span class="keyword">var</span> <span class="property">ras</span>: <span class="class-name">String</span> = <span class="string">"Campuran"</span></span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">bersuara</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🐕 $nama berkata: Woof woof!"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">makan</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🐕 $nama makan daging dan tulang"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">menggonggong</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🔊 $nama menggonggong keras untuk menjaga rumah!"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">berlari</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🏃 $nama berlari dengan cepat"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="comment">// Contoh penggunaan</span></span>
+<span class="code-line indent-0"><span class="keyword">val</span> <span class="property">kucing</span> = <span class="class-name">Kucing</span>(<span class="string">"Mimi"</span>)</span>
+<span class="code-line indent-0"><span class="property">kucing</span>.<span class="property">umur</span> = <span class="number">2</span></span>
+<span class="code-line indent-0"><span class="property">kucing</span>.<span class="property">berat</span> = <span class="number">3.5</span></span>
+<span class="code-line indent-0"><span class="property">kucing</span>.<span class="property">ras</span> = <span class="string">"Persia"</span></span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="property">kucing</span>.<span class="function">info</span>()        <span class="comment">// Method dari parent class</span></span>
+<span class="code-line indent-0"><span class="property">kucing</span>.<span class="function">bersuara</span>()    <span class="comment">// Override method</span></span>
+<span class="code-line indent-0"><span class="property">kucing</span>.<span class="function">memanjat</span>()   <span class="comment">// Method khusus kucing</span></span>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎯 Poin Penting Inheritance</h3>
+                    <ul>
+                        <li><strong>open</strong> keyword diperlukan untuk class dan method yang bisa diwariskan</li>
+                        <li><strong>override</strong> keyword untuk mengganti method parent</li>
+                        <li>Child class mendapat semua properties dan methods dari parent</li>
+                        <li>Child class bisa menambah properties dan methods baru</li>
+                    </ul>
+                </div>
+
+                <button class="next-btn" onclick="nextSection()">Lanjut ke Encapsulation! 🔒</button>
+            </div>
+
+            <!-- Encapsulation Section -->
+            <div class="content-section" id="encapsulation">
+                <h2>🔒 Encapsulation - Melindungi Data</h2>
+                
+                <div class="highlight-box">
+                    <h3>🛡️ Apa itu Encapsulation?</h3>
+                    <p><strong>Encapsulation</strong> adalah cara melindungi data dengan menyembunyikan detail internal dan hanya memberikan akses melalui method tertentu. Seperti brankas - isinya tersembunyi, hanya bisa diakses dengan kunci yang tepat! 🔐</p>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+                    <div style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px;">
+                        <div class="emoji">🔓</div>
+                        <h4>Public</h4>
+                        <p>Bisa diakses dari mana saja - seperti pintu terbuka</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #f0fdff, #fff5f8); padding: 25px; border-radius: 15px;">
+                        <div class="emoji">🔒</div>
+                        <h4>Private</h4>
+                        <p>Hanya bisa diakses dari dalam class - seperti kamar pribadi</p>
+                    </div>
+                </div>
+
+                <h3>🏦 Contoh: Sistem Bank Account</h3>
+                <div class="code-demo">
+<span class="code-line indent-0"><span class="keyword">class</span> <span class="class-name">BankAccount</span>(<span class="keyword">private val</span> <span class="property">nomorRekening</span>: <span class="class-name">String</span>, <span class="keyword">private val</span> <span class="property">namaPemilik</span>: <span class="class-name">String</span>) {</span>
+<span class="code-line indent-1"><span class="comment">// Private properties - tidak bisa diakses langsung dari luar</span></span>
+<span class="code-line indent-1"><span class="keyword">private var</span> <span class="property">saldo</span>: <span class="class-name">Double</span> = <span class="number">0.0</span></span>
+<span class="code-line indent-1"><span class="keyword">private var</span> <span class="property">pin</span>: <span class="class-name">String</span> = <span class="string">"1234"</span></span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="comment">// Public methods - interface untuk berinteraksi dengan account</span></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">cekSaldo</span>(<span class="property">pinInput</span>: <span class="class-name">String</span>): <span class="class-name">String</span> {</span>
+<span class="code-line indent-2"><span class="keyword">return if</span> (<span class="property">pinInput</span> == <span class="property">pin</span>) {</span>
+<span class="code-line indent-3"><span class="string">"💰 Saldo Anda: Rp${String.format("%,.0f", saldo)}"</span></span>
+<span class="code-line indent-2">} <span class="keyword">else</span> {</span>
+<span class="code-line indent-3"><span class="string">"❌ PIN salah!"</span></span>
+<span class="code-line indent-2">}</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">setor</span>(<span class="property">jumlah</span>: <span class="class-name">Double</span>, <span class="property">pinInput</span>: <span class="class-name">String</span>): <span class="class-name">String</span> {</span>
+<span class="code-line indent-2"><span class="keyword">return when</span> {</span>
+<span class="code-line indent-3"><span class="property">pinInput</span> != <span class="property">pin</span> -> <span class="string">"❌ PIN salah!"</span></span>
+<span class="code-line indent-3"><span class="property">jumlah</span> <= <span class="number">0</span> -> <span class="string">"❌ Jumlah setor harus lebih dari 0!"</span></span>
+<span class="code-line indent-3"><span class="keyword">else</span> -> {</span>
+<span class="code-line indent-4"><span class="property">saldo</span> += <span class="property">jumlah</span></span>
+<span class="code-line indent-4"><span class="string">"✅ Berhasil setor Rp${String.format("%,.0f", jumlah)}. Saldo: Rp${String.format("%,.0f", saldo)}"</span></span>
+<span class="code-line indent-3">}</span>
+<span class="code-line indent-2">}</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">fun</span> <span class="function">tarik</span>(<span class="property">jumlah</span>: <span class="class-name">Double</span>, <span class="property">pinInput</span>: <span class="class-name">String</span>): <span class="class-name">String</span> {</span>
+<span class="code-line indent-2"><span class="keyword">return when</span> {</span>
+<span class="code-line indent-3"><span class="property">pinInput</span> != <span class="property">pin</span> -> <span class="string">"❌ PIN salah!"</span></span>
+<span class="code-line indent-3"><span class="property">jumlah</span> <= <span class="number">0</span> -> <span class="string">"❌ Jumlah tarik harus lebih dari 0!"</span></span>
+<span class="code-line indent-3"><span class="property">jumlah</span> > <span class="property">saldo</span> -> <span class="string">"❌ Saldo tidak mencukupi!"</span></span>
+<span class="code-line indent-3"><span class="keyword">else</span> -> {</span>
+<span class="code-line indent-4"><span class="property">saldo</span> -= <span class="property">jumlah</span></span>
+<span class="code-line indent-4"><span class="string">"✅ Berhasil tarik Rp${String.format("%,.0f", jumlah)}. Saldo: Rp${String.format("%,.0f", saldo)}"</span></span>
+<span class="code-line indent-3">}</span>
+<span class="code-line indent-2">}</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+                </div>
+
+                <h3>🎮 Demo Interaktif: ATM Simulator</h3>
+                <div style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h4>🏧 ATM Simulator</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+                        <input type="text" id="pinATM" placeholder="Masukkan PIN (1234)" maxlength="4" class="input-field">
+                        <input type="number" id="jumlahUang" placeholder="Jumlah Uang" class="input-field">
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <button class="btn" onclick="cekSaldoATM()">💰 Cek Saldo</button>
+                        <button class="btn" onclick="setorATM()">📥 Setor</button>
+                        <button class="btn" onclick="tarikATM()">📤 Tarik</button>
+                    </div>
+                    
+                    <div id="hasilATM" style="margin-top: 20px; padding: 15px; background: white; border-radius: 10px; min-height: 50px; font-family: monospace;"></div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎯 Poin Penting Encapsulation</h3>
+                    <ul>
+                        <li><strong>private</strong> = hanya dalam class itu sendiri</li>
+                        <li><strong>public</strong> = bisa diakses dari mana saja (default)</li>
+                        <li>Encapsulation melindungi data dari perubahan yang tidak diinginkan</li>
+                        <li>Memberikan interface yang aman untuk berinteraksi dengan object</li>
+                    </ul>
+                </div>
+
+                <button class="next-btn" onclick="nextSection()">Lanjut ke Polymorphism! 🎭</button>
+            </div>
+
+            <!-- Polymorphism Section -->
+            <div class="content-section" id="polymorphism">
+                <h2>🎭 Polymorphism - Satu Interface, Banyak Bentuk</h2>
+                
+                <div class="highlight-box">
+                    <h3>🎪 Apa itu Polymorphism?</h3>
+                    <p><strong>Polymorphism</strong> berarti "banyak bentuk". Ini memungkinkan object yang berbeda merespons method yang sama dengan cara yang berbeda. Seperti remote TV - tombol "play" bisa memutar film, musik, atau game tergantung perangkatnya! 📺🎮🎵</p>
+                </div>
+
+                <h3>🎨 Contoh: Sistem Gambar</h3>
+                <div class="code-demo">
+<span class="code-line indent-0"><span class="comment">// Parent class dengan method yang akan di-override</span></span>
+<span class="code-line indent-0"><span class="keyword">open class</span> <span class="class-name">Bentuk</span> {</span>
+<span class="code-line indent-1"><span class="keyword">open fun</span> <span class="function">gambar</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🎨 Menggambar bentuk umum"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">open fun</span> <span class="function">hitungLuas</span>(): <span class="class-name">Double</span> {</span>
+<span class="code-line indent-2"><span class="keyword">return</span> <span class="number">0.0</span></span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">open fun</span> <span class="function">hitungKeliling</span>(): <span class="class-name">Double</span> {</span>
+<span class="code-line indent-2"><span class="keyword">return</span> <span class="number">0.0</span></span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="comment">// Child classes dengan implementasi berbeda</span></span>
+<span class="code-line indent-0"><span class="keyword">class</span> <span class="class-name">Lingkaran</span>(<span class="keyword">private val</span> <span class="property">radius</span>: <span class="class-name">Double</span>) : <span class="class-name">Bentuk</span>() {</span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">gambar</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"⭕ Menggambar lingkaran dengan radius $radius cm"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">hitungLuas</span>(): <span class="class-name">Double</span> {</span>
+<span class="code-line indent-2"><span class="keyword">return</span> <span class="number">3.14159</span> * <span class="property">radius</span> * <span class="property">radius</span></span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">hitungKeliling</span>(): <span class="class-name">Double</span> {</span>
+<span class="code-line indent-2"><span class="keyword">return</span> <span class="number">2</span> * <span class="number">3.14159</span> * <span class="property">radius</span></span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="keyword">class</span> <span class="class-name">Persegi</span>(<span class="keyword">private val</span> <span class="property">sisi</span>: <span class="class-name">Double</span>) : <span class="class-name">Bentuk</span>() {</span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">gambar</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"⬜ Menggambar persegi dengan sisi $sisi cm"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">hitungLuas</span>(): <span class="class-name">Double</span> {</span>
+<span class="code-line indent-2"><span class="keyword">return</span> <span class="property">sisi</span> * <span class="property">sisi</span></span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">hitungKeliling</span>(): <span class="class-name">Double</span> {</span>
+<span class="code-line indent-2"><span class="keyword">return</span> <span class="number">4</span> * <span class="property">sisi</span></span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="keyword">class</span> <span class="class-name">Segitiga</span>(<span class="keyword">private val</span> <span class="property">alas</span>: <span class="class-name">Double</span>, <span class="keyword">private val</span> <span class="property">tinggi</span>: <span class="class-name">Double</span>) : <span class="class-name">Bentuk</span>() {</span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">gambar</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🔺 Menggambar segitiga dengan alas $alas cm dan tinggi $tinggi cm"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">hitungLuas</span>(): <span class="class-name">Double</span> {</span>
+<span class="code-line indent-2"><span class="keyword">return</span> <span class="number">0.5</span> * <span class="property">alas</span> * <span class="property">tinggi</span></span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">hitungKeliling</span>(): <span class="class-name">Double</span> {</span>
+<span class="code-line indent-2"><span class="comment">// Asumsi segitiga sama sisi untuk kemudahan</span></span>
+<span class="code-line indent-2"><span class="keyword">return</span> <span class="number">3</span> * <span class="property">alas</span></span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="comment">// Fungsi yang menggunakan polymorphism</span></span>
+<span class="code-line indent-0"><span class="keyword">fun</span> <span class="function">prosesGambar</span>(<span class="property">bentuk</span>: <span class="class-name">Bentuk</span>) {</span>
+<span class="code-line indent-1"><span class="property">bentuk</span>.<span class="function">gambar</span>()</span>
+<span class="code-line indent-1"><span class="function">println</span>(<span class="string">"📏 Luas: ${String.format("%.2f", bentuk.hitungLuas())} cm²"</span>)</span>
+<span class="code-line indent-1"><span class="function">println</span>(<span class="string">"📐 Keliling: ${String.format("%.2f", bentuk.hitungKeliling())} cm"</span>)</span>
+<span class="code-line indent-1"><span class="function">println</span>(<span class="string">"---"</span>)</span>
+<span class="code-line indent-0">}</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="comment">// Penggunaan polymorphism - satu fungsi untuk berbagai bentuk</span></span>
+<span class="code-line indent-0"><span class="keyword">val</span> <span class="property">bentukList</span> = <span class="function">listOf</span>(</span>
+<span class="code-line indent-1"><span class="class-name">Lingkaran</span>(<span class="number">5.0</span>),</span>
+<span class="code-line indent-1"><span class="class-name">Persegi</span>(<span class="number">4.0</span>),</span>
+<span class="code-line indent-1"><span class="class-name">Segitiga</span>(<span class="number">6.0</span>, <span class="number">8.0</span>)</span>
+<span class="code-line indent-0">)</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="function">println</span>(<span class="string">"🎨 Memproses berbagai bentuk:"</span>)</span>
+<span class="code-line indent-0"><span class="property">bentukList</span>.<span class="function">forEach</span> { <span class="property">bentuk</span> -></span>
+<span class="code-line indent-1"><span class="function">prosesGambar</span>(<span class="property">bentuk</span>)  <span class="comment">// Polymorphism in action!</span></span>
+<span class="code-line indent-0">}</span>
+                </div>
+
+                <h3>📱 Contoh Polymorphism dalam Android</h3>
+                <div class="code-demo">
+<span class="code-line indent-0"><span class="comment">// Contoh sederhana polymorphism dalam Android development</span></span>
+<span class="code-line indent-0"><span class="keyword">open class</span> <span class="class-name">View</span> {</span>
+<span class="code-line indent-1"><span class="keyword">open fun</span> <span class="function">draw</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🎨 Menggambar view dasar"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">open fun</span> <span class="function">onClick</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"👆 View diklik"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="keyword">class</span> <span class="class-name">Button</span>(<span class="keyword">private val</span> <span class="property">text</span>: <span class="class-name">String</span>) : <span class="class-name">View</span>() {</span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">draw</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🔘 Menggambar button dengan text: '$text'"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">onClick</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🔘 Button '$text' ditekan!"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="keyword">class</span> <span class="class-name">ImageView</span>(<span class="keyword">private val</span> <span class="property">imageName</span>: <span class="class-name">String</span>) : <span class="class-name">View</span>() {</span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">draw</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🖼️ Menggambar gambar: $imageName"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-1"></span>
+<span class="code-line indent-1"><span class="keyword">override fun</span> <span class="function">onClick</span>() {</span>
+<span class="code-line indent-2"><span class="function">println</span>(<span class="string">"🖼️ Gambar $imageName diklik untuk zoom"</span>)</span>
+<span class="code-line indent-1">}</span>
+<span class="code-line indent-0">}</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="comment">// Fungsi yang menangani berbagai jenis View</span></span>
+<span class="code-line indent-0"><span class="keyword">fun</span> <span class="function">renderView</span>(<span class="property">view</span>: <span class="class-name">View</span>) {</span>
+<span class="code-line indent-1"><span class="property">view</span>.<span class="function">draw</span>()    <span class="comment">// Polymorphism - method yang dipanggil tergantung tipe object</span></span>
+<span class="code-line indent-1"><span class="property">view</span>.<span class="function">onClick</span>()  <span class="comment">// Setiap view punya perilaku onClick yang berbeda</span></span>
+<span class="code-line indent-0">}</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="comment">// Penggunaan dalam aplikasi Android</span></span>
+<span class="code-line indent-0"><span class="keyword">val</span> <span class="property">views</span> = <span class="function">listOf</span>(</span>
+<span class="code-line indent-1"><span class="class-name">Button</span>(<span class="string">"Login"</span>),</span>
+<span class="code-line indent-1"><span class="class-name">Button</span>(<span class="string">"Register"</span>),</span>
+<span class="code-line indent-1"><span class="class-name">ImageView</span>(<span class="string">"profile.jpg"</span>)</span>
+<span class="code-line indent-0">)</span>
+<span class="code-line indent-0"></span>
+<span class="code-line indent-0"><span class="function">println</span>(<span class="string">"📱 Rendering UI components:"</span>)</span>
+<span class="code-line indent-0"><span class="property">views</span>.<span class="function">forEach</span> { <span class="property">view</span> -></span>
+<span class="code-line indent-1"><span class="function">renderView</span>(<span class="property">view</span>)  <span class="comment">// Satu fungsi untuk semua jenis view!</span></span>
+<span class="code-line indent-1"><span class="function">println</span>(<span class="string">"---"</span>)</span>
+<span class="code-line indent-0">}</span>
+                </div>
+
+                <h3>🎮 Demo Interaktif: Polymorphism dalam Action</h3>
+                <div style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h4>🎨 Shape Calculator</h4>
+                    <p>Pilih bentuk dan masukkan dimensi untuk melihat polymorphism bekerja!</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 15px 0;">
+                        <select id="bentukType" class="input-field">
+                            <option value="">Pilih Bentuk</option>
+                            <option value="lingkaran">⭕ Lingkaran</option>
+                            <option value="persegi">⬜ Persegi</option>
+                            <option value="segitiga">🔺 Segitiga</option>
+                        </select>
+                        <input type="number" id="dimensi1" placeholder="Dimensi 1" class="input-field" step="0.1">
+                        <input type="number" id="dimensi2" placeholder="Dimensi 2 (jika perlu)" class="input-field" step="0.1">
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <button class="btn" onclick="hitungBentuk()">📐 Hitung Luas & Keliling</button>
+                        <button class="btn" onclick="gambarBentuk()">🎨 Gambar Bentuk</button>
+                        <button class="btn" onclick="resetBentuk()">🔄 Reset</button>
+                    </div>
+                    
+                    <div id="hasilBentuk" style="margin-top: 20px; padding: 15px; background: white; border-radius: 10px; min-height: 50px; font-family: monospace;"></div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎯 Poin Penting Polymorphism</h3>
+                    <ul>
+                        <li><strong>Method Overriding</strong> = child class mengubah implementasi method parent</li>
+                        <li>Polymorphism memungkinkan kode yang fleksibel dan mudah diperluas</li>
+                        <li>Satu interface, banyak implementasi berbeda</li>
+                        <li>Membuat kode lebih modular dan mudah di-maintain</li>
+                        <li><strong>Runtime Polymorphism</strong> = method yang dipanggil ditentukan saat program berjalan</li>
+                    </ul>
+                </div>
+
+                <button class="next-btn" onclick="nextSection()">Lanjut ke Tugas! 📝</button>
+            </div>
+
+            <!-- Tugas Section -->
+            <div class="content-section" id="tugas">
+                <h2>📝 Tugas - Terapkan Ilmu OOP Kalian!</h2>
+                
+                <div class="highlight-box">
+                    <h3>🎯 Petunjuk Pengerjaan</h3>
+                    <p>Jawablah pertanyaan-pertanyaan berikut dengan lengkap dan jelas. Gunakan contoh kode Kotlin untuk mendukung jawaban kalian!</p>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h3>📚 Soal 1: Analisis Class dan Object (25 poin)</h3>
+                    <p><strong>Buatlah class <code>Smartphone</code> dengan properties dan methods yang sesuai untuk aplikasi Android. Jelaskan mengapa kalian memilih properties dan methods tersebut!</strong></p>
+                    
+                    <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 10px;">
+                        <p><strong>Yang harus ada dalam jawaban:</strong></p>
+                        <ul>
+                            <li>Minimal 4 properties dengan tipe data yang tepat</li>
+                            <li>Minimal 3 methods yang fungsional</li>
+                            <li>Contoh pembuatan 2 object dengan data berbeda</li>
+                            <li>Penjelasan alasan pemilihan properties dan methods</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #f0fdff, #fff5f8); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h3>🏗️ Soal 2: Constructor dan Encapsulation (25 poin)</h3>
+                    <p><strong>Buatlah class <code>AkunBank</code> yang menerapkan prinsip encapsulation dengan baik. Gunakan primary constructor dan tambahkan validasi yang sesuai!</strong></p>
+                    
+                    <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 10px;">
+                        <p><strong>Requirements:</strong></p>
+                        <ul>
+                            <li>Primary constructor dengan parameter nama pemilik dan saldo awal</li>
+                            <li>Properties private yang dilindungi dengan baik</li>
+                            <li>Methods public untuk setor, tarik, dan cek saldo</li>
+                            <li>Validasi untuk mencegah saldo negatif</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h3>🌳 Soal 3: Inheritance dan Polymorphism (25 poin)</h3>
+                    <p><strong>Buatlah sistem class untuk aplikasi e-commerce dengan menerapkan inheritance dan polymorphism!</strong></p>
+                    
+                    <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 10px;">
+                        <p><strong>Yang harus dibuat:</strong></p>
+                        <ul>
+                            <li>Parent class <code>Produk</code> dengan properties dan methods dasar</li>
+                            <li>Child classes: <code>Elektronik</code>, <code>Pakaian</code></li>
+                            <li>Override method <code>hitungDiskon()</code> dengan cara berbeda</li>
+                            <li>Contoh penggunaan dengan minimal 2 produk berbeda</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #f0fdff, #fff5f8); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h3>🎮 Soal 4: Studi Kasus Android (25 poin)</h3>
+                    <p><strong>Jelaskan bagaimana konsep OOP diterapkan dalam pengembangan aplikasi Android! Berikan contoh konkret!</strong></p>
+                    
+                    <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 10px;">
+                        <p><strong>Yang harus dijelaskan:</strong></p>
+                        <ul>
+                            <li>Contoh class yang ada dalam Android SDK (Activity, Fragment, dll)</li>
+                            <li>Bagaimana inheritance digunakan dalam Android development</li>
+                            <li>Keuntungan menggunakan OOP dalam membuat aplikasi Android</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>📋 Format Pengumpulan</h3>
+                    <ul>
+                        <li>Tulis jawaban dalam format dokumen (Word/PDF)</li>
+                        <li>Sertakan kode Kotlin yang bisa dijalankan</li>
+                        <li>Berikan komentar pada kode untuk menjelaskan logika</li>
+                        <li>Deadline: 1 minggu dari hari ini</li>
+                    </ul>
+                </div>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <div class="emoji" style="font-size: 3rem;">🚀</div>
+                    <h3 style="color: #ff6b9d;">Selamat Mengerjakan!</h3>
+                    <p style="font-size: 1.2rem;">Tunjukkan kemampuan OOP kalian dan jadilah Android Developer yang handal! 💪✨</p>
+                </div>
+
+                <button class="next-btn" onclick="nextSection()">Lanjut ke Kuis! 🧠</button>
+            </div>
+
+            <!-- Kuis Section -->
+            <div class="content-section" id="kuis">
+                <h2>🧠 Kuis - Uji Pemahaman OOP Kalian!</h2>
+                
+                <div class="highlight-box">
+                    <h3>📋 Petunjuk Kuis</h3>
+                    <ul>
+                        <li>Masukkan nama kalian sebelum memulai</li>
+                        <li>10 soal pilihan ganda tentang OOP Kotlin</li>
+                        <li>Setiap soal bernilai 10 poin</li>
+                        <li>Hasil akan ditampilkan di akhir kuis</li>
+                    </ul>
+                </div>
+
+                <!-- Input Nama -->
+                <div id="namaInput" style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <h3>👤 Identitas Peserta</h3>
+                    <input type="text" id="namaPeserta" placeholder="Masukkan nama lengkap kalian" class="input-field" style="font-size: 18px;">
+                    <button class="btn" onclick="mulaiKuis()" style="background: #ff6b9d; font-size: 16px; padding: 15px 30px;">🚀 Mulai Kuis!</button>
+                </div>
+
+                <!-- Kuis Container -->
+                <div id="kuisContainer" style="display: none;">
+                    <div class="quiz-container">
+                        <div id="progressBar" style="background: #e2e8f0; height: 10px; border-radius: 5px; margin-bottom: 20px;">
+                            <div id="progress" style="background: linear-gradient(45deg, #ff6b9d, #4ecdc4); height: 100%; border-radius: 5px; width: 0%; transition: width 0.3s ease;"></div>
+                        </div>
+                        
+                        <div id="soalInfo" style="text-align: center; margin-bottom: 20px; font-size: 1.2rem; color: #4a5568;">
+                            <span id="nomorSoal">1</span> dari <span id="totalSoal">10</span>
+                        </div>
+
+                        <!-- Soal 1 -->
+                        <div class="quiz-question active" id="soal1">
+                            <h3>🏗️ Apa yang dimaksud dengan Class dalam OOP?</h3>
+                            <div class="quiz-option" onclick="pilihJawaban(1, 'A')">A. Instance dari sebuah object</div>
+                            <div class="quiz-option" onclick="pilihJawaban(1, 'B')">B. Blueprint atau template untuk membuat object</div>
+                            <div class="quiz-option" onclick="pilihJawaban(1, 'C')">C. Method yang ada dalam object</div>
+                            <div class="quiz-option" onclick="pilihJawaban(1, 'D')">D. Variable yang menyimpan data</div>
+                        </div>
+
+                        <!-- Soal 2 -->
+                        <div class="quiz-question" id="soal2">
+                            <h3>🎯 Manakah yang merupakan contoh Object dari class Mobil?</h3>
+                            <div class="quiz-option" onclick="pilihJawaban(2, 'A')">A. class Mobil { }</div>
+                            <div class="quiz-option" onclick="pilihJawaban(2, 'B')">B. val mobil = Mobil()</div>
+                            <div class="quiz-option" onclick="pilihJawaban(2, 'C')">C. fun berkendara() { }</div>
+                            <div class="quiz-option" onclick="pilihJawaban(2, 'D')">D. var warna: String</div>
+                        </div>
+
+                        <!-- Soal 3 -->
+                        <div class="quiz-question" id="soal3">
+                            <h3>🔧 Apa fungsi utama Constructor dalam class?</h3>
+                            <div class="quiz-option" onclick="pilihJawaban(3, 'A')">A. Menghapus object dari memory</div>
+                            <div class="quiz-option" onclick="pilihJawaban(3, 'B')">B. Menginisialisasi object saat dibuat</div>
+                            <div class="quiz-option" onclick="pilihJawaban(3, 'C')">C. Mengubah nilai properties</div>
+                            <div class="quiz-option" onclick="pilihJawaban(3, 'D')">D. Memanggil method lain</div>
+                        </div>
+
+                        <!-- Soal 4 -->
+                        <div class="quiz-question" id="soal4">
+                            <h3>🌳 Dalam Inheritance, class yang mewarisi disebut?</h3>
+                            <div class="quiz-option" onclick="pilihJawaban(4, 'A')">A. Parent class</div>
+                            <div class="quiz-option" onclick="pilihJawaban(4, 'B')">B. Super class</div>
+                            <div class="quiz-option" onclick="pilihJawaban(4, 'C')">C. Child class</div>
+                            <div class="quiz-option" onclick="pilihJawaban(4, 'D')">D. Base class</div>
+                        </div>
+
+                        <!-- Soal 5 -->
+                        <div class="quiz-question" id="soal5">
+                            <h3>🔒 Keyword untuk membuat properties hanya bisa diakses dalam class itu sendiri?</h3>
+                            <div class="quiz-option" onclick="pilihJawaban(5, 'A')">A. public</div>
+                            <div class="quiz-option" onclick="pilihJawaban(5, 'B')">B. protected</div>
+                            <div class="quiz-option" onclick="pilihJawaban(5, 'C')">C. private</div>
+                            <div class="quiz-option" onclick="pilihJawaban(5, 'D')">D. internal</div>
+                        </div>
+
+                        <!-- Soal 6 -->
+                        <div class="quiz-question" id="soal6">
+                            <h3>🎭 Apa yang dimaksud dengan Polymorphism?</h3>
+                            <div class="quiz-option" onclick="pilihJawaban(6, 'A')">A. Membuat banyak class</div>
+                            <div class="quiz-option" onclick="pilihJawaban(6, 'B')">B. Satu interface dengan banyak implementasi berbeda</div>
+                            <div class="quiz-option" onclick="pilihJawaban(6, 'C')">C. Menyembunyikan data</div>
+                            <div class="quiz-option" onclick="pilihJawaban(6, 'D')">D. Mewarisi properties</div>
+                        </div>
+
+                        <!-- Soal 7 -->
+                        <div class="quiz-question" id="soal7">
+                            <h3>⚙️ Manakah yang merupakan contoh Method dalam class?</h3>
+                            <div class="quiz-option" onclick="pilihJawaban(7, 'A')">A. var nama: String</div>
+                            <div class="quiz-option" onclick="pilihJawaban(7, 'B')">B. val umur: Int = 20</div>
+                            <div class="quiz-option" onclick="pilihJawaban(7, 'C')">C. fun berjalan() { }</div>
+                            <div class="quiz-option" onclick="pilihJawaban(7, 'D')">D. class Orang { }</div>
+                        </div>
+
+                        <!-- Soal 8 -->
+                        <div class="quiz-question" id="soal8">
+                            <h3>🔄 Keyword untuk meng-override method dari parent class?</h3>
+                            <div class="quiz-option" onclick="pilihJawaban(8, 'A')">A. open</div>
+                            <div class="quiz-option" onclick="pilihJawaban(8, 'B')">B. override</div>
+                            <div class="quiz-option" onclick="pilihJawaban(8, 'C')">C. super</div>
+                            <div class="quiz-option" onclick="pilihJawaban(8, 'D')">D. final</div>
+                        </div>
+
+                        <!-- Soal 9 -->
+                        <div class="quiz-question" id="soal9">
+                            <h3>📱 Dalam Android development, Activity adalah contoh dari konsep OOP apa?</h3>
+                            <div class="quiz-option" onclick="pilihJawaban(9, 'A')">A. Interface yang harus diimplementasi</div>
+                            <div class="quiz-option" onclick="pilihJawaban(9, 'B')">B. Class yang bisa di-inherit untuk membuat layar aplikasi</div>
+                            <div class="quiz-option" onclick="pilihJawaban(9, 'C')">C. Method untuk menampilkan UI</div>
+                            <div class="quiz-option" onclick="pilihJawaban(9, 'D')">D. Variable untuk menyimpan data</div>
+                        </div>
+
+                        <!-- Soal 10 -->
+                        <div class="quiz-question" id="soal10">
+                            <h3>✨ Manfaat utama menggunakan OOP dalam pengembangan aplikasi?</h3>
+                            <div class="quiz-option" onclick="pilihJawaban(10, 'A')">A. Membuat kode lebih panjang</div>
+                            <div class="quiz-option" onclick="pilihJawaban(10, 'B')">B. Kode lebih terorganisir, mudah dipelihara, dan dapat digunakan kembali</div>
+                            <div class="quiz-option" onclick="pilihJawaban(10, 'C')">C. Aplikasi berjalan lebih lambat</div>
+                            <div class="quiz-option" onclick="pilihJawaban(10, 'D')">D. Hanya untuk aplikasi besar</div>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 30px;">
+                            <button class="btn" id="nextBtn" onclick="soalSelanjutnya()" style="display: none; background: #4ecdc4; font-size: 16px; padding: 15px 30px;">➡️ Soal Selanjutnya</button>
+                            <button class="btn" id="selesaiBtn" onclick="selesaiKuis()" style="display: none; background: #ff6b9d; font-size: 16px; padding: 15px 30px;">🏁 Selesai Kuis</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hasil Kuis -->
+                <div id="hasilKuis" style="display: none; background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 30px; border-radius: 15px; margin: 20px 0; text-align: center;">
+                    <h3>🎉 Hasil Kuis</h3>
+                    <div id="skorAkhir" style="font-size: 2rem; color: #ff6b9d; margin: 20px 0;"></div>
+                    <div id="pesanHasil" style="font-size: 1.2rem; margin: 20px 0;"></div>
+                    <button class="btn" onclick="ulangiKuis()" style="background: #4ecdc4; font-size: 16px; padding: 15px 30px;">🔄 Ulangi Kuis</button>
+                </div>
+
+                <button class="next-btn" onclick="nextSection()">Lanjut ke Penutup! 🎉</button>
+            </div>
+
+            <!-- Penutup Section -->
+            <div class="content-section" id="penutup">
+                <h2>🎉 Penutup - Perjalanan OOP Selesai!</h2>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <div class="emoji" style="font-size: 4rem;">🏆</div>
+                    <h3 style="color: #ff6b9d;">Selamat! Kalian Telah Menyelesaikan Pembelajaran OOP Kotlin!</h3>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🤔 Refleksi Pembelajaran</h3>
+                    <p>Setelah mempelajari materi ini, mari kita renungkan:</p>
+                    <ul style="font-size: 1.1rem;">
+                        <li>Konsep OOP mana yang paling mudah kalian pahami?</li>
+                        <li>Bagian mana yang masih perlu diperdalam?</li>
+                        <li>Bagaimana kalian akan menerapkan OOP dalam project Android?</li>
+                        <li>Apa tantangan terbesar dalam memahami OOP?</li>
+                    </ul>
+                </div>
+
+                <h3>📚 Kesimpulan Pembelajaran</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+                    <div style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px;">
+                        <div class="emoji">🏗️</div>
+                        <h4>Class & Object</h4>
+                        <p>Fondasi OOP - blueprint dan instance nyata</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #f0fdff, #fff5f8); padding: 25px; border-radius: 15px;">
+                        <div class="emoji">🌳</div>
+                        <h4>Inheritance</h4>
+                        <p>Pewarisan sifat untuk efisiensi kode</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px;">
+                        <div class="emoji">🔒</div>
+                        <h4>Encapsulation</h4>
+                        <p>Perlindungan data dan keamanan</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #f0fdff, #fff5f8); padding: 25px; border-radius: 15px;">
+                        <div class="emoji">🎭</div>
+                        <h4>Polymorphism</h4>
+                        <p>Fleksibilitas dalam implementasi</p>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🚀 Tindak Lanjut</h3>
+                    <p><strong>Langkah selanjutnya untuk menjadi Android Developer handal:</strong></p>
+                    <ol style="font-size: 1.1rem;">
+                        <li><strong>Praktik Terus Menerus</strong> - Buat project kecil menggunakan OOP</li>
+                        <li><strong>Pelajari Android SDK</strong> - Pahami bagaimana OOP diterapkan dalam Android</li>
+                        <li><strong>Buat Aplikasi Sederhana</strong> - Mulai dengan calculator, to-do list, atau game sederhana</li>
+                        <li><strong>Join Komunitas</strong> - Bergabung dengan komunitas Android Developer Indonesia</li>
+                        <li><strong>Belajar Design Patterns</strong> - Pelajari pola-pola desain yang umum digunakan</li>
+                    </ol>
+                </div>
+
+                <h3>💡 Tips Sukses</h3>
+                <div style="background: linear-gradient(135deg, #fff5f8, #f0fdff); padding: 25px; border-radius: 15px; margin: 20px 0;">
+                    <ul style="font-size: 1.1rem;">
+                        <li>🎯 <strong>Konsisten Berlatih</strong> - 30 menit setiap hari lebih baik dari 5 jam sekali seminggu</li>
+                        <li>🤝 <strong>Belajar Bersama</strong> - Diskusi dengan teman akan mempercepat pemahaman</li>
+                        <li>🔍 <strong>Jangan Takut Error</strong> - Error adalah guru terbaik dalam programming</li>
+                        <li>📖 <strong>Baca Dokumentasi</strong> - Biasakan membaca dokumentasi resmi Kotlin dan Android</li>
+                        <li>🚀 <strong>Build Portfolio</strong> - Kumpulkan project-project kalian untuk portofolio</li>
+                    </ul>
+                </div>
+
+                <h3>🌟 Motivasi Penutup</h3>
+                <div style="text-align: center; background: linear-gradient(135deg, #ff6b9d, #4ecdc4); color: white; padding: 30px; border-radius: 20px; margin: 30px 0;">
+                    <div class="emoji" style="font-size: 3rem;">💪</div>
+                    <h3>Kalian Sudah Memiliki Fondasi yang Kuat!</h3>
+                    <p style="font-size: 1.3rem; margin: 20px 0;">
+                        "Setiap expert pernah menjadi beginner. Setiap pro pernah menjadi amateur. 
+                        Setiap ikon pernah menjadi unknown. Setiap champion pernah menjadi contender. 
+                        Tapi mereka semua memulai. Mereka semua mengambil langkah pertama."
+                    </p>
+                    <p style="font-size: 1.1rem;">
+                        Kalian sudah mengambil langkah pertama itu. Sekarang saatnya melangkah lebih jauh! 🚀
+                    </p>
+                </div>
+
+                <div style="text-align: center; margin: 40px 0;">
+                    <h3 style="color: #ff6b9d;">Terima Kasih & Selamat Belajar! 🎓✨</h3>
+                    <p style="font-size: 1.2rem;">Semoga perjalanan kalian menjadi Android Developer sukses dan menyenangkan!</p>
+                    <div class="emoji" style="font-size: 2rem;">🎉 📱 💻 🚀 ✨</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Top Button -->
+        <button class="back-to-top" id="backToTop" onclick="scrollToTop()">↑</button>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSection = 0;
+        const sections = ['intro', 'pengenalan', 'class-object', 'properties-methods', 'constructor', 'inheritance', 'encapsulation', 'polymorphism', 'tugas', 'kuis', 'penutup'];
+        
+        // Quiz variables
+        let currentQuiz = 1;
+        let quizAnswers = {};
+        let playerName = '';
+        
+        // Demo variables
+        let karakter = null;
+        let postInstagram = null;
+        let karakterRPG = null;
+        let bankAccount = null;
+
+        // Navigation functions
+        function navigateToSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update navigation - find the correct nav item by section id
+            document.querySelectorAll('.nav-item').forEach((item, index) => {
+                item.classList.remove('active');
+                if (sections[index] === sectionId) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update current section index
+            currentSection = sections.indexOf(sectionId);
+            
+            // Scroll to top with delay to ensure content is loaded
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+            
+            // Hide sidebar on mobile
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('visible');
+            }
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update navigation - find the correct nav item by section id
+            document.querySelectorAll('.nav-item').forEach((item, index) => {
+                item.classList.remove('active');
+                if (sections[index] === sectionId) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update current section index
+            currentSection = sections.indexOf(sectionId);
+            
+            // Scroll to top
+            scrollToTop();
+            
+            // Hide sidebar on mobile
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.remove('visible');
+            }
+        }
+
+        function nextSection() {
+            if (currentSection < sections.length - 1) {
+                currentSection++;
+                showSectionByIndex(currentSection);
+            }
+        }
+
+        function showSectionByIndex(index) {
+            const sectionId = sections[index];
+            
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-item').forEach((item, i) => {
+                item.classList.remove('active');
+                if (i === index) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update current section index
+            currentSection = index;
+            
+            // Scroll to top with delay to ensure content is loaded
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('visible');
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Back to top button visibility
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        // Demo Functions for Class & Object
+        function buatKarakter() {
+            const nama = document.getElementById('namaKarakter').value;
+            const kelas = document.getElementById('kelasKarakter').value;
+            const level = parseInt(document.getElementById('levelKarakter').value) || 1;
+            
+            if (!nama || !kelas) {
+                document.getElementById('hasilKarakter').innerHTML = "❌ Mohon isi nama dan kelas karakter!";
+                return;
+            }
+            
+            // Simulate character creation
+            karakter = {
+                nama: nama,
+                kelas: kelas,
+                level: level,
+                hp: 100 + (level * 10),
+                mp: 50 + (level * 5),
+                exp: 0
+            };
+            
+            document.getElementById('hasilKarakter').innerHTML = `
+                <strong>🎉 Karakter berhasil dibuat!</strong><br>
+                🧙‍♂️ Nama: ${karakter.nama}<br>
+                🎭 Kelas: ${karakter.kelas}<br>
+                ⭐ Level: ${karakter.level}<br>
+                ❤️ HP: ${karakter.hp}<br>
+                💙 MP: ${karakter.mp}<br>
+                ✨ EXP: ${karakter.exp}
+            `;
+        }
+
+        function serangKarakter() {
+            if (!karakter) {
+                document.getElementById('hasilKarakter').innerHTML = "❌ Buat karakter dulu!";
+                return;
+            }
+            
+            const damage = Math.floor(Math.random() * 30) + 10;
+            karakter.exp += 15;
+            
+            document.getElementById('hasilKarakter').innerHTML = `
+                ⚔️ ${karakter.nama} menyerang dengan damage ${damage}!<br>
+                ✨ EXP bertambah! Total EXP: ${karakter.exp}
+            `;
+        }
+
+        function levelUpKarakter() {
+            if (!karakter) {
+                document.getElementById('hasilKarakter').innerHTML = "❌ Buat karakter dulu!";
+                return;
+            }
+            
+            if (karakter.exp >= 100) {
+                karakter.level++;
+                karakter.hp += 10;
+                karakter.mp += 5;
+                karakter.exp = 0;
+                
+                document.getElementById('hasilKarakter').innerHTML = `
+                    🎉 Level Up! ${karakter.nama} naik ke level ${karakter.level}!<br>
+                    ❤️ HP: ${karakter.hp} (+10)<br>
+                    💙 MP: ${karakter.mp} (+5)<br>
+                    ✨ EXP direset ke 0
+                `;
+            } else {
+                document.getElementById('hasilKarakter').innerHTML = `
+                    ❌ EXP tidak cukup untuk level up!<br>
+                    Butuh ${100 - karakter.exp} EXP lagi.
+                `;
+            }
+        }
+
+        // Demo Functions for Properties & Methods
+        function buatPost() {
+            const username = document.getElementById('usernamePost').value;
+            const caption = document.getElementById('captionPost').value;
+            
+            if (!username || !caption) {
+                document.getElementById('hasilPost').innerHTML = "❌ Mohon isi username dan caption!";
+                return;
+            }
+            
+            postInstagram = {
+                username: username,
+                caption: caption,
+                jumlahLike: 0,
+                jumlahKomentar: 0,
+                waktuPosting: new Date().toLocaleString('id-ID')
+            };
+            
+            document.getElementById('hasilPost').innerHTML = `
+📸 POST INSTAGRAM
+👤 @${postInstagram.username}
+📝 ${postInstagram.caption}
+❤️ ${postInstagram.jumlahLike} likes
+💬 ${postInstagram.jumlahKomentar} comments
+📅 ${postInstagram.waktuPosting}
+            `;
+        }
+
+        function likePost() {
+            if (!postInstagram) {
+                document.getElementById('hasilPost').innerHTML = "❌ Buat post dulu!";
+                return;
+            }
+            
+            postInstagram.jumlahLike++;
+            document.getElementById('hasilPost').innerHTML = `
+❤️ Post di-like! Total like: ${postInstagram.jumlahLike}
+
+📸 POST INSTAGRAM
+👤 @${postInstagram.username}
+📝 ${postInstagram.caption}
+❤️ ${postInstagram.jumlahLike} likes
+💬 ${postInstagram.jumlahKomentar} comments
+📅 ${postInstagram.waktuPosting}
+            `;
+        }
+
+        function komentarPost() {
+            if (!postInstagram) {
+                document.getElementById('hasilPost').innerHTML = "❌ Buat post dulu!";
+                return;
+            }
+            
+            const komentarList = ["Keren!", "Amazing!", "Love it!", "Awesome!", "Nice post!"];
+            const komentar = komentarList[Math.floor(Math.random() * komentarList.length)];
+            
+            postInstagram.jumlahKomentar++;
+            document.getElementById('hasilPost').innerHTML = `
+💬 Komentar ditambahkan: "${komentar}"
+Total komentar: ${postInstagram.jumlahKomentar}
+
+📸 POST INSTAGRAM
+👤 @${postInstagram.username}
+📝 ${postInstagram.caption}
+❤️ ${postInstagram.jumlahLike} likes
+💬 ${postInstagram.jumlahKomentar} comments
+📅 ${postInstagram.waktuPosting}
+            `;
+        }
+
+        // Demo Functions for Constructor
+        function buatKarakterRPG() {
+            const nama = document.getElementById('namaRPG').value;
+            const kelas = document.getElementById('kelasRPG').value;
+            const level = parseInt(document.getElementById('levelRPG').value) || 1;
+            
+            if (!nama || !kelas) {
+                document.getElementById('hasilRPG').innerHTML = "❌ Mohon isi nama dan kelas karakter!";
+                return;
+            }
+            
+            // Create character based on class
+            let hp, mp, attack, defense;
+            switch (kelas) {
+                case 'Warrior':
+                    hp = 120 + (level * 15);
+                    mp = 30 + (level * 3);
+                    attack = 25 + (level * 4);
+                    defense = 20 + (level * 3);
+                    break;
+                case 'Mage':
+                    hp = 80 + (level * 8);
+                    mp = 100 + (level * 12);
+                    attack = 30 + (level * 5);
+                    defense = 10 + (level * 2);
+                    break;
+                case 'Archer':
+                    hp = 100 + (level * 10);
+                    mp = 50 + (level * 5);
+                    attack = 28 + (level * 4);
+                    defense = 15 + (level * 2);
+                    break;
+            }
+            
+            karakterRPG = {
+                nama: nama,
+                kelas: kelas,
+                level: level,
+                hp: hp,
+                mp: mp,
+                attack: attack,
+                defense: defense
+            };
+            
+            document.getElementById('hasilRPG').innerHTML = `
+🎉 ${nama} the ${kelas} (Level ${level}) telah bergabung!
+
+🧙‍♂️ ${nama} the ${kelas}
+⭐ Level: ${level}
+❤️ HP: ${hp}
+💙 MP: ${mp}
+⚔️ Attack: ${attack}
+🛡️ Defense: ${defense}
+            `;
+        }
+
+        function serangRPG() {
+            if (!karakterRPG) {
+                document.getElementById('hasilRPG').innerHTML = "❌ Buat karakter dulu!";
+                return;
+            }
+            
+            const damage = karakterRPG.attack + Math.floor(Math.random() * 10);
+            document.getElementById('hasilRPG').innerHTML = `⚔️ ${karakterRPG.nama} menyerang dengan damage ${damage}!`;
+        }
+
+        function skillRPG() {
+            if (!karakterRPG) {
+                document.getElementById('hasilRPG').innerHTML = "❌ Buat karakter dulu!";
+                return;
+            }
+            
+            let skillMessage = "";
+            let mpCost = 0;
+            
+            switch (karakterRPG.kelas) {
+                case 'Warrior':
+                    mpCost = 15;
+                    skillMessage = "🛡️ Shield Bash! (+50% damage)";
+                    break;
+                case 'Mage':
+                    mpCost = 25;
+                    skillMessage = "🔥 Fireball! (Magic damage)";
+                    break;
+                case 'Archer':
+                    mpCost = 20;
+                    skillMessage = "🎯 Multi Shot! (3x arrow)";
+                    break;
+            }
+            
+            if (karakterRPG.mp >= mpCost) {
+                karakterRPG.mp -= mpCost;
+                document.getElementById('hasilRPG').innerHTML = `
+✨ ${karakterRPG.nama} menggunakan ${skillMessage}
+💙 MP: ${karakterRPG.mp} (-${mpCost})
+                `;
+            } else {
+                document.getElementById('hasilRPG').innerHTML = "❌ MP tidak cukup untuk skill!";
+            }
+        }
+
+        // Demo Functions for Encapsulation
+        function initBankAccount() {
+            if (!bankAccount) {
+                bankAccount = {
+                    nomorRekening: "1234567890",
+                    namaPemilik: "Budi Santoso",
+                    saldo: 0,
+                    pin: "1234"
+                };
+            }
+        }
+
+        // Demo Functions for Polymorphism
+        let currentShape = null;
+
+        function hitungBentuk() {
+            const bentukType = document.getElementById('bentukType').value;
+            const dimensi1 = parseFloat(document.getElementById('dimensi1').value) || 0;
+            const dimensi2 = parseFloat(document.getElementById('dimensi2').value) || 0;
+            
+            if (!bentukType) {
+                document.getElementById('hasilBentuk').innerHTML = "❌ Pilih bentuk terlebih dahulu!";
+                return;
+            }
+            
+            if (dimensi1 <= 0) {
+                document.getElementById('hasilBentuk').innerHTML = "❌ Masukkan dimensi yang valid!";
+                return;
+            }
+            
+            let luas, keliling, info;
+            
+            switch (bentukType) {
+                case 'lingkaran':
+                    if (dimensi1 <= 0) {
+                        document.getElementById('hasilBentuk').innerHTML = "❌ Radius harus lebih dari 0!";
+                        return;
+                    }
+                    luas = 3.14159 * dimensi1 * dimensi1;
+                    keliling = 2 * 3.14159 * dimensi1;
+                    info = `⭕ LINGKARAN (radius: ${dimensi1} cm)`;
+                    currentShape = { type: 'lingkaran', radius: dimensi1 };
+                    break;
+                    
+                case 'persegi':
+                    if (dimensi1 <= 0) {
+                        document.getElementById('hasilBentuk').innerHTML = "❌ Sisi harus lebih dari 0!";
+                        return;
+                    }
+                    luas = dimensi1 * dimensi1;
+                    keliling = 4 * dimensi1;
+                    info = `⬜ PERSEGI (sisi: ${dimensi1} cm)`;
+                    currentShape = { type: 'persegi', sisi: dimensi1 };
+                    break;
+                    
+                case 'segitiga':
+                    if (dimensi1 <= 0 || dimensi2 <= 0) {
+                        document.getElementById('hasilBentuk').innerHTML = "❌ Alas dan tinggi harus lebih dari 0!";
+                        return;
+                    }
+                    luas = 0.5 * dimensi1 * dimensi2;
+                    keliling = 3 * dimensi1; // Asumsi segitiga sama sisi
+                    info = `🔺 SEGITIGA (alas: ${dimensi1} cm, tinggi: ${dimensi2} cm)`;
+                    currentShape = { type: 'segitiga', alas: dimensi1, tinggi: dimensi2 };
+                    break;
+            }
+            
+            document.getElementById('hasilBentuk').innerHTML = `
+🎨 POLYMORPHISM IN ACTION!
+
+${info}
+📏 Luas: ${luas.toFixed(2)} cm²
+📐 Keliling: ${keliling.toFixed(2)} cm
+
+✨ Satu fungsi hitungBentuk() menghasilkan output berbeda
+   tergantung jenis bentuk yang dipilih!
+            `;
+        }
+
+        function gambarBentuk() {
+            const bentukType = document.getElementById('bentukType').value;
+            
+            if (!bentukType) {
+                document.getElementById('hasilBentuk').innerHTML = "❌ Pilih bentuk terlebih dahulu!";
+                return;
+            }
+            
+            let gambar = "";
+            switch (bentukType) {
+                case 'lingkaran':
+                    gambar = `
+⭕ MENGGAMBAR LINGKARAN
+    ⚪⚪⚪⚪⚪
+  ⚪⚪⚪⚪⚪⚪⚪
+ ⚪⚪⚪⚪⚪⚪⚪⚪
+⚪⚪⚪⚪⚪⚪⚪⚪⚪
+ ⚪⚪⚪⚪⚪⚪⚪⚪
+  ⚪⚪⚪⚪⚪⚪⚪
+    ⚪⚪⚪⚪⚪
+                    `;
+                    break;
+                case 'persegi':
+                    gambar = `
+⬜ MENGGAMBAR PERSEGI
+⬛⬛⬛⬛⬛⬛⬛
+⬛⬜⬜⬜⬜⬜⬛
+⬛⬜⬜⬜⬜⬜⬛
+⬛⬜⬜⬜⬜⬜⬛
+⬛⬜⬜⬜⬜⬜⬛
+⬛⬜⬜⬜⬜⬜⬛
+⬛⬛⬛⬛⬛⬛⬛
+                    `;
+                    break;
+                case 'segitiga':
+                    gambar = `
+🔺 MENGGAMBAR SEGITIGA
+      🔺
+     🔺🔺🔺
+    🔺🔺🔺🔺🔺
+   🔺🔺🔺🔺🔺🔺🔺
+  🔺🔺🔺🔺🔺🔺🔺🔺🔺
+ 🔺🔺🔺🔺🔺🔺🔺🔺🔺🔺🔺
+🔺🔺🔺🔺🔺🔺🔺🔺🔺🔺🔺🔺🔺
+                    `;
+                    break;
+            }
+            
+            document.getElementById('hasilBentuk').innerHTML = `
+🎨 POLYMORPHISM - GAMBAR BENTUK
+
+${gambar}
+
+✨ Method gambar() yang sama menghasilkan output berbeda
+   sesuai dengan jenis bentuk yang dipilih!
+            `;
+        }
+
+        function resetBentuk() {
+            document.getElementById('bentukType').value = '';
+            document.getElementById('dimensi1').value = '';
+            document.getElementById('dimensi2').value = '';
+            document.getElementById('hasilBentuk').innerHTML = "Pilih bentuk dan masukkan dimensi untuk melihat polymorphism bekerja! 🎨";
+            currentShape = null;
+        }
+
+        function cekSaldoATM() {
+            initBankAccount();
+            const pin = document.getElementById('pinATM').value;
+            
+            if (pin === bankAccount.pin) {
+                document.getElementById('hasilATM').innerHTML = `💰 Saldo Anda: Rp${bankAccount.saldo.toLocaleString('id-ID')}`;
+            } else {
+                document.getElementById('hasilATM').innerHTML = "❌ PIN salah!";
+            }
+        }
+
+        function setorATM() {
+            initBankAccount();
+            const pin = document.getElementById('pinATM').value;
+            const jumlah = parseFloat(document.getElementById('jumlahUang').value) || 0;
+            
+            if (pin !== bankAccount.pin) {
+                document.getElementById('hasilATM').innerHTML = "❌ PIN salah!";
+                return;
+            }
+            
+            if (jumlah <= 0) {
+                document.getElementById('hasilATM').innerHTML = "❌ Jumlah setor harus lebih dari 0!";
+                return;
+            }
+            
+            bankAccount.saldo += jumlah;
+            document.getElementById('hasilATM').innerHTML = `
+✅ Berhasil setor Rp${jumlah.toLocaleString('id-ID')}
+💰 Saldo: Rp${bankAccount.saldo.toLocaleString('id-ID')}
+            `;
+        }
+
+        function tarikATM() {
+            initBankAccount();
+            const pin = document.getElementById('pinATM').value;
+            const jumlah = parseFloat(document.getElementById('jumlahUang').value) || 0;
+            
+            if (pin !== bankAccount.pin) {
+                document.getElementById('hasilATM').innerHTML = "❌ PIN salah!";
+                return;
+            }
+            
+            if (jumlah <= 0) {
+                document.getElementById('hasilATM').innerHTML = "❌ Jumlah tarik harus lebih dari 0!";
+                return;
+            }
+            
+            if (jumlah > bankAccount.saldo) {
+                document.getElementById('hasilATM').innerHTML = "❌ Saldo tidak mencukupi!";
+                return;
+            }
+            
+            bankAccount.saldo -= jumlah;
+            document.getElementById('hasilATM').innerHTML = `
+✅ Berhasil tarik Rp${jumlah.toLocaleString('id-ID')}
+💰 Saldo: Rp${bankAccount.saldo.toLocaleString('id-ID')}
+            `;
+        }
+
+        // Quiz Functions
+        function mulaiKuis() {
+            const nama = document.getElementById('namaPeserta').value.trim();
+            if (!nama) {
+                alert('Mohon masukkan nama terlebih dahulu!');
+                return;
+            }
+            
+            playerName = nama;
+            document.getElementById('namaInput').style.display = 'none';
+            document.getElementById('kuisContainer').style.display = 'block';
+            
+            // Reset quiz
+            currentQuiz = 1;
+            quizAnswers = {};
+            updateProgress();
+        }
+
+        function pilihJawaban(soalNo, jawaban) {
+            // Remove previous selection
+            const options = document.querySelectorAll(`#soal${soalNo} .quiz-option`);
+            options.forEach(option => option.classList.remove('selected'));
+            
+            // Add selection to clicked option
+            event.target.classList.add('selected');
+            
+            // Store answer
+            quizAnswers[soalNo] = jawaban;
+            
+            // Show next button
+            if (soalNo < 10) {
+                document.getElementById('nextBtn').style.display = 'inline-block';
+            } else {
+                document.getElementById('selesaiBtn').style.display = 'inline-block';
+            }
+        }
+
+        function soalSelanjutnya() {
+            // Hide current question
+            document.getElementById(`soal${currentQuiz}`).classList.remove('active');
+            
+            // Show next question
+            currentQuiz++;
+            document.getElementById(`soal${currentQuiz}`).classList.add('active');
+            
+            // Update progress
+            updateProgress();
+            
+            // Hide next button
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            // Update question info
+            document.getElementById('nomorSoal').textContent = currentQuiz;
+        }
+
+        function updateProgress() {
+            const progress = (currentQuiz / 10) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+        }
+
+        function selesaiKuis() {
+            // Calculate score
+            const correctAnswers = {
+                1: 'B', 2: 'B', 3: 'B', 4: 'C', 5: 'C',
+                6: 'B', 7: 'C', 8: 'B', 9: 'B', 10: 'B'
+            };
+            
+            let score = 0;
+            for (let i = 1; i <= 10; i++) {
+                if (quizAnswers[i] === correctAnswers[i]) {
+                    score += 10;
+                }
+            }
+            
+            // Hide quiz container
+            document.getElementById('kuisContainer').style.display = 'none';
+            
+            // Show results
+            document.getElementById('hasilKuis').style.display = 'block';
+            document.getElementById('skorAkhir').innerHTML = `${playerName}<br>Skor: ${score}/100`;
+            
+            let pesan = "";
+            if (score >= 90) {
+                pesan = "🏆 Excellent! Kalian sangat menguasai OOP Kotlin!";
+            } else if (score >= 80) {
+                pesan = "🎉 Great! Pemahaman kalian tentang OOP sudah bagus!";
+            } else if (score >= 70) {
+                pesan = "👍 Good! Kalian cukup memahami konsep OOP!";
+            } else if (score >= 60) {
+                pesan = "📚 Not bad! Perlu belajar lagi untuk lebih memahami OOP!";
+            } else {
+                pesan = "💪 Keep learning! Jangan menyerah, terus belajar OOP!";
+            }
+            
+            document.getElementById('pesanHasil').innerHTML = pesan;
+        }
+
+        function ulangiKuis() {
+            // Reset everything
+            document.getElementById('hasilKuis').style.display = 'none';
+            document.getElementById('namaInput').style.display = 'block';
+            document.getElementById('namaPeserta').value = '';
+            
+            // Reset quiz state
+            currentQuiz = 1;
+            quizAnswers = {};
+            
+            // Reset all questions
+            document.querySelectorAll('.quiz-question').forEach((q, index) => {
+                q.classList.remove('active');
+                if (index === 0) q.classList.add('active');
+            });
+            
+            // Reset all options
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Reset buttons
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('selesaiBtn').style.display = 'none';
+            
+            // Reset progress
+            document.getElementById('progress').style.width = '10%';
+            document.getElementById('nomorSoal').textContent = '1';
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial active section
+            navigateToSection('intro');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98bfc8d630184ad6',t:'MTc2MDAzMjg5OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
