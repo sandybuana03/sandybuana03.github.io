@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RESTful API & JSON untuk Android</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #f0f8ff 100%);
+            color: #4a5568;
+            line-height: 1.6;
+            height: 100%;
+            font-size: 18px;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #ffd6e8 0%, #e6f3ff 100%);
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        /* Sidebar Overlay for Mobile */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar h2 {
+            color: #d53f8c;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.2rem;
+        }
+
+        .nav-item {
+            padding: 15px 18px;
+            margin: 8px 0;
+            background: rgba(255,255,255,0.7);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+            font-size: 1.1rem;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.9);
+            border-left-color: #d53f8c;
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: #fff;
+            border-left-color: #d53f8c;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 0;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.sidebar-open {
+            margin-left: 280px;
+        }
+
+        /* Mobile Menu Button */
+        .menu-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: #d53f8c;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            font-size: 18px;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.9);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1, h2, h3 {
+            color: #d53f8c;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 2rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+        }
+
+        h4 {
+            font-size: 1.3rem;
+            color: #d53f8c;
+        }
+
+        p, li {
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        .emoji {
+            font-size: 2rem;
+            margin: 0 10px;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #fff5f8 0%, #f0f8ff 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 5px solid #d53f8c;
+        }
+
+        .demo-box {
+            background: #f7fafc;
+            border: 2px dashed #d53f8c;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .code-block {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 25px 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            overflow-x: auto;
+            font-family: 'Fira Code', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            border: 1px solid #2d3748;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            position: relative;
+            white-space: pre;
+            tab-size: 4;
+            text-align: left;
+        }
+
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #d53f8c, #9f7aea, #4299e1);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .code-block .line {
+            display: block;
+            padding: 2px 0;
+            border-left: 3px solid transparent;
+            padding-left: 15px;
+            margin-left: -15px;
+        }
+
+        .code-block .line:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-left-color: #d53f8c;
+        }
+
+        /* Syntax Highlighting */
+        .code-block .keyword {
+            color: #ff79c6;
+            font-weight: 600;
+        }
+
+        .code-block .string {
+            color: #50fa7b;
+        }
+
+        .code-block .comment {
+            color: #6272a4;
+            font-style: italic;
+        }
+
+        .code-block .number {
+            color: #bd93f9;
+        }
+
+        .code-block .function {
+            color: #8be9fd;
+        }
+
+        .code-block .class {
+            color: #ffb86c;
+        }
+
+        .code-block .tag {
+            color: #ff79c6;
+        }
+
+        .code-block .attribute {
+            color: #50fa7b;
+        }
+
+        .code-block .operator {
+            color: #ff79c6;
+        }
+
+        .code-block .bracket {
+            color: #f8f8f2;
+            font-weight: bold;
+        }
+
+        .code-block .indent-1 { margin-left: 20px; }
+        .code-block .indent-2 { margin-left: 40px; }
+        .code-block .indent-3 { margin-left: 60px; }
+        .code-block .indent-4 { margin-left: 80px; }
+        .code-block .indent-5 { margin-left: 100px; }
+
+        .btn {
+            background: linear-gradient(135deg, #d53f8c 0%, #9f7aea 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .next-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #d53f8c;
+            color: white;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background: #9f7aea;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+
+        /* Quiz Styles */
+        .quiz-question {
+            background: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .quiz-option {
+            display: block;
+            margin: 12px 0;
+            padding: 15px 20px;
+            background: #f7fafc;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        .quiz-option:hover {
+            border-color: #d53f8c;
+            background: #fff5f8;
+        }
+
+        .quiz-option.selected {
+            border-color: #d53f8c;
+            background: #fff5f8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .main-content.sidebar-open {
+                margin-left: 0;
+            }
+            
+            .content-section {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            /* Maintain font consistency on mobile */
+            body {
+                font-size: 16px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            h2 {
+                font-size: 1.8rem;
+            }
+            
+            h3 {
+                font-size: 1.4rem;
+            }
+            
+            h4 {
+                font-size: 1.2rem;
+            }
+            
+            p, li {
+                font-size: 1rem;
+            }
+            
+            .nav-item {
+                font-size: 1rem;
+                padding: 12px 15px;
+            }
+            
+            .btn {
+                font-size: 16px;
+                padding: 12px 25px;
+            }
+            
+            .quiz-option {
+                font-size: 1rem;
+                padding: 12px 15px;
+            }
+            
+            .code-block {
+                font-size: 14px;
+            }
+            
+            .next-btn, .back-to-top {
+                right: 15px;
+            }
+        }
+
+        .api-demo {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .json-viewer {
+            background: #2d3748;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #d53f8c, #9f7aea);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    
+    <div class="container">
+        <nav class="sidebar" id="sidebar">
+            <h2>📱 RESTful API & JSON</h2>
+            <div class="nav-item active" onclick="showSection('intro')">🌟 Intro</div>
+            <div class="nav-item" onclick="showSection('pengenalan')">📚 Pengenalan</div>
+            <div class="nav-item" onclick="showSection('rest-api')">🔗 REST API</div>
+            <div class="nav-item" onclick="showSection('json')">📄 JSON</div>
+            <div class="nav-item" onclick="showSection('http-methods')">🔧 HTTP Methods</div>
+            <div class="nav-item" onclick="showSection('android-implementation')">📱 Implementasi Android</div>
+            <div class="nav-item" onclick="showSection('tugas')">📝 Tugas</div>
+            <div class="nav-item" onclick="showSection('kuis')">🎯 Kuis</div>
+            <div class="nav-item" onclick="showSection('penutup')">🎉 Penutup</div>
+        </nav>
+
+        <main class="main-content" id="mainContent">
+            <!-- Progress Bar -->
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <!-- Intro Section -->
+            <section class="content-section active" id="intro">
+                <h1>🌟 Selamat Datang! <span class="emoji">👋</span></h1>
+                
+                <div class="highlight-box">
+                    <h3>🤔 Pertanyaan Pemantik</h3>
+                    <p>Pernahkah kalian bertanya-tanya bagaimana aplikasi di HP bisa menampilkan data terbaru seperti cuaca, berita, atau status media sosial? Bagaimana aplikasi Android bisa "berbicara" dengan server untuk mengambil dan mengirim data?</p>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>📖 Apa yang Akan Dipelajari?</h3>
+                    <ul>
+                        <li>🔗 Konsep RESTful API dan cara kerjanya</li>
+                        <li>📄 Format data JSON dan penggunaannya</li>
+                        <li>🔧 HTTP Methods (GET, POST, PUT, DELETE)</li>
+                        <li>📱 Implementasi di aplikasi Android</li>
+                        <li>💡 Praktik terbaik dalam pengembangan API</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎯 Tujuan Pembelajaran</h3>
+                    <p>Setelah mempelajari materi ini, kalian akan mampu:</p>
+                    <ul>
+                        <li>Memahami konsep dan prinsip RESTful API</li>
+                        <li>Menggunakan format JSON untuk pertukaran data</li>
+                        <li>Mengimplementasikan API calls di aplikasi Android</li>
+                        <li>Menerapkan best practices dalam pengembangan mobile app</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>💡 Pemahaman Bermakna</h3>
+                    <p>RESTful API adalah jembatan yang menghubungkan aplikasi mobile dengan dunia data di internet. Seperti pelayan di restoran yang mengantarkan pesanan kalian ke dapur dan membawa makanan kembali ke meja!</p>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🚀 Motivasi</h3>
+                    <p>Dengan menguasai RESTful API dan JSON, kalian akan bisa membuat aplikasi Android yang dinamis dan terhubung dengan internet. Ini adalah skill wajib untuk menjadi developer mobile yang handal! 💪</p>
+                </div>
+            </section>
+
+            <!-- Pengenalan Section -->
+            <section class="content-section" id="pengenalan">
+                <h1>📚 Pengenalan RESTful API & JSON</h1>
+                
+                <div class="highlight-box">
+                    <h3>🌐 Apa itu API?</h3>
+                    <p><strong>API (Application Programming Interface)</strong> adalah seperti menu di restoran. Menu memberitahu kalian apa saja yang bisa dipesan, bagaimana cara memesannya, dan apa yang akan kalian dapatkan.</p>
+                    
+                    <div class="demo-box">
+                        <h4>🍕 Analogi Restoran</h4>
+                        <p><strong>Kalian (Client)</strong> → <strong>Pelayan (API)</strong> → <strong>Dapur (Server)</strong></p>
+                        <p>Kalian pesan makanan → Pelayan catat pesanan → Dapur masak → Pelayan antar makanan</p>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🔗 Mengapa RESTful API?</h3>
+                    <p>REST (Representational State Transfer) adalah aturan main yang membuat API mudah digunakan dan dipahami. Seperti aturan lalu lintas yang membuat semua orang bisa berkendara dengan aman!</p>
+                    
+                    <ul>
+                        <li>🎯 <strong>Simple</strong>: Mudah dipahami dan digunakan</li>
+                        <li>⚡ <strong>Fast</strong>: Performa yang cepat</li>
+                        <li>🔄 <strong>Scalable</strong>: Bisa menangani banyak pengguna</li>
+                        <li>🌍 <strong>Universal</strong>: Bisa digunakan di berbagai platform</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>📱 Dalam Konteks Android</h3>
+                    <p>Aplikasi Android menggunakan RESTful API untuk:</p>
+                    <ul>
+                        <li>📥 Mengambil data dari server (seperti daftar produk)</li>
+                        <li>📤 Mengirim data ke server (seperti data registrasi)</li>
+                        <li>✏️ Mengupdate data (seperti edit profil)</li>
+                        <li>🗑️ Menghapus data (seperti hapus postingan)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- REST API Section -->
+            <section class="content-section" id="rest-api">
+                <h1>🔗 Memahami REST API</h1>
+                
+                <div class="highlight-box">
+                    <h3>🏗️ Prinsip-Prinsip REST</h3>
+                    
+                    <div class="demo-box">
+                        <h4>1. 🎯 Stateless (Tanpa Status)</h4>
+                        <p>Setiap request berdiri sendiri, seperti setiap kali kalian pesan makanan, pelayan tidak ingat pesanan sebelumnya.</p>
+                    </div>
+                    
+                    <div class="demo-box">
+                        <h4>2. 📍 Resource-Based (Berbasis Sumber Daya)</h4>
+                        <p>Setiap URL menunjuk ke sumber daya tertentu:</p>
+                        <div class="code-block"><span class="line">/users          → Semua pengguna</span>
+<span class="line">/users/123      → Pengguna dengan ID 123</span>
+<span class="line">/users/123/posts → Postingan dari pengguna 123</span></div>
+                    </div>
+                    
+                    <div class="demo-box">
+                        <h4>3. 🔧 HTTP Methods</h4>
+                        <p>Menggunakan method HTTP untuk menentukan aksi:</p>
+                        <ul>
+                            <li><strong>GET</strong>: Ambil data 📥</li>
+                            <li><strong>POST</strong>: Buat data baru ➕</li>
+                            <li><strong>PUT</strong>: Update data ✏️</li>
+                            <li><strong>DELETE</strong>: Hapus data 🗑️</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="api-demo">
+                    <h3>🎮 Demo API Sederhana</h3>
+                    <p>Mari kita coba API sederhana untuk data pengguna:</p>
+                    
+                    <button class="btn" onclick="demoGetUsers()">📥 GET Users</button>
+                    <button class="btn" onclick="demoGetUser()">👤 GET User by ID</button>
+                    <button class="btn" onclick="demoPostUser()">➕ POST New User</button>
+                    
+                    <div id="apiResult" class="json-viewer" style="margin-top: 15px; min-height: 100px;">
+Klik tombol di atas untuk melihat contoh response API! 🚀
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>📊 Status Code HTTP</h3>
+                    <p>Server memberikan kode status untuk memberitahu hasil request:</p>
+                    <ul>
+                        <li><strong>200 OK</strong>: Berhasil! ✅</li>
+                        <li><strong>201 Created</strong>: Data berhasil dibuat! 🎉</li>
+                        <li><strong>400 Bad Request</strong>: Request salah 😅</li>
+                        <li><strong>404 Not Found</strong>: Data tidak ditemukan 🔍</li>
+                        <li><strong>500 Server Error</strong>: Server bermasalah 🚨</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- JSON Section -->
+            <section class="content-section" id="json">
+                <h1>📄 Mengenal JSON</h1>
+                
+                <div class="highlight-box">
+                    <h3>🤔 Apa itu JSON?</h3>
+                    <p><strong>JSON (JavaScript Object Notation)</strong> adalah format untuk menyimpan dan mengirim data. Seperti kotak makan siang yang rapi - semua makanan tertata dengan label yang jelas!</p>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>📝 Struktur JSON</h3>
+                    
+                    <h4>1. Object (Objek) 📦</h4>
+                    <div class="code-block"><span class="line"><span class="bracket">{</span></span>
+<span class="line indent-1"><span class="string">"nama"</span><span class="operator">:</span> <span class="string">"Budi"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"umur"</span><span class="operator">:</span> <span class="number">17</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"kelas"</span><span class="operator">:</span> <span class="string">"XII RPL"</span></span>
+<span class="line"><span class="bracket">}</span></span></div>
+
+                    <h4>2. Array (Daftar) 📋</h4>
+                    <div class="code-block"><span class="line"><span class="bracket">[</span></span>
+<span class="line indent-1"><span class="string">"Matematika"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"Bahasa Indonesia"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"Pemrograman"</span></span>
+<span class="line"><span class="bracket">]</span></span></div>
+
+                    <h4>3. Kombinasi Object dan Array 🎯</h4>
+                    <div class="code-block"><span class="line"><span class="bracket">{</span></span>
+<span class="line indent-1"><span class="string">"siswa"</span><span class="operator">:</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="string">"nama"</span><span class="operator">:</span> <span class="string">"Sari"</span><span class="operator">,</span></span>
+<span class="line indent-2"><span class="string">"umur"</span><span class="operator">:</span> <span class="number">16</span><span class="operator">,</span></span>
+<span class="line indent-2"><span class="string">"hobi"</span><span class="operator">:</span> <span class="bracket">[</span><span class="string">"membaca"</span><span class="operator">,</span> <span class="string">"coding"</span><span class="operator">,</span> <span class="string">"gaming"</span><span class="bracket">]</span></span>
+<span class="line indent-1"><span class="bracket">}</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"nilai"</span><span class="operator">:</span> <span class="bracket">[</span><span class="number">85</span><span class="operator">,</span> <span class="number">90</span><span class="operator">,</span> <span class="number">88</span><span class="bracket">]</span></span>
+<span class="line"><span class="bracket">}</span></span></div>
+                </div>
+
+                <div class="api-demo">
+                    <h3>🎮 JSON Playground</h3>
+                    <p>Mari kita buat JSON untuk data siswa:</p>
+                    
+                    <button class="btn" onclick="showSimpleJSON()">📦 JSON Sederhana</button>
+                    <button class="btn" onclick="showComplexJSON()">🎯 JSON Kompleks</button>
+                    <button class="btn" onclick="showArrayJSON()">📋 JSON Array</button>
+                    
+                    <div id="jsonResult" class="json-viewer" style="margin-top: 15px;">
+Klik tombol untuk melihat contoh JSON! 🚀
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>✅ Aturan JSON</h3>
+                    <ul>
+                        <li>🔤 String harus pakai tanda kutip ganda (")</li>
+                        <li>🔢 Number tidak perlu tanda kutip</li>
+                        <li>✅ Boolean: true atau false</li>
+                        <li>🚫 null untuk nilai kosong</li>
+                        <li>📦 Object pakai kurung kurawal { }</li>
+                        <li>📋 Array pakai kurung siku [ ]</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🚫 Kesalahan Umum JSON</h3>
+                    <div class="demo-box">
+                        <h4>❌ Salah:</h4>
+                        <div class="code-block"><span class="line"><span class="bracket">{</span></span>
+<span class="line indent-1">nama<span class="operator">:</span> <span class="string">'Budi'</span><span class="operator">,</span>        <span class="comment">// Tidak pakai tanda kutip</span></span>
+<span class="line indent-1"><span class="string">'umur'</span><span class="operator">:</span> <span class="number">17</span><span class="operator">,</span>          <span class="comment">// Pakai kutip tunggal</span></span>
+<span class="line indent-1">kelas<span class="operator">:</span> <span class="string">"XII RPL"</span><span class="operator">,</span>    <span class="comment">// Tidak konsisten</span></span>
+<span class="line"><span class="bracket">}</span></span></div>
+                        
+                        <h4>✅ Benar:</h4>
+                        <div class="code-block"><span class="line"><span class="bracket">{</span></span>
+<span class="line indent-1"><span class="string">"nama"</span><span class="operator">:</span> <span class="string">"Budi"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"umur"</span><span class="operator">:</span> <span class="number">17</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"kelas"</span><span class="operator">:</span> <span class="string">"XII RPL"</span></span>
+<span class="line"><span class="bracket">}</span></span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HTTP Methods Section -->
+            <section class="content-section" id="http-methods">
+                <h1>🔧 HTTP Methods dalam Detail</h1>
+                
+                <div class="highlight-box">
+                    <h3>📥 GET - Mengambil Data</h3>
+                    <p>Seperti membaca buku di perpustakaan - kalian hanya melihat, tidak mengubah isinya.</p>
+                    
+                    <div class="demo-box">
+                        <h4>Contoh Penggunaan:</h4>
+                        <div class="code-block"><span class="line">GET /api/students</span>
+<span class="line">GET /api/students/123</span>
+<span class="line">GET /api/students?kelas=XII-RPL</span></div>
+                        
+                        <button class="btn" onclick="demoGET()">🎮 Demo GET</button>
+                        <div id="getResult" class="json-viewer" style="margin-top: 10px; display: none;"></div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>➕ POST - Membuat Data Baru</h3>
+                    <p>Seperti menulis catatan baru di buku diary - menambah sesuatu yang belum ada.</p>
+                    
+                    <div class="demo-box">
+                        <h4>Contoh Penggunaan:</h4>
+                        <div class="code-block"><span class="line">POST /api/students</span>
+<span class="line">Content-Type: application/json</span>
+<span class="line"></span>
+<span class="line"><span class="bracket">{</span></span>
+<span class="line indent-1"><span class="string">"nama"</span><span class="operator">:</span> <span class="string">"Andi"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"kelas"</span><span class="operator">:</span> <span class="string">"XII RPL"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"umur"</span><span class="operator">:</span> <span class="number">17</span></span>
+<span class="line"><span class="bracket">}</span></span></div>
+                        
+                        <button class="btn" onclick="demoPOST()">🎮 Demo POST</button>
+                        <div id="postResult" class="json-viewer" style="margin-top: 10px; display: none;"></div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>✏️ PUT - Mengupdate Data</h3>
+                    <p>Seperti mengedit essay yang sudah ditulis - mengubah yang sudah ada.</p>
+                    
+                    <div class="demo-box">
+                        <h4>Contoh Penggunaan:</h4>
+                        <div class="code-block"><span class="line">PUT /api/students/123</span>
+<span class="line">Content-Type: application/json</span>
+<span class="line"></span>
+<span class="line"><span class="bracket">{</span></span>
+<span class="line indent-1"><span class="string">"nama"</span><span class="operator">:</span> <span class="string">"Andi Pratama"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"kelas"</span><span class="operator">:</span> <span class="string">"XII RPL"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"umur"</span><span class="operator">:</span> <span class="number">18</span></span>
+<span class="line"><span class="bracket">}</span></span></div>
+                        
+                        <button class="btn" onclick="demoPUT()">🎮 Demo PUT</button>
+                        <div id="putResult" class="json-viewer" style="margin-top: 10px; display: none;"></div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🗑️ DELETE - Menghapus Data</h3>
+                    <p>Seperti menghapus file di komputer - data hilang permanen.</p>
+                    
+                    <div class="demo-box">
+                        <h4>Contoh Penggunaan:</h4>
+                        <div class="code-block"><span class="line">DELETE /api/students/123</span></div>
+                        
+                        <button class="btn" onclick="demoDELETE()">🎮 Demo DELETE</button>
+                        <div id="deleteResult" class="json-viewer" style="margin-top: 10px; display: none;"></div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>📊 Ringkasan HTTP Methods</h3>
+                    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                        <tr style="background: #f7fafc;">
+                            <th style="padding: 10px; border: 1px solid #e2e8f0;">Method</th>
+                            <th style="padding: 10px; border: 1px solid #e2e8f0;">Fungsi</th>
+                            <th style="padding: 10px; border: 1px solid #e2e8f0;">Analogi</th>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>GET</strong></td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Ambil data</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Membaca buku 📖</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>POST</strong></td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Buat data baru</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Menulis catatan baru ✍️</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>PUT</strong></td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Update data</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Edit tulisan ✏️</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;"><strong>DELETE</strong></td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Hapus data</td>
+                            <td style="padding: 10px; border: 1px solid #e2e8f0;">Hapus file 🗑️</td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Android Implementation Section -->
+            <section class="content-section" id="android-implementation">
+                <h1>📱 Implementasi di Android</h1>
+                
+                <div class="highlight-box">
+                    <h3>🛠️ Tools yang Dibutuhkan</h3>
+                    <ul>
+                        <li>💻 <strong>Android Studio</strong>: IDE untuk development Android</li>
+                        <li>📚 <strong>Retrofit</strong>: Library untuk HTTP requests</li>
+                        <li>🔄 <strong>Gson</strong>: Converter JSON ke Object Java</li>
+                        <li>🌐 <strong>OkHttp</strong>: HTTP client (biasanya sudah include di Retrofit)</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🚀 Langkah 1: Membuat Project Baru</h3>
+                    
+                    <div class="demo-box">
+                        <h4>📱 Buka Android Studio</h4>
+                        <ol>
+                            <li>Buka Android Studio</li>
+                            <li>Pilih <strong>"Create New Project"</strong> atau <strong>"Start a new Android Studio project"</strong></li>
+                            <li>Pilih template <strong>"Empty Activity"</strong></li>
+                            <li>Klik <strong>"Next"</strong></li>
+                        </ol>
+                    </div>
+
+                    <div class="demo-box">
+                        <h4>⚙️ Konfigurasi Project</h4>
+                        <ul>
+                            <li><strong>Name:</strong> <code>Aplikasi Siswa API</code></li>
+                            <li><strong>Package name:</strong> <code>com.sekolah.siswaapi</code></li>
+                            <li><strong>Save location:</strong> Pilih folder yang mudah diingat</li>
+                            <li><strong>Language:</strong> Java</li>
+                            <li><strong>Minimum SDK:</strong> API 21 (Android 5.0) atau lebih tinggi</li>
+                        </ul>
+                        <p>Klik <strong>"Finish"</strong> dan tunggu Android Studio selesai setup project!</p>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🌐 Langkah 2: Tambah Permission Internet</h3>
+                    <p>Buka file <code>app/src/main/AndroidManifest.xml</code> dan tambahkan permission:</p>
+                    <div class="code-block"><span class="line"><span class="tag">&lt;manifest</span> <span class="attribute">xmlns:android</span><span class="operator">=</span><span class="string">"http://schemas.android.com/apk/res/android"</span><span class="tag">&gt;</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="comment">&lt;!-- Tambahkan permission ini --&gt;</span></span>
+<span class="line indent-1"><span class="tag">&lt;uses-permission</span> <span class="attribute">android:name</span><span class="operator">=</span><span class="string">"android.permission.INTERNET"</span> <span class="tag">/&gt;</span></span>
+<span class="line indent-1"><span class="tag">&lt;uses-permission</span> <span class="attribute">android:name</span><span class="operator">=</span><span class="string">"android.permission.ACCESS_NETWORK_STATE"</span> <span class="tag">/&gt;</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="tag">&lt;application</span></span>
+<span class="line indent-2"><span class="attribute">android:allowBackup</span><span class="operator">=</span><span class="string">"true"</span></span>
+<span class="line indent-2"><span class="attribute">android:usesCleartextTraffic</span><span class="operator">=</span><span class="string">"true"</span><span class="tag">&gt;</span></span>
+<span class="line indent-2"><span class="comment">&lt;!-- usesCleartextTraffic untuk HTTP (development) --&gt;</span></span>
+<span class="line indent-2"></span>
+<span class="line indent-2"><span class="comment">&lt;!-- Activity lainnya... --&gt;</span></span>
+<span class="line indent-1"><span class="tag">&lt;/application&gt;</span></span>
+<span class="line"><span class="tag">&lt;/manifest&gt;</span></span></div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>📦 Langkah 3: Setup Dependencies</h3>
+                    <p>Buka file <code>app/build.gradle (Module: app)</code> dan tambahkan dependencies:</p>
+                    <div class="code-block"><span class="line"><span class="keyword">dependencies</span> <span class="bracket">{</span></span>
+<span class="line indent-1"><span class="comment">// Dependencies yang sudah ada...</span></span>
+<span class="line indent-1"><span class="keyword">implementation</span> <span class="string">'androidx.appcompat:appcompat:1.6.1'</span></span>
+<span class="line indent-1"><span class="keyword">implementation</span> <span class="string">'com.google.android.material:material:1.9.0'</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="comment">// Tambahkan dependencies untuk API</span></span>
+<span class="line indent-1"><span class="keyword">implementation</span> <span class="string">'com.squareup.retrofit2:retrofit:2.9.0'</span></span>
+<span class="line indent-1"><span class="keyword">implementation</span> <span class="string">'com.squareup.retrofit2:converter-gson:2.9.0'</span></span>
+<span class="line indent-1"><span class="keyword">implementation</span> <span class="string">'com.squareup.okhttp3:logging-interceptor:4.9.0'</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="comment">// RecyclerView untuk menampilkan list</span></span>
+<span class="line indent-1"><span class="keyword">implementation</span> <span class="string">'androidx.recyclerview:recyclerview:1.3.1'</span></span>
+<span class="line"><span class="bracket">}</span></span></div>
+                    <p><strong>⚠️ Penting:</strong> Setelah menambahkan dependencies, klik <strong>"Sync Now"</strong> yang muncul di bagian atas!</p>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>📁 Langkah 4: Buat Struktur Folder</h3>
+                    <p>Buat folder-folder berikut di <code>app/src/main/java/com/sekolah/siswaapi/</code>:</p>
+                    
+                    <div class="demo-box">
+                        <h4>🗂️ Cara Membuat Folder:</h4>
+                        <ol>
+                            <li>Klik kanan pada <code>com.sekolah.siswaapi</code></li>
+                            <li>Pilih <strong>New → Package</strong></li>
+                            <li>Ketik nama folder (contoh: <code>model</code>)</li>
+                            <li>Tekan Enter</li>
+                        </ol>
+                        
+                        <p><strong>Folder yang perlu dibuat:</strong></p>
+                        <ul>
+                            <li>📄 <code>model</code> - untuk class data</li>
+                            <li>🔗 <code>api</code> - untuk API service dan client</li>
+                            <li>🎨 <code>adapter</code> - untuk RecyclerView adapter</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎨 Langkah 5: Buat Layout XML</h3>
+                    
+                    <div class="demo-box">
+                        <h4>📱 Edit activity_main.xml</h4>
+                        <p>Buka file <code>app/src/main/res/layout/activity_main.xml</code> dan ganti isinya:</p>
+                        <div class="code-block"><span class="line"><span class="tag">&lt;?xml</span> <span class="attribute">version</span><span class="operator">=</span><span class="string">"1.0"</span> <span class="attribute">encoding</span><span class="operator">=</span><span class="string">"utf-8"</span><span class="tag">?&gt;</span></span>
+<span class="line"><span class="tag">&lt;LinearLayout</span> <span class="attribute">xmlns:android</span><span class="operator">=</span><span class="string">"http://schemas.android.com/apk/res/android"</span></span>
+<span class="line indent-1"><span class="attribute">android:layout_width</span><span class="operator">=</span><span class="string">"match_parent"</span></span>
+<span class="line indent-1"><span class="attribute">android:layout_height</span><span class="operator">=</span><span class="string">"match_parent"</span></span>
+<span class="line indent-1"><span class="attribute">android:orientation</span><span class="operator">=</span><span class="string">"vertical"</span></span>
+<span class="line indent-1"><span class="attribute">android:padding</span><span class="operator">=</span><span class="string">"16dp"</span><span class="tag">&gt;</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="tag">&lt;TextView</span></span>
+<span class="line indent-2"><span class="attribute">android:layout_width</span><span class="operator">=</span><span class="string">"match_parent"</span></span>
+<span class="line indent-2"><span class="attribute">android:layout_height</span><span class="operator">=</span><span class="string">"wrap_content"</span></span>
+<span class="line indent-2"><span class="attribute">android:text</span><span class="operator">=</span><span class="string">"📚 Data Siswa"</span></span>
+<span class="line indent-2"><span class="attribute">android:textSize</span><span class="operator">=</span><span class="string">"24sp"</span></span>
+<span class="line indent-2"><span class="attribute">android:textStyle</span><span class="operator">=</span><span class="string">"bold"</span></span>
+<span class="line indent-2"><span class="attribute">android:gravity</span><span class="operator">=</span><span class="string">"center"</span></span>
+<span class="line indent-2"><span class="attribute">android:layout_marginBottom</span><span class="operator">=</span><span class="string">"16dp"</span> <span class="tag">/&gt;</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="tag">&lt;Button</span></span>
+<span class="line indent-2"><span class="attribute">android:id</span><span class="operator">=</span><span class="string">"@+id/btnLoadData"</span></span>
+<span class="line indent-2"><span class="attribute">android:layout_width</span><span class="operator">=</span><span class="string">"match_parent"</span></span>
+<span class="line indent-2"><span class="attribute">android:layout_height</span><span class="operator">=</span><span class="string">"wrap_content"</span></span>
+<span class="line indent-2"><span class="attribute">android:text</span><span class="operator">=</span><span class="string">"📥 Load Data Siswa"</span></span>
+<span class="line indent-2"><span class="attribute">android:layout_marginBottom</span><span class="operator">=</span><span class="string">"16dp"</span> <span class="tag">/&gt;</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="tag">&lt;ProgressBar</span></span>
+<span class="line indent-2"><span class="attribute">android:id</span><span class="operator">=</span><span class="string">"@+id/progressBar"</span></span>
+<span class="line indent-2"><span class="attribute">android:layout_width</span><span class="operator">=</span><span class="string">"wrap_content"</span></span>
+<span class="line indent-2"><span class="attribute">android:layout_height</span><span class="operator">=</span><span class="string">"wrap_content"</span></span>
+<span class="line indent-2"><span class="attribute">android:layout_gravity</span><span class="operator">=</span><span class="string">"center"</span></span>
+<span class="line indent-2"><span class="attribute">android:visibility</span><span class="operator">=</span><span class="string">"gone"</span> <span class="tag">/&gt;</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="tag">&lt;androidx.recyclerview.widget.RecyclerView</span></span>
+<span class="line indent-2"><span class="attribute">android:id</span><span class="operator">=</span><span class="string">"@+id/recyclerView"</span></span>
+<span class="line indent-2"><span class="attribute">android:layout_width</span><span class="operator">=</span><span class="string">"match_parent"</span></span>
+<span class="line indent-2"><span class="attribute">android:layout_height</span><span class="operator">=</span><span class="string">"match_parent"</span> <span class="tag">/&gt;</span></span>
+<span class="line"></span>
+<span class="line"><span class="tag">&lt;/LinearLayout&gt;</span></span></div>
+                    </div>
+
+                    <div class="demo-box">
+                        <h4>📋 Buat Layout untuk Item List</h4>
+                        <p>Buat file baru <code>item_student.xml</code> di folder <code>res/layout/</code>:</p>
+                        <ol>
+                            <li>Klik kanan pada folder <code>res/layout</code></li>
+                            <li>Pilih <strong>New → Layout Resource File</strong></li>
+                            <li>Nama file: <code>item_student</code></li>
+                            <li>Root element: <code>LinearLayout</code></li>
+                        </ol>
+                        
+                        <div class="code-block"><span class="line"><span class="tag">&lt;?xml</span> <span class="attribute">version</span><span class="operator">=</span><span class="string">"1.0"</span> <span class="attribute">encoding</span><span class="operator">=</span><span class="string">"utf-8"</span><span class="tag">?&gt;</span></span>
+<span class="line"><span class="tag">&lt;androidx.cardview.widget.CardView</span></span>
+<span class="line indent-1"><span class="attribute">xmlns:android</span><span class="operator">=</span><span class="string">"http://schemas.android.com/apk/res/android"</span></span>
+<span class="line indent-1"><span class="attribute">xmlns:app</span><span class="operator">=</span><span class="string">"http://schemas.android.com/apk/res-auto"</span></span>
+<span class="line indent-1"><span class="attribute">android:layout_width</span><span class="operator">=</span><span class="string">"match_parent"</span></span>
+<span class="line indent-1"><span class="attribute">android:layout_height</span><span class="operator">=</span><span class="string">"wrap_content"</span></span>
+<span class="line indent-1"><span class="attribute">android:layout_margin</span><span class="operator">=</span><span class="string">"8dp"</span></span>
+<span class="line indent-1"><span class="attribute">app:cardCornerRadius</span><span class="operator">=</span><span class="string">"8dp"</span></span>
+<span class="line indent-1"><span class="attribute">app:cardElevation</span><span class="operator">=</span><span class="string">"4dp"</span><span class="tag">&gt;</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="tag">&lt;LinearLayout</span></span>
+<span class="line indent-2"><span class="attribute">android:layout_width</span><span class="operator">=</span><span class="string">"match_parent"</span></span>
+<span class="line indent-2"><span class="attribute">android:layout_height</span><span class="operator">=</span><span class="string">"wrap_content"</span></span>
+<span class="line indent-2"><span class="attribute">android:orientation</span><span class="operator">=</span><span class="string">"vertical"</span></span>
+<span class="line indent-2"><span class="attribute">android:padding</span><span class="operator">=</span><span class="string">"16dp"</span><span class="tag">&gt;</span></span>
+<span class="line"></span>
+<span class="line indent-2"><span class="tag">&lt;TextView</span></span>
+<span class="line indent-3"><span class="attribute">android:id</span><span class="operator">=</span><span class="string">"@+id/tvNama"</span></span>
+<span class="line indent-3"><span class="attribute">android:layout_width</span><span class="operator">=</span><span class="string">"match_parent"</span></span>
+<span class="line indent-3"><span class="attribute">android:layout_height</span><span class="operator">=</span><span class="string">"wrap_content"</span></span>
+<span class="line indent-3"><span class="attribute">android:text</span><span class="operator">=</span><span class="string">"Nama Siswa"</span></span>
+<span class="line indent-3"><span class="attribute">android:textSize</span><span class="operator">=</span><span class="string">"18sp"</span></span>
+<span class="line indent-3"><span class="attribute">android:textStyle</span><span class="operator">=</span><span class="string">"bold"</span> <span class="tag">/&gt;</span></span>
+<span class="line"></span>
+<span class="line indent-2"><span class="tag">&lt;TextView</span></span>
+<span class="line indent-3"><span class="attribute">android:id</span><span class="operator">=</span><span class="string">"@+id/tvKelas"</span></span>
+<span class="line indent-3"><span class="attribute">android:layout_width</span><span class="operator">=</span><span class="string">"match_parent"</span></span>
+<span class="line indent-3"><span class="attribute">android:layout_height</span><span class="operator">=</span><span class="string">"wrap_content"</span></span>
+<span class="line indent-3"><span class="attribute">android:text</span><span class="operator">=</span><span class="string">"Kelas"</span></span>
+<span class="line indent-3"><span class="attribute">android:textSize</span><span class="operator">=</span><span class="string">"14sp"</span> <span class="tag">/&gt;</span></span>
+<span class="line"></span>
+<span class="line indent-2"><span class="tag">&lt;TextView</span></span>
+<span class="line indent-3"><span class="attribute">android:id</span><span class="operator">=</span><span class="string">"@+id/tvUmur"</span></span>
+<span class="line indent-3"><span class="attribute">android:layout_width</span><span class="operator">=</span><span class="string">"match_parent"</span></span>
+<span class="line indent-3"><span class="attribute">android:layout_height</span><span class="operator">=</span><span class="string">"wrap_content"</span></span>
+<span class="line indent-3"><span class="attribute">android:text</span><span class="operator">=</span><span class="string">"Umur"</span></span>
+<span class="line indent-3"><span class="attribute">android:textSize</span><span class="operator">=</span><span class="string">"14sp"</span> <span class="tag">/&gt;</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="tag">&lt;/LinearLayout&gt;</span></span>
+<span class="line"><span class="tag">&lt;/androidx.cardview.widget.CardView&gt;</span></span></div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🏗️ Langkah 6: Buat Class-Class Java</h3>
+                    
+                    <div class="demo-box">
+                        <h4>1. 📄 Buat Model Class Student</h4>
+                        <p><strong>📁 Lokasi:</strong> <code>app/src/main/java/com/sekolah/siswaapi/model/Student.java</code></p>
+                        <p><strong>Cara membuat:</strong></p>
+                        <ol>
+                            <li>Klik kanan pada folder <code>model</code></li>
+                            <li>Pilih <strong>New → Java Class</strong></li>
+                            <li>Nama: <code>Student</code></li>
+                            <li>Klik OK</li>
+                        </ol>
+                        <div class="code-block"><span class="line"><span class="comment">// File: Student.java</span></span>
+<span class="line"><span class="keyword">package</span> com.sekolah.siswaapi.model<span class="operator">;</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">public class</span> <span class="class">Student</span> <span class="bracket">{</span></span>
+<span class="line indent-1"><span class="keyword">private</span> <span class="keyword">int</span> id<span class="operator">;</span></span>
+<span class="line indent-1"><span class="keyword">private</span> <span class="class">String</span> nama<span class="operator">;</span></span>
+<span class="line indent-1"><span class="keyword">private</span> <span class="class">String</span> kelas<span class="operator">;</span></span>
+<span class="line indent-1"><span class="keyword">private</span> <span class="keyword">int</span> umur<span class="operator">;</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="comment">// Constructor kosong (wajib untuk Gson)</span></span>
+<span class="line indent-1"><span class="keyword">public</span> <span class="function">Student</span><span class="bracket">()</span> <span class="bracket">{}</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="comment">// Constructor dengan parameter</span></span>
+<span class="line indent-1"><span class="keyword">public</span> <span class="function">Student</span><span class="bracket">(</span><span class="class">String</span> nama<span class="operator">,</span> <span class="class">String</span> kelas<span class="operator">,</span> <span class="keyword">int</span> umur<span class="bracket">)</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="keyword">this</span><span class="operator">.</span>nama <span class="operator">=</span> nama<span class="operator">;</span></span>
+<span class="line indent-2"><span class="keyword">this</span><span class="operator">.</span>kelas <span class="operator">=</span> kelas<span class="operator">;</span></span>
+<span class="line indent-2"><span class="keyword">this</span><span class="operator">.</span>umur <span class="operator">=</span> umur<span class="operator">;</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="comment">// Getter dan Setter methods</span></span>
+<span class="line indent-1"><span class="keyword">public</span> <span class="keyword">int</span> <span class="function">getId</span><span class="bracket">()</span> <span class="bracket">{</span> <span class="keyword">return</span> id<span class="operator">;</span> <span class="bracket">}</span></span>
+<span class="line indent-1"><span class="keyword">public void</span> <span class="function">setId</span><span class="bracket">(</span><span class="keyword">int</span> id<span class="bracket">)</span> <span class="bracket">{</span> <span class="keyword">this</span><span class="operator">.</span>id <span class="operator">=</span> id<span class="operator">;</span> <span class="bracket">}</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="keyword">public</span> <span class="class">String</span> <span class="function">getNama</span><span class="bracket">()</span> <span class="bracket">{</span> <span class="keyword">return</span> nama<span class="operator">;</span> <span class="bracket">}</span></span>
+<span class="line indent-1"><span class="keyword">public void</span> <span class="function">setNama</span><span class="bracket">(</span><span class="class">String</span> nama<span class="bracket">)</span> <span class="bracket">{</span> <span class="keyword">this</span><span class="operator">.</span>nama <span class="operator">=</span> nama<span class="operator">;</span> <span class="bracket">}</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="keyword">public</span> <span class="class">String</span> <span class="function">getKelas</span><span class="bracket">()</span> <span class="bracket">{</span> <span class="keyword">return</span> kelas<span class="operator">;</span> <span class="bracket">}</span></span>
+<span class="line indent-1"><span class="keyword">public void</span> <span class="function">setKelas</span><span class="bracket">(</span><span class="class">String</span> kelas<span class="bracket">)</span> <span class="bracket">{</span> <span class="keyword">this</span><span class="operator">.</span>kelas <span class="operator">=</span> kelas<span class="operator">;</span> <span class="bracket">}</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="keyword">public</span> <span class="keyword">int</span> <span class="function">getUmur</span><span class="bracket">()</span> <span class="bracket">{</span> <span class="keyword">return</span> umur<span class="operator">;</span> <span class="bracket">}</span></span>
+<span class="line indent-1"><span class="keyword">public void</span> <span class="function">setUmur</span><span class="bracket">(</span><span class="keyword">int</span> umur<span class="bracket">)</span> <span class="bracket">{</span> <span class="keyword">this</span><span class="operator">.</span>umur <span class="operator">=</span> umur<span class="operator">;</span> <span class="bracket">}</span></span>
+<span class="line"><span class="bracket">}</span></span></div>
+                    </div>
+
+                    <div class="demo-box">
+                        <h4>2. 🔗 Buat API Interface</h4>
+                        <p><strong>📁 Lokasi:</strong> <code>app/src/main/java/com/sekolah/siswaapi/api/ApiService.java</code></p>
+                        <p><strong>Cara membuat:</strong></p>
+                        <ol>
+                            <li>Klik kanan pada folder <code>api</code></li>
+                            <li>Pilih <strong>New → Java Class</strong></li>
+                            <li>Nama: <code>ApiService</code></li>
+                            <li>Klik OK</li>
+                        </ol>
+                        <div class="code-block"><span class="line"><span class="comment">// File: ApiService.java</span></span>
+<span class="line"><span class="keyword">package</span> com.sekolah.siswaapi.api<span class="operator">;</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">import</span> com.sekolah.siswaapi.model.Student<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> java.util.List<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> retrofit2.Call<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> retrofit2.http.*<span class="operator">;</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">public interface</span> <span class="class">ApiService</span> <span class="bracket">{</span></span>
+<span class="line indent-1"><span class="comment">// GET - Ambil semua data siswa</span></span>
+<span class="line indent-1"><span class="tag">@GET</span><span class="bracket">(</span><span class="string">"students"</span><span class="bracket">)</span></span>
+<span class="line indent-1"><span class="class">Call</span><span class="operator">&lt;</span><span class="class">List</span><span class="operator">&lt;</span><span class="class">Student</span><span class="operator">&gt;&gt;</span> <span class="function">getAllStudents</span><span class="bracket">();</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="comment">// GET - Ambil data siswa berdasarkan ID</span></span>
+<span class="line indent-1"><span class="tag">@GET</span><span class="bracket">(</span><span class="string">"students/{id}"</span><span class="bracket">)</span></span>
+<span class="line indent-1"><span class="class">Call</span><span class="operator">&lt;</span><span class="class">Student</span><span class="operator">&gt;</span> <span class="function">getStudent</span><span class="bracket">(</span><span class="tag">@Path</span><span class="bracket">(</span><span class="string">"id"</span><span class="bracket">)</span> <span class="keyword">int</span> id<span class="bracket">);</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="comment">// POST - Buat data siswa baru</span></span>
+<span class="line indent-1"><span class="tag">@POST</span><span class="bracket">(</span><span class="string">"students"</span><span class="bracket">)</span></span>
+<span class="line indent-1"><span class="class">Call</span><span class="operator">&lt;</span><span class="class">Student</span><span class="operator">&gt;</span> <span class="function">createStudent</span><span class="bracket">(</span><span class="tag">@Body</span> <span class="class">Student</span> student<span class="bracket">);</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="comment">// PUT - Update data siswa</span></span>
+<span class="line indent-1"><span class="tag">@PUT</span><span class="bracket">(</span><span class="string">"students/{id}"</span><span class="bracket">)</span></span>
+<span class="line indent-1"><span class="class">Call</span><span class="operator">&lt;</span><span class="class">Student</span><span class="operator">&gt;</span> <span class="function">updateStudent</span><span class="bracket">(</span><span class="tag">@Path</span><span class="bracket">(</span><span class="string">"id"</span><span class="bracket">)</span> <span class="keyword">int</span> id<span class="operator">,</span> <span class="tag">@Body</span> <span class="class">Student</span> student<span class="bracket">);</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="comment">// DELETE - Hapus data siswa</span></span>
+<span class="line indent-1"><span class="tag">@DELETE</span><span class="bracket">(</span><span class="string">"students/{id}"</span><span class="bracket">)</span></span>
+<span class="line indent-1"><span class="class">Call</span><span class="operator">&lt;</span><span class="class">Void</span><span class="operator">&gt;</span> <span class="function">deleteStudent</span><span class="bracket">(</span><span class="tag">@Path</span><span class="bracket">(</span><span class="string">"id"</span><span class="bracket">)</span> <span class="keyword">int</span> id<span class="bracket">);</span></span>
+<span class="line"><span class="bracket">}</span></span></div>
+                    </div>
+
+                    <div class="demo-box">
+                        <h4>3. 🏭 Setup Retrofit Client</h4>
+                        <p><strong>📁 Lokasi:</strong> <code>app/src/main/java/com/sekolah/siswaapi/api/ApiClient.java</code></p>
+                        <p><strong>Cara membuat:</strong></p>
+                        <ol>
+                            <li>Klik kanan pada folder <code>api</code></li>
+                            <li>Pilih <strong>New → Java Class</strong></li>
+                            <li>Nama: <code>ApiClient</code></li>
+                            <li>Klik OK</li>
+                        </ol>
+                        <div class="code-block"><span class="line"><span class="comment">// File: ApiClient.java</span></span>
+<span class="line"><span class="keyword">package</span> com.sekolah.siswaapi.api<span class="operator">;</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">import</span> retrofit2.Retrofit<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> retrofit2.converter.gson.GsonConverterFactory<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> okhttp3.OkHttpClient<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> okhttp3.logging.HttpLoggingInterceptor<span class="operator">;</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">public class</span> <span class="class">ApiClient</span> <span class="bracket">{</span></span>
+<span class="line indent-1"><span class="comment">// Base URL API (ganti dengan URL server kalian)</span></span>
+<span class="line indent-1"><span class="keyword">private static final</span> <span class="class">String</span> <span class="attribute">BASE_URL</span> <span class="operator">=</span> <span class="string">"https://api.sekolah.com/api/"</span><span class="operator">;</span></span>
+<span class="line indent-1"><span class="keyword">private static</span> <span class="class">Retrofit</span> retrofit <span class="operator">=</span> <span class="keyword">null</span><span class="operator">;</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="keyword">public static</span> <span class="class">Retrofit</span> <span class="function">getClient</span><span class="bracket">()</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="keyword">if</span> <span class="bracket">(</span>retrofit <span class="operator">==</span> <span class="keyword">null</span><span class="bracket">)</span> <span class="bracket">{</span></span>
+<span class="line indent-3"><span class="comment">// Logging interceptor untuk debug</span></span>
+<span class="line indent-3"><span class="class">HttpLoggingInterceptor</span> logging <span class="operator">=</span> <span class="keyword">new</span> <span class="class">HttpLoggingInterceptor</span><span class="bracket">();</span></span>
+<span class="line indent-3">logging<span class="operator">.</span><span class="function">setLevel</span><span class="bracket">(</span><span class="class">HttpLoggingInterceptor</span><span class="operator">.</span><span class="class">Level</span><span class="operator">.</span><span class="attribute">BODY</span><span class="bracket">);</span></span>
+<span class="line"></span>
+<span class="line indent-3"><span class="class">OkHttpClient</span> client <span class="operator">=</span> <span class="keyword">new</span> <span class="class">OkHttpClient</span><span class="operator">.</span><span class="function">Builder</span><span class="bracket">()</span></span>
+<span class="line indent-4"><span class="operator">.</span><span class="function">addInterceptor</span><span class="bracket">(</span>logging<span class="bracket">)</span></span>
+<span class="line indent-4"><span class="operator">.</span><span class="function">build</span><span class="bracket">();</span></span>
+<span class="line"></span>
+<span class="line indent-3">retrofit <span class="operator">=</span> <span class="keyword">new</span> <span class="class">Retrofit</span><span class="operator">.</span><span class="function">Builder</span><span class="bracket">()</span></span>
+<span class="line indent-4"><span class="operator">.</span><span class="function">baseUrl</span><span class="bracket">(</span><span class="attribute">BASE_URL</span><span class="bracket">)</span></span>
+<span class="line indent-4"><span class="operator">.</span><span class="function">client</span><span class="bracket">(</span>client<span class="bracket">)</span></span>
+<span class="line indent-4"><span class="operator">.</span><span class="function">addConverterFactory</span><span class="bracket">(</span><span class="class">GsonConverterFactory</span><span class="operator">.</span><span class="function">create</span><span class="bracket">())</span></span>
+<span class="line indent-4"><span class="operator">.</span><span class="function">build</span><span class="bracket">();</span></span>
+<span class="line indent-2"><span class="bracket">}</span></span>
+<span class="line indent-2"><span class="keyword">return</span> retrofit<span class="operator">;</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"><span class="bracket">}</span></span></div>
+                    </div>
+
+                    <div class="demo-box">
+                        <h4>4. 🎨 Buat RecyclerView Adapter</h4>
+                        <p><strong>📁 Lokasi:</strong> <code>app/src/main/java/com/sekolah/siswaapi/adapter/StudentAdapter.java</code></p>
+                        <p><strong>Cara membuat:</strong></p>
+                        <ol>
+                            <li>Klik kanan pada folder <code>adapter</code></li>
+                            <li>Pilih <strong>New → Java Class</strong></li>
+                            <li>Nama: <code>StudentAdapter</code></li>
+                            <li>Klik OK</li>
+                        </ol>
+                        <div class="code-block"><span class="line"><span class="comment">// File: StudentAdapter.java</span></span>
+<span class="line"><span class="keyword">package</span> com.sekolah.siswaapi.adapter<span class="operator">;</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">import</span> android.view.LayoutInflater<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> android.view.View<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> android.view.ViewGroup<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> android.widget.TextView<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> androidx.annotation.NonNull<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> androidx.recyclerview.widget.RecyclerView<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> com.sekolah.siswaapi.R<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> com.sekolah.siswaapi.model.Student<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> java.util.List<span class="operator">;</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">public class</span> <span class="class">StudentAdapter</span> <span class="keyword">extends</span> <span class="class">RecyclerView</span><span class="operator">.</span><span class="class">Adapter</span><span class="operator">&lt;</span><span class="class">StudentAdapter</span><span class="operator">.</span><span class="class">StudentViewHolder</span><span class="operator">&gt;</span> <span class="bracket">{</span></span>
+<span class="line indent-1"><span class="keyword">private</span> <span class="class">List</span><span class="operator">&lt;</span><span class="class">Student</span><span class="operator">&gt;</span> studentList<span class="operator">;</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="keyword">public</span> <span class="function">StudentAdapter</span><span class="bracket">(</span><span class="class">List</span><span class="operator">&lt;</span><span class="class">Student</span><span class="operator">&gt;</span> studentList<span class="bracket">)</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="keyword">this</span><span class="operator">.</span>studentList <span class="operator">=</span> studentList<span class="operator">;</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="tag">@NonNull</span></span>
+<span class="line indent-1"><span class="tag">@Override</span></span>
+<span class="line indent-1"><span class="keyword">public</span> <span class="class">StudentViewHolder</span> <span class="function">onCreateViewHolder</span><span class="bracket">(</span><span class="tag">@NonNull</span> <span class="class">ViewGroup</span> parent<span class="operator">,</span> <span class="keyword">int</span> viewType<span class="bracket">)</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="class">View</span> view <span class="operator">=</span> <span class="class">LayoutInflater</span><span class="operator">.</span><span class="function">from</span><span class="bracket">(</span>parent<span class="operator">.</span><span class="function">getContext</span><span class="bracket">())</span></span>
+<span class="line indent-3"><span class="operator">.</span><span class="function">inflate</span><span class="bracket">(</span><span class="class">R</span><span class="operator">.</span>layout<span class="operator">.</span>item_student<span class="operator">,</span> parent<span class="operator">,</span> <span class="keyword">false</span><span class="bracket">);</span></span>
+<span class="line indent-2"><span class="keyword">return</span> <span class="keyword">new</span> <span class="class">StudentViewHolder</span><span class="bracket">(</span>view<span class="bracket">);</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="tag">@Override</span></span>
+<span class="line indent-1"><span class="keyword">public void</span> <span class="function">onBindViewHolder</span><span class="bracket">(</span><span class="tag">@NonNull</span> <span class="class">StudentViewHolder</span> holder<span class="operator">,</span> <span class="keyword">int</span> position<span class="bracket">)</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="class">Student</span> student <span class="operator">=</span> studentList<span class="operator">.</span><span class="function">get</span><span class="bracket">(</span>position<span class="bracket">);</span></span>
+<span class="line indent-2">holder<span class="operator">.</span>tvNama<span class="operator">.</span><span class="function">setText</span><span class="bracket">(</span>student<span class="operator">.</span><span class="function">getNama</span><span class="bracket">());</span></span>
+<span class="line indent-2">holder<span class="operator">.</span>tvKelas<span class="operator">.</span><span class="function">setText</span><span class="bracket">(</span><span class="string">"Kelas: "</span> <span class="operator">+</span> student<span class="operator">.</span><span class="function">getKelas</span><span class="bracket">());</span></span>
+<span class="line indent-2">holder<span class="operator">.</span>tvUmur<span class="operator">.</span><span class="function">setText</span><span class="bracket">(</span><span class="string">"Umur: "</span> <span class="operator">+</span> student<span class="operator">.</span><span class="function">getUmur</span><span class="bracket">()</span> <span class="operator">+</span> <span class="string">" tahun"</span><span class="bracket">);</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="tag">@Override</span></span>
+<span class="line indent-1"><span class="keyword">public</span> <span class="keyword">int</span> <span class="function">getItemCount</span><span class="bracket">()</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="keyword">return</span> studentList<span class="operator">.</span><span class="function">size</span><span class="bracket">();</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="keyword">public void</span> <span class="function">updateData</span><span class="bracket">(</span><span class="class">List</span><span class="operator">&lt;</span><span class="class">Student</span><span class="operator">&gt;</span> newStudentList<span class="bracket">)</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="keyword">this</span><span class="operator">.</span>studentList <span class="operator">=</span> newStudentList<span class="operator">;</span></span>
+<span class="line indent-2"><span class="function">notifyDataSetChanged</span><span class="bracket">();</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="keyword">public static class</span> <span class="class">StudentViewHolder</span> <span class="keyword">extends</span> <span class="class">RecyclerView</span><span class="operator">.</span><span class="class">ViewHolder</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="class">TextView</span> tvNama<span class="operator">,</span> tvKelas<span class="operator">,</span> tvUmur<span class="operator">;</span></span>
+<span class="line"></span>
+<span class="line indent-2"><span class="keyword">public</span> <span class="function">StudentViewHolder</span><span class="bracket">(</span><span class="tag">@NonNull</span> <span class="class">View</span> itemView<span class="bracket">)</span> <span class="bracket">{</span></span>
+<span class="line indent-3"><span class="keyword">super</span><span class="bracket">(</span>itemView<span class="bracket">);</span></span>
+<span class="line indent-3">tvNama <span class="operator">=</span> itemView<span class="operator">.</span><span class="function">findViewById</span><span class="bracket">(</span><span class="class">R</span><span class="operator">.</span>id<span class="operator">.</span>tvNama<span class="bracket">);</span></span>
+<span class="line indent-3">tvKelas <span class="operator">=</span> itemView<span class="operator">.</span><span class="function">findViewById</span><span class="bracket">(</span><span class="class">R</span><span class="operator">.</span>id<span class="operator">.</span>tvKelas<span class="bracket">);</span></span>
+<span class="line indent-3">tvUmur <span class="operator">=</span> itemView<span class="operator">.</span><span class="function">findViewById</span><span class="bracket">(</span><span class="class">R</span><span class="operator">.</span>id<span class="operator">.</span>tvUmur<span class="bracket">);</span></span>
+<span class="line indent-2"><span class="bracket">}</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"><span class="bracket">}</span></span></div>
+                    </div>
+
+                    <div class="demo-box">
+                        <h4>5. 📱 Update MainActivity</h4>
+                        <p><strong>📁 Lokasi:</strong> <code>app/src/main/java/com/sekolah/siswaapi/MainActivity.java</code></p>
+                        <p>Buka file MainActivity.java yang sudah ada dan ganti isinya:</p>
+                        <div class="code-block"><span class="line"><span class="comment">// File: MainActivity.java</span></span>
+<span class="line"><span class="keyword">package</span> com.sekolah.siswaapi<span class="operator">;</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">import</span> android.os.Bundle<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> android.view.View<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> android.widget.Button<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> android.widget.ProgressBar<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> android.widget.Toast<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> androidx.appcompat.app.AppCompatActivity<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> androidx.recyclerview.widget.LinearLayoutManager<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> androidx.recyclerview.widget.RecyclerView<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> com.sekolah.siswaapi.adapter.StudentAdapter<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> com.sekolah.siswaapi.api.ApiClient<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> com.sekolah.siswaapi.api.ApiService<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> com.sekolah.siswaapi.model.Student<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> java.util.ArrayList<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> java.util.List<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> retrofit2.Call<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> retrofit2.Callback<span class="operator">;</span></span>
+<span class="line"><span class="keyword">import</span> retrofit2.Response<span class="operator">;</span></span>
+<span class="line"></span>
+<span class="line"><span class="keyword">public class</span> <span class="class">MainActivity</span> <span class="keyword">extends</span> <span class="class">AppCompatActivity</span> <span class="bracket">{</span></span>
+<span class="line indent-1"><span class="keyword">private</span> <span class="class">ApiService</span> apiService<span class="operator">;</span></span>
+<span class="line indent-1"><span class="keyword">private</span> <span class="class">RecyclerView</span> recyclerView<span class="operator">;</span></span>
+<span class="line indent-1"><span class="keyword">private</span> <span class="class">StudentAdapter</span> adapter<span class="operator">;</span></span>
+<span class="line indent-1"><span class="keyword">private</span> <span class="class">Button</span> btnLoadData<span class="operator">;</span></span>
+<span class="line indent-1"><span class="keyword">private</span> <span class="class">ProgressBar</span> progressBar<span class="operator">;</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="tag">@Override</span></span>
+<span class="line indent-1"><span class="keyword">protected void</span> <span class="function">onCreate</span><span class="bracket">(</span><span class="class">Bundle</span> savedInstanceState<span class="bracket">)</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="keyword">super</span><span class="operator">.</span><span class="function">onCreate</span><span class="bracket">(</span>savedInstanceState<span class="bracket">);</span></span>
+<span class="line indent-2"><span class="function">setContentView</span><span class="bracket">(</span><span class="class">R</span><span class="operator">.</span>layout<span class="operator">.</span>activity_main<span class="bracket">);</span></span>
+<span class="line"></span>
+<span class="line indent-2"><span class="comment">// Initialize views</span></span>
+<span class="line indent-2"><span class="function">initViews</span><span class="bracket">();</span></span>
+<span class="line"></span>
+<span class="line indent-2"><span class="comment">// Initialize API service</span></span>
+<span class="line indent-2">apiService <span class="operator">=</span> <span class="class">ApiClient</span><span class="operator">.</span><span class="function">getClient</span><span class="bracket">().</span><span class="function">create</span><span class="bracket">(</span><span class="class">ApiService</span><span class="operator">.</span><span class="keyword">class</span><span class="bracket">);</span></span>
+<span class="line"></span>
+<span class="line indent-2"><span class="comment">// Setup RecyclerView</span></span>
+<span class="line indent-2"><span class="function">setupRecyclerView</span><span class="bracket">();</span></span>
+<span class="line"></span>
+<span class="line indent-2"><span class="comment">// Setup button click listener</span></span>
+<span class="line indent-2">btnLoadData<span class="operator">.</span><span class="function">setOnClickListener</span><span class="bracket">(</span><span class="keyword">new</span> <span class="class">View</span><span class="operator">.</span><span class="class">OnClickListener</span><span class="bracket">()</span> <span class="bracket">{</span></span>
+<span class="line indent-3"><span class="tag">@Override</span></span>
+<span class="line indent-3"><span class="keyword">public void</span> <span class="function">onClick</span><span class="bracket">(</span><span class="class">View</span> v<span class="bracket">)</span> <span class="bracket">{</span></span>
+<span class="line indent-4"><span class="function">getAllStudents</span><span class="bracket">();</span></span>
+<span class="line indent-3"><span class="bracket">}</span></span>
+<span class="line indent-2"><span class="bracket">});</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="keyword">private void</span> <span class="function">initViews</span><span class="bracket">()</span> <span class="bracket">{</span></span>
+<span class="line indent-2">recyclerView <span class="operator">=</span> <span class="function">findViewById</span><span class="bracket">(</span><span class="class">R</span><span class="operator">.</span>id<span class="operator">.</span>recyclerView<span class="bracket">);</span></span>
+<span class="line indent-2">btnLoadData <span class="operator">=</span> <span class="function">findViewById</span><span class="bracket">(</span><span class="class">R</span><span class="operator">.</span>id<span class="operator">.</span>btnLoadData<span class="bracket">);</span></span>
+<span class="line indent-2">progressBar <span class="operator">=</span> <span class="function">findViewById</span><span class="bracket">(</span><span class="class">R</span><span class="operator">.</span>id<span class="operator">.</span>progressBar<span class="bracket">);</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="keyword">private void</span> <span class="function">setupRecyclerView</span><span class="bracket">()</span> <span class="bracket">{</span></span>
+<span class="line indent-2">recyclerView<span class="operator">.</span><span class="function">setLayoutManager</span><span class="bracket">(</span><span class="keyword">new</span> <span class="class">LinearLayoutManager</span><span class="bracket">(</span><span class="keyword">this</span><span class="bracket">));</span></span>
+<span class="line indent-2">adapter <span class="operator">=</span> <span class="keyword">new</span> <span class="class">StudentAdapter</span><span class="bracket">(</span><span class="keyword">new</span> <span class="class">ArrayList</span><span class="operator">&lt;&gt;());</span></span>
+<span class="line indent-2">recyclerView<span class="operator">.</span><span class="function">setAdapter</span><span class="bracket">(</span>adapter<span class="bracket">);</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"></span>
+<span class="line indent-1"><span class="keyword">private void</span> <span class="function">getAllStudents</span><span class="bracket">()</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="comment">// Show loading</span></span>
+<span class="line indent-2">progressBar<span class="operator">.</span><span class="function">setVisibility</span><span class="bracket">(</span><span class="class">View</span><span class="operator">.</span><span class="attribute">VISIBLE</span><span class="bracket">);</span></span>
+<span class="line indent-2">btnLoadData<span class="operator">.</span><span class="function">setEnabled</span><span class="bracket">(</span><span class="keyword">false</span><span class="bracket">);</span></span>
+<span class="line"></span>
+<span class="line indent-2"><span class="class">Call</span><span class="operator">&lt;</span><span class="class">List</span><span class="operator">&lt;</span><span class="class">Student</span><span class="operator">&gt;&gt;</span> call <span class="operator">=</span> apiService<span class="operator">.</span><span class="function">getAllStudents</span><span class="bracket">();</span></span>
+<span class="line indent-2">call<span class="operator">.</span><span class="function">enqueue</span><span class="bracket">(</span><span class="keyword">new</span> <span class="class">Callback</span><span class="operator">&lt;</span><span class="class">List</span><span class="operator">&lt;</span><span class="class">Student</span><span class="operator">&gt;&gt;()</span> <span class="bracket">{</span></span>
+<span class="line indent-3"><span class="tag">@Override</span></span>
+<span class="line indent-3"><span class="keyword">public void</span> <span class="function">onResponse</span><span class="bracket">(</span><span class="class">Call</span><span class="operator">&lt;</span><span class="class">List</span><span class="operator">&lt;</span><span class="class">Student</span><span class="operator">&gt;&gt;</span> call<span class="operator">,</span> <span class="class">Response</span><span class="operator">&lt;</span><span class="class">List</span><span class="operator">&lt;</span><span class="class">Student</span><span class="operator">&gt;&gt;</span> response<span class="bracket">)</span> <span class="bracket">{</span></span>
+<span class="line indent-4"><span class="comment">// Hide loading</span></span>
+<span class="line indent-4">progressBar<span class="operator">.</span><span class="function">setVisibility</span><span class="bracket">(</span><span class="class">View</span><span class="operator">.</span><span class="attribute">GONE</span><span class="bracket">);</span></span>
+<span class="line indent-4">btnLoadData<span class="operator">.</span><span class="function">setEnabled</span><span class="bracket">(</span><span class="keyword">true</span><span class="bracket">);</span></span>
+<span class="line"></span>
+<span class="line indent-4"><span class="keyword">if</span> <span class="bracket">(</span>response<span class="operator">.</span><span class="function">isSuccessful</span><span class="bracket">()</span> <span class="operator">&&</span> response<span class="operator">.</span><span class="function">body</span><span class="bracket">()</span> <span class="operator">!=</span> <span class="keyword">null</span><span class="bracket">)</span> <span class="bracket">{</span></span>
+<span class="line indent-5"><span class="class">List</span><span class="operator">&lt;</span><span class="class">Student</span><span class="operator">&gt;</span> students <span class="operator">=</span> response<span class="operator">.</span><span class="function">body</span><span class="bracket">();</span></span>
+<span class="line indent-5">adapter<span class="operator">.</span><span class="function">updateData</span><span class="bracket">(</span>students<span class="bracket">);</span></span>
+<span class="line indent-5"><span class="class">Toast</span><span class="operator">.</span><span class="function">makeText</span><span class="bracket">(</span><span class="class">MainActivity</span><span class="operator">.</span><span class="keyword">this</span><span class="operator">,</span> <span class="string">"Data berhasil dimuat!"</span><span class="operator">,</span> <span class="class">Toast</span><span class="operator">.</span><span class="attribute">LENGTH_SHORT</span><span class="bracket">).</span><span class="function">show</span><span class="bracket">();</span></span>
+<span class="line indent-4"><span class="bracket">}</span> <span class="keyword">else</span> <span class="bracket">{</span></span>
+<span class="line indent-5"><span class="class">Toast</span><span class="operator">.</span><span class="function">makeText</span><span class="bracket">(</span><span class="class">MainActivity</span><span class="operator">.</span><span class="keyword">this</span><span class="operator">,</span> <span class="string">"Gagal memuat data"</span><span class="operator">,</span> <span class="class">Toast</span><span class="operator">.</span><span class="attribute">LENGTH_SHORT</span><span class="bracket">).</span><span class="function">show</span><span class="bracket">();</span></span>
+<span class="line indent-4"><span class="bracket">}</span></span>
+<span class="line indent-3"><span class="bracket">}</span></span>
+<span class="line"></span>
+<span class="line indent-3"><span class="tag">@Override</span></span>
+<span class="line indent-3"><span class="keyword">public void</span> <span class="function">onFailure</span><span class="bracket">(</span><span class="class">Call</span><span class="operator">&lt;</span><span class="class">List</span><span class="operator">&lt;</span><span class="class">Student</span><span class="operator">&gt;&gt;</span> call<span class="operator">,</span> <span class="class">Throwable</span> t<span class="bracket">)</span> <span class="bracket">{</span></span>
+<span class="line indent-4"><span class="comment">// Hide loading</span></span>
+<span class="line indent-4">progressBar<span class="operator">.</span><span class="function">setVisibility</span><span class="bracket">(</span><span class="class">View</span><span class="operator">.</span><span class="attribute">GONE</span><span class="bracket">);</span></span>
+<span class="line indent-4">btnLoadData<span class="operator">.</span><span class="function">setEnabled</span><span class="bracket">(</span><span class="keyword">true</span><span class="bracket">);</span></span>
+<span class="line"></span>
+<span class="line indent-4"><span class="comment">// Handle error koneksi</span></span>
+<span class="line indent-4"><span class="class">Toast</span><span class="operator">.</span><span class="function">makeText</span><span class="bracket">(</span><span class="class">MainActivity</span><span class="operator">.</span><span class="keyword">this</span><span class="operator">,</span> <span class="string">"Error: "</span> <span class="operator">+</span> t<span class="operator">.</span><span class="function">getMessage</span><span class="bracket">(),</span> <span class="class">Toast</span><span class="operator">.</span><span class="attribute">LENGTH_SHORT</span><span class="bracket">).</span><span class="function">show</span><span class="bracket">();</span></span>
+<span class="line indent-3"><span class="bracket">}</span></span>
+<span class="line indent-2"><span class="bracket">});</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"><span class="bracket">}</span></span></div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>📂 Struktur Folder Project Final</h3>
+                    <div class="code-block"><span class="line">app/</span>
+<span class="line">├── src/</span>
+<span class="line">│   └── main/</span>
+<span class="line">│       ├── java/</span>
+<span class="line">│       │   └── com/</span>
+<span class="line">│       │       └── sekolah/</span>
+<span class="line">│       │           └── siswaapi/</span>
+<span class="line">│       │               ├── MainActivity.java</span>
+<span class="line">│       │               ├── adapter/</span>
+<span class="line">│       │               │   └── StudentAdapter.java</span>
+<span class="line">│       │               ├── api/</span>
+<span class="line">│       │               │   ├── ApiClient.java</span>
+<span class="line">│       │               │   └── ApiService.java</span>
+<span class="line">│       │               └── model/</span>
+<span class="line">│       │                   └── Student.java</span>
+<span class="line">│       ├── res/</span>
+<span class="line">│       │   └── layout/</span>
+<span class="line">│       │       ├── activity_main.xml</span>
+<span class="line">│       │       └── item_student.xml</span>
+<span class="line">│       └── AndroidManifest.xml</span>
+<span class="line">└── build.gradle (Module: app)</span></div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🚀 Langkah 7: Build dan Test</h3>
+                    
+                    <div class="demo-box">
+                        <h4>🔨 Build Project</h4>
+                        <ol>
+                            <li>Klik menu <strong>Build → Make Project</strong> atau tekan <strong>Ctrl+F9</strong></li>
+                            <li>Pastikan tidak ada error di bagian bawah Android Studio</li>
+                            <li>Jika ada error, perbaiki sesuai pesan yang muncul</li>
+                        </ol>
+                    </div>
+
+                    <div class="demo-box">
+                        <h4>📱 Test di Emulator/Device</h4>
+                        <ol>
+                            <li>Pastikan emulator sudah running atau device sudah terhubung</li>
+                            <li>Klik tombol <strong>Run</strong> (▶️) atau tekan <strong>Shift+F10</strong></li>
+                            <li>Pilih device/emulator yang akan digunakan</li>
+                            <li>Tunggu aplikasi ter-install dan terbuka</li>
+                        </ol>
+                        
+                        <p><strong>⚠️ Catatan:</strong> Karena kita belum punya server API yang real, aplikasi akan menampilkan error saat tombol "Load Data" ditekan. Ini normal untuk tahap pembelajaran!</p>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🔧 Troubleshooting Umum</h3>
+                    
+                    <div class="demo-box">
+                        <h4>❌ Error "Cannot resolve symbol 'R'"</h4>
+                        <p><strong>Solusi:</strong></p>
+                        <ul>
+                            <li>Klik <strong>Build → Clean Project</strong></li>
+                            <li>Kemudian <strong>Build → Rebuild Project</strong></li>
+                            <li>Pastikan tidak ada error di file XML</li>
+                        </ul>
+                    </div>
+
+                    <div class="demo-box">
+                        <h4>❌ Error "Sync Now" tidak muncul</h4>
+                        <p><strong>Solusi:</strong></p>
+                        <ul>
+                            <li>Klik <strong>File → Sync Project with Gradle Files</strong></li>
+                            <li>Atau klik ikon sync (🔄) di toolbar</li>
+                        </ul>
+                    </div>
+
+                    <div class="demo-box">
+                        <h4>❌ App crash saat dibuka</h4>
+                        <p><strong>Solusi:</strong></p>
+                        <ul>
+                            <li>Cek Logcat di bagian bawah Android Studio</li>
+                            <li>Pastikan semua import statement benar</li>
+                            <li>Pastikan ID di layout XML sesuai dengan yang di Java</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎯 Langkah Selanjutnya</h3>
+                    <p>Setelah berhasil membuat aplikasi dasar, kalian bisa:</p>
+                    <ul>
+                        <li>🌐 Mencari API publik gratis untuk testing (seperti JSONPlaceholder)</li>
+                        <li>🎨 Mempercantik tampilan dengan Material Design</li>
+                        <li>➕ Menambah fitur CREATE, UPDATE, DELETE</li>
+                        <li>💾 Menambah database lokal dengan Room</li>
+                        <li>🔄 Implementasi pull-to-refresh</li>
+                    </ul>
+                </div>
+
+                <div class="api-demo">
+                    <h3>🎮 Simulasi Android API Call</h3>
+                    <p>Mari simulasikan bagaimana API call bekerja di Android:</p>
+                    
+                    <button class="btn" onclick="simulateAndroidGet()">📱 Simulate GET</button>
+                    <button class="btn" onclick="simulateAndroidPost()">📱 Simulate POST</button>
+                    
+                    <div id="androidResult" class="json-viewer" style="margin-top: 15px;">
+Klik tombol untuk melihat simulasi API call di Android! 🚀
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>💡 Tips Best Practices</h3>
+                    <ul>
+                        <li>🔄 Selalu handle error dengan baik</li>
+                        <li>⏳ Tampilkan loading indicator saat request</li>
+                        <li>📱 Cek koneksi internet sebelum API call</li>
+                        <li>💾 Cache data untuk offline mode</li>
+                        <li>🔒 Gunakan HTTPS untuk keamanan</li>
+                        <li>⚡ Gunakan background thread untuk network calls</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Tugas Section -->
+            <section class="content-section" id="tugas">
+                <h1>📝 Tugas Praktik</h1>
+                
+                <div class="highlight-box">
+                    <h3>🎯 Tugas 1: Analisis API</h3>
+                    <p>Buatlah analisis sederhana tentang RESTful API dengan menjawab pertanyaan berikut:</p>
+                    <ol>
+                        <li>Jelaskan dengan kata-kata sendiri apa itu RESTful API dan mengapa penting dalam pengembangan aplikasi mobile!</li>
+                        <li>Sebutkan dan jelaskan 4 HTTP methods utama beserta fungsinya masing-masing!</li>
+                        <li>Berikan contoh URL endpoint untuk aplikasi perpustakaan sekolah (minimal 5 endpoint)!</li>
+                    </ol>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎯 Tugas 2: Desain JSON</h3>
+                    <p>Buatlah struktur JSON untuk sistem informasi siswa dengan ketentuan:</p>
+                    <ul>
+                        <li>Data siswa: nama, NIS, kelas, umur, alamat</li>
+                        <li>Data nilai: mata pelajaran dan nilai</li>
+                        <li>Data ekstrakurikuler yang diikuti</li>
+                        <li>Buat untuk minimal 3 siswa dalam format array</li>
+                    </ul>
+                    
+                    <div class="demo-box">
+                        <h4>Contoh Format:</h4>
+                        <div class="code-block"><span class="line"><span class="bracket">{</span></span>
+<span class="line indent-1"><span class="string">"siswa"</span><span class="operator">:</span> <span class="bracket">[</span></span>
+<span class="line indent-2"><span class="bracket">{</span></span>
+<span class="line indent-3"><span class="string">"nama"</span><span class="operator">:</span> <span class="string">"..."</span><span class="operator">,</span></span>
+<span class="line indent-3"><span class="string">"nis"</span><span class="operator">:</span> <span class="string">"..."</span><span class="operator">,</span></span>
+<span class="line indent-3"><span class="comment">// lengkapi struktur JSON</span></span>
+<span class="line indent-2"><span class="bracket">}</span></span>
+<span class="line indent-1"><span class="bracket">]</span></span>
+<span class="line"><span class="bracket">}</span></span></div>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎯 Tugas 3: Rancangan Aplikasi</h3>
+                    <p>Buatlah rancangan sederhana untuk aplikasi Android "Katalog Buku Perpustakaan" yang mencakup:</p>
+                    <ol>
+                        <li>Daftar fitur yang akan ada dalam aplikasi</li>
+                        <li>API endpoints yang dibutuhkan</li>
+                        <li>Struktur JSON untuk data buku</li>
+                        <li>Flowchart sederhana alur penggunaan aplikasi</li>
+                    </ol>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>📋 Format Pengumpulan</h3>
+                    <ul>
+                        <li>📄 Tugas dikerjakan dalam format dokumen (Word/PDF)</li>
+                        <li>📝 Jawaban harus jelas dan menggunakan bahasa sendiri</li>
+                        <li>💻 Untuk tugas JSON, bisa menggunakan tools online JSON formatter</li>
+                        <li>⏰ Deadline: 1 minggu setelah pembelajaran</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🏆 Kriteria Penilaian</h3>
+                    <ul>
+                        <li><strong>Pemahaman Konsep (40%)</strong>: Ketepatan penjelasan konsep REST API dan JSON</li>
+                        <li><strong>Kreativitas (30%)</strong>: Ide dan rancangan aplikasi yang menarik</li>
+                        <li><strong>Kelengkapan (20%)</strong>: Semua bagian tugas dikerjakan dengan lengkap</li>
+                        <li><strong>Presentasi (10%)</strong>: Kerapihan dan struktur dokumen</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Kuis Section -->
+            <section class="content-section" id="kuis">
+                <h1>🎯 Kuis Interaktif</h1>
+                
+                <div class="highlight-box" id="quizStart">
+                    <h3>🚀 Siap untuk Kuis?</h3>
+                    <p>Kuis ini terdiri dari 10 soal pilihan ganda tentang RESTful API dan JSON. Pastikan kalian sudah memahami semua materi ya! 💪</p>
+                    
+                    <div style="margin: 20px 0;">
+                        <label for="studentName" style="display: block; margin-bottom: 10px; font-weight: bold;">📝 Masukkan Nama Kalian:</label>
+                        <input type="text" id="studentName" placeholder="Nama lengkap..." style="width: 100%; padding: 12px; border: 2px solid #d53f8c; border-radius: 10px; font-size: 16px;">
+                    </div>
+                    
+                    <button class="btn" onclick="startQuiz()" style="font-size: 18px; padding: 15px 30px;">🎯 Mulai Kuis</button>
+                </div>
+
+                <div id="quizContainer" style="display: none;">
+                    <div id="quizProgress" style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span id="questionNumber">Soal 1 dari 10</span>
+                            <span id="quizTimer">⏰ 00:00</span>
+                        </div>
+                        <div class="progress-bar" style="margin-top: 10px;">
+                            <div class="progress-fill" id="quizProgressFill"></div>
+                        </div>
+                    </div>
+
+                    <div class="quiz-question" id="currentQuestion">
+                        <!-- Question will be loaded here -->
+                    </div>
+
+                    <div style="text-align: center; margin-top: 20px;">
+                        <button class="btn" id="nextQuestionBtn" onclick="nextQuestion()" style="display: none;">Soal Selanjutnya ➡️</button>
+                        <button class="btn" id="finishQuizBtn" onclick="finishQuiz()" style="display: none;">🏁 Selesai Kuis</button>
+                    </div>
+                </div>
+
+                <div id="quizResult" style="display: none;">
+                    <!-- Quiz result will be shown here -->
+                </div>
+            </section>
+
+            <!-- Penutup Section -->
+            <section class="content-section" id="penutup">
+                <h1>🎉 Penutup Pembelajaran</h1>
+                
+                <div class="highlight-box">
+                    <h3>🤔 Refleksi Pembelajaran</h3>
+                    <p>Setelah mempelajari materi RESTful API dan JSON, mari kita refleksikan:</p>
+                    <ul>
+                        <li>💡 Apa hal paling menarik yang kalian pelajari hari ini?</li>
+                        <li>🤯 Konsep mana yang paling sulit dipahami?</li>
+                        <li>🚀 Bagaimana kalian akan menerapkan ilmu ini dalam project?</li>
+                        <li>❓ Pertanyaan apa yang masih ingin kalian tanyakan?</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>📚 Kesimpulan Pembelajaran</h3>
+                    <div class="demo-box">
+                        <h4>🎯 Yang Sudah Kita Pelajari:</h4>
+                        <ul>
+                            <li>✅ <strong>RESTful API</strong>: Cara aplikasi berkomunikasi dengan server</li>
+                            <li>✅ <strong>JSON</strong>: Format data yang mudah dibaca dan ditulis</li>
+                            <li>✅ <strong>HTTP Methods</strong>: GET, POST, PUT, DELETE untuk berbagai operasi</li>
+                            <li>✅ <strong>Implementasi Android</strong>: Menggunakan Retrofit untuk API calls</li>
+                            <li>✅ <strong>Best Practices</strong>: Tips untuk pengembangan yang baik</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🚀 Tindak Lanjut</h3>
+                    <h4>📖 Materi Lanjutan yang Bisa Dipelajari:</h4>
+                    <ul>
+                        <li>🔐 <strong>Authentication & Authorization</strong>: JWT, OAuth</li>
+                        <li>📱 <strong>Offline-First Development</strong>: Room Database + API</li>
+                        <li>⚡ <strong>Performance Optimization</strong>: Caching, Pagination</li>
+                        <li>🧪 <strong>Testing API</strong>: Unit testing, Integration testing</li>
+                        <li>🔄 <strong>Real-time Communication</strong>: WebSocket, Server-Sent Events</li>
+                    </ul>
+
+                    <h4>💻 Project Ideas:</h4>
+                    <ul>
+                        <li>📚 Aplikasi perpustakaan digital</li>
+                        <li>🛒 E-commerce sederhana</li>
+                        <li>📰 News reader app</li>
+                        <li>🌤️ Weather forecast app</li>
+                        <li>📱 Social media app</li>
+                    </ul>
+                </div>
+
+                <div class="highlight-box">
+                    <h3>🎓 Pesan Penutup</h3>
+                    <div class="demo-box">
+                        <p style="font-size: 1.2em; text-align: center; color: #d53f8c;">
+                            <strong>"Setiap expert pernah menjadi beginner. Setiap pro pernah menjadi amateur. Setiap ikon pernah menjadi unknown."</strong>
+                        </p>
+                        <p style="text-align: center; margin-top: 20px;">
+                            Terus berlatih, terus belajar, dan jangan takut untuk mencoba hal baru! 
+                            Kalian sudah memiliki dasar yang kuat untuk menjadi developer Android yang handal! 🚀✨
+                        </p>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <h3>🙏 Terima Kasih!</h3>
+                    <p>Semoga pembelajaran hari ini bermanfaat dan menginspirasi kalian untuk terus berkembang di dunia programming! 💪</p>
+                    
+                    <div style="margin-top: 20px;">
+                        <span style="font-size: 2rem;">🎉 🚀 💻 📱 ✨</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <button class="next-btn" id="nextBtn" onclick="nextSection()">Next ➡️</button>
+    <button class="back-to-top" onclick="scrollToTop()">⬆️</button>
+
+    <script>
+        let currentSection = 0;
+        const sections = ['intro', 'pengenalan', 'rest-api', 'json', 'http-methods', 'android-implementation', 'tugas', 'kuis', 'penutup'];
+        let quizData = [];
+        let currentQuiz = 0;
+        let quizScore = 0;
+        let quizStartTime = 0;
+        let quizTimer = null;
+
+        // Initialize quiz data
+        function initQuizData() {
+            quizData = [
+                {
+                    question: "Apa kepanjangan dari API?",
+                    options: [
+                        "Application Programming Interface",
+                        "Advanced Programming Integration", 
+                        "Automated Program Interface",
+                        "Application Process Integration"
+                    ],
+                    correct: 0
+                },
+                {
+                    question: "Apa yang dimaksud dengan RESTful API?",
+                    options: [
+                        "API yang menggunakan protokol REST",
+                        "API yang hanya bisa digunakan untuk mobile",
+                        "API yang tidak memerlukan internet",
+                        "API khusus untuk database"
+                    ],
+                    correct: 0
+                },
+                {
+                    question: "HTTP Method mana yang digunakan untuk mengambil data?",
+                    options: ["POST", "GET", "PUT", "DELETE"],
+                    correct: 1
+                },
+                {
+                    question: "Apa kepanjangan dari JSON?",
+                    options: [
+                        "Java Script Object Notation",
+                        "JavaScript Object Notation",
+                        "Java Standard Object Network",
+                        "JavaScript Online Notation"
+                    ],
+                    correct: 1
+                },
+                {
+                    question: "HTTP Status Code 200 artinya?",
+                    options: ["Error", "Not Found", "OK/Success", "Bad Request"],
+                    correct: 2
+                },
+                {
+                    question: "Method HTTP mana yang digunakan untuk membuat data baru?",
+                    options: ["GET", "POST", "PUT", "DELETE"],
+                    correct: 1
+                },
+                {
+                    question: "Dalam JSON, string harus menggunakan tanda kutip?",
+                    options: ["Kutip tunggal (')", "Kutip ganda (\")", "Tidak perlu kutip", "Boleh keduanya"],
+                    correct: 1
+                },
+                {
+                    question: "Library Android yang populer untuk HTTP requests adalah?",
+                    options: ["Volley", "Retrofit", "OkHttp", "Semua benar"],
+                    correct: 3
+                },
+                {
+                    question: "HTTP Method untuk menghapus data adalah?",
+                    options: ["REMOVE", "DELETE", "DROP", "CLEAR"],
+                    correct: 1
+                },
+                {
+                    question: "Prinsip REST yang menyatakan setiap request berdiri sendiri disebut?",
+                    options: ["Stateless", "Cacheable", "Uniform Interface", "Client-Server"],
+                    correct: 0
+                }
+            ];
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.toggle('open');
+            
+            if (window.innerWidth > 768) {
+                mainContent.classList.toggle('sidebar-open');
+            } else {
+                // Mobile: toggle overlay
+                overlay.classList.toggle('active');
+            }
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            
+            if (window.innerWidth > 768) {
+                mainContent.classList.remove('sidebar-open');
+            }
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update navigation - find the correct nav item by section id
+            document.querySelectorAll('.nav-item').forEach((item, index) => {
+                item.classList.remove('active');
+                if (sections[index] === sectionId) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update current section index
+            currentSection = sections.indexOf(sectionId);
+            updateProgress();
+            
+            // Always close sidebar when menu item is clicked (mobile and desktop)
+            closeSidebar();
+            
+            // Scroll to top with delay to ensure content is loaded
+            setTimeout(() => {
+                scrollToTop();
+            }, 100);
+        }
+
+        function nextSection() {
+            if (currentSection < sections.length - 1) {
+                currentSection++;
+                const nextSectionId = sections[currentSection];
+                
+                // Hide all sections
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Show next section
+                document.getElementById(nextSectionId).classList.add('active');
+                
+                // Update nav item active state
+                document.querySelectorAll('.nav-item').forEach((item, index) => {
+                    item.classList.remove('active');
+                    if (index === currentSection) {
+                        item.classList.add('active');
+                    }
+                });
+                
+                // Update progress
+                updateProgress();
+                
+                // Scroll to top with delay
+                setTimeout(() => {
+                    scrollToTop();
+                }, 100);
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentSection + 1) / sections.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function scrollToTop() {
+            // Force scroll to top immediately
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+            
+            // Also use smooth scroll as backup
+            window.scrollTo({ 
+                top: 0, 
+                left: 0,
+                behavior: 'smooth' 
+            });
+        }
+
+        // API Demo Functions
+        function demoGetUsers() {
+            const result = {
+                "status": "success",
+                "data": [
+                    {"id": 1, "nama": "Budi", "kelas": "XII RPL", "umur": 17},
+                    {"id": 2, "nama": "Sari", "kelas": "XII RPL", "umur": 16},
+                    {"id": 3, "nama": "Andi", "kelas": "XII TKJ", "umur": 17}
+                ]
+            };
+            document.getElementById('apiResult').textContent = JSON.stringify(result, null, 2);
+        }
+
+        function demoGetUser() {
+            const result = {
+                "status": "success",
+                "data": {
+                    "id": 1,
+                    "nama": "Budi Santoso",
+                    "kelas": "XII RPL",
+                    "umur": 17,
+                    "alamat": "Jl. Merdeka No. 123"
+                }
+            };
+            document.getElementById('apiResult').textContent = JSON.stringify(result, null, 2);
+        }
+
+        function demoPostUser() {
+            const result = {
+                "status": "success",
+                "message": "User berhasil dibuat",
+                "data": {
+                    "id": 4,
+                    "nama": "Dewi",
+                    "kelas": "XII MM",
+                    "umur": 16
+                }
+            };
+            document.getElementById('apiResult').textContent = JSON.stringify(result, null, 2);
+        }
+
+        // JSON Demo Functions
+        function showSimpleJSON() {
+            const json = {
+                "nama": "Andi",
+                "umur": 17,
+                "kelas": "XII RPL"
+            };
+            document.getElementById('jsonResult').textContent = JSON.stringify(json, null, 2);
+        }
+
+        function showComplexJSON() {
+            const json = {
+                "siswa": {
+                    "nama": "Sari Indah",
+                    "umur": 16,
+                    "kelas": "XII RPL",
+                    "hobi": ["membaca", "coding", "menggambar"],
+                    "alamat": {
+                        "jalan": "Jl. Pendidikan No. 45",
+                        "kota": "Bandung",
+                        "kodePos": "40123"
+                    }
+                },
+                "nilai": [
+                    {"mapel": "Matematika", "nilai": 85},
+                    {"mapel": "Bahasa Indonesia", "nilai": 90},
+                    {"mapel": "Pemrograman", "nilai": 95}
+                ]
+            };
+            document.getElementById('jsonResult').textContent = JSON.stringify(json, null, 2);
+        }
+
+        function showArrayJSON() {
+            const json = [
+                {"nama": "Budi", "kelas": "XII RPL"},
+                {"nama": "Sari", "kelas": "XII TKJ"},
+                {"nama": "Andi", "kelas": "XII MM"}
+            ];
+            document.getElementById('jsonResult').textContent = JSON.stringify(json, null, 2);
+        }
+
+        // HTTP Methods Demo Functions
+        function demoGET() {
+            const resultHtml = `<span class="line"><span class="bracket">{</span></span>
+<span class="line indent-1"><span class="string">"method"</span><span class="operator">:</span> <span class="string">"GET"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"url"</span><span class="operator">:</span> <span class="string">"/api/students"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"response"</span><span class="operator">:</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="string">"status"</span><span class="operator">:</span> <span class="number">200</span><span class="operator">,</span></span>
+<span class="line indent-2"><span class="string">"data"</span><span class="operator">:</span> <span class="bracket">[</span></span>
+<span class="line indent-3"><span class="bracket">{</span></span>
+<span class="line indent-4"><span class="string">"id"</span><span class="operator">:</span> <span class="number">1</span><span class="operator">,</span></span>
+<span class="line indent-4"><span class="string">"nama"</span><span class="operator">:</span> <span class="string">"Budi"</span><span class="operator">,</span></span>
+<span class="line indent-4"><span class="string">"kelas"</span><span class="operator">:</span> <span class="string">"XII RPL"</span></span>
+<span class="line indent-3"><span class="bracket">}</span><span class="operator">,</span></span>
+<span class="line indent-3"><span class="bracket">{</span></span>
+<span class="line indent-4"><span class="string">"id"</span><span class="operator">:</span> <span class="number">2</span><span class="operator">,</span></span>
+<span class="line indent-4"><span class="string">"nama"</span><span class="operator">:</span> <span class="string">"Sari"</span><span class="operator">,</span></span>
+<span class="line indent-4"><span class="string">"kelas"</span><span class="operator">:</span> <span class="string">"XII TKJ"</span></span>
+<span class="line indent-3"><span class="bracket">}</span></span>
+<span class="line indent-2"><span class="bracket">]</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"><span class="bracket">}</span></span>`;
+            document.getElementById('getResult').style.display = 'block';
+            document.getElementById('getResult').innerHTML = resultHtml;
+        }
+
+        function demoPOST() {
+            const resultHtml = `<span class="line"><span class="bracket">{</span></span>
+<span class="line indent-1"><span class="string">"method"</span><span class="operator">:</span> <span class="string">"POST"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"url"</span><span class="operator">:</span> <span class="string">"/api/students"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"request_body"</span><span class="operator">:</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="string">"nama"</span><span class="operator">:</span> <span class="string">"Dewi"</span><span class="operator">,</span></span>
+<span class="line indent-2"><span class="string">"kelas"</span><span class="operator">:</span> <span class="string">"XII MM"</span><span class="operator">,</span></span>
+<span class="line indent-2"><span class="string">"umur"</span><span class="operator">:</span> <span class="number">16</span></span>
+<span class="line indent-1"><span class="bracket">}</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"response"</span><span class="operator">:</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="string">"status"</span><span class="operator">:</span> <span class="number">201</span><span class="operator">,</span></span>
+<span class="line indent-2"><span class="string">"message"</span><span class="operator">:</span> <span class="string">"Student created successfully"</span><span class="operator">,</span></span>
+<span class="line indent-2"><span class="string">"data"</span><span class="operator">:</span> <span class="bracket">{</span></span>
+<span class="line indent-3"><span class="string">"id"</span><span class="operator">:</span> <span class="number">4</span><span class="operator">,</span></span>
+<span class="line indent-3"><span class="string">"nama"</span><span class="operator">:</span> <span class="string">"Dewi"</span><span class="operator">,</span></span>
+<span class="line indent-3"><span class="string">"kelas"</span><span class="operator">:</span> <span class="string">"XII MM"</span><span class="operator">,</span></span>
+<span class="line indent-3"><span class="string">"umur"</span><span class="operator">:</span> <span class="number">16</span></span>
+<span class="line indent-2"><span class="bracket">}</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"><span class="bracket">}</span></span>`;
+            document.getElementById('postResult').style.display = 'block';
+            document.getElementById('postResult').innerHTML = resultHtml;
+        }
+
+        function demoPUT() {
+            const resultHtml = `<span class="line"><span class="bracket">{</span></span>
+<span class="line indent-1"><span class="string">"method"</span><span class="operator">:</span> <span class="string">"PUT"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"url"</span><span class="operator">:</span> <span class="string">"/api/students/1"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"request_body"</span><span class="operator">:</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="string">"nama"</span><span class="operator">:</span> <span class="string">"Budi Santoso"</span><span class="operator">,</span></span>
+<span class="line indent-2"><span class="string">"kelas"</span><span class="operator">:</span> <span class="string">"XII RPL"</span><span class="operator">,</span></span>
+<span class="line indent-2"><span class="string">"umur"</span><span class="operator">:</span> <span class="number">18</span></span>
+<span class="line indent-1"><span class="bracket">}</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"response"</span><span class="operator">:</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="string">"status"</span><span class="operator">:</span> <span class="number">200</span><span class="operator">,</span></span>
+<span class="line indent-2"><span class="string">"message"</span><span class="operator">:</span> <span class="string">"Student updated successfully"</span><span class="operator">,</span></span>
+<span class="line indent-2"><span class="string">"data"</span><span class="operator">:</span> <span class="bracket">{</span></span>
+<span class="line indent-3"><span class="string">"id"</span><span class="operator">:</span> <span class="number">1</span><span class="operator">,</span></span>
+<span class="line indent-3"><span class="string">"nama"</span><span class="operator">:</span> <span class="string">"Budi Santoso"</span><span class="operator">,</span></span>
+<span class="line indent-3"><span class="string">"kelas"</span><span class="operator">:</span> <span class="string">"XII RPL"</span><span class="operator">,</span></span>
+<span class="line indent-3"><span class="string">"umur"</span><span class="operator">:</span> <span class="number">18</span></span>
+<span class="line indent-2"><span class="bracket">}</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"><span class="bracket">}</span></span>`;
+            document.getElementById('putResult').style.display = 'block';
+            document.getElementById('putResult').innerHTML = resultHtml;
+        }
+
+        function demoDELETE() {
+            const resultHtml = `<span class="line"><span class="bracket">{</span></span>
+<span class="line indent-1"><span class="string">"method"</span><span class="operator">:</span> <span class="string">"DELETE"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"url"</span><span class="operator">:</span> <span class="string">"/api/students/1"</span><span class="operator">,</span></span>
+<span class="line indent-1"><span class="string">"response"</span><span class="operator">:</span> <span class="bracket">{</span></span>
+<span class="line indent-2"><span class="string">"status"</span><span class="operator">:</span> <span class="number">200</span><span class="operator">,</span></span>
+<span class="line indent-2"><span class="string">"message"</span><span class="operator">:</span> <span class="string">"Student deleted successfully"</span></span>
+<span class="line indent-1"><span class="bracket">}</span></span>
+<span class="line"><span class="bracket">}</span></span>`;
+            document.getElementById('deleteResult').style.display = 'block';
+            document.getElementById('deleteResult').innerHTML = resultHtml;
+        }
+
+        // Android Simulation Functions
+        function simulateAndroidGet() {
+            const result = `// Android Code Simulation
+Call<List<Student>> call = apiService.getAllStudents();
+call.enqueue(new Callback<List<Student>>() {
+    @Override
+    public void onResponse(Call<List<Student>> call, Response<List<Student>> response) {
+        if (response.isSuccessful()) {
+            List<Student> students = response.body();
+            // Update RecyclerView with student data
+            adapter.updateData(students);
+        }
+    }
+    
+    @Override
+    public void onFailure(Call<List<Student>> call, Throwable t) {
+        Toast.makeText(this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+    }
+});
+
+// Response Data:
+${JSON.stringify([
+    {"id": 1, "nama": "Budi", "kelas": "XII RPL"},
+    {"id": 2, "nama": "Sari", "kelas": "XII TKJ"}
+], null, 2)}`;
+            
+            document.getElementById('androidResult').textContent = result;
+        }
+
+        function simulateAndroidPost() {
+            const result = `// Android Code Simulation
+Student newStudent = new Student("Andi", "XII MM", 17);
+Call<Student> call = apiService.createStudent(newStudent);
+call.enqueue(new Callback<Student>() {
+    @Override
+    public void onResponse(Call<Student> call, Response<Student> response) {
+        if (response.isSuccessful()) {
+            Student createdStudent = response.body();
+            Toast.makeText(this, "Siswa berhasil ditambahkan!", Toast.LENGTH_SHORT).show();
+            // Refresh data
+            getAllStudents();
+        }
+    }
+    
+    @Override
+    public void onFailure(Call<Student> call, Throwable t) {
+        Toast.makeText(this, "Gagal menambah siswa", Toast.LENGTH_SHORT).show();
+    }
+});
+
+// Response Data:
+${JSON.stringify({
+    "status": "success",
+    "data": {"id": 3, "nama": "Andi", "kelas": "XII MM", "umur": 17}
+}, null, 2)}`;
+            
+            document.getElementById('androidResult').textContent = result;
+        }
+
+        // Quiz Functions
+        function startQuiz() {
+            const name = document.getElementById('studentName').value.trim();
+            if (!name) {
+                alert('Silakan masukkan nama terlebih dahulu! 😊');
+                return;
+            }
+            
+            initQuizData();
+            currentQuiz = 0;
+            quizScore = 0;
+            quizStartTime = Date.now();
+            
+            document.getElementById('quizStart').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            
+            startQuizTimer();
+            showQuestion();
+        }
+
+        function startQuizTimer() {
+            quizTimer = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - quizStartTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('quizTimer').textContent = 
+                    `⏰ ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function showQuestion() {
+            const question = quizData[currentQuiz];
+            const questionHtml = `
+                <h4>Soal ${currentQuiz + 1}</h4>
+                <p style="font-size: 1.1em; margin-bottom: 20px;">${question.question}</p>
+                ${question.options.map((option, index) => `
+                    <label class="quiz-option" onclick="selectOption(${index})">
+                        <input type="radio" name="answer" value="${index}" style="margin-right: 10px;">
+                        ${option}
+                    </label>
+                `).join('')}
+            `;
+            
+            document.getElementById('currentQuestion').innerHTML = questionHtml;
+            document.getElementById('questionNumber').textContent = `Soal ${currentQuiz + 1} dari ${quizData.length}`;
+            
+            const progress = ((currentQuiz + 1) / quizData.length) * 100;
+            document.getElementById('quizProgressFill').style.width = progress + '%';
+            
+            document.getElementById('nextQuestionBtn').style.display = 'none';
+            document.getElementById('finishQuizBtn').style.display = 'none';
+        }
+
+        function selectOption(selectedIndex) {
+            // Remove previous selections
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Mark selected option
+            event.currentTarget.classList.add('selected');
+            
+            // Check answer
+            const question = quizData[currentQuiz];
+            if (selectedIndex === question.correct) {
+                quizScore++;
+            }
+            
+            // Show next button
+            if (currentQuiz < quizData.length - 1) {
+                document.getElementById('nextQuestionBtn').style.display = 'inline-block';
+            } else {
+                document.getElementById('finishQuizBtn').style.display = 'inline-block';
+            }
+        }
+
+        function nextQuestion() {
+            currentQuiz++;
+            showQuestion();
+        }
+
+        function finishQuiz() {
+            clearInterval(quizTimer);
+            
+            const name = document.getElementById('studentName').value;
+            const totalTime = Math.floor((Date.now() - quizStartTime) / 1000);
+            const minutes = Math.floor(totalTime / 60);
+            const seconds = totalTime % 60;
+            const percentage = Math.round((quizScore / quizData.length) * 100);
+            
+            let grade = '';
+            let emoji = '';
+            if (percentage >= 90) {
+                grade = 'Excellent! 🌟';
+                emoji = '🎉';
+            } else if (percentage >= 80) {
+                grade = 'Very Good! 👏';
+                emoji = '😊';
+            } else if (percentage >= 70) {
+                grade = 'Good! 👍';
+                emoji = '😌';
+            } else if (percentage >= 60) {
+                grade = 'Fair 📚';
+                emoji = '😐';
+            } else {
+                grade = 'Need More Study 💪';
+                emoji = '😅';
+            }
+            
+            const resultHtml = `
+                <div class="highlight-box" style="text-align: center;">
+                    <h2>🎯 Hasil Kuis</h2>
+                    <div style="font-size: 4rem; margin: 20px 0;">${emoji}</div>
+                    <h3>Selamat, ${name}!</h3>
+                    <div style="font-size: 2rem; color: #d53f8c; margin: 20px 0;">
+                        ${quizScore}/${quizData.length} (${percentage}%)
+                    </div>
+                    <div style="font-size: 1.5rem; margin: 15px 0;">
+                        ${grade}
+                    </div>
+                    <p>⏰ Waktu: ${minutes}:${seconds.toString().padStart(2, '0')}</p>
+                    
+                    <div style="margin-top: 30px;">
+                        <button class="btn" onclick="restartQuiz()">🔄 Ulangi Kuis</button>
+                        <button class="btn" onclick="showSection('penutup')">📚 Lanjut ke Penutup</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('quizResult').innerHTML = resultHtml;
+            document.getElementById('quizResult').style.display = 'block';
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizResult').style.display = 'none';
+            document.getElementById('quizStart').style.display = 'block';
+            document.getElementById('studentName').value = '';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgress();
+            
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(e) {
+                const sidebar = document.getElementById('sidebar');
+                const menuToggle = document.querySelector('.menu-toggle');
+                const overlay = document.getElementById('sidebarOverlay');
+                
+                if (window.innerWidth <= 768 && 
+                    !sidebar.contains(e.target) && 
+                    !menuToggle.contains(e.target) &&
+                    !overlay.contains(e.target)) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (window.innerWidth > 768) {
+                // Desktop mode
+                overlay.classList.remove('active');
+                if (sidebar.classList.contains('open')) {
+                    mainContent.classList.add('sidebar-open');
+                }
+            } else {
+                // Mobile mode
+                mainContent.classList.remove('sidebar-open');
+                if (sidebar.classList.contains('open')) {
+                    overlay.classList.add('active');
+                }
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98c6b2bad30e7550',t:'MTc2MDEwNTM5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
