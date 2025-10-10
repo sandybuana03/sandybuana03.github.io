@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Praktik Integrasi API Android - Materi Pembelajaran</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+            position: relative;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2);
+        }
+        
+        .code-content {
+            background: #1e1e2e;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #cdd6f4;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        
+        .code-filename {
+            background: #f8f9fa;
+            color: #495057;
+            padding: 8px 16px;
+            border-radius: 6px 6px 0 0;
+            font-size: 12px;
+            font-weight: 600;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .keyword { color: #cba6f7; }
+        .string { color: #a6e3a1; }
+        .comment { color: #6c7086; font-style: italic; }
+        .function { color: #89b4fa; }
+        .variable { color: #f9e2af; }
+        .number { color: #fab387; }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .content-transition {
+            transition: margin-left 0.3s ease-in-out;
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .step-card {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+            border-radius: 16px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 8px 32px rgba(255, 234, 167, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            margin: 4px 0;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(4px);
+        }
+        
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid #fff;
+        }
+        
+        @media (max-width: 768px) {
+            .code-content {
+                font-size: 12px;
+                padding: 16px;
+            }
+            
+            .step-card {
+                padding: 16px;
+                margin: 12px 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-100 via-pink-50 to-blue-100 min-h-full">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-white rounded-full p-3 shadow-lg">
+        <i class="fas fa-bars text-purple-600"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-gradient-to-b from-purple-400 via-pink-300 to-blue-300 text-white p-6 sidebar-transition transform -translate-x-full lg:translate-x-0 z-40 overflow-y-auto">
+        <div class="flex items-center mb-8">
+            <div class="bg-white rounded-full p-3 mr-3">
+                <i class="fas fa-mobile-alt text-purple-500 text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold">API Android</h1>
+                <p class="text-sm opacity-90">Pembelajaran Interaktif</p>
+            </div>
+        </div>
+
+        <nav class="space-y-2">
+            <a href="#" onclick="showSection('pengenalan')" class="nav-item flex items-center p-3 text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                <i class="fas fa-play-circle mr-3 text-lg"></i>
+                <span class="font-medium">Pengenalan</span>
+            </a>
+            <a href="#" onclick="showSection('persiapan')" class="nav-item flex items-center p-3 text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                <i class="fas fa-tools mr-3 text-lg"></i>
+                <span class="font-medium">Persiapan Project</span>
+            </a>
+            <a href="#" onclick="showSection('retrofit')" class="nav-item flex items-center p-3 text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                <i class="fas fa-plug mr-3 text-lg"></i>
+                <span class="font-medium">Setup Retrofit</span>
+            </a>
+            <a href="#" onclick="showSection('model')" class="nav-item flex items-center p-3 text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                <i class="fas fa-cube mr-3 text-lg"></i>
+                <span class="font-medium">Membuat Model Data</span>
+            </a>
+            <a href="#" onclick="showSection('interface')" class="nav-item flex items-center p-3 text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                <i class="fas fa-code mr-3 text-lg"></i>
+                <span class="font-medium">API Interface</span>
+            </a>
+            <a href="#" onclick="showSection('implementasi')" class="nav-item flex items-center p-3 text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                <i class="fas fa-cogs mr-3 text-lg"></i>
+                <span class="font-medium">Implementasi API</span>
+            </a>
+            <a href="#" onclick="showSection('testing')" class="nav-item flex items-center p-3 text-white hover:bg-white hover:bg-opacity-20 rounded-lg transition-all duration-300">
+                <i class="fas fa-flask mr-3 text-lg"></i>
+                <span class="font-medium">Testing & Debug</span>
+            </a>
+        </nav>
+
+        <div class="mt-8 p-4 bg-white bg-opacity-20 rounded-lg">
+            <div class="flex items-center mb-2">
+                <i class="fas fa-lightbulb text-yellow-300 mr-2"></i>
+                <span class="font-semibold">Tips Belajar</span>
+            </div>
+            <p class="text-sm opacity-90">Ikuti setiap langkah dengan teliti dan jangan ragu untuk mencoba!</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="content-transition lg:ml-80 min-h-full">
+        <!-- Pengenalan Section -->
+        <div id="pengenalan" class="section p-6 lg:p-12">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <div class="inline-block bg-gradient-to-r from-purple-400 to-pink-400 rounded-full p-4 mb-4">
+                        <i class="fas fa-rocket text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-3xl lg:text-5xl font-bold text-gray-800 mb-4">
+                        Praktik Integrasi API pada Android
+                    </h1>
+                    <p class="text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto">
+                        Mari belajar cara mengintegrasikan API ke dalam aplikasi Android dengan mudah dan menyenangkan! 🚀
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-12">
+                    <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-purple-100">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-purple-100 rounded-full p-3 mr-4">
+                                <i class="fas fa-question-circle text-purple-600 text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">Apa itu API?</h3>
+                        </div>
+                        <p class="text-gray-600 leading-relaxed">
+                            API (Application Programming Interface) adalah jembatan yang memungkinkan aplikasi Android kita berkomunikasi dengan server untuk mengambil atau mengirim data. Seperti pelayan di restoran yang mengantarkan pesanan kita ke dapur! 🍽️
+                        </p>
+                    </div>
+
+                    <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-pink-100">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-pink-100 rounded-full p-3 mr-4">
+                                <i class="fas fa-star text-pink-600 text-xl"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">Mengapa Penting?</h3>
+                        </div>
+                        <p class="text-gray-600 leading-relaxed">
+                            Dengan API, aplikasi kita bisa menampilkan data real-time seperti cuaca, berita, atau media sosial. Aplikasi jadi lebih hidup dan berguna! ✨
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 mb-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-list-check text-blue-500 mr-3"></i>
+                        Yang Akan Kita Pelajari
+                    </h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="flex items-center p-3 bg-white rounded-lg shadow-sm">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span class="text-gray-700">Setup project Android dengan Retrofit</span>
+                        </div>
+                        <div class="flex items-center p-3 bg-white rounded-lg shadow-sm">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span class="text-gray-700">Membuat model data untuk API</span>
+                        </div>
+                        <div class="flex items-center p-3 bg-white rounded-lg shadow-sm">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span class="text-gray-700">Membuat interface API service</span>
+                        </div>
+                        <div class="flex items-center p-3 bg-white rounded-lg shadow-sm">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span class="text-gray-700">Implementasi API call di Activity</span>
+                        </div>
+                        <div class="flex items-center p-3 bg-white rounded-lg shadow-sm">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span class="text-gray-700">Handle response dan error</span>
+                        </div>
+                        <div class="flex items-center p-3 bg-white rounded-lg shadow-sm">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <span class="text-gray-700">Testing dan debugging</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-lg mb-8">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-exclamation-triangle text-yellow-600 mr-2"></i>
+                        <h4 class="font-bold text-yellow-800">Prasyarat</h4>
+                    </div>
+                    <ul class="text-yellow-700 space-y-1">
+                        <li>• Sudah familiar dengan dasar-dasar Android Studio</li>
+                        <li>• Memahami konsep dasar Java/Kotlin</li>
+                        <li>• Punya koneksi internet untuk testing</li>
+                    </ul>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Mulai Praktik
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Persiapan Section -->
+        <div id="persiapan" class="section hidden p-6 lg:p-12">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <div class="inline-block bg-gradient-to-r from-green-400 to-blue-400 rounded-full p-4 mb-4">
+                        <i class="fas fa-tools text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">Persiapan Project</h1>
+                    <p class="text-lg text-gray-600">Mari siapkan project Android kita untuk integrasi API! 🛠️</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">1</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Buat Project Baru</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Buka Android Studio dan buat project baru dengan konfigurasi berikut:</p>
+                    <ul class="text-gray-700 space-y-2 ml-6">
+                        <li>• <strong>Application Name:</strong> APILearning</li>
+                        <li>• <strong>Language:</strong> Java atau Kotlin (pilih yang kamu kuasai)</li>
+                        <li>• <strong>Minimum SDK:</strong> API 21 (Android 5.0)</li>
+                        <li>• <strong>Template:</strong> Empty Activity</li>
+                    </ul>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">2</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Tambahkan Dependencies</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Buka file <code class="bg-gray-200 px-2 py-1 rounded">app/build.gradle</code> dan tambahkan dependencies berikut:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-filename">
+                            <i class="fas fa-file-code mr-2"></i>
+                            app/build.gradle (Module: app)
+                        </div>
+                        <div class="code-content"><span class="comment">// Di dalam dependencies block</span>
+<span class="keyword">dependencies</span> {
+    <span class="comment">// Dependencies yang sudah ada...</span>
+    
+    <span class="comment">// Retrofit untuk HTTP client</span>
+    <span class="function">implementation</span> <span class="string">'com.squareup.retrofit2:retrofit:2.9.0'</span>
+    <span class="function">implementation</span> <span class="string">'com.squareup.retrofit2:converter-gson:2.9.0'</span>
+    
+    <span class="comment">// OkHttp untuk logging (opsional, untuk debugging)</span>
+    <span class="function">implementation</span> <span class="string">'com.squareup.okhttp3:logging-interceptor:4.9.3'</span>
+    
+    <span class="comment">// RecyclerView untuk menampilkan list data</span>
+    <span class="function">implementation</span> <span class="string">'androidx.recyclerview:recyclerview:1.3.0'</span>
+    
+    <span class="comment">// CardView untuk tampilan yang cantik</span>
+    <span class="function">implementation</span> <span class="string">'androidx.cardview:cardview:1.0.0'</span>
+}</div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">3</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Tambahkan Permission Internet</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Buka file <code class="bg-gray-200 px-2 py-1 rounded">AndroidManifest.xml</code> dan tambahkan permission:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-filename">
+                            <i class="fas fa-file-code mr-2"></i>
+                            app/src/main/AndroidManifest.xml
+                        </div>
+                        <div class="code-content"><span class="keyword">&lt;manifest</span> <span class="variable">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span><span class="keyword">&gt;</span>
+    
+    <span class="comment">&lt;!-- Tambahkan permission ini sebelum tag application --&gt;</span>
+    <span class="keyword">&lt;uses-permission</span> <span class="variable">android:name</span>=<span class="string">"android.permission.INTERNET"</span> <span class="keyword">/&gt;</span>
+    <span class="keyword">&lt;uses-permission</span> <span class="variable">android:name</span>=<span class="string">"android.permission.ACCESS_NETWORK_STATE"</span> <span class="keyword">/&gt;</span>
+    
+    <span class="keyword">&lt;application</span>
+        <span class="variable">android:usesCleartextTraffic</span>=<span class="string">"true"</span>
+        <span class="comment">... atribut lainnya ...</span><span class="keyword">&gt;</span>
+        
+        <span class="comment">&lt;!-- Activity dan komponen lainnya --&gt;</span>
+        
+    <span class="keyword">&lt;/application&gt;</span>
+<span class="keyword">&lt;/manifest&gt;</span></div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">4</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Sync Project</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Setelah menambahkan dependencies, klik tombol <strong>"Sync Now"</strong> yang muncul di bagian atas editor atau pilih menu <strong>File → Sync Project with Gradle Files</strong>.</p>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+                        <div class="flex items-center">
+                            <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                            <span class="font-semibold text-blue-800">Info:</span>
+                        </div>
+                        <p class="text-blue-700 mt-1">Proses sync mungkin membutuhkan waktu beberapa menit tergantung koneksi internet kamu.</p>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Lanjut ke Setup Retrofit
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Retrofit Section -->
+        <div id="retrofit" class="section hidden p-6 lg:p-12">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <div class="inline-block bg-gradient-to-r from-blue-400 to-purple-400 rounded-full p-4 mb-4">
+                        <i class="fas fa-plug text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">Setup Retrofit</h1>
+                    <p class="text-lg text-gray-600">Mari setup Retrofit sebagai HTTP client untuk komunikasi dengan API! 🔌</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">1</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Buat Package untuk API</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Buat struktur folder yang rapi untuk kode API kita:</p>
+                    <ul class="text-gray-700 space-y-2 ml-6 mb-4">
+                        <li>• Klik kanan pada package utama (com.example.apilearning)</li>
+                        <li>• Pilih <strong>New → Package</strong></li>
+                        <li>• Buat package: <code class="bg-gray-200 px-2 py-1 rounded">api</code></li>
+                        <li>• Buat package: <code class="bg-gray-200 px-2 py-1 rounded">model</code></li>
+                    </ul>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">2</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Buat ApiClient Class</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Buat class <code class="bg-gray-200 px-2 py-1 rounded">ApiClient.java</code> di package <code class="bg-gray-200 px-2 py-1 rounded">api</code>:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-filename">
+                            <i class="fas fa-file-code mr-2"></i>
+                            api/ApiClient.java
+                        </div>
+                        <div class="code-content"><span class="keyword">package</span> com.example.apilearning.api;
+
+<span class="keyword">import</span> okhttp3.OkHttpClient;
+<span class="keyword">import</span> okhttp3.logging.HttpLoggingInterceptor;
+<span class="keyword">import</span> retrofit2.Retrofit;
+<span class="keyword">import</span> retrofit2.converter.gson.GsonConverterFactory;
+
+<span class="keyword">public class</span> <span class="function">ApiClient</span> {
+    <span class="comment">// Base URL dari API yang akan kita gunakan</span>
+    <span class="keyword">private static final</span> <span class="variable">String</span> BASE_URL = <span class="string">"https://jsonplaceholder.typicode.com/"</span>;
+    
+    <span class="comment">// Instance Retrofit yang akan digunakan</span>
+    <span class="keyword">private static</span> <span class="variable">Retrofit</span> retrofit = <span class="keyword">null</span>;
+    
+    <span class="comment">// Method untuk mendapatkan instance Retrofit</span>
+    <span class="keyword">public static</span> <span class="variable">Retrofit</span> <span class="function">getClient</span>() {
+        <span class="keyword">if</span> (retrofit == <span class="keyword">null</span>) {
+            <span class="comment">// Setup logging untuk debugging (opsional)</span>
+            <span class="variable">HttpLoggingInterceptor</span> logging = <span class="keyword">new</span> <span class="function">HttpLoggingInterceptor</span>();
+            logging.<span class="function">setLevel</span>(<span class="variable">HttpLoggingInterceptor</span>.Level.BODY);
+            
+            <span class="comment">// Setup OkHttp client</span>
+            <span class="variable">OkHttpClient</span> client = <span class="keyword">new</span> <span class="variable">OkHttpClient</span>.<span class="function">Builder</span>()
+                    .<span class="function">addInterceptor</span>(logging)
+                    .<span class="function">build</span>();
+            
+            <span class="comment">// Buat instance Retrofit</span>
+            retrofit = <span class="keyword">new</span> <span class="variable">Retrofit</span>.<span class="function">Builder</span>()
+                    .<span class="function">baseUrl</span>(BASE_URL)
+                    .<span class="function">client</span>(client)
+                    .<span class="function">addConverterFactory</span>(<span class="variable">GsonConverterFactory</span>.<span class="function">create</span>())
+                    .<span class="function">build</span>();
+        }
+        <span class="keyword">return</span> retrofit;
+    }
+}</div>
+                    </div>
+                </div>
+
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-6 rounded-r-lg mb-6">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-lightbulb text-blue-600 mr-2"></i>
+                        <h4 class="font-bold text-blue-800">Penjelasan Kode</h4>
+                    </div>
+                    <ul class="text-blue-700 space-y-2">
+                        <li><strong>BASE_URL:</strong> Alamat dasar API yang akan kita gunakan</li>
+                        <li><strong>Singleton Pattern:</strong> Memastikan hanya ada satu instance Retrofit</li>
+                        <li><strong>HttpLoggingInterceptor:</strong> Untuk melihat request/response di log (debugging)</li>
+                        <li><strong>GsonConverterFactory:</strong> Mengubah JSON menjadi object Java secara otomatis</li>
+                    </ul>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">3</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Test API yang Akan Digunakan</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Kita akan menggunakan <strong>JSONPlaceholder</strong> sebagai API testing. Ini adalah API gratis yang menyediakan data dummy untuk belajar.</p>
+                    
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <h4 class="font-bold text-green-800 mb-2">Endpoint yang akan kita gunakan:</h4>
+                        <ul class="text-green-700 space-y-1">
+                            <li>• <code class="bg-green-100 px-2 py-1 rounded">GET /posts</code> - Mengambil semua post</li>
+                            <li>• <code class="bg-green-100 px-2 py-1 rounded">GET /posts/{id}</code> - Mengambil post berdasarkan ID</li>
+                            <li>• <code class="bg-green-100 px-2 py-1 rounded">POST /posts</code> - Membuat post baru</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Lanjut ke Model Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Section -->
+        <div id="model" class="section hidden p-6 lg:p-12">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <div class="inline-block bg-gradient-to-r from-orange-400 to-red-400 rounded-full p-4 mb-4">
+                        <i class="fas fa-cube text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">Membuat Model Data</h1>
+                    <p class="text-lg text-gray-600">Mari buat class model untuk menampung data dari API! 📦</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">1</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Analisis Response API</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Sebelum membuat model, mari lihat contoh response dari API JSONPlaceholder:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-filename">
+                            <i class="fas fa-file-code mr-2"></i>
+                            Contoh Response JSON dari /posts
+                        </div>
+                        <div class="code-content">[
+  {
+    <span class="string">"userId"</span>: <span class="number">1</span>,
+    <span class="string">"id"</span>: <span class="number">1</span>,
+    <span class="string">"title"</span>: <span class="string">"sunt aut facere repellat provident"</span>,
+    <span class="string">"body"</span>: <span class="string">"quia et suscipit\nsuscipit recusandae..."</span>
+  },
+  {
+    <span class="string">"userId"</span>: <span class="number">1</span>,
+    <span class="string">"id"</span>: <span class="number">2</span>,
+    <span class="string">"title"</span>: <span class="string">"qui est esse"</span>,
+    <span class="string">"body"</span>: <span class="string">"est rerum tempore vitae..."</span>
+  }
+]</div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">2</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Buat Class Post Model</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Buat class <code class="bg-gray-200 px-2 py-1 rounded">Post.java</code> di package <code class="bg-gray-200 px-2 py-1 rounded">model</code>:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-filename">
+                            <i class="fas fa-file-code mr-2"></i>
+                            model/Post.java
+                        </div>
+                        <div class="code-content"><span class="keyword">package</span> com.example.apilearning.model;
+
+<span class="keyword">import</span> com.google.gson.annotations.SerializedName;
+
+<span class="keyword">public class</span> <span class="function">Post</span> {
+    <span class="comment">// Annotation @SerializedName untuk mapping field JSON ke Java</span>
+    <span class="variable">@SerializedName</span>(<span class="string">"userId"</span>)
+    <span class="keyword">private int</span> userId;
+    
+    <span class="variable">@SerializedName</span>(<span class="string">"id"</span>)
+    <span class="keyword">private int</span> id;
+    
+    <span class="variable">@SerializedName</span>(<span class="string">"title"</span>)
+    <span class="keyword">private</span> <span class="variable">String</span> title;
+    
+    <span class="variable">@SerializedName</span>(<span class="string">"body"</span>)
+    <span class="keyword">private</span> <span class="variable">String</span> body;
+    
+    <span class="comment">// Constructor kosong (diperlukan untuk Gson)</span>
+    <span class="keyword">public</span> <span class="function">Post</span>() {
+    }
+    
+    <span class="comment">// Constructor dengan parameter</span>
+    <span class="keyword">public</span> <span class="function">Post</span>(<span class="keyword">int</span> userId, <span class="variable">String</span> title, <span class="variable">String</span> body) {
+        <span class="keyword">this</span>.userId = userId;
+        <span class="keyword">this</span>.title = title;
+        <span class="keyword">this</span>.body = body;
+    }
+    
+    <span class="comment">// Getter methods</span>
+    <span class="keyword">public int</span> <span class="function">getUserId</span>() {
+        <span class="keyword">return</span> userId;
+    }
+    
+    <span class="keyword">public int</span> <span class="function">getId</span>() {
+        <span class="keyword">return</span> id;
+    }
+    
+    <span class="keyword">public</span> <span class="variable">String</span> <span class="function">getTitle</span>() {
+        <span class="keyword">return</span> title;
+    }
+    
+    <span class="keyword">public</span> <span class="variable">String</span> <span class="function">getBody</span>() {
+        <span class="keyword">return</span> body;
+    }
+    
+    <span class="comment">// Setter methods</span>
+    <span class="keyword">public void</span> <span class="function">setUserId</span>(<span class="keyword">int</span> userId) {
+        <span class="keyword">this</span>.userId = userId;
+    }
+    
+    <span class="keyword">public void</span> <span class="function">setId</span>(<span class="keyword">int</span> id) {
+        <span class="keyword">this</span>.id = id;
+    }
+    
+    <span class="keyword">public void</span> <span class="function">setTitle</span>(<span class="variable">String</span> title) {
+        <span class="keyword">this</span>.title = title;
+    }
+    
+    <span class="keyword">public void</span> <span class="function">setBody</span>(<span class="variable">String</span> body) {
+        <span class="keyword">this</span>.body = body;
+    }
+    
+    <span class="comment">// Method toString untuk debugging</span>
+    <span class="variable">@Override</span>
+    <span class="keyword">public</span> <span class="variable">String</span> <span class="function">toString</span>() {
+        <span class="keyword">return</span> <span class="string">"Post{"</span> +
+                <span class="string">"userId="</span> + userId +
+                <span class="string">", id="</span> + id +
+                <span class="string">", title='"</span> + title + <span class="string">'\''</span> +
+                <span class="string">", body='"</span> + body + <span class="string">'\''</span> +
+                <span class="string">'}'</span>;
+    }
+}</div>
+                    </div>
+                </div>
+
+                <div class="bg-orange-50 border-l-4 border-orange-400 p-6 rounded-r-lg mb-6">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-info-circle text-orange-600 mr-2"></i>
+                        <h4 class="font-bold text-orange-800">Penjelasan Kode Model</h4>
+                    </div>
+                    <ul class="text-orange-700 space-y-2">
+                        <li><strong>@SerializedName:</strong> Menghubungkan field JSON dengan variable Java</li>
+                        <li><strong>Constructor kosong:</strong> Diperlukan oleh Gson untuk membuat object</li>
+                        <li><strong>Getter/Setter:</strong> Untuk mengakses dan mengubah data</li>
+                        <li><strong>toString():</strong> Memudahkan debugging dengan menampilkan isi object</li>
+                    </ul>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">3</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Tips Membuat Model yang Baik</h3>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <h4 class="font-bold text-green-800 mb-2">✅ Yang Harus Dilakukan:</h4>
+                            <ul class="text-green-700 space-y-1 text-sm">
+                                <li>• Gunakan @SerializedName untuk mapping</li>
+                                <li>• Buat constructor kosong</li>
+                                <li>• Gunakan tipe data yang sesuai</li>
+                                <li>• Buat getter dan setter</li>
+                            </ul>
+                        </div>
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <h4 class="font-bold text-red-800 mb-2">❌ Yang Harus Dihindari:</h4>
+                            <ul class="text-red-700 space-y-1 text-sm">
+                                <li>• Lupa constructor kosong</li>
+                                <li>• Field private tanpa getter</li>
+                                <li>• Nama field tidak sesuai JSON</li>
+                                <li>• Tipe data yang salah</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Lanjut ke API Interface
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interface Section -->
+        <div id="interface" class="section hidden p-6 lg:p-12">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <div class="inline-block bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full p-4 mb-4">
+                        <i class="fas fa-code text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">Membuat API Interface</h1>
+                    <p class="text-lg text-gray-600">Mari buat interface untuk mendefinisikan endpoint API! 🔗</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">1</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Buat Interface ApiService</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Buat interface <code class="bg-gray-200 px-2 py-1 rounded">ApiService.java</code> di package <code class="bg-gray-200 px-2 py-1 rounded">api</code>:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-filename">
+                            <i class="fas fa-file-code mr-2"></i>
+                            api/ApiService.java
+                        </div>
+                        <div class="code-content"><span class="keyword">package</span> com.example.apilearning.api;
+
+<span class="keyword">import</span> com.example.apilearning.model.Post;
+<span class="keyword">import</span> java.util.List;
+<span class="keyword">import</span> retrofit2.Call;
+<span class="keyword">import</span> retrofit2.http.*;
+
+<span class="keyword">public interface</span> <span class="function">ApiService</span> {
+    
+    <span class="comment">// GET request untuk mengambil semua posts</span>
+    <span class="variable">@GET</span>(<span class="string">"posts"</span>)
+    <span class="variable">Call</span>&lt;<span class="variable">List</span>&lt;<span class="variable">Post</span>&gt;&gt; <span class="function">getAllPosts</span>();
+    
+    <span class="comment">// GET request untuk mengambil post berdasarkan ID</span>
+    <span class="variable">@GET</span>(<span class="string">"posts/{id}"</span>)
+    <span class="variable">Call</span>&lt;<span class="variable">Post</span>&gt; <span class="function">getPostById</span>(<span class="variable">@Path</span>(<span class="string">"id"</span>) <span class="keyword">int</span> postId);
+    
+    <span class="comment">// POST request untuk membuat post baru</span>
+    <span class="variable">@POST</span>(<span class="string">"posts"</span>)
+    <span class="variable">Call</span>&lt;<span class="variable">Post</span>&gt; <span class="function">createPost</span>(<span class="variable">@Body</span> <span class="variable">Post</span> post);
+    
+    <span class="comment">// PUT request untuk update post</span>
+    <span class="variable">@PUT</span>(<span class="string">"posts/{id}"</span>)
+    <span class="variable">Call</span>&lt;<span class="variable">Post</span>&gt; <span class="function">updatePost</span>(<span class="variable">@Path</span>(<span class="string">"id"</span>) <span class="keyword">int</span> postId, <span class="variable">@Body</span> <span class="variable">Post</span> post);
+    
+    <span class="comment">// DELETE request untuk menghapus post</span>
+    <span class="variable">@DELETE</span>(<span class="string">"posts/{id}"</span>)
+    <span class="variable">Call</span>&lt;<span class="variable">Void</span>&gt; <span class="function">deletePost</span>(<span class="variable">@Path</span>(<span class="string">"id"</span>) <span class="keyword">int</span> postId);
+    
+    <span class="comment">// GET request dengan query parameter</span>
+    <span class="variable">@GET</span>(<span class="string">"posts"</span>)
+    <span class="variable">Call</span>&lt;<span class="variable">List</span>&lt;<span class="variable">Post</span>&gt;&gt; <span class="function">getPostsByUserId</span>(<span class="variable">@Query</span>(<span class="string">"userId"</span>) <span class="keyword">int</span> userId);
+}</div>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-50 border-l-4 border-indigo-400 p-6 rounded-r-lg mb-6">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-lightbulb text-indigo-600 mr-2"></i>
+                        <h4 class="font-bold text-indigo-800">Penjelasan Annotation HTTP</h4>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <h5 class="font-semibold text-indigo-800 mb-2">HTTP Methods:</h5>
+                            <ul class="text-indigo-700 space-y-1 text-sm">
+                                <li><strong>@GET:</strong> Mengambil data</li>
+                                <li><strong>@POST:</strong> Mengirim data baru</li>
+                                <li><strong>@PUT:</strong> Update data</li>
+                                <li><strong>@DELETE:</strong> Hapus data</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold text-indigo-800 mb-2">Parameter Types:</h5>
+                            <ul class="text-indigo-700 space-y-1 text-sm">
+                                <li><strong>@Path:</strong> Parameter di URL</li>
+                                <li><strong>@Query:</strong> Query parameter (?key=value)</li>
+                                <li><strong>@Body:</strong> Data di request body</li>
+                                <li><strong>@Header:</strong> HTTP header</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">2</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Contoh Penggunaan Annotation</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Mari lihat contoh bagaimana annotation bekerja:</p>
+                    
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-white border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-bold text-gray-800 mb-2">@Path Example:</h4>
+                            <div class="code-block">
+                                <div class="code-content text-sm"><span class="variable">@GET</span>(<span class="string">"posts/{id}"</span>)
+<span class="variable">Call</span>&lt;<span class="variable">Post</span>&gt; <span class="function">getPost</span>(<span class="variable">@Path</span>(<span class="string">"id"</span>) <span class="keyword">int</span> id);
+
+<span class="comment">// Memanggil: posts/123</span></div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-bold text-gray-800 mb-2">@Query Example:</h4>
+                            <div class="code-block">
+                                <div class="code-content text-sm"><span class="variable">@GET</span>(<span class="string">"posts"</span>)
+<span class="variable">Call</span>&lt;<span class="variable">List</span>&lt;<span class="variable">Post</span>&gt;&gt; <span class="function">getPosts</span>(<span class="variable">@Query</span>(<span class="string">"userId"</span>) <span class="keyword">int</span> userId);
+
+<span class="comment">// Memanggil: posts?userId=1</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">3</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Buat Helper Class untuk API Service</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Buat class helper untuk memudahkan akses ke API service:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-filename">
+                            <i class="fas fa-file-code mr-2"></i>
+                            api/ApiHelper.java
+                        </div>
+                        <div class="code-content"><span class="keyword">package</span> com.example.apilearning.api;
+
+<span class="keyword">public class</span> <span class="function">ApiHelper</span> {
+    <span class="comment">// Instance ApiService yang akan digunakan</span>
+    <span class="keyword">private static</span> <span class="variable">ApiService</span> apiService;
+    
+    <span class="comment">// Method untuk mendapatkan instance ApiService</span>
+    <span class="keyword">public static</span> <span class="variable">ApiService</span> <span class="function">getApiService</span>() {
+        <span class="keyword">if</span> (apiService == <span class="keyword">null</span>) {
+            apiService = <span class="variable">ApiClient</span>.<span class="function">getClient</span>().<span class="function">create</span>(<span class="variable">ApiService</span>.<span class="keyword">class</span>);
+        }
+        <span class="keyword">return</span> apiService;
+    }
+}</div>
+                    </div>
+                </div>
+
+                <div class="bg-green-50 border-l-4 border-green-400 p-6 rounded-r-lg mb-6">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                        <h4 class="font-bold text-green-800">Keuntungan Menggunakan Interface</h4>
+                    </div>
+                    <ul class="text-green-700 space-y-2">
+                        <li>• <strong>Clean Code:</strong> Kode lebih rapi dan terorganisir</li>
+                        <li>• <strong>Type Safety:</strong> Retrofit akan generate implementasi otomatis</li>
+                        <li>• <strong>Easy Testing:</strong> Mudah untuk membuat mock implementation</li>
+                        <li>• <strong>Maintainable:</strong> Mudah menambah atau mengubah endpoint</li>
+                    </ul>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Lanjut ke Implementasi
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementasi Section -->
+        <div id="implementasi" class="section hidden p-6 lg:p-12">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <div class="inline-block bg-gradient-to-r from-green-400 to-teal-400 rounded-full p-4 mb-4">
+                        <i class="fas fa-cogs text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">Implementasi API di Activity</h1>
+                    <p class="text-lg text-gray-600">Saatnya menggunakan API di aplikasi kita! 🚀</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">1</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Update Layout MainActivity</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Update file <code class="bg-gray-200 px-2 py-1 rounded">activity_main.xml</code> untuk menampilkan data:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-filename">
+                            <i class="fas fa-file-code mr-2"></i>
+                            res/layout/activity_main.xml
+                        </div>
+                        <div class="code-content"><span class="keyword">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="keyword">&lt;LinearLayout</span> <span class="variable">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>
+    <span class="variable">android:layout_width</span>=<span class="string">"match_parent"</span>
+    <span class="variable">android:layout_height</span>=<span class="string">"match_parent"</span>
+    <span class="variable">android:orientation</span>=<span class="string">"vertical"</span>
+    <span class="variable">android:padding</span>=<span class="string">"16dp"</span><span class="keyword">&gt;</span>
+
+    <span class="comment">&lt;!-- Header --&gt;</span>
+    <span class="keyword">&lt;TextView</span>
+        <span class="variable">android:layout_width</span>=<span class="string">"match_parent"</span>
+        <span class="variable">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="variable">android:text</span>=<span class="string">"API Learning App"</span>
+        <span class="variable">android:textSize</span>=<span class="string">"24sp"</span>
+        <span class="variable">android:textStyle</span>=<span class="string">"bold"</span>
+        <span class="variable">android:gravity</span>=<span class="string">"center"</span>
+        <span class="variable">android:layout_marginBottom</span>=<span class="string">"16dp"</span> <span class="keyword">/&gt;</span>
+
+    <span class="comment">&lt;!-- Buttons --&gt;</span>
+    <span class="keyword">&lt;LinearLayout</span>
+        <span class="variable">android:layout_width</span>=<span class="string">"match_parent"</span>
+        <span class="variable">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="variable">android:orientation</span>=<span class="string">"horizontal"</span>
+        <span class="variable">android:layout_marginBottom</span>=<span class="string">"16dp"</span><span class="keyword">&gt;</span>
+
+        <span class="keyword">&lt;Button</span>
+            <span class="variable">android:id</span>=<span class="string">"@+id/btnGetPosts"</span>
+            <span class="variable">android:layout_width</span>=<span class="string">"0dp"</span>
+            <span class="variable">android:layout_height</span>=<span class="string">"wrap_content"</span>
+            <span class="variable">android:layout_weight</span>=<span class="string">"1"</span>
+            <span class="variable">android:text</span>=<span class="string">"Get Posts"</span>
+            <span class="variable">android:layout_marginEnd</span>=<span class="string">"8dp"</span> <span class="keyword">/&gt;</span>
+
+        <span class="keyword">&lt;Button</span>
+            <span class="variable">android:id</span>=<span class="string">"@+id/btnCreatePost"</span>
+            <span class="variable">android:layout_width</span>=<span class="string">"0dp"</span>
+            <span class="variable">android:layout_height</span>=<span class="string">"wrap_content"</span>
+            <span class="variable">android:layout_weight</span>=<span class="string">"1"</span>
+            <span class="variable">android:text</span>=<span class="string">"Create Post"</span>
+            <span class="variable">android:layout_marginStart</span>=<span class="string">"8dp"</span> <span class="keyword">/&gt;</span>
+
+    <span class="keyword">&lt;/LinearLayout&gt;</span>
+
+    <span class="comment">&lt;!-- Progress Bar --&gt;</span>
+    <span class="keyword">&lt;ProgressBar</span>
+        <span class="variable">android:id</span>=<span class="string">"@+id/progressBar"</span>
+        <span class="variable">android:layout_width</span>=<span class="string">"wrap_content"</span>
+        <span class="variable">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="variable">android:layout_gravity</span>=<span class="string">"center"</span>
+        <span class="variable">android:visibility</span>=<span class="string">"gone"</span> <span class="keyword">/&gt;</span>
+
+    <span class="comment">&lt;!-- RecyclerView untuk menampilkan data --&gt;</span>
+    <span class="keyword">&lt;androidx.recyclerview.widget.RecyclerView</span>
+        <span class="variable">android:id</span>=<span class="string">"@+id/recyclerView"</span>
+        <span class="variable">android:layout_width</span>=<span class="string">"match_parent"</span>
+        <span class="variable">android:layout_height</span>=<span class="string">"match_parent"</span> <span class="keyword">/&gt;</span>
+
+<span class="keyword">&lt;/LinearLayout&gt;</span></div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">2</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Buat Layout Item untuk RecyclerView</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Buat file <code class="bg-gray-200 px-2 py-1 rounded">item_post.xml</code> di folder <code class="bg-gray-200 px-2 py-1 rounded">res/layout</code>:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-filename">
+                            <i class="fas fa-file-code mr-2"></i>
+                            res/layout/item_post.xml
+                        </div>
+                        <div class="code-content"><span class="keyword">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="keyword">&lt;androidx.cardview.widget.CardView</span> <span class="variable">xmlns:android</span>=<span class="string">"http://schemas.android.com/apk/res/android"</span>
+    <span class="variable">xmlns:app</span>=<span class="string">"http://schemas.android.com/apk/res-auto"</span>
+    <span class="variable">android:layout_width</span>=<span class="string">"match_parent"</span>
+    <span class="variable">android:layout_height</span>=<span class="string">"wrap_content"</span>
+    <span class="variable">android:layout_margin</span>=<span class="string">"8dp"</span>
+    <span class="variable">app:cardCornerRadius</span>=<span class="string">"8dp"</span>
+    <span class="variable">app:cardElevation</span>=<span class="string">"4dp"</span><span class="keyword">&gt;</span>
+
+    <span class="keyword">&lt;LinearLayout</span>
+        <span class="variable">android:layout_width</span>=<span class="string">"match_parent"</span>
+        <span class="variable">android:layout_height</span>=<span class="string">"wrap_content"</span>
+        <span class="variable">android:orientation</span>=<span class="string">"vertical"</span>
+        <span class="variable">android:padding</span>=<span class="string">"16dp"</span><span class="keyword">&gt;</span>
+
+        <span class="comment">&lt;!-- Post ID --&gt;</span>
+        <span class="keyword">&lt;TextView</span>
+            <span class="variable">android:id</span>=<span class="string">"@+id/tvPostId"</span>
+            <span class="variable">android:layout_width</span>=<span class="string">"wrap_content"</span>
+            <span class="variable">android:layout_height</span>=<span class="string">"wrap_content"</span>
+            <span class="variable">android:text</span>=<span class="string">"Post #1"</span>
+            <span class="variable">android:textSize</span>=<span class="string">"12sp"</span>
+            <span class="variable">android:textColor</span>=<span class="string">"@android:color/darker_gray"</span> <span class="keyword">/&gt;</span>
+
+        <span class="comment">&lt;!-- Post Title --&gt;</span>
+        <span class="keyword">&lt;TextView</span>
+            <span class="variable">android:id</span>=<span class="string">"@+id/tvTitle"</span>
+            <span class="variable">android:layout_width</span>=<span class="string">"match_parent"</span>
+            <span class="variable">android:layout_height</span>=<span class="string">"wrap_content"</span>
+            <span class="variable">android:text</span>=<span class="string">"Post Title"</span>
+            <span class="variable">android:textSize</span>=<span class="string">"18sp"</span>
+            <span class="variable">android:textStyle</span>=<span class="string">"bold"</span>
+            <span class="variable">android:layout_marginTop</span>=<span class="string">"4dp"</span>
+            <span class="variable">android:layout_marginBottom</span>=<span class="string">"8dp"</span> <span class="keyword">/&gt;</span>
+
+        <span class="comment">&lt;!-- Post Body --&gt;</span>
+        <span class="keyword">&lt;TextView</span>
+            <span class="variable">android:id</span>=<span class="string">"@+id/tvBody"</span>
+            <span class="variable">android:layout_width</span>=<span class="string">"match_parent"</span>
+            <span class="variable">android:layout_height</span>=<span class="string">"wrap_content"</span>
+            <span class="variable">android:text</span>=<span class="string">"Post body content..."</span>
+            <span class="variable">android:textSize</span>=<span class="string">"14sp"</span>
+            <span class="variable">android:maxLines</span>=<span class="string">"3"</span>
+            <span class="variable">android:ellipsize</span>=<span class="string">"end"</span> <span class="keyword">/&gt;</span>
+
+    <span class="keyword">&lt;/LinearLayout&gt;</span>
+
+<span class="keyword">&lt;/androidx.cardview.widget.CardView&gt;</span></div>
+                    </div>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">3</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Buat Adapter untuk RecyclerView</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Buat class <code class="bg-gray-200 px-2 py-1 rounded">PostAdapter.java</code>:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-filename">
+                            <i class="fas fa-file-code mr-2"></i>
+                            PostAdapter.java
+                        </div>
+                        <div class="code-content"><span class="keyword">package</span> com.example.apilearning;
+
+<span class="keyword">import</span> android.view.LayoutInflater;
+<span class="keyword">import</span> android.view.View;
+<span class="keyword">import</span> android.view.ViewGroup;
+<span class="keyword">import</span> android.widget.TextView;
+<span class="keyword">import</span> androidx.annotation.NonNull;
+<span class="keyword">import</span> androidx.recyclerview.widget.RecyclerView;
+<span class="keyword">import</span> com.example.apilearning.model.Post;
+<span class="keyword">import</span> java.util.List;
+
+<span class="keyword">public class</span> <span class="function">PostAdapter</span> <span class="keyword">extends</span> <span class="variable">RecyclerView</span>.<span class="variable">Adapter</span>&lt;<span class="variable">PostAdapter</span>.<span class="variable">PostViewHolder</span>&gt; {
+    
+    <span class="keyword">private</span> <span class="variable">List</span>&lt;<span class="variable">Post</span>&gt; posts;
+    
+    <span class="keyword">public</span> <span class="function">PostAdapter</span>(<span class="variable">List</span>&lt;<span class="variable">Post</span>&gt; posts) {
+        <span class="keyword">this</span>.posts = posts;
+    }
+    
+    <span class="variable">@NonNull</span>
+    <span class="variable">@Override</span>
+    <span class="keyword">public</span> <span class="variable">PostViewHolder</span> <span class="function">onCreateViewHolder</span>(<span class="variable">@NonNull</span> <span class="variable">ViewGroup</span> parent, <span class="keyword">int</span> viewType) {
+        <span class="variable">View</span> view = <span class="variable">LayoutInflater</span>.<span class="function">from</span>(parent.<span class="function">getContext</span>())
+                .<span class="function">inflate</span>(<span class="variable">R</span>.layout.item_post, parent, <span class="keyword">false</span>);
+        <span class="keyword">return new</span> <span class="function">PostViewHolder</span>(view);
+    }
+    
+    <span class="variable">@Override</span>
+    <span class="keyword">public void</span> <span class="function">onBindViewHolder</span>(<span class="variable">@NonNull</span> <span class="variable">PostViewHolder</span> holder, <span class="keyword">int</span> position) {
+        <span class="variable">Post</span> post = posts.<span class="function">get</span>(position);
+        holder.<span class="function">bind</span>(post);
+    }
+    
+    <span class="variable">@Override</span>
+    <span class="keyword">public int</span> <span class="function">getItemCount</span>() {
+        <span class="keyword">return</span> posts != <span class="keyword">null</span> ? posts.<span class="function">size</span>() : <span class="number">0</span>;
+    }
+    
+    <span class="comment">// Method untuk update data</span>
+    <span class="keyword">public void</span> <span class="function">updatePosts</span>(<span class="variable">List</span>&lt;<span class="variable">Post</span>&gt; newPosts) {
+        <span class="keyword">this</span>.posts = newPosts;
+        <span class="function">notifyDataSetChanged</span>();
+    }
+    
+    <span class="comment">// ViewHolder class</span>
+    <span class="keyword">public static class</span> <span class="function">PostViewHolder</span> <span class="keyword">extends</span> <span class="variable">RecyclerView</span>.<span class="variable">ViewHolder</span> {
+        <span class="keyword">private</span> <span class="variable">TextView</span> tvPostId, tvTitle, tvBody;
+        
+        <span class="keyword">public</span> <span class="function">PostViewHolder</span>(<span class="variable">@NonNull</span> <span class="variable">View</span> itemView) {
+            <span class="keyword">super</span>(itemView);
+            tvPostId = itemView.<span class="function">findViewById</span>(<span class="variable">R</span>.id.tvPostId);
+            tvTitle = itemView.<span class="function">findViewById</span>(<span class="variable">R</span>.id.tvTitle);
+            tvBody = itemView.<span class="function">findViewById</span>(<span class="variable">R</span>.id.tvBody);
+        }
+        
+        <span class="keyword">public void</span> <span class="function">bind</span>(<span class="variable">Post</span> post) {
+            tvPostId.<span class="function">setText</span>(<span class="string">"Post #"</span> + post.<span class="function">getId</span>());
+            tvTitle.<span class="function">setText</span>(post.<span class="function">getTitle</span>());
+            tvBody.<span class="function">setText</span>(post.<span class="function">getBody</span>());
+        }
+    }
+}</div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                        <i class="fas fa-arrow-right mr-2"></i>
+                        Lanjut ke Testing
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testing Section -->
+        <div id="testing" class="section hidden p-6 lg:p-12">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <div class="inline-block bg-gradient-to-r from-red-400 to-pink-400 rounded-full p-4 mb-4">
+                        <i class="fas fa-flask text-white text-3xl"></i>
+                    </div>
+                    <h1 class="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">Testing & Debug</h1>
+                    <p class="text-lg text-gray-600">Mari test aplikasi kita dan pelajari cara debugging! 🧪</p>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">1</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Implementasi MainActivity</h3>
+                    </div>
+                    <p class="text-gray-700 mb-4">Update <code class="bg-gray-200 px-2 py-1 rounded">MainActivity.java</code> dengan implementasi lengkap:</p>
+                    
+                    <div class="code-block">
+                        <div class="code-filename">
+                            <i class="fas fa-file-code mr-2"></i>
+                            MainActivity.java
+                        </div>
+                        <div class="code-content"><span class="keyword">package</span> com.example.apilearning;
+
+<span class="keyword">import</span> android.os.Bundle;
+<span class="keyword">import</span> android.util.Log;
+<span class="keyword">import</span> android.view.View;
+<span class="keyword">import</span> android.widget.Button;
+<span class="keyword">import</span> android.widget.ProgressBar;
+<span class="keyword">import</span> android.widget.Toast;
+<span class="keyword">import</span> androidx.appcompat.app.AppCompatActivity;
+<span class="keyword">import</span> androidx.recyclerview.widget.LinearLayoutManager;
+<span class="keyword">import</span> androidx.recyclerview.widget.RecyclerView;
+<span class="keyword">import</span> com.example.apilearning.api.ApiHelper;
+<span class="keyword">import</span> com.example.apilearning.model.Post;
+<span class="keyword">import</span> java.util.ArrayList;
+<span class="keyword">import</span> java.util.List;
+<span class="keyword">import</span> retrofit2.Call;
+<span class="keyword">import</span> retrofit2.Callback;
+<span class="keyword">import</span> retrofit2.Response;
+
+<span class="keyword">public class</span> <span class="function">MainActivity</span> <span class="keyword">extends</span> <span class="variable">AppCompatActivity</span> {
+    
+    <span class="keyword">private static final</span> <span class="variable">String</span> TAG = <span class="string">"MainActivity"</span>;
+    
+    <span class="comment">// UI Components</span>
+    <span class="keyword">private</span> <span class="variable">Button</span> btnGetPosts, btnCreatePost;
+    <span class="keyword">private</span> <span class="variable">ProgressBar</span> progressBar;
+    <span class="keyword">private</span> <span class="variable">RecyclerView</span> recyclerView;
+    <span class="keyword">private</span> <span class="variable">PostAdapter</span> adapter;
+    <span class="keyword">private</span> <span class="variable">List</span>&lt;<span class="variable">Post</span>&gt; postList;
+    
+    <span class="variable">@Override</span>
+    <span class="keyword">protected void</span> <span class="function">onCreate</span>(<span class="variable">Bundle</span> savedInstanceState) {
+        <span class="keyword">super</span>.<span class="function">onCreate</span>(savedInstanceState);
+        <span class="function">setContentView</span>(<span class="variable">R</span>.layout.activity_main);
+        
+        <span class="comment">// Initialize UI</span>
+        <span class="function">initViews</span>();
+        <span class="function">setupRecyclerView</span>();
+        <span class="function">setupClickListeners</span>();
+    }
+    
+    <span class="keyword">private void</span> <span class="function">initViews</span>() {
+        btnGetPosts = <span class="function">findViewById</span>(<span class="variable">R</span>.id.btnGetPosts);
+        btnCreatePost = <span class="function">findViewById</span>(<span class="variable">R</span>.id.btnCreatePost);
+        progressBar = <span class="function">findViewById</span>(<span class="variable">R</span>.id.progressBar);
+        recyclerView = <span class="function">findViewById</span>(<span class="variable">R</span>.id.recyclerView);
+    }
+    
+    <span class="keyword">private void</span> <span class="function">setupRecyclerView</span>() {
+        postList = <span class="keyword">new</span> <span class="variable">ArrayList</span>&lt;&gt;();
+        adapter = <span class="keyword">new</span> <span class="function">PostAdapter</span>(postList);
+        recyclerView.<span class="function">setLayoutManager</span>(<span class="keyword">new</span> <span class="function">LinearLayoutManager</span>(<span class="keyword">this</span>));
+        recyclerView.<span class="function">setAdapter</span>(adapter);
+    }
+    
+    <span class="keyword">private void</span> <span class="function">setupClickListeners</span>() {
+        btnGetPosts.<span class="function">setOnClickListener</span>(<span class="keyword">new</span> <span class="variable">View</span>.<span class="function">OnClickListener</span>() {
+            <span class="variable">@Override</span>
+            <span class="keyword">public void</span> <span class="function">onClick</span>(<span class="variable">View</span> v) {
+                <span class="function">getAllPosts</span>();
+            }
+        });
+        
+        btnCreatePost.<span class="function">setOnClickListener</span>(<span class="keyword">new</span> <span class="variable">View</span>.<span class="function">OnClickListener</span>() {
+            <span class="variable">@Override</span>
+            <span class="keyword">public void</span> <span class="function">onClick</span>(<span class="variable">View</span> v) {
+                <span class="function">createNewPost</span>();
+            }
+        });
+    }
+    
+    <span class="keyword">private void</span> <span class="function">getAllPosts</span>() {
+        <span class="comment">// Show loading</span>
+        <span class="function">showLoading</span>(<span class="keyword">true</span>);
+        
+        <span class="comment">// Make API call</span>
+        <span class="variable">Call</span>&lt;<span class="variable">List</span>&lt;<span class="variable">Post</span>&gt;&gt; call = <span class="variable">ApiHelper</span>.<span class="function">getApiService</span>().<span class="function">getAllPosts</span>();
+        call.<span class="function">enqueue</span>(<span class="keyword">new</span> <span class="variable">Callback</span>&lt;<span class="variable">List</span>&lt;<span class="variable">Post</span>&gt;&gt;() {
+            <span class="variable">@Override</span>
+            <span class="keyword">public void</span> <span class="function">onResponse</span>(<span class="variable">Call</span>&lt;<span class="variable">List</span>&lt;<span class="variable">Post</span>&gt;&gt; call, <span class="variable">Response</span>&lt;<span class="variable">List</span>&lt;<span class="variable">Post</span>&gt;&gt; response) {
+                <span class="function">showLoading</span>(<span class="keyword">false</span>);
+                
+                <span class="keyword">if</span> (response.<span class="function">isSuccessful</span>() && response.<span class="function">body</span>() != <span class="keyword">null</span>) {
+                    <span class="variable">List</span>&lt;<span class="variable">Post</span>&gt; posts = response.<span class="function">body</span>();
+                    <span class="variable">Log</span>.<span class="function">d</span>(TAG, <span class="string">"Posts loaded: "</span> + posts.<span class="function">size</span>());
+                    
+                    <span class="comment">// Update RecyclerView</span>
+                    adapter.<span class="function">updatePosts</span>(posts);
+                    
+                    <span class="comment">// Show success message</span>
+                    <span class="variable">Toast</span>.<span class="function">makeText</span>(<span class="variable">MainActivity</span>.<span class="keyword">this</span>, 
+                            <span class="string">"Loaded "</span> + posts.<span class="function">size</span>() + <span class="string">" posts"</span>, 
+                            <span class="variable">Toast</span>.LENGTH_SHORT).<span class="function">show</span>();
+                } <span class="keyword">else</span> {
+                    <span class="variable">Log</span>.<span class="function">e</span>(TAG, <span class="string">"Response not successful: "</span> + response.<span class="function">code</span>());
+                    <span class="function">showError</span>(<span class="string">"Failed to load posts"</span>);
+                }
+            }
+            
+            <span class="variable">@Override</span>
+            <span class="keyword">public void</span> <span class="function">onFailure</span>(<span class="variable">Call</span>&lt;<span class="variable">List</span>&lt;<span class="variable">Post</span>&gt;&gt; call, <span class="variable">Throwable</span> t) {
+                <span class="function">showLoading</span>(<span class="keyword">false</span>);
+                <span class="variable">Log</span>.<span class="function">e</span>(TAG, <span class="string">"API call failed"</span>, t);
+                <span class="function">showError</span>(<span class="string">"Network error: "</span> + t.<span class="function">getMessage</span>());
+            }
+        });
+    }
+    
+    <span class="keyword">private void</span> <span class="function">createNewPost</span>() {
+        <span class="comment">// Create new post object</span>
+        <span class="variable">Post</span> newPost = <span class="keyword">new</span> <span class="function">Post</span>(<span class="number">1</span>, <span class="string">"My New Post"</span>, <span class="string">"This is a test post created from Android app!"</span>);
+        
+        <span class="function">showLoading</span>(<span class="keyword">true</span>);
+        
+        <span class="variable">Call</span>&lt;<span class="variable">Post</span>&gt; call = <span class="variable">ApiHelper</span>.<span class="function">getApiService</span>().<span class="function">createPost</span>(newPost);
+        call.<span class="function">enqueue</span>(<span class="keyword">new</span> <span class="variable">Callback</span>&lt;<span class="variable">Post</span>&gt;() {
+            <span class="variable">@Override</span>
+            <span class="keyword">public void</span> <span class="function">onResponse</span>(<span class="variable">Call</span>&lt;<span class="variable">Post</span>&gt; call, <span class="variable">Response</span>&lt;<span class="variable">Post</span>&gt; response) {
+                <span class="function">showLoading</span>(<span class="keyword">false</span>);
+                
+                <span class="keyword">if</span> (response.<span class="function">isSuccessful</span>() && response.<span class="function">body</span>() != <span class="keyword">null</span>) {
+                    <span class="variable">Post</span> createdPost = response.<span class="function">body</span>();
+                    <span class="variable">Log</span>.<span class="function">d</span>(TAG, <span class="string">"Post created: "</span> + createdPost.<span class="function">toString</span>());
+                    
+                    <span class="variable">Toast</span>.<span class="function">makeText</span>(<span class="variable">MainActivity</span>.<span class="keyword">this</span>, 
+                            <span class="string">"Post created successfully!"</span>, 
+                            <span class="variable">Toast</span>.LENGTH_SHORT).<span class="function">show</span>();
+                } <span class="keyword">else</span> {
+                    <span class="function">showError</span>(<span class="string">"Failed to create post"</span>);
+                }
+            }
+            
+            <span class="variable">@Override</span>
+            <span class="keyword">public void</span> <span class="function">onFailure</span>(<span class="variable">Call</span>&lt;<span class="variable">Post</span>&gt; call, <span class="variable">Throwable</span> t) {
+                <span class="function">showLoading</span>(<span class="keyword">false</span>);
+                <span class="variable">Log</span>.<span class="function">e</span>(TAG, <span class="string">"Create post failed"</span>, t);
+                <span class="function">showError</span>(<span class="string">"Network error: "</span> + t.<span class="function">getMessage</span>());
+            }
+        });
+    }
+    
+    <span class="keyword">private void</span> <span class="function">showLoading</span>(<span class="keyword">boolean</span> show) {
+        progressBar.<span class="function">setVisibility</span>(show ? <span class="variable">View</span>.VISIBLE : <span class="variable">View</span>.GONE);
+        btnGetPosts.<span class="function">setEnabled</span>(!show);
+        btnCreatePost.<span class="function">setEnabled</span>(!show);
+    }
+    
+    <span class="keyword">private void</span> <span class="function">showError</span>(<span class="variable">String</span> message) {
+        <span class="variable">Toast</span>.<span class="function">makeText</span>(<span class="keyword">this</span>, message, <span class="variable">Toast</span>.LENGTH_LONG).<span class="function">show</span>();
+    }
+}</div>
+                    </div>
+                </div>
+
+                <div class="bg-red-50 border-l-4 border-red-400 p-6 rounded-r-lg mb-6">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-bug text-red-600 mr-2"></i>
+                        <h4 class="font-bold text-red-800">Tips Debugging</h4>
+                    </div>
+                    <ul class="text-red-700 space-y-2">
+                        <li>• <strong>Logcat:</strong> Gunakan Log.d(), Log.e() untuk melihat output di Logcat</li>
+                        <li>• <strong>Network Inspector:</strong> Gunakan untuk melihat request/response HTTP</li>
+                        <li>• <strong>Breakpoints:</strong> Set breakpoint di onResponse() dan onFailure()</li>
+                        <li>• <strong>Toast Messages:</strong> Tampilkan pesan error yang user-friendly</li>
+                    </ul>
+                </div>
+
+                <div class="step-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-white rounded-full p-3 mr-4">
+                            <span class="text-2xl font-bold text-purple-600">2</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Jalankan dan Test Aplikasi</h3>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                            <h4 class="font-bold text-green-800 mb-2">✅ Test Checklist:</h4>
+                            <ul class="text-green-700 space-y-1 text-sm">
+                                <li>• Tekan "Get Posts" - data muncul di RecyclerView</li>
+                                <li>• Tekan "Create Post" - muncul toast success</li>
+                                <li>• Cek Logcat untuk melihat response data</li>
+                                <li>• Test dengan internet mati (error handling)</li>
+                            </ul>
+                        </div>
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h4 class="font-bold text-blue-800 mb-2">🔍 Yang Harus Diperhatikan:</h4>
+                            <ul class="text-blue-700 space-y-1 text-sm">
+                                <li>• Loading indicator muncul saat request</li>
+                                <li>• Button disabled saat loading</li>
+                                <li>• Error message jelas dan informatif</li>
+                                <li>• Data tampil dengan benar di RecyclerView</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-8 text-center">
+                    <div class="inline-block bg-gradient-to-r from-green-400 to-blue-400 rounded-full p-4 mb-4">
+                        <i class="fas fa-trophy text-white text-3xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Selamat! 🎉</h3>
+                    <p class="text-lg text-gray-600 mb-6">
+                        Kamu telah berhasil membuat aplikasi Android yang terintegrasi dengan API! 
+                        Sekarang kamu bisa mengambil dan mengirim data ke server dengan mudah.
+                    </p>
+                    <div class="grid md:grid-cols-3 gap-4 mt-6">
+                        <div class="bg-white rounded-lg p-4 shadow-sm">
+                            <i class="fas fa-check-circle text-green-500 text-2xl mb-2"></i>
+                            <h4 class="font-semibold text-gray-800">Setup Retrofit</h4>
+                            <p class="text-sm text-gray-600">HTTP client untuk Android</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 shadow-sm">
+                            <i class="fas fa-check-circle text-green-500 text-2xl mb-2"></i>
+                            <h4 class="font-semibold text-gray-800">Model & Interface</h4>
+                            <p class="text-sm text-gray-600">Struktur data dan endpoint</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 shadow-sm">
+                            <i class="fas fa-check-circle text-green-500 text-2xl mb-2"></i>
+                            <h4 class="font-semibold text-gray-800">Implementation</h4>
+                            <p class="text-sm text-gray-600">API call dan error handling</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="backToTop" class="floating-btn bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg hidden">
+        <i class="fas fa-arrow-up text-xl"></i>
+    </button>
+
+    <!-- Overlay for mobile menu -->
+    <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+
+    <script>
+        // Current section tracking
+        let currentSection = 'pengenalan';
+        const sections = ['pengenalan', 'persiapan', 'retrofit', 'model', 'interface', 'implementasi', 'testing'];
+
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+        const mainContent = document.getElementById('mainContent');
+
+        mobileMenuBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        });
+
+        overlay.addEventListener('click', function() {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        });
+
+        // Show section function
+        function showSection(sectionId) {
+            // Hide all sections
+            sections.forEach(section => {
+                const element = document.getElementById(section);
+                if (element) {
+                    element.classList.add('hidden');
+                }
+            });
+
+            // Show target section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                currentSection = sectionId;
+                
+                // Force scroll to top with multiple approaches
+                window.scrollTo(0, 0);
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+                
+                // Additional scroll fix with timeout
+                setTimeout(() => {
+                    window.scrollTo(0, 0);
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                }, 10);
+                
+                // Close mobile menu
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+                
+                // Update active nav item
+                updateActiveNavItem(sectionId);
+            }
+        }
+
+        // Update active navigation item
+        function updateActiveNavItem(activeSection) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Find and activate the corresponding nav item based on onclick attribute
+            navItems.forEach(item => {
+                const onclickAttr = item.getAttribute('onclick');
+                if (onclickAttr && onclickAttr.includes(`'${activeSection}'`)) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // Back to top functionality
+        const backToTopBtn = document.getElementById('backToTop');
+
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.remove('hidden');
+            } else {
+                backToTopBtn.classList.add('hidden');
+            }
+        });
+
+        backToTopBtn.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Next section function
+        function nextSection() {
+            const currentIndex = sections.indexOf(currentSection);
+            if (currentIndex < sections.length - 1) {
+                const nextSectionId = sections[currentIndex + 1];
+                showSection(nextSectionId);
+                
+                // Force immediate scroll to top with multiple methods
+                setTimeout(() => {
+                    window.scrollTo(0, 0);
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                }, 50);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('pengenalan');
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98c6322205fb4ad6',t:'MTc2MDEwMDEyNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
