@@ -1,0 +1,1944 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQLite Android - Materi Pembelajaran Interaktif</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffeef8 0%, #f0f8ff 100%);
+            color: #4a5568;
+            line-height: 1.6;
+            height: 100%;
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+
+        html {
+            height: 100%;
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .burger-menu {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #2d3748;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 80px;
+            left: 0;
+            width: 280px;
+            height: calc(100% - 80px);
+            background: linear-gradient(180deg, #ffeef8 0%, #f7fafc 100%);
+            padding: 1.5rem;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            z-index: 999;
+            transform: translateX(0);
+            box-sizing: border-box;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .nav-item {
+            display: block;
+            padding: 0.8rem 1rem;
+            margin: 0.5rem 0;
+            background: linear-gradient(135deg, #fed7e2 0%, #fbb6ce 100%);
+            border: none;
+            border-radius: 12px;
+            color: #2d3748;
+            text-decoration: none;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: left;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: linear-gradient(135deg, #f687b3 0%, #ed64a6 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .nav-item::before {
+            content: "📱";
+            margin-right: 0.5rem;
+        }
+
+        .nav-item[data-section="pengenalan"]::before { content: "🌟"; }
+        .nav-item[data-section="setup"]::before { content: "⚙️"; }
+        .nav-item[data-section="database"]::before { content: "🗄️"; }
+        .nav-item[data-section="crud"]::before { content: "✏️"; }
+        .nav-item[data-section="ui"]::before { content: "🎨"; }
+        .nav-item[data-section="testing"]::before { content: "🧪"; }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 80px;
+            padding: 2rem;
+            min-height: calc(100% - 80px);
+            position: relative;
+            z-index: 1;
+            box-sizing: border-box;
+            width: 100%;
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        .content-section {
+            display: none;
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            box-sizing: border-box;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-subtitle {
+            font-size: 1.3rem;
+            color: #4a5568;
+            margin: 1.5rem 0 1rem 0;
+            padding-left: 1rem;
+            border-left: 4px solid #f687b3;
+        }
+
+        /* Code Blocks */
+        .code-container {
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .code-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.8rem 1.2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .code-header::before {
+            content: "📄";
+        }
+
+        .code-block {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        .code-java { color: #fbb6ce; }
+        .code-xml { color: #90cdf4; }
+        .code-comment { color: #68d391; font-style: italic; }
+        .code-string { color: #fbd38d; }
+        .code-keyword { color: #f687b3; font-weight: bold; }
+        .code-method { color: #81e6d9; }
+
+        /* Info Boxes */
+        .info-box {
+            background: linear-gradient(135deg, #e6fffa 0%, #b2f5ea 100%);
+            border-left: 4px solid #38b2ac;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+            border-left: 4px solid #48bb78;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Steps */
+        .step {
+            background: linear-gradient(135deg, #fef5e7 0%, #fed7aa 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-left: 5px solid #f6ad55;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .step-number {
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #f687b3 0%, #ed64a6 100%);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Floating Button */
+        .float-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: linear-gradient(135deg, #f687b3 0%, #ed64a6 100%);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+
+        .float-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+        }
+
+        /* Desktop styles */
+        @media (min-width: 769px) {
+            .burger-menu {
+                display: none;
+            }
+
+            .sidebar {
+                transform: translateX(0) !important;
+                width: 280px;
+                z-index: 999;
+                position: fixed;
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 280px !important;
+                width: calc(100vw - 280px) !important;
+                padding: 2rem !important;
+                max-width: none !important;
+                overflow-x: hidden;
+                box-sizing: border-box;
+            }
+
+            .content-section {
+                max-width: 800px;
+                width: 100%;
+                box-sizing: border-box;
+                margin: 0 auto 2rem auto;
+            }
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .burger-menu {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%) !important;
+                width: 85%;
+                max-width: 300px;
+                z-index: 1001;
+                position: fixed;
+                left: 0;
+                top: 80px;
+            }
+
+            .sidebar.show {
+                transform: translateX(0) !important;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                padding: 1rem !important;
+                width: 100vw !important;
+                margin-top: 80px;
+                max-width: 100vw !important;
+                overflow-x: hidden;
+                box-sizing: border-box;
+            }
+
+            .content-section {
+                padding: 1.5rem;
+                margin: 0 0 2rem 0;
+                border-radius: 15px;
+                max-width: 100%;
+                width: 100%;
+                box-sizing: border-box;
+                overflow-x: hidden;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+                word-wrap: break-word;
+            }
+
+            .code-block {
+                font-size: 0.8rem;
+                padding: 1rem;
+                overflow-x: auto;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+
+            .code-container {
+                max-width: 100%;
+                overflow-x: auto;
+            }
+
+            .nav-buttons {
+                flex-direction: column;
+            }
+
+            .nav-btn {
+                width: 100%;
+            }
+
+            .step {
+                padding: 1rem;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            .info-box, .warning-box, .tip-box {
+                padding: 1rem;
+                margin: 1rem 0;
+                max-width: 100%;
+                box-sizing: border-box;
+                word-wrap: break-word;
+            }
+
+            /* Prevent horizontal scroll */
+            body {
+                overflow-x: hidden;
+                max-width: 100vw;
+            }
+
+            html {
+                overflow-x: hidden;
+                max-width: 100vw;
+            }
+        }
+
+        /* Overlay for mobile */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        /* Prevent body scroll when sidebar is open on mobile */
+        body.sidebar-open {
+            overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            body.sidebar-open .main-content {
+                filter: blur(2px);
+                pointer-events: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span>🎓</span>
+                <span>SQLite Android Learning</span>
+            </div>
+            <button class="burger-menu" onclick="toggleSidebar()">☰</button>
+        </div>
+    </header>
+
+    <!-- Overlay -->
+    <div class="overlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <button class="nav-item" data-section="pengenalan" onclick="showSection('pengenalan')">Pengenalan SQLite Android</button>
+        <button class="nav-item" data-section="setup" onclick="showSection('setup')">Setup Project & Dependencies</button>
+        <button class="nav-item" data-section="database" onclick="showSection('database')">Membuat Database Helper</button>
+        <button class="nav-item" data-section="crud" onclick="showSection('crud')">Implementasi CRUD Operations</button>
+        <button class="nav-item" data-section="ui" onclick="showSection('ui')">Integrasi dengan UI Android</button>
+        <button class="nav-item" data-section="testing" onclick="showSection('testing')">Testing & Debugging</button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Pengenalan Section -->
+        <section class="content-section active" id="pengenalan">
+            <h1 class="section-title">🌟 Pengenalan SQLite di Android</h1>
+            
+            <p style="font-size: 1.1rem; margin-bottom: 2rem;">Selamat datang di pembelajaran interaktif tentang integrasi SQLite dalam pengembangan aplikasi Android! Mari kita mulai perjalanan seru ini! 🚀</p>
+
+            <h2 class="section-subtitle">🤔 Apa itu SQLite?</h2>
+            <p>SQLite adalah database engine yang ringan, cepat, dan tidak memerlukan server terpisah. Sangat cocok untuk aplikasi mobile karena:</p>
+            <ul style="margin-left: 2rem; margin-bottom: 1.5rem;">
+                <li>📱 <strong>Ringan</strong> - Ukuran kecil, cocok untuk perangkat mobile</li>
+                <li>⚡ <strong>Cepat</strong> - Performa tinggi untuk operasi database</li>
+                <li>🔒 <strong>Reliable</strong> - Data tersimpan aman di perangkat</li>
+                <li>🆓 <strong>Gratis</strong> - Open source dan sudah built-in di Android</li>
+            </ul>
+
+            <div class="info-box">
+                <strong>💡 Tahukah kamu?</strong><br>
+                SQLite sudah terpasang secara default di setiap perangkat Android! Jadi kamu tidak perlu menginstall apapun tambahan.
+            </div>
+
+            <h2 class="section-subtitle">🎯 Apa yang Akan Kita Pelajari?</h2>
+            <div class="step">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Setup Project Android</span>
+                </div>
+                <p>Menyiapkan project Android Studio dan dependencies yang diperlukan</p>
+            </div>
+
+            <div class="step">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Membuat Database Helper</span>
+                </div>
+                <p>Membuat class helper untuk mengelola database SQLite</p>
+            </div>
+
+            <div class="step">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <span class="step-number">3</span>
+                    <span class="step-title">CRUD Operations</span>
+                </div>
+                <p>Implementasi Create, Read, Update, Delete data</p>
+            </div>
+
+            <div class="step">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <span class="step-number">4</span>
+                    <span class="step-title">Integrasi dengan UI</span>
+                </div>
+                <p>Menghubungkan database dengan tampilan aplikasi</p>
+            </div>
+
+            <div class="step">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <span class="step-number">5</span>
+                    <span class="step-title">Testing & Debugging</span>
+                </div>
+                <p>Menguji dan memperbaiki aplikasi yang telah dibuat</p>
+            </div>
+
+            <div class="tip-box">
+                <strong>🎯 Tips Belajar:</strong><br>
+                Ikuti setiap langkah dengan teliti dan jangan ragu untuk mencoba sendiri! Praktik langsung adalah kunci sukses dalam programming.
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-btn" disabled>⬅️ Sebelumnya</button>
+                <button class="nav-btn" onclick="navigateToSection('setup')">Selanjutnya ➡️</button>
+            </div>
+        </section>
+
+        <!-- Setup Section -->
+        <section class="content-section" id="setup">
+            <h1 class="section-title">⚙️ Setup Project & Dependencies</h1>
+            
+            <p style="font-size: 1.1rem; margin-bottom: 2rem;">Mari kita siapkan project Android Studio untuk menggunakan SQLite! 🛠️</p>
+
+            <h2 class="section-subtitle">📱 Langkah 1: Membuat Project Baru</h2>
+            <div class="step">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Buka Android Studio</span>
+                </div>
+                <p>Pilih "Create New Project" atau "Start a new Android Studio project"</p>
+            </div>
+
+            <div class="step">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Pilih Template</span>
+                </div>
+                <p>Pilih "Empty Activity" untuk memulai dengan template sederhana</p>
+            </div>
+
+            <div class="step">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Konfigurasi Project</span>
+                </div>
+                <ul style="margin-left: 1rem;">
+                    <li><strong>Name:</strong> SQLite Student App</li>
+                    <li><strong>Package name:</strong> com.example.sqlitestudent</li>
+                    <li><strong>Language:</strong> Java</li>
+                    <li><strong>Minimum SDK:</strong> API 21 (Android 5.0)</li>
+                </ul>
+            </div>
+
+            <h2 class="section-subtitle">📋 Langkah 2: Menambahkan Permissions</h2>
+            <p>Untuk SQLite dasar, sebenarnya tidak perlu permission khusus karena database disimpan di internal storage. Namun jika ingin export/import data, tambahkan permission ini di AndroidManifest.xml:</p>
+
+            <div class="code-container">
+                <div class="code-header">AndroidManifest.xml</div>
+                <div class="code-block"><span class="code-xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.sqlitestudent"&gt;
+
+    </span><span class="code-comment">&lt;!-- Permission untuk akses storage (opsional) --&gt;</span><span class="code-xml">
+    &lt;uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /&gt;
+    &lt;uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /&gt;
+
+    &lt;application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.SQLiteStudent"&gt;
+        
+        &lt;activity android:name=".MainActivity"
+            android:exported="true"&gt;
+            &lt;intent-filter&gt;
+                &lt;action android:name="android.intent.action.MAIN" /&gt;
+                &lt;category android:name="android.intent.category.LAUNCHER" /&gt;
+            &lt;/intent-filter&gt;
+        &lt;/activity&gt;
+    &lt;/application&gt;
+&lt;/manifest&gt;</span></div>
+            </div>
+
+            <h2 class="section-subtitle">🎨 Langkah 3: Menyiapkan Layout Dasar</h2>
+            <p>Mari kita buat layout sederhana untuk aplikasi kita:</p>
+
+            <div class="code-container">
+                <div class="code-header">activity_main.xml</div>
+                <div class="code-block"><span class="code-xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#f8f9fa"&gt;
+
+    </span><span class="code-comment">&lt;!-- Header --&gt;</span><span class="code-xml">
+    &lt;TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="📚 Aplikasi Data Siswa"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#2d3748"
+        android:gravity="center"
+        android:padding="16dp"
+        android:background="@drawable/header_background"
+        android:layout_marginBottom="20dp" /&gt;
+
+    </span><span class="code-comment">&lt;!-- Form Input --&gt;</span><span class="code-xml">
+    &lt;EditText
+        android:id="@+id/etNama"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Masukkan nama siswa"
+        android:padding="12dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/edittext_background" /&gt;
+
+    &lt;EditText
+        android:id="@+id/etKelas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Masukkan kelas"
+        android:padding="12dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/edittext_background" /&gt;
+
+    &lt;EditText
+        android:id="@+id/etNilai"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Masukkan nilai"
+        android:inputType="number"
+        android:padding="12dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/edittext_background" /&gt;
+
+    </span><span class="code-comment">&lt;!-- Tombol Aksi --&gt;</span><span class="code-xml">
+    &lt;LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp"&gt;
+
+        &lt;Button
+            android:id="@+id/btnTambah"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="➕ Tambah"
+            android:layout_marginEnd="5dp"
+            android:background="@drawable/button_primary" /&gt;
+
+        &lt;Button
+            android:id="@+id/btnUpdate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="✏️ Update"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:background="@drawable/button_secondary" /&gt;
+
+        &lt;Button
+            android:id="@+id/btnHapus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="🗑️ Hapus"
+            android:layout_marginStart="5dp"
+            android:background="@drawable/button_danger" /&gt;
+    &lt;/LinearLayout&gt;
+
+    </span><span class="code-comment">&lt;!-- ListView untuk menampilkan data --&gt;</span><span class="code-xml">
+    &lt;ListView
+        android:id="@+id/lvSiswa"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/listview_background"
+        android:padding="8dp" /&gt;
+
+&lt;/LinearLayout&gt;</span></div>
+            </div>
+
+            <div class="info-box">
+                <strong>📝 Catatan:</strong><br>
+                Kita akan membuat drawable resources untuk styling yang lebih menarik di langkah selanjutnya!
+            </div>
+
+            <h2 class="section-subtitle">🎨 Langkah 4: Membuat Drawable Resources</h2>
+            <p>Buat file-file drawable untuk styling yang menarik:</p>
+
+            <div class="code-container">
+                <div class="code-header">res/drawable/header_background.xml</div>
+                <div class="code-block"><span class="code-xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;shape xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+    &lt;gradient
+        android:startColor="#ff9a9e"
+        android:endColor="#fecfef"
+        android:angle="135" /&gt;
+    &lt;corners android:radius="12dp" /&gt;
+&lt;/shape&gt;</span></div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">res/drawable/button_primary.xml</div>
+                <div class="code-block"><span class="code-xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;shape xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+    &lt;gradient
+        android:startColor="#f687b3"
+        android:endColor="#ed64a6"
+        android:angle="135" /&gt;
+    &lt;corners android:radius="8dp" /&gt;
+&lt;/shape&gt;</span></div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">res/drawable/button_secondary.xml</div>
+                <div class="code-block"><span class="code-xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;shape xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+    &lt;gradient
+        android:startColor="#4299e1"
+        android:endColor="#3182ce"
+        android:angle="135" /&gt;
+    &lt;corners android:radius="8dp" /&gt;
+&lt;/shape&gt;</span></div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">res/drawable/button_danger.xml</div>
+                <div class="code-block"><span class="code-xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;shape xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+    &lt;gradient
+        android:startColor="#fc8181"
+        android:endColor="#e53e3e"
+        android:angle="135" /&gt;
+    &lt;corners android:radius="8dp" /&gt;
+&lt;/shape&gt;</span></div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">res/drawable/edittext_background.xml</div>
+                <div class="code-block"><span class="code-xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;shape xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+    &lt;solid android:color="#ffffff" /&gt;
+    &lt;stroke 
+        android:width="1dp" 
+        android:color="#e2e8f0" /&gt;
+    &lt;corners android:radius="8dp" /&gt;
+&lt;/shape&gt;</span></div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">res/drawable/listview_background.xml</div>
+                <div class="code-block"><span class="code-xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;shape xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+    &lt;solid android:color="#ffffff" /&gt;
+    &lt;stroke 
+        android:width="1dp" 
+        android:color="#e2e8f0" /&gt;
+    &lt;corners android:radius="12dp" /&gt;
+&lt;/shape&gt;</span></div>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Penting:</strong><br>
+                Pastikan semua file drawable sudah dibuat sebelum melanjutkan ke langkah berikutnya! Semua file ini diperlukan untuk styling yang proper.
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="navigateToSection('pengenalan')">⬅️ Sebelumnya</button>
+                <button class="nav-btn" onclick="navigateToSection('database')">Selanjutnya ➡️</button>
+            </div>
+        </section>
+
+        <!-- Database Section -->
+        <section class="content-section" id="database">
+            <h1 class="section-title">🗄️ Membuat Database Helper</h1>
+            
+            <p style="font-size: 1.1rem; margin-bottom: 2rem;">Sekarang kita akan membuat Database Helper class untuk mengelola SQLite database! 💾</p>
+
+            <h2 class="section-subtitle">📋 Langkah 1: Membuat Model Class</h2>
+            <p>Pertama, mari buat class model untuk data siswa:</p>
+
+            <div class="code-container">
+                <div class="code-header">Student.java</div>
+                <div class="code-block"><span class="code-keyword">package</span> <span class="code-java">com.example.sqlitestudent</span>;
+
+<span class="code-keyword">public class</span> <span class="code-java">Student</span> {
+    <span class="code-keyword">private int</span> <span class="code-java">id</span>;
+    <span class="code-keyword">private</span> <span class="code-java">String nama</span>;
+    <span class="code-keyword">private</span> <span class="code-java">String kelas</span>;
+    <span class="code-keyword">private int</span> <span class="code-java">nilai</span>;
+
+    <span class="code-comment">// Constructor kosong</span>
+    <span class="code-keyword">public</span> <span class="code-method">Student</span>() {
+    }
+
+    <span class="code-comment">// Constructor dengan parameter</span>
+    <span class="code-keyword">public</span> <span class="code-method">Student</span>(<span class="code-java">String nama, String kelas, int nilai</span>) {
+        <span class="code-keyword">this</span>.<span class="code-java">nama</span> = <span class="code-java">nama</span>;
+        <span class="code-keyword">this</span>.<span class="code-java">kelas</span> = <span class="code-java">kelas</span>;
+        <span class="code-keyword">this</span>.<span class="code-java">nilai</span> = <span class="code-java">nilai</span>;
+    }
+
+    <span class="code-comment">// Constructor lengkap dengan ID</span>
+    <span class="code-keyword">public</span> <span class="code-method">Student</span>(<span class="code-java">int id, String nama, String kelas, int nilai</span>) {
+        <span class="code-keyword">this</span>.<span class="code-java">id</span> = <span class="code-java">id</span>;
+        <span class="code-keyword">this</span>.<span class="code-java">nama</span> = <span class="code-java">nama</span>;
+        <span class="code-keyword">this</span>.<span class="code-java">kelas</span> = <span class="code-java">kelas</span>;
+        <span class="code-keyword">this</span>.<span class="code-java">nilai</span> = <span class="code-java">nilai</span>;
+    }
+
+    <span class="code-comment">// Getter dan Setter methods</span>
+    <span class="code-keyword">public int</span> <span class="code-method">getId</span>() {
+        <span class="code-keyword">return</span> <span class="code-java">id</span>;
+    }
+
+    <span class="code-keyword">public void</span> <span class="code-method">setId</span>(<span class="code-java">int id</span>) {
+        <span class="code-keyword">this</span>.<span class="code-java">id</span> = <span class="code-java">id</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-java">String</span> <span class="code-method">getNama</span>() {
+        <span class="code-keyword">return</span> <span class="code-java">nama</span>;
+    }
+
+    <span class="code-keyword">public void</span> <span class="code-method">setNama</span>(<span class="code-java">String nama</span>) {
+        <span class="code-keyword">this</span>.<span class="code-java">nama</span> = <span class="code-java">nama</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-java">String</span> <span class="code-method">getKelas</span>() {
+        <span class="code-keyword">return</span> <span class="code-java">kelas</span>;
+    }
+
+    <span class="code-keyword">public void</span> <span class="code-method">setKelas</span>(<span class="code-java">String kelas</span>) {
+        <span class="code-keyword">this</span>.<span class="code-java">kelas</span> = <span class="code-java">kelas</span>;
+    }
+
+    <span class="code-keyword">public int</span> <span class="code-method">getNilai</span>() {
+        <span class="code-keyword">return</span> <span class="code-java">nilai</span>;
+    }
+
+    <span class="code-keyword">public void</span> <span class="code-method">setNilai</span>(<span class="code-java">int nilai</span>) {
+        <span class="code-keyword">this</span>.<span class="code-java">nilai</span> = <span class="code-java">nilai</span>;
+    }
+
+    <span class="code-comment">// Method toString untuk debugging</span>
+    <span class="code-keyword">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-java">String</span> <span class="code-method">toString</span>() {
+        <span class="code-keyword">return</span> <span class="code-string">"Student{" +
+                "id=" + id +
+                ", nama='" + nama + '\'' +
+                ", kelas='" + kelas + '\'' +
+                ", nilai=" + nilai +
+                '}'</span>;
+    }
+}</div>
+            </div>
+
+            <h2 class="section-subtitle">🛠️ Langkah 2: Membuat Database Helper Class</h2>
+            <p>Sekarang mari buat class DatabaseHelper yang akan mengelola database SQLite:</p>
+
+            <div class="code-container">
+                <div class="code-header">DatabaseHelper.java</div>
+                <div class="code-block"><span class="code-keyword">package</span> <span class="code-java">com.example.sqlitestudent</span>;
+
+<span class="code-keyword">import</span> <span class="code-java">android.content.ContentValues</span>;
+<span class="code-keyword">import</span> <span class="code-java">android.content.Context</span>;
+<span class="code-keyword">import</span> <span class="code-java">android.database.Cursor</span>;
+<span class="code-keyword">import</span> <span class="code-java">android.database.sqlite.SQLiteDatabase</span>;
+<span class="code-keyword">import</span> <span class="code-java">android.database.sqlite.SQLiteOpenHelper</span>;
+<span class="code-keyword">import</span> <span class="code-java">java.util.ArrayList</span>;
+<span class="code-keyword">import</span> <span class="code-java">java.util.List</span>;
+
+<span class="code-keyword">public class</span> <span class="code-java">DatabaseHelper</span> <span class="code-keyword">extends</span> <span class="code-java">SQLiteOpenHelper</span> {
+
+    <span class="code-comment">// Konstanta untuk database</span>
+    <span class="code-keyword">private static final</span> <span class="code-java">String DATABASE_NAME</span> = <span class="code-string">"student_database"</span>;
+    <span class="code-keyword">private static final int</span> <span class="code-java">DATABASE_VERSION</span> = <span class="code-java">1</span>;
+
+    <span class="code-comment">// Konstanta untuk tabel dan kolom</span>
+    <span class="code-keyword">private static final</span> <span class="code-java">String TABLE_STUDENTS</span> = <span class="code-string">"students"</span>;
+    <span class="code-keyword">private static final</span> <span class="code-java">String COLUMN_ID</span> = <span class="code-string">"id"</span>;
+    <span class="code-keyword">private static final</span> <span class="code-java">String COLUMN_NAMA</span> = <span class="code-string">"nama"</span>;
+    <span class="code-keyword">private static final</span> <span class="code-java">String COLUMN_KELAS</span> = <span class="code-string">"kelas"</span>;
+    <span class="code-keyword">private static final</span> <span class="code-java">String COLUMN_NILAI</span> = <span class="code-string">"nilai"</span>;
+
+    <span class="code-comment">// SQL untuk membuat tabel</span>
+    <span class="code-keyword">private static final</span> <span class="code-java">String CREATE_TABLE_STUDENTS</span> = 
+        <span class="code-string">"CREATE TABLE " + TABLE_STUDENTS + " (" +
+        COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+        COLUMN_NAMA + " TEXT NOT NULL, " +
+        COLUMN_KELAS + " TEXT NOT NULL, " +
+        COLUMN_NILAI + " INTEGER NOT NULL)"</span>;
+
+    <span class="code-comment">// Constructor</span>
+    <span class="code-keyword">public</span> <span class="code-method">DatabaseHelper</span>(<span class="code-java">Context context</span>) {
+        <span class="code-keyword">super</span>(<span class="code-java">context, DATABASE_NAME, null, DATABASE_VERSION</span>);
+    }
+
+    <span class="code-comment">// Method yang dipanggil saat database pertama kali dibuat</span>
+    <span class="code-keyword">@Override</span>
+    <span class="code-keyword">public void</span> <span class="code-method">onCreate</span>(<span class="code-java">SQLiteDatabase db</span>) {
+        <span class="code-java">db</span>.<span class="code-method">execSQL</span>(<span class="code-java">CREATE_TABLE_STUDENTS</span>);
+    }
+
+    <span class="code-comment">// Method yang dipanggil saat database di-upgrade</span>
+    <span class="code-keyword">@Override</span>
+    <span class="code-keyword">public void</span> <span class="code-method">onUpgrade</span>(<span class="code-java">SQLiteDatabase db, int oldVersion, int newVersion</span>) {
+        <span class="code-java">db</span>.<span class="code-method">execSQL</span>(<span class="code-string">"DROP TABLE IF EXISTS " + TABLE_STUDENTS</span>);
+        <span class="code-method">onCreate</span>(<span class="code-java">db</span>);
+    }
+}</div>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 Penjelasan Kode:</strong><br>
+                • <strong>SQLiteOpenHelper</strong>: Class parent yang memudahkan pengelolaan database<br>
+                • <strong>onCreate()</strong>: Dipanggil saat database pertama kali dibuat<br>
+                • <strong>onUpgrade()</strong>: Dipanggil saat versi database berubah<br>
+                • <strong>PRIMARY KEY AUTOINCREMENT</strong>: ID otomatis bertambah
+            </div>
+
+            <h2 class="section-subtitle">🔧 Langkah 3: Menambahkan Method CRUD Dasar</h2>
+            <p>Mari tambahkan method untuk operasi database dasar:</p>
+
+            <div class="code-container">
+                <div class="code-header">DatabaseHelper.java (lanjutan)</div>
+                <div class="code-block">    <span class="code-comment">// Method untuk menambah data siswa</span>
+    <span class="code-keyword">public long</span> <span class="code-method">addStudent</span>(<span class="code-java">Student student</span>) {
+        <span class="code-java">SQLiteDatabase db</span> = <span class="code-keyword">this</span>.<span class="code-method">getWritableDatabase</span>();
+        
+        <span class="code-java">ContentValues values</span> = <span class="code-keyword">new</span> <span class="code-method">ContentValues</span>();
+        <span class="code-java">values</span>.<span class="code-method">put</span>(<span class="code-java">COLUMN_NAMA</span>, <span class="code-java">student</span>.<span class="code-method">getNama</span>());
+        <span class="code-java">values</span>.<span class="code-method">put</span>(<span class="code-java">COLUMN_KELAS</span>, <span class="code-java">student</span>.<span class="code-method">getKelas</span>());
+        <span class="code-java">values</span>.<span class="code-method">put</span>(<span class="code-java">COLUMN_NILAI</span>, <span class="code-java">student</span>.<span class="code-method">getNilai</span>());
+        
+        <span class="code-comment">// Insert data dan return ID</span>
+        <span class="code-keyword">long</span> <span class="code-java">id</span> = <span class="code-java">db</span>.<span class="code-method">insert</span>(<span class="code-java">TABLE_STUDENTS</span>, <span class="code-keyword">null</span>, <span class="code-java">values</span>);
+        <span class="code-java">db</span>.<span class="code-method">close</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-java">id</span>;
+    }
+
+    <span class="code-comment">// Method untuk mengambil semua data siswa</span>
+    <span class="code-keyword">public</span> <span class="code-java">List&lt;Student&gt;</span> <span class="code-method">getAllStudents</span>() {
+        <span class="code-java">List&lt;Student&gt; studentList</span> = <span class="code-keyword">new</span> <span class="code-java">ArrayList&lt;&gt;</span>();
+        
+        <span class="code-java">String selectQuery</span> = <span class="code-string">"SELECT * FROM " + TABLE_STUDENTS</span>;
+        <span class="code-java">SQLiteDatabase db</span> = <span class="code-keyword">this</span>.<span class="code-method">getReadableDatabase</span>();
+        <span class="code-java">Cursor cursor</span> = <span class="code-java">db</span>.<span class="code-method">rawQuery</span>(<span class="code-java">selectQuery</span>, <span class="code-keyword">null</span>);
+        
+        <span class="code-comment">// Loop melalui semua baris dan tambahkan ke list</span>
+        <span class="code-keyword">if</span> (<span class="code-java">cursor</span>.<span class="code-method">moveToFirst</span>()) {
+            <span class="code-keyword">do</span> {
+                <span class="code-java">Student student</span> = <span class="code-keyword">new</span> <span class="code-method">Student</span>();
+                <span class="code-java">student</span>.<span class="code-method">setId</span>(<span class="code-java">cursor</span>.<span class="code-method">getInt</span>(<span class="code-java">cursor</span>.<span class="code-method">getColumnIndexOrThrow</span>(<span class="code-java">COLUMN_ID</span>)));
+                <span class="code-java">student</span>.<span class="code-method">setNama</span>(<span class="code-java">cursor</span>.<span class="code-method">getString</span>(<span class="code-java">cursor</span>.<span class="code-method">getColumnIndexOrThrow</span>(<span class="code-java">COLUMN_NAMA</span>)));
+                <span class="code-java">student</span>.<span class="code-method">setKelas</span>(<span class="code-java">cursor</span>.<span class="code-method">getString</span>(<span class="code-java">cursor</span>.<span class="code-method">getColumnIndexOrThrow</span>(<span class="code-java">COLUMN_KELAS</span>)));
+                <span class="code-java">student</span>.<span class="code-method">setNilai</span>(<span class="code-java">cursor</span>.<span class="code-method">getInt</span>(<span class="code-java">cursor</span>.<span class="code-method">getColumnIndexOrThrow</span>(<span class="code-java">COLUMN_NILAI</span>)));
+                
+                <span class="code-java">studentList</span>.<span class="code-method">add</span>(<span class="code-java">student</span>);
+            } <span class="code-keyword">while</span> (<span class="code-java">cursor</span>.<span class="code-method">moveToNext</span>());
+        }
+        
+        <span class="code-java">cursor</span>.<span class="code-method">close</span>();
+        <span class="code-java">db</span>.<span class="code-method">close</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-java">studentList</span>;
+    }</div>
+            </div>
+
+            <div class="tip-box">
+                <strong>🎯 Tips Best Practice:</strong><br>
+                • Selalu tutup database dan cursor setelah digunakan untuk menghemat memori<br>
+                • Gunakan try-with-resources (Java 7+) untuk auto-close resources<br>
+                • Hindari operasi database di UI thread untuk data besar<br>
+                • Gunakan getColumnIndexOrThrow() untuk error handling yang lebih baik
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="navigateToSection('setup')">⬅️ Sebelumnya</button>
+                <button class="nav-btn" onclick="navigateToSection('crud')">Selanjutnya ➡️</button>
+            </div>
+        </section>
+
+        <!-- CRUD Section -->
+        <section class="content-section" id="crud">
+            <h1 class="section-title">✏️ Implementasi CRUD Operations</h1>
+            
+            <p style="font-size: 1.1rem; margin-bottom: 2rem;">Mari lengkapi DatabaseHelper dengan operasi CRUD (Create, Read, Update, Delete) yang lengkap! 🔧</p>
+
+            <h2 class="section-subtitle">📝 Langkah 1: Melengkapi Method CRUD</h2>
+            <p>Tambahkan method Update dan Delete ke DatabaseHelper:</p>
+
+            <div class="code-container">
+                <div class="code-header">DatabaseHelper.java (method Update & Delete)</div>
+                <div class="code-block">    <span class="code-comment">// Method untuk update data siswa</span>
+    <span class="code-keyword">public int</span> <span class="code-method">updateStudent</span>(<span class="code-java">Student student</span>) {
+        <span class="code-java">SQLiteDatabase db</span> = <span class="code-keyword">this</span>.<span class="code-method">getWritableDatabase</span>();
+        
+        <span class="code-java">ContentValues values</span> = <span class="code-keyword">new</span> <span class="code-method">ContentValues</span>();
+        <span class="code-java">values</span>.<span class="code-method">put</span>(<span class="code-java">COLUMN_NAMA</span>, <span class="code-java">student</span>.<span class="code-method">getNama</span>());
+        <span class="code-java">values</span>.<span class="code-method">put</span>(<span class="code-java">COLUMN_KELAS</span>, <span class="code-java">student</span>.<span class="code-method">getKelas</span>());
+        <span class="code-java">values</span>.<span class="code-method">put</span>(<span class="code-java">COLUMN_NILAI</span>, <span class="code-java">student</span>.<span class="code-method">getNilai</span>());
+        
+        <span class="code-comment">// Update baris berdasarkan ID</span>
+        <span class="code-keyword">int</span> <span class="code-java">rowsAffected</span> = <span class="code-java">db</span>.<span class="code-method">update</span>(<span class="code-java">TABLE_STUDENTS</span>, <span class="code-java">values</span>, 
+                <span class="code-java">COLUMN_ID</span> + <span class="code-string">" = ?"</span>, 
+                <span class="code-keyword">new</span> <span class="code-java">String[]{String.valueOf(student.getId())}</span>);
+        
+        <span class="code-java">db</span>.<span class="code-method">close</span>();
+        <span class="code-keyword">return</span> <span class="code-java">rowsAffected</span>;
+    }
+
+    <span class="code-comment">// Method untuk menghapus data siswa berdasarkan ID</span>
+    <span class="code-keyword">public int</span> <span class="code-method">deleteStudent</span>(<span class="code-keyword">int</span> <span class="code-java">id</span>) {
+        <span class="code-java">SQLiteDatabase db</span> = <span class="code-keyword">this</span>.<span class="code-method">getWritableDatabase</span>();
+        
+        <span class="code-keyword">int</span> <span class="code-java">rowsDeleted</span> = <span class="code-java">db</span>.<span class="code-method">delete</span>(<span class="code-java">TABLE_STUDENTS</span>, 
+                <span class="code-java">COLUMN_ID</span> + <span class="code-string">" = ?"</span>, 
+                <span class="code-keyword">new</span> <span class="code-java">String[]{String.valueOf(id)}</span>);
+        
+        <span class="code-java">db</span>.<span class="code-method">close</span>();
+        <span class="code-keyword">return</span> <span class="code-java">rowsDeleted</span>;
+    }
+
+    <span class="code-comment">// Method untuk mengambil satu siswa berdasarkan ID</span>
+    <span class="code-keyword">public</span> <span class="code-java">Student</span> <span class="code-method">getStudent</span>(<span class="code-keyword">int</span> <span class="code-java">id</span>) {
+        <span class="code-java">SQLiteDatabase db</span> = <span class="code-keyword">this</span>.<span class="code-method">getReadableDatabase</span>();
+        
+        <span class="code-java">Cursor cursor</span> = <span class="code-java">db</span>.<span class="code-method">query</span>(<span class="code-java">TABLE_STUDENTS</span>,
+                <span class="code-keyword">new</span> <span class="code-java">String[]{COLUMN_ID, COLUMN_NAMA, COLUMN_KELAS, COLUMN_NILAI}</span>,
+                <span class="code-java">COLUMN_ID</span> + <span class="code-string">" = ?"</span>,
+                <span class="code-keyword">new</span> <span class="code-java">String[]{String.valueOf(id)}</span>,
+                <span class="code-keyword">null</span>, <span class="code-keyword">null</span>, <span class="code-keyword">null</span>);
+        
+        <span class="code-java">Student student</span> = <span class="code-keyword">null</span>;
+        <span class="code-keyword">if</span> (<span class="code-java">cursor</span> != <span class="code-keyword">null</span> && <span class="code-java">cursor</span>.<span class="code-method">moveToFirst</span>()) {
+            <span class="code-java">student</span> = <span class="code-keyword">new</span> <span class="code-method">Student</span>(
+                <span class="code-java">cursor</span>.<span class="code-method">getInt</span>(<span class="code-java">cursor</span>.<span class="code-method">getColumnIndexOrThrow</span>(<span class="code-java">COLUMN_ID</span>)),
+                <span class="code-java">cursor</span>.<span class="code-method">getString</span>(<span class="code-java">cursor</span>.<span class="code-method">getColumnIndexOrThrow</span>(<span class="code-java">COLUMN_NAMA</span>)),
+                <span class="code-java">cursor</span>.<span class="code-method">getString</span>(<span class="code-java">cursor</span>.<span class="code-method">getColumnIndexOrThrow</span>(<span class="code-java">COLUMN_KELAS</span>)),
+                <span class="code-java">cursor</span>.<span class="code-method">getInt</span>(<span class="code-java">cursor</span>.<span class="code-method">getColumnIndexOrThrow</span>(<span class="code-java">COLUMN_NILAI</span>))
+            );
+            <span class="code-java">cursor</span>.<span class="code-method">close</span>();
+        }
+        
+        <span class="code-java">db</span>.<span class="code-method">close</span>();
+        <span class="code-keyword">return</span> <span class="code-java">student</span>;
+    }
+
+    <span class="code-comment">// Method untuk menghitung jumlah siswa</span>
+    <span class="code-keyword">public int</span> <span class="code-method">getStudentCount</span>() {
+        <span class="code-java">String countQuery</span> = <span class="code-string">"SELECT COUNT(*) FROM " + TABLE_STUDENTS</span>;
+        <span class="code-java">SQLiteDatabase db</span> = <span class="code-keyword">this</span>.<span class="code-method">getReadableDatabase</span>();
+        <span class="code-java">Cursor cursor</span> = <span class="code-java">db</span>.<span class="code-method">rawQuery</span>(<span class="code-java">countQuery</span>, <span class="code-keyword">null</span>);
+        
+        <span class="code-keyword">int</span> <span class="code-java">count</span> = <span class="code-java">0</span>;
+        <span class="code-keyword">if</span> (<span class="code-java">cursor</span>.<span class="code-method">moveToFirst</span>()) {
+            <span class="code-java">count</span> = <span class="code-java">cursor</span>.<span class="code-method">getInt</span>(<span class="code-java">0</span>);
+        }
+        
+        <span class="code-java">cursor</span>.<span class="code-method">close</span>();
+        <span class="code-java">db</span>.<span class="code-method">close</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-java">count</span>;
+    }</div>
+            </div>
+
+            <h2 class="section-subtitle">🎨 Langkah 2: Membuat Custom Adapter</h2>
+            <p>Buat adapter khusus untuk menampilkan data siswa di ListView:</p>
+
+            <div class="code-container">
+                <div class="code-header">StudentAdapter.java</div>
+                <div class="code-block"><span class="code-keyword">package</span> <span class="code-java">com.example.sqlitestudent</span>;
+
+<span class="code-keyword">import</span> <span class="code-java">android.content.Context</span>;
+<span class="code-keyword">import</span> <span class="code-java">android.view.LayoutInflater</span>;
+<span class="code-keyword">import</span> <span class="code-java">android.view.View</span>;
+<span class="code-keyword">import</span> <span class="code-java">android.view.ViewGroup</span>;
+<span class="code-keyword">import</span> <span class="code-java">android.widget.BaseAdapter</span>;
+<span class="code-keyword">import</span> <span class="code-java">android.widget.TextView</span>;
+<span class="code-keyword">import</span> <span class="code-java">java.util.List</span>;
+
+<span class="code-keyword">public class</span> <span class="code-java">StudentAdapter</span> <span class="code-keyword">extends</span> <span class="code-java">BaseAdapter</span> {
+    <span class="code-keyword">private</span> <span class="code-java">Context context</span>;
+    <span class="code-keyword">private</span> <span class="code-java">List&lt;Student&gt; studentList</span>;
+    <span class="code-keyword">private</span> <span class="code-java">LayoutInflater inflater</span>;
+
+    <span class="code-keyword">public</span> <span class="code-method">StudentAdapter</span>(<span class="code-java">Context context, List&lt;Student&gt; studentList</span>) {
+        <span class="code-keyword">this</span>.<span class="code-java">context</span> = <span class="code-java">context</span>;
+        <span class="code-keyword">this</span>.<span class="code-java">studentList</span> = <span class="code-java">studentList</span>;
+        <span class="code-keyword">this</span>.<span class="code-java">inflater</span> = <span class="code-java">LayoutInflater</span>.<span class="code-method">from</span>(<span class="code-java">context</span>);
+    }
+
+    <span class="code-keyword">@Override</span>
+    <span class="code-keyword">public int</span> <span class="code-method">getCount</span>() {
+        <span class="code-keyword">return</span> <span class="code-java">studentList</span>.<span class="code-method">size</span>();
+    }
+
+    <span class="code-keyword">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-java">Object</span> <span class="code-method">getItem</span>(<span class="code-keyword">int</span> <span class="code-java">position</span>) {
+        <span class="code-keyword">return</span> <span class="code-java">studentList</span>.<span class="code-method">get</span>(<span class="code-java">position</span>);
+    }
+
+    <span class="code-keyword">@Override</span>
+    <span class="code-keyword">public long</span> <span class="code-method">getItemId</span>(<span class="code-keyword">int</span> <span class="code-java">position</span>) {
+        <span class="code-keyword">return</span> <span class="code-java">studentList</span>.<span class="code-method">get</span>(<span class="code-java">position</span>).<span class="code-method">getId</span>();
+    }
+
+    <span class="code-keyword">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-java">View</span> <span class="code-method">getView</span>(<span class="code-keyword">int</span> <span class="code-java">position, View convertView, ViewGroup parent</span>) {
+        <span class="code-java">ViewHolder holder</span>;
+
+        <span class="code-keyword">if</span> (<span class="code-java">convertView</span> == <span class="code-keyword">null</span>) {
+            <span class="code-java">convertView</span> = <span class="code-java">inflater</span>.<span class="code-method">inflate</span>(<span class="code-java">R.layout.item_student</span>, <span class="code-java">parent</span>, <span class="code-keyword">false</span>);
+            <span class="code-java">holder</span> = <span class="code-keyword">new</span> <span class="code-method">ViewHolder</span>();
+            <span class="code-java">holder</span>.<span class="code-java">tvNama</span> = <span class="code-java">convertView</span>.<span class="code-method">findViewById</span>(<span class="code-java">R.id.tvNama</span>);
+            <span class="code-java">holder</span>.<span class="code-java">tvKelas</span> = <span class="code-java">convertView</span>.<span class="code-method">findViewById</span>(<span class="code-java">R.id.tvKelas</span>);
+            <span class="code-java">holder</span>.<span class="code-java">tvNilai</span> = <span class="code-java">convertView</span>.<span class="code-method">findViewById</span>(<span class="code-java">R.id.tvNilai</span>);
+            <span class="code-java">convertView</span>.<span class="code-method">setTag</span>(<span class="code-java">holder</span>);
+        } <span class="code-keyword">else</span> {
+            <span class="code-java">holder</span> = (<span class="code-java">ViewHolder</span>) <span class="code-java">convertView</span>.<span class="code-method">getTag</span>();
+        }
+
+        <span class="code-java">Student student</span> = <span class="code-java">studentList</span>.<span class="code-method">get</span>(<span class="code-java">position</span>);
+        <span class="code-java">holder</span>.<span class="code-java">tvNama</span>.<span class="code-method">setText</span>(<span class="code-string">"👤 " + student.getNama()</span>);
+        <span class="code-java">holder</span>.<span class="code-java">tvKelas</span>.<span class="code-method">setText</span>(<span class="code-string">"🏫 Kelas: " + student.getKelas()</span>);
+        <span class="code-java">holder</span>.<span class="code-java">tvNilai</span>.<span class="code-method">setText</span>(<span class="code-string">"📊 Nilai: " + student.getNilai()</span>);
+
+        <span class="code-keyword">return</span> <span class="code-java">convertView</span>;
+    }
+
+    <span class="code-comment">// ViewHolder pattern untuk performa yang lebih baik</span>
+    <span class="code-keyword">static class</span> <span class="code-java">ViewHolder</span> {
+        <span class="code-java">TextView tvNama</span>;
+        <span class="code-java">TextView tvKelas</span>;
+        <span class="code-java">TextView tvNilai</span>;
+    }
+
+    <span class="code-comment">// Method untuk update data</span>
+    <span class="code-keyword">public void</span> <span class="code-method">updateData</span>(<span class="code-java">List&lt;Student&gt; newStudentList</span>) {
+        <span class="code-keyword">this</span>.<span class="code-java">studentList</span> = <span class="code-java">newStudentList</span>;
+        <span class="code-method">notifyDataSetChanged</span>();
+    }
+}</div>
+            </div>
+
+            <h2 class="section-subtitle">📱 Langkah 3: Membuat Layout Item</h2>
+            <p>Buat layout untuk setiap item dalam ListView:</p>
+
+            <div class="code-container">
+                <div class="code-header">res/layout/item_student.xml</div>
+                <div class="code-block"><span class="code-xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:layout_margin="4dp"
+    android:background="@drawable/item_background"
+    android:elevation="2dp"&gt;
+
+    &lt;TextView
+        android:id="@+id/tvNama"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="👤 Nama Siswa"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#2d3748"
+        android:layout_marginBottom="4dp" /&gt;
+
+    &lt;LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"&gt;
+
+        &lt;TextView
+            android:id="@+id/tvKelas"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="🏫 Kelas: XII RPL"
+            android:textSize="14sp"
+            android:textColor="#4a5568" /&gt;
+
+        &lt;TextView
+            android:id="@+id/tvNilai"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📊 Nilai: 85"
+            android:textSize="14sp"
+            android:textColor="#4a5568"
+            android:textStyle="bold" /&gt;
+    &lt;/LinearLayout&gt;
+
+&lt;/LinearLayout&gt;</span></div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">res/drawable/item_background.xml</div>
+                <div class="code-block"><span class="code-xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;shape xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+    &lt;solid android:color="#ffffff" /&gt;
+    &lt;stroke 
+        android:width="1dp" 
+        android:color="#e2e8f0" /&gt;
+    &lt;corners android:radius="8dp" /&gt;
+&lt;/shape&gt;</span></div>
+            </div>
+
+            <div class="info-box">
+                <strong>🎨 Styling Tips:</strong><br>
+                File <code>item_background.xml</code> memberikan background yang menarik pada setiap item di ListView dengan border dan corner radius yang konsisten!
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="navigateToSection('database')">⬅️ Sebelumnya</button>
+                <button class="nav-btn" onclick="navigateToSection('ui')">Selanjutnya ➡️</button>
+            </div>
+        </section>
+
+        <!-- UI Integration Section -->
+        <section class="content-section" id="ui">
+            <h1 class="section-title">🎨 Integrasi dengan UI Android</h1>
+            
+            <p style="font-size: 1.1rem; margin-bottom: 2rem;">Sekarang mari kita hubungkan database dengan tampilan aplikasi Android! 🔗</p>
+
+            <h2 class="section-subtitle">📱 Langkah 1: Implementasi MainActivity</h2>
+            <p>Mari lengkapi MainActivity dengan fungsi CRUD yang lengkap:</p>
+
+            <div class="code-container">
+                <div class="code-header">MainActivity.java</div>
+                <div class="code-block"><span class="code-keyword">package</span> <span class="code-java">com.example.sqlitestudent</span>;
+
+<span class="code-keyword">import</span> <span class="code-java">android.os.Bundle</span>;
+<span class="code-keyword">import</span> <span class="code-java">android.view.View</span>;
+<span class="code-keyword">import</span> <span class="code-java">android.widget.AdapterView</span>;
+<span class="code-keyword">import</span> <span class="code-java">android.widget.Button</span>;
+<span class="code-keyword">import</span> <span class="code-java">android.widget.EditText</span>;
+<span class="code-keyword">import</span> <span class="code-java">android.widget.ListView</span>;
+<span class="code-keyword">import</span> <span class="code-java">android.widget.Toast</span>;
+<span class="code-keyword">import</span> <span class="code-java">androidx.appcompat.app.AlertDialog</span>;
+<span class="code-keyword">import</span> <span class="code-java">androidx.appcompat.app.AppCompatActivity</span>;
+<span class="code-keyword">import</span> <span class="code-java">java.util.List</span>;
+
+<span class="code-keyword">public class</span> <span class="code-java">MainActivity</span> <span class="code-keyword">extends</span> <span class="code-java">AppCompatActivity</span> {
+
+    <span class="code-comment">// Deklarasi variabel UI</span>
+    <span class="code-keyword">private</span> <span class="code-java">EditText etNama, etKelas, etNilai</span>;
+    <span class="code-keyword">private</span> <span class="code-java">Button btnTambah, btnUpdate, btnHapus</span>;
+    <span class="code-keyword">private</span> <span class="code-java">ListView lvSiswa</span>;
+    
+    <span class="code-comment">// Database dan Adapter</span>
+    <span class="code-keyword">private</span> <span class="code-java">DatabaseHelper dbHelper</span>;
+    <span class="code-keyword">private</span> <span class="code-java">StudentAdapter adapter</span>;
+    <span class="code-keyword">private</span> <span class="code-java">List&lt;Student&gt; studentList</span>;
+    
+    <span class="code-comment">// Variabel untuk menyimpan siswa yang dipilih</span>
+    <span class="code-keyword">private</span> <span class="code-java">Student selectedStudent</span>;
+
+    <span class="code-keyword">@Override</span>
+    <span class="code-keyword">protected void</span> <span class="code-method">onCreate</span>(<span class="code-java">Bundle savedInstanceState</span>) {
+        <span class="code-keyword">super</span>.<span class="code-method">onCreate</span>(<span class="code-java">savedInstanceState</span>);
+        <span class="code-method">setContentView</span>(<span class="code-java">R.layout.activity_main</span>);
+
+        <span class="code-comment">// Inisialisasi database helper</span>
+        <span class="code-java">dbHelper</span> = <span class="code-keyword">new</span> <span class="code-method">DatabaseHelper</span>(<span class="code-keyword">this</span>);
+
+        <span class="code-comment">// Inisialisasi UI components</span>
+        <span class="code-method">initViews</span>();
+        
+        <span class="code-comment">// Setup event listeners</span>
+        <span class="code-method">setupEventListeners</span>();
+        
+        <span class="code-comment">// Load data awal</span>
+        <span class="code-method">loadStudentData</span>();
+    }
+
+    <span class="code-keyword">@Override</span>
+    <span class="code-keyword">protected void</span> <span class="code-method">onDestroy</span>() {
+        <span class="code-keyword">super</span>.<span class="code-method">onDestroy</span>();
+        <span class="code-comment">// Tutup database helper saat activity dihancurkan</span>
+        <span class="code-keyword">if</span> (<span class="code-java">dbHelper</span> != <span class="code-keyword">null</span>) {
+            <span class="code-java">dbHelper</span>.<span class="code-method">close</span>();
+        }
+    }
+
+    <span class="code-keyword">private void</span> <span class="code-method">initViews</span>() {
+        <span class="code-java">etNama</span> = <span class="code-method">findViewById</span>(<span class="code-java">R.id.etNama</span>);
+        <span class="code-java">etKelas</span> = <span class="code-method">findViewById</span>(<span class="code-java">R.id.etKelas</span>);
+        <span class="code-java">etNilai</span> = <span class="code-method">findViewById</span>(<span class="code-java">R.id.etNilai</span>);
+        
+        <span class="code-java">btnTambah</span> = <span class="code-method">findViewById</span>(<span class="code-java">R.id.btnTambah</span>);
+        <span class="code-java">btnUpdate</span> = <span class="code-method">findViewById</span>(<span class="code-java">R.id.btnUpdate</span>);
+        <span class="code-java">btnHapus</span> = <span class="code-method">findViewById</span>(<span class="code-java">R.id.btnHapus</span>);
+        
+        <span class="code-java">lvSiswa</span> = <span class="code-method">findViewById</span>(<span class="code-java">R.id.lvSiswa</span>);
+        
+        <span class="code-comment">// Set initial button states</span>
+        <span class="code-java">btnUpdate</span>.<span class="code-method">setEnabled</span>(<span class="code-keyword">false</span>);
+        <span class="code-java">btnHapus</span>.<span class="code-method">setEnabled</span>(<span class="code-keyword">false</span>);
+    }</div>
+            </div>
+
+            <h2 class="section-subtitle">🔧 Langkah 2: Implementasi Event Listeners</h2>
+            <p>Tambahkan method untuk menangani event dari tombol dan ListView:</p>
+
+            <div class="code-container">
+                <div class="code-header">MainActivity.java (Event Listeners)</div>
+                <div class="code-block">    <span class="code-keyword">private void</span> <span class="code-method">setupEventListeners</span>() {
+        <span class="code-comment">// Event listener untuk tombol Tambah</span>
+        <span class="code-java">btnTambah</span>.<span class="code-method">setOnClickListener</span>(<span class="code-keyword">new</span> <span class="code-java">View.OnClickListener</span>() {
+            <span class="code-keyword">@Override</span>
+            <span class="code-keyword">public void</span> <span class="code-method">onClick</span>(<span class="code-java">View v</span>) {
+                <span class="code-method">tambahSiswa</span>();
+            }
+        });
+
+        <span class="code-comment">// Event listener untuk tombol Update</span>
+        <span class="code-java">btnUpdate</span>.<span class="code-method">setOnClickListener</span>(<span class="code-keyword">new</span> <span class="code-java">View.OnClickListener</span>() {
+            <span class="code-keyword">@Override</span>
+            <span class="code-keyword">public void</span> <span class="code-method">onClick</span>(<span class="code-java">View v</span>) {
+                <span class="code-method">updateSiswa</span>();
+            }
+        });
+
+        <span class="code-comment">// Event listener untuk tombol Hapus</span>
+        <span class="code-java">btnHapus</span>.<span class="code-method">setOnClickListener</span>(<span class="code-keyword">new</span> <span class="code-java">View.OnClickListener</span>() {
+            <span class="code-keyword">@Override</span>
+            <span class="code-keyword">public void</span> <span class="code-method">onClick</span>(<span class="code-java">View v</span>) {
+                <span class="code-method">hapusSiswa</span>();
+            }
+        });
+
+        <span class="code-comment">// Event listener untuk ListView item click</span>
+        <span class="code-java">lvSiswa</span>.<span class="code-method">setOnItemClickListener</span>(<span class="code-keyword">new</span> <span class="code-java">AdapterView.OnItemClickListener</span>() {
+            <span class="code-keyword">@Override</span>
+            <span class="code-keyword">public void</span> <span class="code-method">onItemClick</span>(<span class="code-java">AdapterView&lt;?&gt; parent, View view, int position, long id</span>) {
+                <span class="code-java">selectedStudent</span> = <span class="code-java">studentList</span>.<span class="code-method">get</span>(<span class="code-java">position</span>);
+                <span class="code-method">fillFormWithSelectedStudent</span>();
+            }
+        });
+    }
+
+    <span class="code-keyword">private void</span> <span class="code-method">fillFormWithSelectedStudent</span>() {
+        <span class="code-keyword">if</span> (<span class="code-java">selectedStudent</span> != <span class="code-keyword">null</span>) {
+            <span class="code-java">etNama</span>.<span class="code-method">setText</span>(<span class="code-java">selectedStudent</span>.<span class="code-method">getNama</span>());
+            <span class="code-java">etKelas</span>.<span class="code-method">setText</span>(<span class="code-java">selectedStudent</span>.<span class="code-method">getKelas</span>());
+            <span class="code-java">etNilai</span>.<span class="code-method">setText</span>(<span class="code-java">String.valueOf(selectedStudent.getNilai())</span>);
+            
+            <span class="code-comment">// Enable tombol Update dan Hapus</span>
+            <span class="code-java">btnUpdate</span>.<span class="code-method">setEnabled</span>(<span class="code-keyword">true</span>);
+            <span class="code-java">btnHapus</span>.<span class="code-method">setEnabled</span>(<span class="code-keyword">true</span>);
+            
+            <span class="code-comment">// Ubah text tombol Tambah menjadi "Batal"</span>
+            <span class="code-java">btnTambah</span>.<span class="code-method">setText</span>(<span class="code-string">"❌ Batal"</span>);
+        }
+    }</div>
+            </div>
+
+            <h2 class="section-subtitle">💾 Langkah 3: Implementasi Method CRUD</h2>
+            <p>Buat method untuk operasi Create, Read, Update, Delete:</p>
+
+            <div class="code-container">
+                <div class="code-header">MainActivity.java (CRUD Methods)</div>
+                <div class="code-block">    <span class="code-keyword">private void</span> <span class="code-method">tambahSiswa</span>() {
+        <span class="code-comment">// Jika sedang dalam mode edit, batalkan</span>
+        <span class="code-keyword">if</span> (<span class="code-java">selectedStudent</span> != <span class="code-keyword">null</span>) {
+            <span class="code-method">clearForm</span>();
+            <span class="code-keyword">return</span>;
+        }
+
+        <span class="code-comment">// Validasi input</span>
+        <span class="code-keyword">if</span> (!<span class="code-method">validateInput</span>()) {
+            <span class="code-keyword">return</span>;
+        }
+
+        <span class="code-comment">// Buat object Student baru</span>
+        <span class="code-java">String nama</span> = <span class="code-java">etNama</span>.<span class="code-method">getText</span>().<span class="code-method">toString</span>().<span class="code-method">trim</span>();
+        <span class="code-java">String kelas</span> = <span class="code-java">etKelas</span>.<span class="code-method">getText</span>().<span class="code-method">toString</span>().<span class="code-method">trim</span>();
+        <span class="code-keyword">int</span> <span class="code-java">nilai</span> = <span class="code-java">Integer.parseInt(etNilai.getText().toString().trim())</span>;
+
+        <span class="code-java">Student student</span> = <span class="code-keyword">new</span> <span class="code-method">Student</span>(<span class="code-java">nama, kelas, nilai</span>);
+
+        <span class="code-comment">// Simpan ke database</span>
+        <span class="code-keyword">long</span> <span class="code-java">result</span> = <span class="code-java">dbHelper</span>.<span class="code-method">addStudent</span>(<span class="code-java">student</span>);
+
+        <span class="code-keyword">if</span> (<span class="code-java">result</span> != <span class="code-java">-1</span>) {
+            <span class="code-java">Toast</span>.<span class="code-method">makeText</span>(<span class="code-keyword">this</span>, <span class="code-string">"✅ Data siswa berhasil ditambahkan!"</span>, <span class="code-java">Toast.LENGTH_SHORT</span>).<span class="code-method">show</span>();
+            <span class="code-method">clearForm</span>();
+            <span class="code-method">loadStudentData</span>();
+        } <span class="code-keyword">else</span> {
+            <span class="code-java">Toast</span>.<span class="code-method">makeText</span>(<span class="code-keyword">this</span>, <span class="code-string">"❌ Gagal menambahkan data!"</span>, <span class="code-java">Toast.LENGTH_SHORT</span>).<span class="code-method">show</span>();
+        }
+    }
+
+    <span class="code-keyword">private void</span> <span class="code-method">updateSiswa</span>() {
+        <span class="code-keyword">if</span> (<span class="code-java">selectedStudent</span> == <span class="code-keyword">null</span>) {
+            <span class="code-java">Toast</span>.<span class="code-method">makeText</span>(<span class="code-keyword">this</span>, <span class="code-string">"⚠️ Pilih siswa yang akan diupdate!"</span>, <span class="code-java">Toast.LENGTH_SHORT</span>).<span class="code-method">show</span>();
+            <span class="code-keyword">return</span>;
+        }
+
+        <span class="code-keyword">if</span> (!<span class="code-method">validateInput</span>()) {
+            <span class="code-keyword">return</span>;
+        }
+
+        <span class="code-comment">// Update data siswa</span>
+        <span class="code-java">selectedStudent</span>.<span class="code-method">setNama</span>(<span class="code-java">etNama</span>.<span class="code-method">getText</span>().<span class="code-method">toString</span>().<span class="code-method">trim</span>());
+        <span class="code-java">selectedStudent</span>.<span class="code-method">setKelas</span>(<span class="code-java">etKelas</span>.<span class="code-method">getText</span>().<span class="code-method">toString</span>().<span class="code-method">trim</span>());
+        <span class="code-java">selectedStudent</span>.<span class="code-method">setNilai</span>(<span class="code-java">Integer.parseInt(etNilai.getText().toString().trim())</span>);
+
+        <span class="code-keyword">int</span> <span class="code-java">result</span> = <span class="code-java">dbHelper</span>.<span class="code-method">updateStudent</span>(<span class="code-java">selectedStudent</span>);
+
+        <span class="code-keyword">if</span> (<span class="code-java">result</span> > <span class="code-java">0</span>) {
+            <span class="code-java">Toast</span>.<span class="code-method">makeText</span>(<span class="code-keyword">this</span>, <span class="code-string">"✅ Data siswa berhasil diupdate!"</span>, <span class="code-java">Toast.LENGTH_SHORT</span>).<span class="code-method">show</span>();
+            <span class="code-method">clearForm</span>();
+            <span class="code-method">loadStudentData</span>();
+        } <span class="code-keyword">else</span> {
+            <span class="code-java">Toast</span>.<span class="code-method">makeText</span>(<span class="code-keyword">this</span>, <span class="code-string">"❌ Gagal mengupdate data!"</span>, <span class="code-java">Toast.LENGTH_SHORT</span>).<span class="code-method">show</span>();
+        }
+    }
+
+    <span class="code-keyword">private void</span> <span class="code-method">hapusSiswa</span>() {
+        <span class="code-keyword">if</span> (<span class="code-java">selectedStudent</span> == <span class="code-keyword">null</span>) {
+            <span class="code-java">Toast</span>.<span class="code-method">makeText</span>(<span class="code-keyword">this</span>, <span class="code-string">"⚠️ Pilih siswa yang akan dihapus!"</span>, <span class="code-java">Toast.LENGTH_SHORT</span>).<span class="code-method">show</span>();
+            <span class="code-keyword">return</span>;
+        }
+
+        <span class="code-comment">// Konfirmasi penghapusan</span>
+        <span class="code-keyword">new</span> <span class="code-java">AlertDialog.Builder</span>(<span class="code-keyword">this</span>)
+                .<span class="code-method">setTitle</span>(<span class="code-string">"🗑️ Konfirmasi Hapus"</span>)
+                .<span class="code-method">setMessage</span>(<span class="code-string">"Apakah Anda yakin ingin menghapus data " + selectedStudent.getNama() + "?"</span>)
+                .<span class="code-method">setPositiveButton</span>(<span class="code-string">"Ya, Hapus"</span>, (<span class="code-java">dialog, which</span>) -> {
+                    <span class="code-keyword">int</span> <span class="code-java">result</span> = <span class="code-java">dbHelper</span>.<span class="code-method">deleteStudent</span>(<span class="code-java">selectedStudent</span>.<span class="code-method">getId</span>());
+                    
+                    <span class="code-keyword">if</span> (<span class="code-java">result</span> > <span class="code-java">0</span>) {
+                        <span class="code-java">Toast</span>.<span class="code-method">makeText</span>(<span class="code-keyword">this</span>, <span class="code-string">"✅ Data siswa berhasil dihapus!"</span>, <span class="code-java">Toast.LENGTH_SHORT</span>).<span class="code-method">show</span>();
+                        <span class="code-method">clearForm</span>();
+                        <span class="code-method">loadStudentData</span>();
+                    } <span class="code-keyword">else</span> {
+                        <span class="code-java">Toast</span>.<span class="code-method">makeText</span>(<span class="code-keyword">this</span>, <span class="code-string">"❌ Gagal menghapus data!"</span>, <span class="code-java">Toast.LENGTH_SHORT</span>).<span class="code-method">show</span>();
+                    }
+                })
+                .<span class="code-method">setNegativeButton</span>(<span class="code-string">"Batal"</span>, <span class="code-keyword">null</span>)
+                .<span class="code-method">show</span>();
+    }</div>
+            </div>
+
+            <div class="tip-box">
+                <strong>🎯 Tips UI/UX:</strong><br>
+                • Gunakan emoji dalam pesan untuk membuat aplikasi lebih menarik<br>
+                • Selalu berikan konfirmasi untuk operasi yang berbahaya seperti hapus<br>
+                • Berikan feedback yang jelas kepada user melalui Toast message
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="navigateToSection('crud')">⬅️ Sebelumnya</button>
+                <button class="nav-btn" onclick="navigateToSection('testing')">Selanjutnya ➡️</button>
+            </div>
+        </section>
+
+        <!-- Testing Section -->
+        <section class="content-section" id="testing">
+            <h1 class="section-title">🧪 Testing & Debugging</h1>
+            
+            <p style="font-size: 1.1rem; margin-bottom: 2rem;">Mari kita pelajari cara menguji dan memperbaiki aplikasi SQLite Android kita! 🔍</p>
+
+            <h2 class="section-subtitle">✅ Langkah 1: Method Helper untuk Validasi</h2>
+            <p>Tambahkan method helper untuk validasi dan utility:</p>
+
+            <div class="code-container">
+                <div class="code-header">MainActivity.java (Helper Methods)</div>
+                <div class="code-block">    <span class="code-keyword">private boolean</span> <span class="code-method">validateInput</span>() {
+        <span class="code-java">String nama</span> = <span class="code-java">etNama</span>.<span class="code-method">getText</span>().<span class="code-method">toString</span>().<span class="code-method">trim</span>();
+        <span class="code-java">String kelas</span> = <span class="code-java">etKelas</span>.<span class="code-method">getText</span>().<span class="code-method">toString</span>().<span class="code-method">trim</span>();
+        <span class="code-java">String nilaiStr</span> = <span class="code-java">etNilai</span>.<span class="code-method">getText</span>().<span class="code-method">toString</span>().<span class="code-method">trim</span>();
+
+        <span class="code-comment">// Validasi nama</span>
+        <span class="code-keyword">if</span> (<span class="code-java">nama</span>.<span class="code-method">isEmpty</span>()) {
+            <span class="code-java">etNama</span>.<span class="code-method">setError</span>(<span class="code-string">"Nama tidak boleh kosong!"</span>);
+            <span class="code-java">etNama</span>.<span class="code-method">requestFocus</span>();
+            <span class="code-keyword">return false</span>;
+        }
+
+        <span class="code-comment">// Validasi kelas</span>
+        <span class="code-keyword">if</span> (<span class="code-java">kelas</span>.<span class="code-method">isEmpty</span>()) {
+            <span class="code-java">etKelas</span>.<span class="code-method">setError</span>(<span class="code-string">"Kelas tidak boleh kosong!"</span>);
+            <span class="code-java">etKelas</span>.<span class="code-method">requestFocus</span>();
+            <span class="code-keyword">return false</span>;
+        }
+
+        <span class="code-comment">// Validasi nilai</span>
+        <span class="code-keyword">if</span> (<span class="code-java">nilaiStr</span>.<span class="code-method">isEmpty</span>()) {
+            <span class="code-java">etNilai</span>.<span class="code-method">setError</span>(<span class="code-string">"Nilai tidak boleh kosong!"</span>);
+            <span class="code-java">etNilai</span>.<span class="code-method">requestFocus</span>();
+            <span class="code-keyword">return false</span>;
+        }
+
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">int</span> <span class="code-java">nilai</span> = <span class="code-java">Integer.parseInt(nilaiStr)</span>;
+            <span class="code-keyword">if</span> (<span class="code-java">nilai</span> < <span class="code-java">0</span> || <span class="code-java">nilai</span> > <span class="code-java">100</span>) {
+                <span class="code-java">etNilai</span>.<span class="code-method">setError</span>(<span class="code-string">"Nilai harus antara 0-100!"</span>);
+                <span class="code-java">etNilai</span>.<span class="code-method">requestFocus</span>();
+                <span class="code-keyword">return false</span>;
+            }
+        } <span class="code-keyword">catch</span> (<span class="code-java">NumberFormatException e</span>) {
+            <span class="code-java">etNilai</span>.<span class="code-method">setError</span>(<span class="code-string">"Nilai harus berupa angka!"</span>);
+            <span class="code-java">etNilai</span>.<span class="code-method">requestFocus</span>();
+            <span class="code-keyword">return false</span>;
+        }
+
+        <span class="code-keyword">return true</span>;
+    }
+
+    <span class="code-keyword">private void</span> <span class="code-method">clearForm</span>() {
+        <span class="code-java">etNama</span>.<span class="code-method">setText</span>(<span class="code-string">""</span>);
+        <span class="code-java">etKelas</span>.<span class="code-method">setText</span>(<span class="code-string">""</span>);
+        <span class="code-java">etNilai</span>.<span class="code-method">setText</span>(<span class="code-string">""</span>);
+        
+        <span class="code-java">selectedStudent</span> = <span class="code-keyword">null</span>;
+        
+        <span class="code-java">btnTambah</span>.<span class="code-method">setText</span>(<span class="code-string">"➕ Tambah"</span>);
+        <span class="code-java">btnUpdate</span>.<span class="code-method">setEnabled</span>(<span class="code-keyword">false</span>);
+        <span class="code-java">btnHapus</span>.<span class="code-method">setEnabled</span>(<span class="code-keyword">false</span>);
+        
+        <span class="code-comment">// Clear focus dan hide keyboard</span>
+        <span class="code-java">etNama</span>.<span class="code-method">clearFocus</span>();
+    }
+
+    <span class="code-keyword">private void</span> <span class="code-method">loadStudentData</span>() {
+        <span class="code-java">studentList</span> = <span class="code-java">dbHelper</span>.<span class="code-method">getAllStudents</span>();
+        
+        <span class="code-keyword">if</span> (<span class="code-java">adapter</span> == <span class="code-keyword">null</span>) {
+            <span class="code-java">adapter</span> = <span class="code-keyword">new</span> <span class="code-method">StudentAdapter</span>(<span class="code-keyword">this</span>, <span class="code-java">studentList</span>);
+            <span class="code-java">lvSiswa</span>.<span class="code-method">setAdapter</span>(<span class="code-java">adapter</span>);
+        } <span class="code-keyword">else</span> {
+            <span class="code-java">adapter</span>.<span class="code-method">updateData</span>(<span class="code-java">studentList</span>);
+        }
+        
+        <span class="code-comment">// Update jumlah data</span>
+        <span class="code-method">updateDataCount</span>();
+    }
+
+    <span class="code-keyword">private void</span> <span class="code-method">updateDataCount</span>() {
+        <span class="code-keyword">int</span> <span class="code-java">count</span> = <span class="code-java">dbHelper</span>.<span class="code-method">getStudentCount</span>();
+        <span class="code-method">setTitle</span>(<span class="code-string">"📚 Data Siswa (" + count + " siswa)"</span>);
+    }</div>
+            </div>
+
+            <h2 class="section-subtitle">🔍 Langkah 2: Debugging dengan Logcat</h2>
+            <p>Tambahkan logging untuk memudahkan debugging:</p>
+
+            <div class="code-container">
+                <div class="code-header">DatabaseHelper.java (dengan Logging)</div>
+                <div class="code-block"><span class="code-keyword">import</span> <span class="code-java">android.util.Log</span>;
+
+<span class="code-keyword">public class</span> <span class="code-java">DatabaseHelper</span> <span class="code-keyword">extends</span> <span class="code-java">SQLiteOpenHelper</span> {
+    <span class="code-keyword">private static final</span> <span class="code-java">String TAG</span> = <span class="code-string">"DatabaseHelper"</span>;
+
+    <span class="code-comment">// Method addStudent dengan logging</span>
+    <span class="code-keyword">public long</span> <span class="code-method">addStudent</span>(<span class="code-java">Student student</span>) {
+        <span class="code-java">Log.d</span>(<span class="code-java">TAG</span>, <span class="code-string">"Adding student: " + student.toString()</span>);
+        
+        <span class="code-java">SQLiteDatabase db</span> = <span class="code-keyword">this</span>.<span class="code-method">getWritableDatabase</span>();
+        
+        <span class="code-java">ContentValues values</span> = <span class="code-keyword">new</span> <span class="code-method">ContentValues</span>();
+        <span class="code-java">values</span>.<span class="code-method">put</span>(<span class="code-java">COLUMN_NAMA</span>, <span class="code-java">student</span>.<span class="code-method">getNama</span>());
+        <span class="code-java">values</span>.<span class="code-method">put</span>(<span class="code-java">COLUMN_KELAS</span>, <span class="code-java">student</span>.<span class="code-method">getKelas</span>());
+        <span class="code-java">values</span>.<span class="code-method">put</span>(<span class="code-java">COLUMN_NILAI</span>, <span class="code-java">student</span>.<span class="code-method">getNilai</span>());
+        
+        <span class="code-keyword">long</span> <span class="code-java">id</span> = <span class="code-java">db</span>.<span class="code-method">insert</span>(<span class="code-java">TABLE_STUDENTS</span>, <span class="code-keyword">null</span>, <span class="code-java">values</span>);
+        <span class="code-java">db</span>.<span class="code-method">close</span>();
+        
+        <span class="code-keyword">if</span> (<span class="code-java">id</span> != <span class="code-java">-1</span>) {
+            <span class="code-java">Log.d</span>(<span class="code-java">TAG</span>, <span class="code-string">"Student added successfully with ID: " + id</span>);
+        } <span class="code-keyword">else</span> {
+            <span class="code-java">Log.e</span>(<span class="code-java">TAG</span>, <span class="code-string">"Failed to add student"</span>);
+        }
+        
+        <span class="code-keyword">return</span> <span class="code-java">id</span>;
+    }
+
+    <span class="code-comment">// Method untuk debugging - melihat semua data</span>
+    <span class="code-keyword">public void</span> <span class="code-method">logAllStudents</span>() {
+        <span class="code-java">List&lt;Student&gt; students</span> = <span class="code-method">getAllStudents</span>();
+        <span class="code-java">Log.d</span>(<span class="code-java">TAG</span>, <span class="code-string">"=== All Students in Database ==="</span>);
+        <span class="code-keyword">for</span> (<span class="code-java">Student student : students</span>) {
+            <span class="code-java">Log.d</span>(<span class="code-java">TAG</span>, <span class="code-java">student</span>.<span class="code-method">toString</span>());
+        }
+        <span class="code-java">Log.d</span>(<span class="code-java">TAG</span>, <span class="code-string">"Total students: " + students.size()</span>);
+    }</div>
+            </div>
+
+            <h2 class="section-subtitle">🧪 Langkah 3: Testing Checklist</h2>
+            <p>Gunakan checklist ini untuk menguji aplikasi secara menyeluruh:</p>
+
+            <div class="step">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Test Tambah Data</span>
+                </div>
+                <ul style="margin-left: 1rem;">
+                    <li>✅ Tambah data dengan input valid</li>
+                    <li>✅ Test validasi nama kosong</li>
+                    <li>✅ Test validasi kelas kosong</li>
+                    <li>✅ Test validasi nilai kosong</li>
+                    <li>✅ Test validasi nilai di luar range (0-100)</li>
+                    <li>✅ Test validasi nilai bukan angka</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Test Update Data</span>
+                </div>
+                <ul style="margin-left: 1rem;">
+                    <li>✅ Pilih item dari ListView</li>
+                    <li>✅ Form terisi otomatis</li>
+                    <li>✅ Tombol Update dan Hapus aktif</li>
+                    <li>✅ Update data berhasil</li>
+                    <li>✅ Data terupdate di ListView</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Test Hapus Data</span>
+                </div>
+                <ul style="margin-left: 1rem;">
+                    <li>✅ Pilih item dari ListView</li>
+                    <li>✅ Klik tombol Hapus</li>
+                    <li>✅ Dialog konfirmasi muncul</li>
+                    <li>✅ Data terhapus setelah konfirmasi</li>
+                    <li>✅ ListView terupdate</li>
+                </ul>
+            </div>
+
+            <div class="info-box">
+                <strong>🔧 Tools untuk Debugging:</strong><br>
+                • <strong>Logcat</strong>: Untuk melihat log aplikasi<br>
+                • <strong>Database Inspector</strong>: Untuk melihat isi database (Android Studio 4.1+)<br>
+                • <strong>Device File Explorer</strong>: Untuk mengakses file database<br>
+                • <strong>SQLite Browser</strong>: Tool eksternal untuk membuka file .db
+            </div>
+
+            <h2 class="section-subtitle">🚀 Langkah 4: Optimasi Performa</h2>
+            <p>Tips untuk meningkatkan performa aplikasi:</p>
+
+            <div class="code-container">
+                <div class="code-header">DatabaseHelper.java (Optimasi)</div>
+                <div class="code-block">    <span class="code-comment">// Method untuk batch insert (lebih efisien untuk data banyak)</span>
+    <span class="code-keyword">public boolean</span> <span class="code-method">addMultipleStudents</span>(<span class="code-java">List&lt;Student&gt; students</span>) {
+        <span class="code-java">SQLiteDatabase db</span> = <span class="code-keyword">this</span>.<span class="code-method">getWritableDatabase</span>();
+        <span class="code-java">db</span>.<span class="code-method">beginTransaction</span>();
+        
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">for</span> (<span class="code-java">Student student : students</span>) {
+                <span class="code-java">ContentValues values</span> = <span class="code-keyword">new</span> <span class="code-method">ContentValues</span>();
+                <span class="code-java">values</span>.<span class="code-method">put</span>(<span class="code-java">COLUMN_NAMA</span>, <span class="code-java">student</span>.<span class="code-method">getNama</span>());
+                <span class="code-java">values</span>.<span class="code-method">put</span>(<span class="code-java">COLUMN_KELAS</span>, <span class="code-java">student</span>.<span class="code-method">getKelas</span>());
+                <span class="code-java">values</span>.<span class="code-method">put</span>(<span class="code-java">COLUMN_NILAI</span>, <span class="code-java">student</span>.<span class="code-method">getNilai</span>());
+                
+                <span class="code-java">db</span>.<span class="code-method">insert</span>(<span class="code-java">TABLE_STUDENTS</span>, <span class="code-keyword">null</span>, <span class="code-java">values</span>);
+            }
+            
+            <span class="code-java">db</span>.<span class="code-method">setTransactionSuccessful</span>();
+            <span class="code-keyword">return true</span>;
+        } <span class="code-keyword">catch</span> (<span class="code-java">Exception e</span>) {
+            <span class="code-java">Log.e</span>(<span class="code-java">TAG</span>, <span class="code-string">"Error in batch insert: " + e.getMessage()</span>);
+            <span class="code-keyword">return false</span>;
+        } <span class="code-keyword">finally</span> {
+            <span class="code-java">db</span>.<span class="code-method">endTransaction</span>();
+            <span class="code-java">db</span>.<span class="code-method">close</span>();
+        }
+    }
+
+    <span class="code-comment">// Method untuk search dengan pagination</span>
+    <span class="code-keyword">public</span> <span class="code-java">List&lt;Student&gt;</span> <span class="code-method">searchStudents</span>(<span class="code-java">String query, int limit, int offset</span>) {
+        <span class="code-java">List&lt;Student&gt; studentList</span> = <span class="code-keyword">new</span> <span class="code-java">ArrayList&lt;&gt;</span>();
+        
+        <span class="code-java">String selectQuery</span> = <span class="code-string">"SELECT * FROM " + TABLE_STUDENTS + 
+                " WHERE " + COLUMN_NAMA + " LIKE ? OR " + COLUMN_KELAS + " LIKE ?" +
+                " ORDER BY " + COLUMN_NAMA + " ASC" +
+                " LIMIT ? OFFSET ?"</span>;
+        
+        <span class="code-java">SQLiteDatabase db</span> = <span class="code-keyword">this</span>.<span class="code-method">getReadableDatabase</span>();
+        <span class="code-java">Cursor cursor</span> = <span class="code-java">db</span>.<span class="code-method">rawQuery</span>(<span class="code-java">selectQuery</span>, 
+                <span class="code-keyword">new</span> <span class="code-java">String[]{"%" + query + "%", "%" + query + "%", 
+                String.valueOf(limit), String.valueOf(offset)}</span>);
+        
+        <span class="code-comment">// Process cursor...</span>
+        <span class="code-keyword">if</span> (<span class="code-java">cursor</span>.<span class="code-method">moveToFirst</span>()) {
+            <span class="code-comment">// Same processing as getAllStudents()</span>
+        }
+        
+        <span class="code-java">cursor</span>.<span class="code-method">close</span>();
+        <span class="code-java">db</span>.<span class="code-method">close</span>();
+        
+        <span class="code-keyword">return</span> <span class="code-java">studentList</span>;
+    }</div>
+            </div>
+
+            <div class="tip-box">
+                <strong>🎯 Tips Performa:</strong><br>
+                • Gunakan transaction untuk operasi batch<br>
+                • Implementasi pagination untuk data besar<br>
+                • Tutup cursor dan database setelah digunakan<br>
+                • Gunakan ViewHolder pattern di adapter<br>
+                • Hindari operasi database di UI thread untuk data besar
+            </div>
+
+            <h2 class="section-subtitle">❓ Troubleshooting & FAQ</h2>
+            
+            <div class="step">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <span class="step-number">❓</span>
+                    <span class="step-title">Database tidak terbuat?</span>
+                </div>
+                <p><strong>Solusi:</strong> Pastikan DatabaseHelper dipanggil dengan benar dan cek Logcat untuk error. Database akan terbuat otomatis saat pertama kali diakses.</p>
+            </div>
+
+            <div class="step">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <span class="step-number">❓</span>
+                    <span class="step-title">Data tidak muncul di ListView?</span>
+                </div>
+                <p><strong>Solusi:</strong> Cek apakah adapter sudah di-set ke ListView dan method loadStudentData() dipanggil setelah operasi CRUD.</p>
+            </div>
+
+            <div class="step">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <span class="step-number">❓</span>
+                    <span class="step-title">App crash saat operasi database?</span>
+                </div>
+                <p><strong>Solusi:</strong> Pastikan semua cursor dan database di-close dengan benar. Gunakan try-catch untuk handle exception.</p>
+            </div>
+
+            <div class="step">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                    <span class="step-number">❓</span>
+                    <span class="step-title">Bagaimana melihat isi database?</span>
+                </div>
+                <p><strong>Solusi:</strong> Gunakan Database Inspector di Android Studio atau export database ke external storage untuk dibuka dengan SQLite browser.</p>
+            </div>
+
+            <div class="warning-box">
+                <strong>🎉 Selamat!</strong><br>
+                Kamu telah berhasil membuat aplikasi Android dengan SQLite yang lengkap! Aplikasi ini sudah siap untuk dikembangkan lebih lanjut dengan fitur-fitur tambahan seperti export data, import data, search functionality, atau sinkronisasi dengan server.
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="navigateToSection('ui')">⬅️ Sebelumnya</button>
+                <button class="nav-btn" disabled>🎉 Selesai!</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Button -->
+    <button class="float-btn" onclick="scrollToTop()">⬆️</button>
+
+    <script>
+        let currentSection = 'pengenalan';
+        const sections = ['pengenalan', 'setup', 'database', 'crud', 'ui', 'testing'];
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Update navigation - remove active from all items first
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active to current section
+            const activeNavItem = document.querySelector(`[data-section="${sectionId}"]`);
+            if (activeNavItem) {
+                activeNavItem.classList.add('active');
+            }
+
+            // Update current section
+            currentSection = sectionId;
+
+            // Close sidebar on mobile first
+            if (window.innerWidth <= 768) {
+                closeSidebar();
+            }
+
+            // Scroll to top immediately and smoothly
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        function navigateToSection(sectionId) {
+            // Immediately scroll to top with multiple methods
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+            
+            // Change section immediately
+            showSection(sectionId);
+            
+            // Force another scroll to top after section change
+            setTimeout(() => {
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+                window.scrollTo(0, 0);
+            }, 50);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.overlay');
+            const body = document.body;
+            
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+            body.classList.toggle('sidebar-open');
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.overlay');
+            const body = document.body;
+            
+            sidebar.classList.remove('show');
+            overlay.classList.remove('show');
+            body.classList.remove('sidebar-open');
+        }
+
+        function scrollToTop() {
+            // Force scroll to top with multiple methods for better compatibility
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+            
+            // Also use smooth scrolling as backup
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Handle responsive sidebar
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeSidebar();
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set first nav item as active
+            document.querySelector('[data-section="pengenalan"]').classList.add('active');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98c5e124609d7550',t:'MTc2MDA5NjgxMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
