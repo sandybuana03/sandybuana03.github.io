@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emulator & Device Testing Android</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #ffeef8 0%, #f0f9ff 50%, #f0fdf4 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .content-area {
+            min-height: 100%;
+        }
+        
+        .quiz-option {
+            transition: all 0.2s ease;
+        }
+        
+        .quiz-option:hover {
+            background-color: #e0f2fe;
+            transform: scale(1.02);
+        }
+        
+        .quiz-option.selected {
+            background-color: #bbf7d0;
+            border-color: #10b981;
+        }
+        
+        .quiz-option.correct {
+            background-color: #dcfce7;
+            border-color: #22c55e;
+        }
+        
+        .quiz-option.incorrect {
+            background-color: #fecaca;
+            border-color: #ef4444;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-full">
+    <!-- Mobile Menu Button -->
+    <div class="lg:hidden fixed top-4 left-4 z-50">
+        <button id="mobileMenuBtn" class="bg-pink-200 hover:bg-pink-300 p-3 rounded-full shadow-lg transition-all duration-300">
+            <svg class="w-6 h-6 text-pink-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white/90 backdrop-blur-sm shadow-xl z-40 transform -translate-x-full lg:translate-x-0 sidebar-transition overflow-y-auto">
+        <div class="p-6">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="text-4xl mb-2">📱</div>
+                <h1 class="text-xl font-bold text-purple-800">Emulator & Device Testing</h1>
+                <p class="text-sm text-purple-600">Android Development</p>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="space-y-2">
+                <button onclick="showSection('intro')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-pink-100 transition-colors flex items-center space-x-3">
+                    <span class="text-2xl">🚀</span>
+                    <span class="font-medium text-purple-700">Intro</span>
+                </button>
+                
+                <button onclick="showSection('pengenalan')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-pink-100 transition-colors flex items-center space-x-3">
+                    <span class="text-2xl">📖</span>
+                    <span class="font-medium text-purple-700">Pengenalan</span>
+                </button>
+                
+                <button onclick="showSection('emulator-basics')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-pink-100 transition-colors flex items-center space-x-3">
+                    <span class="text-2xl">💻</span>
+                    <span class="font-medium text-purple-700">Dasar Emulator</span>
+                </button>
+                
+                <button onclick="showSection('android-studio')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-pink-100 transition-colors flex items-center space-x-3">
+                    <span class="text-2xl">🛠️</span>
+                    <span class="font-medium text-purple-700">Android Studio AVD</span>
+                </button>
+                
+                <button onclick="showSection('device-testing')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-pink-100 transition-colors flex items-center space-x-3">
+                    <span class="text-2xl">📲</span>
+                    <span class="font-medium text-purple-700">Device Testing</span>
+                </button>
+                
+                <button onclick="showSection('debugging')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-pink-100 transition-colors flex items-center space-x-3">
+                    <span class="text-2xl">🔍</span>
+                    <span class="font-medium text-purple-700">Debugging</span>
+                </button>
+                
+                <button onclick="showSection('tugas')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-pink-100 transition-colors flex items-center space-x-3">
+                    <span class="text-2xl">📝</span>
+                    <span class="font-medium text-purple-700">Tugas</span>
+                </button>
+                
+                <button onclick="showSection('kuis')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-pink-100 transition-colors flex items-center space-x-3">
+                    <span class="text-2xl">🎯</span>
+                    <span class="font-medium text-purple-700">Kuis</span>
+                </button>
+                
+                <button onclick="showSection('penutup')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-pink-100 transition-colors flex items-center space-x-3">
+                    <span class="text-2xl">🎉</span>
+                    <span class="font-medium text-purple-700">Penutup</span>
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Overlay for mobile -->
+    <div id="overlay" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden"></div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-full">
+        <div class="max-w-4xl mx-auto p-6 lg:p-8">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4 bounce">🚀</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Selamat Datang!</h2>
+                        <p class="text-xl text-purple-600">Mari belajar tentang Emulator dan Device Testing untuk Android</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-pink-700 mb-3 flex items-center">
+                                <span class="text-2xl mr-2">🤔</span>
+                                Pertanyaan Pemantik
+                            </h3>
+                            <ul class="space-y-2 text-gray-700 text-xl">
+                                <li>• Bagaimana cara menguji aplikasi Android tanpa memiliki banyak perangkat fisik?</li>
+                                <li>• Apa perbedaan testing di emulator dengan device asli?</li>
+                                <li>• Mengapa developer perlu menguji aplikasi di berbagai versi Android?</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-blue-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-blue-700 mb-3 flex items-center">
+                                <span class="text-2xl mr-2">🎯</span>
+                                Apa yang Akan Dipelajari
+                            </h3>
+                            <ul class="space-y-2 text-gray-700 text-xl">
+                                <li>• Konsep dasar emulator Android</li>
+                                <li>• Cara menggunakan Android Studio AVD Manager</li>
+                                <li>• Teknik testing pada device fisik</li>
+                                <li>• Debugging dan troubleshooting</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-green-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-green-700 mb-3 flex items-center">
+                                <span class="text-2xl mr-2">🏆</span>
+                                Tujuan Pembelajaran
+                            </h3>
+                            <p class="text-gray-700 text-xl">Setelah mempelajari materi ini, kalian akan mampu menggunakan emulator dan melakukan testing aplikasi Android dengan efektif dan efisien.</p>
+                        </div>
+
+                        <div class="bg-yellow-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-yellow-700 mb-3 flex items-center">
+                                <span class="text-2xl mr-2">💡</span>
+                                Motivasi
+                            </h3>
+                            <p class="text-gray-700 text-xl">Skill testing adalah kunci sukses menjadi Android developer profesional. Dengan menguasai emulator dan device testing, kalian bisa membuat aplikasi berkualitas tinggi!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="nextSection('pengenalan')" class="bg-gradient-to-r from-pink-400 to-purple-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-pink-500 hover:to-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        Mulai Belajar! 🎉
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📖</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Pengenalan Emulator & Device Testing</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-purple-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🤖</span>
+                                Apa itu Emulator?
+                            </h3>
+                            <p class="text-xl text-gray-700 leading-relaxed mb-4">
+                                Emulator adalah software yang meniru (mengemulasi) perangkat Android di komputer kita. 
+                                Bayangkan seperti memiliki HP Android virtual di dalam komputer yang bisa kita gunakan 
+                                untuk menjalankan dan menguji aplikasi.
+                            </p>
+                            <div class="bg-white p-4 rounded-xl">
+                                <h4 class="font-bold text-purple-600 mb-2">💡 Cara Kerja Emulator:</h4>
+                                <ul class="text-gray-700 space-y-1 text-lg">
+                                    <li>• Mensimulasi hardware Android (CPU, RAM, Storage)</li>
+                                    <li>• Menjalankan sistem operasi Android lengkap</li>
+                                    <li>• Menyediakan lingkungan testing yang terkontrol</li>
+                                    <li>• Memungkinkan debugging dan monitoring aplikasi</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-50 to-blue-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">📱</span>
+                                Mengapa Perlu Testing?
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-green-600 mb-2">✅ Keuntungan Emulator</h4>
+                                    <ul class="text-gray-700 space-y-1 text-lg">
+                                        <li>• Gratis dan mudah digunakan</li>
+                                        <li>• Bisa test banyak versi Android</li>
+                                        <li>• Tidak perlu beli banyak HP</li>
+                                        <li>• Bisa simulasi kondisi khusus</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-blue-600 mb-2">📲 Keuntungan Device Fisik</h4>
+                                    <ul class="text-gray-700 space-y-1 text-lg">
+                                        <li>• Performa lebih akurat</li>
+                                        <li>• Test sensor asli (GPS, kamera)</li>
+                                        <li>• User experience nyata</li>
+                                        <li>• Test di kondisi sebenarnya</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-pink-50 to-yellow-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-pink-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎯</span>
+                                Kapan Menggunakan Apa?
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-purple-400">
+                                    <h4 class="font-bold text-purple-600">Gunakan Emulator untuk:</h4>
+                                    <p class="text-gray-700 text-lg">Development awal, testing UI, debugging code, test di berbagai versi Android</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-green-400">
+                                    <h4 class="font-bold text-green-600">Gunakan Device Fisik untuk:</h4>
+                                    <p class="text-gray-700 text-lg">Testing performa, sensor hardware, user experience final, sebelum publish ke Play Store</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="nextSection('emulator-basics')" class="bg-gradient-to-r from-blue-400 to-purple-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-blue-500 hover:to-purple-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        Lanjut ke Dasar Emulator 📱
+                    </button>
+                </div>
+            </div>
+
+            <!-- Emulator Basics Section -->
+            <div id="emulator-basics" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">💻</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Dasar-Dasar Emulator</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-indigo-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🏗️</span>
+                                Komponen Emulator
+                            </h3>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-white p-4 rounded-xl text-center">
+                                    <div class="text-3xl mb-2">🖥️</div>
+                                    <h4 class="font-bold text-indigo-600 mb-2">AVD Manager</h4>
+                                    <p class="text-sm text-gray-600">Tool untuk membuat dan mengelola virtual device</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl text-center">
+                                    <div class="text-3xl mb-2">📱</div>
+                                    <h4 class="font-bold text-indigo-600 mb-2">Virtual Device</h4>
+                                    <p class="text-sm text-gray-600">Emulator Android yang berjalan di komputer</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl text-center">
+                                    <div class="text-3xl mb-2">⚙️</div>
+                                    <h4 class="font-bold text-indigo-600 mb-2">System Image</h4>
+                                    <p class="text-sm text-gray-600">File sistem Android untuk emulator</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-purple-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">📋</span>
+                                Spesifikasi Emulator
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-purple-600 mb-2">Hardware Profile</h4>
+                                    <p class="text-gray-700 mb-2">Menentukan ukuran layar, resolusi, RAM, dan storage emulator</p>
+                                    <div class="text-sm text-gray-600">
+                                        Contoh: Pixel 4 (5.7", 1080x2280, 6GB RAM)
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-purple-600 mb-2">API Level</h4>
+                                    <p class="text-gray-700 mb-2">Versi Android yang akan dijalankan</p>
+                                    <div class="text-sm text-gray-600">
+                                        API 30 = Android 11, API 29 = Android 10, API 28 = Android 9
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-purple-600 mb-2">Target Architecture</h4>
+                                    <p class="text-gray-700 mb-2">Arsitektur processor untuk kompatibilitas</p>
+                                    <div class="text-sm text-gray-600">
+                                        x86_64 (Intel/AMD 64-bit) - Paling cepat untuk PC
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-purple-600 mb-2">⚠️ System Requirements</h4>
+                                    <ul class="text-gray-700 text-sm space-y-1">
+                                        <li>• RAM minimal 8GB (recommended 16GB)</li>
+                                        <li>• Storage kosong minimal 10GB</li>
+                                        <li>• Virtualization enabled di BIOS</li>
+                                        <li>• Intel HAXM atau AMD Processor</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Simulasi Emulator -->
+                        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎮</span>
+                                Simulasi Emulator
+                            </h3>
+                            <div class="bg-gray-800 p-6 rounded-xl">
+                                <div class="bg-gray-900 p-4 rounded-lg mb-4">
+                                    <div class="flex items-center space-x-2 mb-2">
+                                        <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                        <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                        <span class="text-white text-sm ml-2">Android Emulator</span>
+                                    </div>
+                                </div>
+                                <div class="bg-black rounded-lg p-4 mx-auto max-w-xs">
+                                    <div class="bg-blue-500 text-white p-2 rounded-t-lg text-center text-sm">
+                                        📱 Pixel 4 API 30
+                                    </div>
+                                    <div class="bg-white h-64 rounded-b-lg flex flex-col">
+                                        <div class="bg-green-500 text-white p-2 text-center text-xs">
+                                            Android 11
+                                        </div>
+                                        <div class="flex-1 p-4 space-y-2">
+                                            <div class="bg-blue-100 p-2 rounded text-xs">📧 Gmail</div>
+                                            <div class="bg-green-100 p-2 rounded text-xs">📞 Phone</div>
+                                            <div class="bg-purple-100 p-2 rounded text-xs">🎵 Music</div>
+                                            <div class="bg-red-100 p-2 rounded text-xs">📷 Camera</div>
+                                        </div>
+                                        <div class="bg-gray-200 p-2 flex justify-center space-x-4">
+                                            <button class="w-8 h-8 bg-gray-400 rounded-full"></button>
+                                            <button class="w-8 h-8 bg-gray-400 rounded-full"></button>
+                                            <button class="w-8 h-8 bg-gray-400 rounded-full"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-white text-center mt-4 text-sm">Contoh tampilan emulator Android di komputer</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="nextSection('android-studio')" class="bg-gradient-to-r from-green-400 to-blue-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-green-500 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        Pelajari Android Studio AVD 🛠️
+                    </button>
+                </div>
+            </div>
+
+            <!-- Android Studio AVD Section -->
+            <div id="android-studio" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🛠️</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Android Studio AVD Manager</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-blue-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🚀</span>
+                                Langkah Membuat AVD
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-blue-400">
+                                    <div class="flex items-center mb-2">
+                                        <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">1</span>
+                                        <h4 class="font-bold text-blue-600">Buka AVD Manager</h4>
+                                    </div>
+                                    <p class="text-gray-700 ml-9 mb-2">Tools → AVD Manager atau klik ikon AVD di toolbar</p>
+                                    <div class="ml-9 text-sm text-gray-600">💡 Pastikan Android Studio sudah terinstall lengkap dengan SDK</div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-green-400">
+                                    <div class="flex items-center mb-2">
+                                        <span class="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">2</span>
+                                        <h4 class="font-bold text-green-600">Create Virtual Device</h4>
+                                    </div>
+                                    <p class="text-gray-700 ml-9 mb-2">Klik "Create Virtual Device" untuk memulai wizard</p>
+                                    <div class="ml-9 text-sm text-gray-600">💡 Jika belum ada AVD, tombol ini akan terlihat jelas di tengah</div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-purple-400">
+                                    <div class="flex items-center mb-2">
+                                        <span class="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">3</span>
+                                        <h4 class="font-bold text-purple-600">Pilih Hardware Profile</h4>
+                                    </div>
+                                    <p class="text-gray-700 ml-9 mb-2">Pilih device profile sesuai kebutuhan testing</p>
+                                    <div class="ml-9 text-sm text-gray-600">
+                                        📱 Rekomendasi: Pixel 4 (populer), Nexus 5X (ringan), atau Pixel 6 Pro (terbaru)
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-pink-400">
+                                    <div class="flex items-center mb-2">
+                                        <span class="bg-pink-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">4</span>
+                                        <h4 class="font-bold text-pink-600">Download System Image</h4>
+                                    </div>
+                                    <p class="text-gray-700 ml-9 mb-2">Pilih dan download versi Android (API Level)</p>
+                                    <div class="ml-9 text-sm text-gray-600">
+                                        ⚡ Pilih x86_64 untuk performa terbaik. Download bisa memakan waktu 5-15 menit
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-yellow-400">
+                                    <div class="flex items-center mb-2">
+                                        <span class="bg-yellow-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">5</span>
+                                        <h4 class="font-bold text-yellow-600">Konfigurasi AVD</h4>
+                                    </div>
+                                    <p class="text-gray-700 ml-9 mb-2">Atur nama AVD, orientasi, dan pengaturan advanced</p>
+                                    <div class="ml-9 text-sm text-gray-600">
+                                        ⚙️ Nama contoh: "Pixel4_API30_Testing" - mudah diingat dan deskriptif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">⚙️</span>
+                                Pengaturan Penting
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <div class="bg-white p-4 rounded-xl">
+                                        <h4 class="font-bold text-green-600 mb-2">🖥️ Graphics</h4>
+                                        <p class="text-gray-700 text-sm">Hardware (cepat) atau Software (kompatibel)</p>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-xl">
+                                        <h4 class="font-bold text-green-600 mb-2">💾 RAM</h4>
+                                        <p class="text-gray-700 text-sm">Minimal 2GB, optimal 4GB atau lebih</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="bg-white p-4 rounded-xl">
+                                        <h4 class="font-bold text-green-600 mb-2">💿 Storage</h4>
+                                        <p class="text-gray-700 text-sm">Internal 8GB, SD Card opsional</p>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-xl">
+                                        <h4 class="font-bold text-green-600 mb-2">📐 Orientation</h4>
+                                        <p class="text-gray-700 text-sm">Portrait, Landscape, atau Auto-rotate</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Simulasi AVD Manager -->
+                        <div class="bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-purple-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎯</span>
+                                Simulasi AVD Manager
+                            </h3>
+                            <div class="bg-gray-100 p-4 rounded-xl">
+                                <div class="bg-white rounded-lg shadow-lg">
+                                    <div class="bg-blue-600 text-white p-3 rounded-t-lg">
+                                        <h4 class="font-bold">AVD Manager - Virtual Devices</h4>
+                                    </div>
+                                    <div class="p-4 space-y-3">
+                                        <div class="flex items-center justify-between bg-green-50 p-3 rounded-lg border">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="w-8 h-12 bg-gray-800 rounded"></div>
+                                                <div>
+                                                    <h5 class="font-bold text-gray-800">Pixel_4_API_30</h5>
+                                                    <p class="text-sm text-gray-600">Android 11.0 | API 30</p>
+                                                </div>
+                                            </div>
+                                            <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+                                                ▶️ Run
+                                            </button>
+                                        </div>
+                                        <div class="flex items-center justify-between bg-blue-50 p-3 rounded-lg border">
+                                            <div class="flex items-center space-x-3">
+                                                <div class="w-8 h-12 bg-gray-800 rounded"></div>
+                                                <div>
+                                                    <h5 class="font-bold text-gray-800">Nexus_5_API_28</h5>
+                                                    <p class="text-sm text-gray-600">Android 9.0 | API 28</p>
+                                                </div>
+                                            </div>
+                                            <button class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
+                                                ▶️ Run
+                                            </button>
+                                        </div>
+                                        <button class="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-colors">
+                                            + Create Virtual Device
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="nextSection('device-testing')" class="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-500 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        Lanjut ke Device Testing 📲
+                    </button>
+                </div>
+            </div>
+
+            <!-- Device Testing Section -->
+            <div id="device-testing" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📲</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Device Testing</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-orange-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🔌</span>
+                                Menghubungkan Device Fisik
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-orange-600 mb-2">1. Aktifkan Developer Options</h4>
+                                    <p class="text-gray-700 mb-2">Settings → About Phone → tap "Build Number" 7 kali</p>
+                                    <div class="text-sm text-gray-600">
+                                        💡 Pada beberapa HP: Settings → System → About Phone → Software Information → Build Number
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-orange-600 mb-2">2. Enable USB Debugging</h4>
+                                    <p class="text-gray-700 mb-2">Settings → Developer Options → USB Debugging (ON)</p>
+                                    <div class="text-sm text-gray-600">
+                                        ⚠️ Jika Developer Options tidak muncul, coba restart HP setelah langkah 1
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-orange-600 mb-2">3. Hubungkan dengan Kabel USB</h4>
+                                    <p class="text-gray-700 mb-2">Gunakan kabel USB original, pilih "File Transfer" atau "MTP" mode</p>
+                                    <div class="text-sm text-gray-600">
+                                        🔌 Hindari kabel charging-only. Pastikan kabel bisa transfer data
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-orange-600 mb-2">4. Authorize Computer</h4>
+                                    <p class="text-gray-700 mb-2">Izinkan akses debugging saat popup "Allow USB Debugging?" muncul</p>
+                                    <div class="text-sm text-gray-600">
+                                        ✅ Centang "Always allow from this computer" untuk kemudahan di masa depan
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-orange-600 mb-2">5. Verifikasi Koneksi</h4>
+                                    <p class="text-gray-700 mb-2">Buka Terminal/Command Prompt, ketik: <code class="bg-gray-100 px-2 py-1 rounded">adb devices</code></p>
+                                    <div class="text-sm text-gray-600">
+                                        📱 Jika berhasil, akan muncul device ID dengan status "device"
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-teal-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🧪</span>
+                                Jenis-Jenis Testing
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-teal-600 mb-3 flex items-center">
+                                        <span class="text-xl mr-2">🎨</span>
+                                        UI Testing
+                                    </h4>
+                                    <ul class="text-gray-700 space-y-1 text-sm">
+                                        <li>• Layout responsif</li>
+                                        <li>• Ukuran font dan button</li>
+                                        <li>• Warna dan kontras</li>
+                                        <li>• Navigasi antar screen</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-teal-600 mb-3 flex items-center">
+                                        <span class="text-xl mr-2">⚡</span>
+                                        Performance Testing
+                                    </h4>
+                                    <ul class="text-gray-700 space-y-1 text-sm">
+                                        <li>• Kecepatan loading</li>
+                                        <li>• Memory usage</li>
+                                        <li>• Battery consumption</li>
+                                        <li>• CPU usage</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-teal-600 mb-3 flex items-center">
+                                        <span class="text-xl mr-2">🔧</span>
+                                        Functional Testing
+                                    </h4>
+                                    <ul class="text-gray-700 space-y-1 text-sm">
+                                        <li>• Fitur bekerja dengan benar</li>
+                                        <li>• Input dan output data</li>
+                                        <li>• Error handling</li>
+                                        <li>• Integration dengan sistem</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-teal-600 mb-3 flex items-center">
+                                        <span class="text-xl mr-2">📱</span>
+                                        Device Specific
+                                    </h4>
+                                    <ul class="text-gray-700 space-y-1 text-sm">
+                                        <li>• Sensor (GPS, accelerometer)</li>
+                                        <li>• Camera dan microphone</li>
+                                        <li>• Network connectivity</li>
+                                        <li>• Hardware buttons</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Simulasi Testing Process -->
+                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-indigo-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎮</span>
+                                Simulasi Testing Process
+                            </h3>
+                            <div class="bg-gray-800 p-6 rounded-xl">
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <!-- Emulator -->
+                                    <div class="bg-gray-700 p-4 rounded-lg">
+                                        <h4 class="text-white font-bold mb-3 text-center">🖥️ Emulator Testing</h4>
+                                        <div class="bg-black rounded-lg p-3">
+                                            <div class="bg-blue-600 text-white p-2 rounded text-center text-xs mb-2">
+                                                Pixel 4 Emulator
+                                            </div>
+                                            <div class="bg-white rounded p-3 space-y-2">
+                                                <div class="bg-green-100 p-2 rounded text-xs">✅ UI Layout: OK</div>
+                                                <div class="bg-yellow-100 p-2 rounded text-xs">⚠️ Performance: Slow</div>
+                                                <div class="bg-red-100 p-2 rounded text-xs">❌ Camera: Not Available</div>
+                                                <div class="bg-green-100 p-2 rounded text-xs">✅ Network: Simulated</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Real Device -->
+                                    <div class="bg-gray-700 p-4 rounded-lg">
+                                        <h4 class="text-white font-bold mb-3 text-center">📱 Real Device Testing</h4>
+                                        <div class="bg-black rounded-lg p-3">
+                                            <div class="bg-green-600 text-white p-2 rounded text-center text-xs mb-2">
+                                                Samsung Galaxy A50
+                                            </div>
+                                            <div class="bg-white rounded p-3 space-y-2">
+                                                <div class="bg-green-100 p-2 rounded text-xs">✅ UI Layout: Perfect</div>
+                                                <div class="bg-green-100 p-2 rounded text-xs">✅ Performance: Fast</div>
+                                                <div class="bg-green-100 p-2 rounded text-xs">✅ Camera: Working</div>
+                                                <div class="bg-green-100 p-2 rounded text-xs">✅ Network: Real 4G</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-white text-center mt-4 text-sm">Perbandingan hasil testing emulator vs device fisik</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="nextSection('debugging')" class="bg-gradient-to-r from-teal-400 to-blue-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-teal-500 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        Pelajari Debugging 🔍
+                    </button>
+                </div>
+            </div>
+
+            <!-- Debugging Section -->
+            <div id="debugging" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🔍</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Debugging & Troubleshooting</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-red-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🐛</span>
+                                Tools Debugging
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-red-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">📊</span>
+                                        Logcat
+                                    </h4>
+                                    <p class="text-gray-700 text-sm mb-2">Melihat log aplikasi real-time</p>
+                                    <div class="bg-gray-100 p-2 rounded text-xs font-mono">
+                                        View → Tool Windows → Logcat
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-red-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">🎯</span>
+                                        Breakpoints
+                                    </h4>
+                                    <p class="text-gray-700 text-sm mb-2">Menghentikan eksekusi di titik tertentu</p>
+                                    <div class="bg-gray-100 p-2 rounded text-xs font-mono">
+                                        Klik di sebelah kiri nomor baris
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-red-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">📱</span>
+                                        Device Monitor
+                                    </h4>
+                                    <p class="text-gray-700 text-sm mb-2">Monitor performa device</p>
+                                    <div class="bg-gray-100 p-2 rounded text-xs font-mono">
+                                        View → Tool Windows → Profiler
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-red-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">🔧</span>
+                                        ADB Commands
+                                    </h4>
+                                    <p class="text-gray-700 text-sm mb-2">Command line debugging</p>
+                                    <div class="bg-gray-100 p-2 rounded text-xs font-mono">
+                                        adb devices, adb logcat
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-yellow-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">⚠️</span>
+                                Common Issues & Solutions
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-red-400">
+                                    <h4 class="font-bold text-red-600 mb-2">❌ Emulator Tidak Bisa Start</h4>
+                                    <p class="text-gray-700 text-sm mb-2">Solusi:</p>
+                                    <ul class="text-gray-600 text-sm space-y-1 ml-4">
+                                        <li>• Cek virtualization di BIOS</li>
+                                        <li>• Disable Hyper-V (Windows)</li>
+                                        <li>• Increase RAM allocation</li>
+                                        <li>• Update Intel HAXM</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-yellow-400">
+                                    <h4 class="font-bold text-yellow-600 mb-2">⚠️ Device Tidak Terdeteksi</h4>
+                                    <p class="text-gray-700 text-sm mb-2">Solusi berurutan:</p>
+                                    <ul class="text-gray-600 text-sm space-y-1 ml-4">
+                                        <li>• Install USB driver yang tepat (Samsung, LG, dll)</li>
+                                        <li>• Cek USB Debugging sudah enabled</li>
+                                        <li>• Ganti kabel USB (pastikan bukan charging-only)</li>
+                                        <li>• Restart ADB: <code class="bg-gray-100 px-1 rounded">adb kill-server && adb start-server</code></li>
+                                        <li>• Coba port USB lain di komputer</li>
+                                        <li>• Restart HP dan komputer</li>
+                                        <li>• Disable antivirus sementara</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-blue-400">
+                                    <h4 class="font-bold text-blue-600 mb-2">🐌 Emulator Lambat</h4>
+                                    <p class="text-gray-700 text-sm mb-2">Solusi:</p>
+                                    <ul class="text-gray-600 text-sm space-y-1 ml-4">
+                                        <li>• Gunakan x86 system image</li>
+                                        <li>• Enable hardware acceleration</li>
+                                        <li>• Kurangi RAM emulator</li>
+                                        <li>• Close aplikasi lain</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Simulasi Debugging -->
+                        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-purple-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎮</span>
+                                Simulasi Debugging Session
+                            </h3>
+                            <div class="bg-gray-900 p-4 rounded-xl">
+                                <div class="bg-gray-800 p-3 rounded-lg mb-4">
+                                    <h4 class="text-green-400 font-bold mb-2">Android Studio Logcat</h4>
+                                    <div class="space-y-1 text-sm font-mono">
+                                        <div class="text-gray-300">2024-01-15 10:30:15.123 I/MainActivity: App started</div>
+                                        <div class="text-yellow-400">2024-01-15 10:30:16.456 W/NetworkManager: Slow connection detected</div>
+                                        <div class="text-red-400">2024-01-15 10:30:17.789 E/DatabaseHelper: SQLException: table not found</div>
+                                        <div class="text-blue-400">2024-01-15 10:30:18.012 D/UserService: Loading user profile...</div>
+                                        <div class="text-green-400">2024-01-15 10:30:19.345 I/UserService: Profile loaded successfully</div>
+                                    </div>
+                                </div>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-800 p-3 rounded-lg">
+                                        <h5 class="text-blue-400 font-bold mb-2">Debug Controls</h5>
+                                        <div class="space-y-2">
+                                            <button class="bg-green-600 text-white px-3 py-1 rounded text-sm w-full">▶️ Resume</button>
+                                            <button class="bg-yellow-600 text-white px-3 py-1 rounded text-sm w-full">⏸️ Pause</button>
+                                            <button class="bg-blue-600 text-white px-3 py-1 rounded text-sm w-full">⏭️ Step Over</button>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-800 p-3 rounded-lg">
+                                        <h5 class="text-yellow-400 font-bold mb-2">Variables</h5>
+                                        <div class="space-y-1 text-sm font-mono text-gray-300">
+                                            <div>userName: "john_doe"</div>
+                                            <div>isLoggedIn: true</div>
+                                            <div>userAge: 25</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="nextSection('tugas')" class="bg-gradient-to-r from-red-400 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-red-500 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        Kerjakan Tugas 📝
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tugas Section -->
+            <div id="tugas" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📝</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Tugas Praktik</h2>
+                        <p class="text-lg text-purple-600">Kerjakan tugas berikut untuk menguji pemahaman kalian!</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-blue-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">📋</span>
+                                Soal Essay
+                            </h3>
+                            
+                            <div class="space-y-6">
+                                <div class="bg-white p-6 rounded-xl border-l-4 border-blue-400">
+                                    <h4 class="font-bold text-blue-600 mb-3">1. Jelaskan perbedaan utama antara testing menggunakan emulator dan device fisik! (Minimal 3 perbedaan)</h4>
+                                    <textarea class="w-full p-4 border rounded-lg resize-none h-32" placeholder="Tulis jawaban kalian di sini..."></textarea>
+                                </div>
+
+                                <div class="bg-white p-6 rounded-xl border-l-4 border-green-400">
+                                    <h4 class="font-bold text-green-600 mb-3">2. Sebutkan dan jelaskan 5 langkah untuk membuat AVD (Android Virtual Device) di Android Studio!</h4>
+                                    <textarea class="w-full p-4 border rounded-lg resize-none h-32" placeholder="Tulis jawaban kalian di sini..."></textarea>
+                                </div>
+
+                                <div class="bg-white p-6 rounded-xl border-l-4 border-purple-400">
+                                    <h4 class="font-bold text-purple-600 mb-3">3. Apa yang harus dilakukan jika emulator Android tidak bisa start? Sebutkan minimal 4 solusi!</h4>
+                                    <textarea class="w-full p-4 border rounded-lg resize-none h-32" placeholder="Tulis jawaban kalian di sini..."></textarea>
+                                </div>
+
+                                <div class="bg-white p-6 rounded-xl border-l-4 border-pink-400">
+                                    <h4 class="font-bold text-pink-600 mb-3">4. Jelaskan langkah-langkah untuk menghubungkan device Android fisik ke Android Studio untuk testing!</h4>
+                                    <textarea class="w-full p-4 border rounded-lg resize-none h-32" placeholder="Tulis jawaban kalian di sini..."></textarea>
+                                </div>
+
+                                <div class="bg-white p-6 rounded-xl border-l-4 border-yellow-400">
+                                    <h4 class="font-bold text-yellow-600 mb-3">5. Sebutkan 4 jenis testing yang bisa dilakukan pada aplikasi Android dan berikan contoh masing-masing!</h4>
+                                    <textarea class="w-full p-4 border rounded-lg resize-none h-32" placeholder="Tulis jawaban kalian di sini..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 text-center">
+                                <button onclick="submitTugas()" class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-green-600 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                                    Submit Tugas ✅
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="tugasResult" class="hidden bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                            <div class="text-center">
+                                <div class="text-4xl mb-4">🎉</div>
+                                <h3 class="text-2xl font-bold text-green-700 mb-2">Tugas Berhasil Dikumpulkan!</h3>
+                                <p class="text-green-600">Jawaban kalian sudah tersimpan. Lanjutkan ke kuis untuk menguji pemahaman lebih lanjut!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="nextSection('kuis')" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-yellow-500 hover:to-orange-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        Lanjut ke Kuis 🎯
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎯</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Kuis Interaktif</h2>
+                        <p class="text-lg text-purple-600">Uji pemahaman kalian dengan 10 soal pilihan ganda!</p>
+                    </div>
+
+                    <!-- Input Nama -->
+                    <div id="nameInput" class="bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-purple-700 mb-4 text-center">Masukkan Nama Kalian</h3>
+                        <div class="max-w-md mx-auto">
+                            <input type="text" id="studentName" class="w-full p-4 border-2 border-purple-300 rounded-lg text-lg text-center" placeholder="Nama lengkap...">
+                            <button onclick="startQuiz()" class="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 rounded-lg text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300">
+                                Mulai Kuis! 🚀
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Container -->
+                    <div id="quizContainer" class="hidden">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-bold text-blue-700">Soal <span id="currentQuestion">1</span> dari 10</h3>
+                                <div class="bg-blue-200 px-4 py-2 rounded-full">
+                                    <span class="text-blue-700 font-bold">Skor: <span id="currentScore">0</span></span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-xl">
+                                <h4 id="questionText" class="text-lg font-semibold text-gray-800 mb-6"></h4>
+                                <div id="optionsContainer" class="space-y-3"></div>
+                                
+                                <div class="mt-6 text-center">
+                                    <button id="nextBtn" onclick="nextQuestion()" class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-blue-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                        Soal Berikutnya →
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Result -->
+                    <div id="quizResult" class="hidden">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-2xl text-center">
+                            <div class="text-6xl mb-4">🏆</div>
+                            <h3 class="text-3xl font-bold text-green-700 mb-4">Kuis Selesai!</h3>
+                            <div class="bg-white p-6 rounded-xl mb-6">
+                                <p class="text-xl text-gray-700 mb-2">Nama: <span id="finalName" class="font-bold text-purple-700"></span></p>
+                                <p class="text-2xl text-gray-700">Skor Akhir: <span id="finalScore" class="font-bold text-green-600"></span>/10</p>
+                                <div id="scoreMessage" class="mt-4 p-4 rounded-lg"></div>
+                            </div>
+                            <button onclick="restartQuiz()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all duration-300">
+                                Ulangi Kuis 🔄
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="nextSection('penutup')" class="bg-gradient-to-r from-green-400 to-teal-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-green-500 hover:to-teal-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        Ke Penutup 🎉
+                    </button>
+                </div>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎉</div>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Penutup</h2>
+                        <p class="text-lg text-purple-600">Selamat! Kalian telah menyelesaikan pembelajaran tentang Emulator dan Device Testing</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-blue-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🤔</span>
+                                Refleksi Pembelajaran
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-blue-600 mb-2">Apa yang sudah kalian pelajari hari ini?</h4>
+                                    <textarea class="w-full p-3 border rounded-lg resize-none h-24" placeholder="Tulis refleksi kalian..."></textarea>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-blue-600 mb-2">Bagian mana yang paling menarik?</h4>
+                                    <textarea class="w-full p-3 border rounded-lg resize-none h-24" placeholder="Tulis refleksi kalian..."></textarea>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-blue-600 mb-2">Apa yang masih ingin kalian pelajari lebih dalam?</h4>
+                                    <textarea class="w-full p-3 border rounded-lg resize-none h-24" placeholder="Tulis refleksi kalian..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">📚</span>
+                                Kesimpulan Pembelajaran
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-green-400">
+                                    <h4 class="font-bold text-green-600 mb-2">✅ Emulator Android</h4>
+                                    <p class="text-gray-700">Tool penting untuk development dan testing aplikasi Android tanpa perlu banyak device fisik</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-blue-400">
+                                    <h4 class="font-bold text-blue-600 mb-2">✅ AVD Manager</h4>
+                                    <p class="text-gray-700">Interface untuk membuat, mengkonfigurasi, dan mengelola virtual device di Android Studio</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-purple-400">
+                                    <h4 class="font-bold text-purple-600 mb-2">✅ Device Testing</h4>
+                                    <p class="text-gray-700">Testing di device fisik memberikan hasil yang lebih akurat untuk performa dan user experience</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl border-l-4 border-pink-400">
+                                    <h4 class="font-bold text-pink-600 mb-2">✅ Debugging</h4>
+                                    <p class="text-gray-700">Skill penting untuk menemukan dan memperbaiki bug dalam aplikasi Android</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-yellow-700 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🚀</span>
+                                Tindak Lanjut
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-yellow-600 mb-2 text-lg">📱 Praktik Mandiri</h4>
+                                    <ul class="text-gray-700 space-y-1 text-base">
+                                        <li>• Buat AVD dengan API 28, 29, 30, 31</li>
+                                        <li>• Install dan test aplikasi dari Play Store</li>
+                                        <li>• Coba fitur rotate, zoom, dan gesture</li>
+                                        <li>• Test aplikasi di HP pribadi kalian</li>
+                                        <li>• Eksplorasi Extended Controls emulator</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-yellow-600 mb-2 text-lg">📖 Pembelajaran Lanjutan</h4>
+                                    <ul class="text-gray-700 space-y-1 text-base">
+                                        <li>• Espresso untuk UI testing otomatis</li>
+                                        <li>• Firebase Test Lab untuk cloud testing</li>
+                                        <li>• Performance profiling dengan Systrace</li>
+                                        <li>• Unit testing dan Integration testing</li>
+                                        <li>• CI/CD dengan GitHub Actions</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 bg-white p-4 rounded-xl">
+                                <h4 class="font-bold text-yellow-600 mb-2">💡 Tips Pro Developer</h4>
+                                <div class="grid md:grid-cols-2 gap-4 text-base text-gray-700">
+                                    <div>
+                                        <p class="font-semibold mb-1 text-lg">🎯 Best Practices:</p>
+                                        <ul class="space-y-1">
+                                            <li>• Selalu test di minimal 3 versi Android</li>
+                                            <li>• Gunakan device dengan RAM berbeda</li>
+                                            <li>• Test dalam kondisi network lambat</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold mb-1 text-lg">⚡ Optimasi Workflow:</p>
+                                        <ul class="space-y-1">
+                                            <li>• Buat AVD template untuk tim</li>
+                                            <li>• Gunakan snapshot untuk startup cepat</li>
+                                            <li>• Setup ADB wireless untuk kemudahan</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl text-center">
+                            <h3 class="text-2xl font-bold text-purple-700 mb-4">🎊 Selamat!</h3>
+                            <p class="text-lg text-gray-700 mb-4">
+                                Kalian telah berhasil menyelesaikan pembelajaran tentang Emulator dan Device Testing untuk Android. 
+                                Skill ini akan sangat berguna dalam perjalanan kalian menjadi Android developer profesional!
+                            </p>
+                            <div class="text-4xl mb-4">🏆✨🎉</div>
+                            <p class="text-purple-600 font-semibold">Keep learning and keep coding! 💻❤️</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="showSection('intro')" class="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-500 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        Kembali ke Awal 🔄
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-pink-500 to-purple-500 text-white p-4 rounded-full shadow-lg hover:from-pink-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-110 hidden z-50">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Quiz Data
+        const quizData = [
+            {
+                question: "Apa kepanjangan dari AVD dalam Android development?",
+                options: ["Android Virtual Device", "Android Video Display", "Advanced Virtual Development", "Android Version Database"],
+                correct: 0
+            },
+            {
+                question: "Tool apa yang digunakan untuk membuat dan mengelola emulator Android?",
+                options: ["SDK Manager", "AVD Manager", "Device Manager", "Virtual Manager"],
+                correct: 1
+            },
+            {
+                question: "Apa keuntungan utama menggunakan emulator untuk testing?",
+                options: ["Performa lebih cepat dari device fisik", "Bisa test di berbagai versi Android tanpa beli banyak HP", "Sensor lebih akurat dari HP asli", "Koneksi internet lebih stabil"],
+                correct: 1
+            },
+            {
+                question: "Berapa kali harus tap 'Build Number' untuk mengaktifkan Developer Options?",
+                options: ["5 kali", "6 kali", "7 kali", "10 kali"],
+                correct: 2
+            },
+            {
+                question: "Apa yang harus diaktifkan di Developer Options untuk debugging?",
+                options: ["Stay Awake", "USB Debugging", "Show Layout Bounds", "Force GPU Rendering"],
+                correct: 1
+            },
+            {
+                question: "Tool apa yang digunakan untuk melihat log aplikasi secara real-time?",
+                options: ["Profiler", "Logcat", "Monitor", "Inspector"],
+                correct: 1
+            },
+            {
+                question: "Jenis testing apa yang paling cocok dilakukan di device fisik?",
+                options: ["UI Layout testing", "Code debugging", "Sensor dan hardware testing", "Memory usage testing"],
+                correct: 2
+            },
+            {
+                question: "System image apa yang memberikan performa terbaik untuk emulator di PC Intel/AMD?",
+                options: ["ARM", "ARM64", "x86_64", "MIPS"],
+                correct: 2
+            },
+            {
+                question: "Command ADB apa yang digunakan untuk melihat daftar device yang terhubung?",
+                options: ["adb list", "adb devices", "adb show", "adb connect"],
+                correct: 1
+            },
+            {
+                question: "Apa fungsi breakpoint dalam debugging?",
+                options: ["Mempercepat aplikasi", "Menghentikan eksekusi di titik tertentu untuk inspeksi", "Menghapus bug otomatis", "Mengoptimalkan kode"],
+                correct: 1
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedAnswer = null;
+        let studentName = '';
+
+        // Navigation Functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update active nav button - find by onclick attribute
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-200', 'bg-purple-300');
+                const onclickAttr = btn.getAttribute('onclick');
+                if (onclickAttr && onclickAttr.includes(`'${sectionId}'`)) {
+                    btn.classList.add('bg-purple-200');
+                }
+            });
+            
+            // Close mobile menu
+            closeMobileMenu();
+            
+            // Scroll to top with delay to ensure section is shown first
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 50);
+        }
+
+        function nextSection(sectionId) {
+            // Hide all sections first
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show target section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update active nav button
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-purple-200', 'bg-purple-300');
+                const onclickAttr = btn.getAttribute('onclick');
+                if (onclickAttr && onclickAttr.includes(`'${sectionId}'`)) {
+                    btn.classList.add('bg-purple-200');
+                }
+            });
+            
+            // Force scroll to top immediately
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            
+            // Also use smooth scroll as backup
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+        }
+
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        }
+
+        // Tugas Functions
+        function submitTugas() {
+            const textareas = document.querySelectorAll('#tugas textarea');
+            let allFilled = true;
+            
+            textareas.forEach(textarea => {
+                if (textarea.value.trim() === '') {
+                    allFilled = false;
+                }
+            });
+            
+            if (!allFilled) {
+                alert('Mohon lengkapi semua jawaban sebelum submit!');
+                return;
+            }
+            
+            document.getElementById('tugasResult').classList.remove('hidden');
+            alert('Tugas berhasil dikumpulkan! 🎉');
+        }
+
+        // Quiz Functions
+        function startQuiz() {
+            const name = document.getElementById('studentName').value.trim();
+            if (name === '') {
+                alert('Mohon masukkan nama terlebih dahulu!');
+                return;
+            }
+            
+            studentName = name;
+            document.getElementById('nameInput').classList.add('hidden');
+            document.getElementById('quizContainer').classList.remove('hidden');
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizData[currentQuestionIndex];
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('currentScore').textContent = score;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'quiz-option bg-gray-50 border-2 border-gray-200 p-4 rounded-lg cursor-pointer';
+                optionDiv.innerHTML = `
+                    <label class="cursor-pointer flex items-center">
+                        <input type="radio" name="answer" value="${index}" class="mr-3">
+                        <span class="text-gray-700">${option}</span>
+                    </label>
+                `;
+                
+                optionDiv.addEventListener('click', () => selectAnswer(index, optionDiv));
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            document.getElementById('nextBtn').disabled = true;
+            selectedAnswer = null;
+        }
+
+        function selectAnswer(answerIndex, optionElement) {
+            // Remove previous selection
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            optionElement.classList.add('selected');
+            optionElement.querySelector('input').checked = true;
+            
+            selectedAnswer = answerIndex;
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            if (selectedAnswer === null) return;
+            
+            const question = quizData[currentQuestionIndex];
+            const isCorrect = selectedAnswer === question.correct;
+            
+            // Show correct/incorrect feedback
+            document.querySelectorAll('.quiz-option').forEach((option, index) => {
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedAnswer && !isCorrect) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            if (isCorrect) {
+                score++;
+            }
+            
+            setTimeout(() => {
+                currentQuestionIndex++;
+                
+                if (currentQuestionIndex < quizData.length) {
+                    showQuestion();
+                } else {
+                    showQuizResult();
+                }
+            }, 1500);
+        }
+
+        function showQuizResult() {
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('quizResult').classList.remove('hidden');
+            
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = score;
+            
+            const messageDiv = document.getElementById('scoreMessage');
+            let message = '';
+            let bgClass = '';
+            
+            if (score >= 9) {
+                message = '🌟 Luar biasa! Kalian sangat memahami materi ini!';
+                bgClass = 'bg-green-100 text-green-700';
+            } else if (score >= 7) {
+                message = '👍 Bagus! Pemahaman kalian sudah cukup baik!';
+                bgClass = 'bg-blue-100 text-blue-700';
+            } else if (score >= 5) {
+                message = '📚 Cukup baik, tapi masih perlu belajar lagi ya!';
+                bgClass = 'bg-yellow-100 text-yellow-700';
+            } else {
+                message = '💪 Jangan menyerah! Coba baca materi lagi dan ulangi kuis!';
+                bgClass = 'bg-red-100 text-red-700';
+            }
+            
+            messageDiv.textContent = message;
+            messageDiv.className = `mt-4 p-4 rounded-lg ${bgClass}`;
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizResult').classList.add('hidden');
+            document.getElementById('nameInput').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+        }
+
+        // Back to Top Function
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu button
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+            
+            // Overlay click to close menu
+            document.getElementById('overlay').addEventListener('click', closeMobileMenu);
+            
+            // Back to top button
+            const backToTopBtn = document.getElementById('backToTop');
+            backToTopBtn.addEventListener('click', scrollToTop);
+            
+            // Show/hide back to top button on scroll
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('hidden');
+                } else {
+                    backToTopBtn.classList.add('hidden');
+                }
+            });
+            
+            // Show intro section by default and highlight it
+            showSection('intro');
+            
+            // Set initial active nav button
+            document.querySelector('button[onclick="showSection(\'intro\')"]').classList.add('bg-purple-200');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98c3458261ee7550',t:'MTc2MDA2OTQ2My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
