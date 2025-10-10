@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQLite untuk Android - Materi Pembelajaran</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #ffeef8 0%, #f0f9ff 50%, #f0fdf4 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 12px;
+            padding: 20px;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-full font-sans">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-pink-400 hover:bg-pink-500 text-white p-3 rounded-full shadow-lg transition-all duration-300">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white/90 backdrop-blur-sm shadow-xl z-40 transform -translate-x-full lg:translate-x-0 sidebar-transition overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center mb-8">
+                <div class="text-4xl mr-3">📱</div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">SQLite Android</h1>
+                    <p class="text-sm text-gray-600">Pembelajaran Interaktif</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" onclick="showSection('intro')" class="nav-item flex items-center p-3 rounded-lg hover:bg-pink-100 transition-colors duration-200">
+                    <span class="text-2xl mr-3">🚀</span>
+                    <span class="font-medium text-gray-700">Intro</span>
+                </a>
+                <a href="#" onclick="showSection('pengenalan')" class="nav-item flex items-center p-3 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+                    <span class="text-2xl mr-3">📚</span>
+                    <span class="font-medium text-gray-700">Pengenalan</span>
+                </a>
+                <a href="#" onclick="showSection('konsep-dasar')" class="nav-item flex items-center p-3 rounded-lg hover:bg-green-100 transition-colors duration-200">
+                    <span class="text-2xl mr-3">🧠</span>
+                    <span class="font-medium text-gray-700">Konsep Dasar</span>
+                </a>
+                <a href="#" onclick="showSection('setup-sqlite')" class="nav-item flex items-center p-3 rounded-lg hover:bg-yellow-100 transition-colors duration-200">
+                    <span class="text-2xl mr-3">⚙️</span>
+                    <span class="font-medium text-gray-700">Setup SQLite</span>
+                </a>
+                <a href="#" onclick="showSection('crud-operations')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors duration-200">
+                    <span class="text-2xl mr-3">🔧</span>
+                    <span class="font-medium text-gray-700">Operasi CRUD</span>
+                </a>
+                <a href="#" onclick="showSection('praktik')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-100 transition-colors duration-200">
+                    <span class="text-2xl mr-3">💻</span>
+                    <span class="font-medium text-gray-700">Praktik</span>
+                </a>
+                <a href="#" onclick="showSection('tugas')" class="nav-item flex items-center p-3 rounded-lg hover:bg-orange-100 transition-colors duration-200">
+                    <span class="text-2xl mr-3">📝</span>
+                    <span class="font-medium text-gray-700">Tugas</span>
+                </a>
+                <a href="#" onclick="showSection('kuis')" class="nav-item flex items-center p-3 rounded-lg hover:bg-red-100 transition-colors duration-200">
+                    <span class="text-2xl mr-3">🎯</span>
+                    <span class="font-medium text-gray-700">Kuis</span>
+                </a>
+                <a href="#" onclick="showSection('penutup')" class="nav-item flex items-center p-3 rounded-lg hover:bg-teal-100 transition-colors duration-200">
+                    <span class="text-2xl mr-3">🎉</span>
+                    <span class="font-medium text-gray-700">Penutup</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-full">
+        <div class="max-w-4xl mx-auto p-6 lg:p-8">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4 bounce">📱💾</div>
+                        <h1 class="text-4xl lg:text-5xl font-bold text-gray-800 mb-4">SQLite untuk Android</h1>
+                        <p class="text-xl text-gray-600">Belajar Database Lokal yang Mudah dan Menyenangkan!</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-pink-50 p-6 rounded-2xl card-hover">
+                            <h3 class="text-xl font-bold text-pink-700 mb-3 flex items-center">
+                                <span class="text-2xl mr-2">🤔</span>
+                                Pertanyaan Pemantik
+                            </h3>
+                            <ul class="space-y-2 text-gray-700 text-lg">
+                                <li>• Bagaimana cara menyimpan data di aplikasi Android?</li>
+                                <li>• Apa itu database lokal?</li>
+                                <li>• Mengapa SQLite cocok untuk mobile?</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-blue-50 p-6 rounded-2xl card-hover">
+                            <h3 class="text-xl font-bold text-blue-700 mb-3 flex items-center">
+                                <span class="text-2xl mr-2">🎯</span>
+                                Tujuan Pembelajaran
+                            </h3>
+                            <ul class="space-y-2 text-gray-700 text-lg">
+                                <li>• Memahami konsep SQLite</li>
+                                <li>• Dapat mengimplementasi database</li>
+                                <li>• Menguasai operasi CRUD</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-green-700 mb-3 flex items-center">
+                            <span class="text-2xl mr-2">💡</span>
+                            Pemahaman Bermakna
+                        </h3>
+                        <p class="text-gray-700 text-lg leading-relaxed">
+                            SQLite adalah seperti <span class="highlight">lemari penyimpanan mini</span> di dalam aplikasi Android kamu. 
+                            Bayangkan kamu punya toko online, kamu butuh tempat untuk menyimpan data produk, pelanggan, dan pesanan. 
+                            SQLite membantu kamu menyimpan semua data itu dengan rapi dan mudah diakses!
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-orange-700 mb-3 flex items-center">
+                            <span class="text-2xl mr-2">🔥</span>
+                            Motivasi
+                        </h3>
+                        <p class="text-gray-700 text-lg leading-relaxed">
+                            Dengan menguasai SQLite, kamu bisa membuat aplikasi yang canggih seperti WhatsApp (menyimpan chat), 
+                            Instagram (menyimpan foto), atau aplikasi toko online. Skill ini sangat dicari di dunia kerja! 🚀
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="goToNextSection('intro')" class="bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Mulai Belajar! 🎉
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-4xl mr-3">📚</span>
+                        Pengenalan SQLite
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-blue-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🤖</span>
+                                Apa itu SQLite?
+                            </h3>
+                            <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                                SQLite adalah sistem manajemen database relasional yang sangat ringan dan tidak memerlukan server terpisah. 
+                                Database ini tersimpan dalam satu file dan cocok banget untuk aplikasi mobile karena ukurannya kecil tapi powerful!
+                            </p>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-sm text-gray-600">💡 <strong>Fun Fact:</strong> SQLite digunakan oleh miliaran perangkat di seluruh dunia!</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-green-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">⭐</span>
+                                Keunggulan SQLite
+                            </h3>
+                            <ul class="space-y-2 text-gray-700 text-lg">
+                                <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Ringan & cepat</li>
+                                <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Tidak butuh server</li>
+                                <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Gratis & open source</li>
+                                <li class="flex items-center"><span class="text-green-500 mr-2">✓</span> Mudah digunakan</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center">
+                            <span class="text-2xl mr-2">🏗️</span>
+                            SQLite vs Database Lain
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="bg-white/50">
+                                        <th class="p-3 font-semibold">Aspek</th>
+                                        <th class="p-3 font-semibold text-green-600">SQLite</th>
+                                        <th class="p-3 font-semibold text-blue-600">MySQL</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-lg">
+                                    <tr>
+                                        <td class="p-3 font-medium">Server</td>
+                                        <td class="p-3">❌ Tidak butuh</td>
+                                        <td class="p-3">✅ Butuh server</td>
+                                    </tr>
+                                    <tr class="bg-white/30">
+                                        <td class="p-3 font-medium">Ukuran</td>
+                                        <td class="p-3">🪶 Sangat ringan</td>
+                                        <td class="p-3">🏋️ Lebih berat</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3 font-medium">Mobile</td>
+                                        <td class="p-3">📱 Sangat cocok</td>
+                                        <td class="p-3">💻 Untuk server</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="goToNextSection('pengenalan')" class="bg-gradient-to-r from-blue-400 to-cyan-500 hover:from-blue-500 hover:to-cyan-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Lanjut ke Konsep Dasar 📖
+                    </button>
+                </div>
+            </div>
+
+            <!-- Konsep Dasar Section -->
+            <div id="konsep-dasar" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-4xl mr-3">🧠</span>
+                        Konsep Dasar Database
+                    </h2>
+                    
+                    <div class="mb-8">
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl mb-6">
+                            <h3 class="text-xl font-bold text-orange-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🏠</span>
+                                Analogi Sederhana
+                            </h3>
+                            <p class="text-gray-700 text-lg leading-relaxed">
+                                Bayangkan database seperti <span class="highlight">perpustakaan</span>:
+                            </p>
+                            <div class="grid md:grid-cols-3 gap-4 mt-4">
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="text-3xl mb-2">📚</div>
+                                    <p class="font-semibold">Database = Perpustakaan</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="text-3xl mb-2">📋</div>
+                                    <p class="font-semibold">Tabel = Rak Buku</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="text-3xl mb-2">📖</div>
+                                    <p class="font-semibold">Record = Buku</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-blue-50 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">📊</span>
+                                    Komponen Database
+                                </h3>
+                                <ul class="space-y-3 text-gray-700 text-lg">
+                                    <li class="flex items-start">
+                                        <span class="text-blue-500 mr-2 mt-1">🗃️</span>
+                                        <div>
+                                            <strong>Tabel:</strong> Tempat menyimpan data sejenis
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-blue-500 mr-2 mt-1">📝</span>
+                                        <div>
+                                            <strong>Record/Row:</strong> Satu baris data lengkap
+                                        </div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-blue-500 mr-2 mt-1">🏷️</span>
+                                        <div>
+                                            <strong>Field/Column:</strong> Kategori data
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-green-50 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">🎯</span>
+                                    Contoh Tabel Siswa
+                                </h3>
+                                <div class="bg-white p-4 rounded-lg overflow-x-auto">
+                                    <table class="w-full text-sm">
+                                        <thead>
+                                            <tr class="bg-green-100">
+                                                <th class="p-2 text-left">ID</th>
+                                                <th class="p-2 text-left">Nama</th>
+                                                <th class="p-2 text-left">Kelas</th>
+                                                <th class="p-2 text-left">Umur</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="p-2">1</td>
+                                                <td class="p-2">Andi</td>
+                                                <td class="p-2">XII RPL</td>
+                                                <td class="p-2">17</td>
+                                            </tr>
+                                            <tr class="bg-gray-50">
+                                                <td class="p-2">2</td>
+                                                <td class="p-2">Sari</td>
+                                                <td class="p-2">XII TKJ</td>
+                                                <td class="p-2">18</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-2">
+                                    ☝️ Setiap baris = 1 record siswa
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center">
+                            <span class="text-2xl mr-2">🔑</span>
+                            Primary Key (Kunci Utama)
+                        </h3>
+                        <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                            Primary Key adalah <span class="highlight">ID unik</span> untuk setiap record. 
+                            Seperti nomor induk siswa - tidak boleh ada yang sama!
+                        </p>
+                        <div class="bg-white p-4 rounded-lg">
+                            <p class="text-purple-600 font-semibold">💡 Tips: Biasanya menggunakan angka yang otomatis bertambah (AUTOINCREMENT)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-indigo-700 mb-4 flex items-center">
+                            <span class="text-2xl mr-2">📊</span>
+                            Tipe Data SQLite
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="bg-white p-4 rounded-lg">
+                                <h4 class="font-semibold text-indigo-600 mb-2">Tipe Data Utama:</h4>
+                                <ul class="space-y-1 text-gray-700">
+                                    <li>• <strong>INTEGER:</strong> Angka bulat (1, 2, 100)</li>
+                                    <li>• <strong>TEXT:</strong> Teks/string ("Nama", "Alamat")</li>
+                                    <li>• <strong>REAL:</strong> Angka desimal (3.14, 99.5)</li>
+                                    <li>• <strong>BLOB:</strong> Data binary (gambar, file)</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <h4 class="font-semibold text-indigo-600 mb-2">Contoh Penggunaan:</h4>
+                                <div class="text-sm text-gray-600">
+                                    <code>id INTEGER PRIMARY KEY<br>
+                                    nama TEXT NOT NULL<br>
+                                    umur INTEGER<br>
+                                    tinggi REAL</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="goToNextSection('konsep-dasar')" class="bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Setup SQLite di Android 🛠️
+                    </button>
+                </div>
+            </div>
+
+            <!-- Setup SQLite Section -->
+            <div id="setup-sqlite" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-4xl mr-3">⚙️</span>
+                        Setup SQLite di Android
+                    </h2>
+                    
+                    <div class="mb-8">
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-2xl mb-6">
+                            <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">📱</span>
+                                Kabar Baik!
+                            </h3>
+                            <p class="text-gray-700 text-lg leading-relaxed">
+                                SQLite sudah <span class="highlight">built-in</span> di Android! 
+                                Kamu tidak perlu install apapun, tinggal pakai langsung. 
+                                Android menyediakan class <code class="bg-gray-200 px-2 py-1 rounded">SQLiteOpenHelper</code> untuk memudahkan kita.
+                            </p>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div class="bg-yellow-50 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-yellow-700 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">🏗️</span>
+                                    Langkah Setup
+                                </h3>
+                                <ol class="space-y-3 text-gray-700 text-lg">
+                                    <li class="flex items-start">
+                                        <span class="bg-yellow-200 text-yellow-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-1">1</span>
+                                        <div>Buat class DatabaseHelper</div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="bg-yellow-200 text-yellow-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-1">2</span>
+                                        <div>Extend SQLiteOpenHelper</div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="bg-yellow-200 text-yellow-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-1">3</span>
+                                        <div>Override method onCreate & onUpgrade</div>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="bg-yellow-200 text-yellow-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold mr-3 mt-1">4</span>
+                                        <div>Buat method CRUD</div>
+                                    </li>
+                                </ol>
+                            </div>
+                            
+                            <div class="bg-green-50 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">📋</span>
+                                    Yang Dibutuhkan
+                                </h3>
+                                <ul class="space-y-2 text-gray-700 text-lg">
+                                    <li class="flex items-center">
+                                        <span class="text-green-500 mr-2">✓</span>
+                                        Android Studio
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="text-green-500 mr-2">✓</span>
+                                        Project Android
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="text-green-500 mr-2">✓</span>
+                                        Pengetahuan Java/Kotlin
+                                    </li>
+                                    <li class="flex items-center">
+                                        <span class="text-green-500 mr-2">✓</span>
+                                        Semangat belajar! 🔥
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 p-6 rounded-2xl mb-6">
+                            <h3 class="text-xl font-bold text-gray-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">💻</span>
+                                Contoh DatabaseHelper Class
+                            </h3>
+                            <div class="code-block">
+                                <pre><code>public class DatabaseHelper extends SQLiteOpenHelper {
+    
+    // Konstanta database
+    private static final String DATABASE_NAME = "sekolah.db";
+    private static final int DATABASE_VERSION = 1;
+    
+    // Nama tabel dan kolom
+    private static final String TABLE_SISWA = "siswa";
+    private static final String COLUMN_ID = "id";
+    private static final String COLUMN_NAMA = "nama";
+    private static final String COLUMN_KELAS = "kelas";
+    private static final String COLUMN_UMUR = "umur";
+    
+    public DatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+    
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        // Buat tabel siswa
+        String createTable = "CREATE TABLE " + TABLE_SISWA + "("
+                + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_NAMA + " TEXT NOT NULL,"
+                + COLUMN_KELAS + " TEXT NOT NULL,"
+                + COLUMN_UMUR + " INTEGER" + ")";
+        db.execSQL(createTable);
+    }
+    
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // Hapus tabel lama dan buat yang baru
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SISWA);
+        onCreate(db);
+    }
+}</code></pre>
+                            </div>
+                            <div class="mt-4 p-4 bg-blue-100 rounded-lg">
+                                <p class="text-blue-700 font-semibold">💡 Penjelasan:</p>
+                                <ul class="text-blue-600 mt-2 space-y-1">
+                                    <li>• <strong>onCreate:</strong> Dipanggil saat database pertama kali dibuat</li>
+                                    <li>• <strong>onUpgrade:</strong> Dipanggil saat versi database berubah</li>
+                                    <li>• <strong>PRIMARY KEY AUTOINCREMENT:</strong> ID otomatis bertambah</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="goToNextSection('setup-sqlite')" class="bg-gradient-to-r from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Belajar Operasi CRUD 🔧
+                    </button>
+                </div>
+            </div>
+
+            <!-- CRUD Operations Section -->
+            <div id="crud-operations" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-4xl mr-3">🔧</span>
+                        Operasi CRUD
+                    </h2>
+                    
+                    <div class="mb-8">
+                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl mb-6">
+                            <h3 class="text-xl font-bold text-indigo-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🎯</span>
+                                Apa itu CRUD?
+                            </h3>
+                            <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                                CRUD adalah singkatan dari 4 operasi dasar database:
+                            </p>
+                            <div class="grid md:grid-cols-4 gap-4">
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="text-3xl mb-2">➕</div>
+                                    <p class="font-semibold text-green-600">CREATE</p>
+                                    <p class="text-sm text-gray-600">Tambah data</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="text-3xl mb-2">👀</div>
+                                    <p class="font-semibold text-blue-600">READ</p>
+                                    <p class="text-sm text-gray-600">Baca data</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="text-3xl mb-2">✏️</div>
+                                    <p class="font-semibold text-yellow-600">UPDATE</p>
+                                    <p class="text-sm text-gray-600">Edit data</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="text-3xl mb-2">🗑️</div>
+                                    <p class="font-semibold text-red-600">DELETE</p>
+                                    <p class="text-sm text-gray-600">Hapus data</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- CREATE -->
+                        <div class="bg-green-50 p-6 rounded-2xl mb-6">
+                            <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">➕</span>
+                                CREATE - Menambah Data
+                            </h3>
+                            <div class="code-block mb-4">
+                                <pre><code>public long tambahSiswa(String nama, String kelas, int umur) {
+    SQLiteDatabase db = this.getWritableDatabase();
+    ContentValues values = new ContentValues();
+    
+    values.put(COLUMN_NAMA, nama);
+    values.put(COLUMN_KELAS, kelas);
+    values.put(COLUMN_UMUR, umur);
+    
+    long id = db.insert(TABLE_SISWA, null, values);
+    db.close();
+    
+    return id; // Return ID siswa yang baru ditambah
+}</code></pre>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-green-600 font-semibold">💡 Cara pakai:</p>
+                                <code class="text-sm">DatabaseHelper db = new DatabaseHelper(this);<br>
+                                long id = db.tambahSiswa("Budi", "XII RPL");</code>
+                            </div>
+                        </div>
+                        
+                        <!-- READ -->
+                        <div class="bg-blue-50 p-6 rounded-2xl mb-6">
+                            <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">👀</span>
+                                READ - Membaca Data
+                            </h3>
+                            <div class="code-block mb-4">
+                                <pre><code>public List&lt;Siswa&gt; getAllSiswa() {
+    List&lt;Siswa&gt; listSiswa = new ArrayList&lt;&gt;();
+    SQLiteDatabase db = this.getReadableDatabase();
+    
+    // Query untuk mengambil semua data siswa
+    Cursor cursor = db.query(TABLE_SISWA, null, null, null, null, null, null);
+    
+    if (cursor.moveToFirst()) {
+        do {
+            Siswa siswa = new Siswa();
+            siswa.setId(cursor.getInt(cursor.getColumnIndex(COLUMN_ID)));
+            siswa.setNama(cursor.getString(cursor.getColumnIndex(COLUMN_NAMA)));
+            siswa.setKelas(cursor.getString(cursor.getColumnIndex(COLUMN_KELAS)));
+            siswa.setUmur(cursor.getInt(cursor.getColumnIndex(COLUMN_UMUR)));
+            listSiswa.add(siswa);
+        } while (cursor.moveToNext());
+    }
+    
+    cursor.close();
+    db.close();
+    return listSiswa;
+}</code></pre>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-blue-600 font-semibold">💡 Cara pakai:</p>
+                                <code class="text-sm">List&lt;Siswa&gt; daftarSiswa = db.getAllSiswa();</code>
+                            </div>
+                        </div>
+                        
+                        <!-- UPDATE -->
+                        <div class="bg-yellow-50 p-6 rounded-2xl mb-6">
+                            <h3 class="text-xl font-bold text-yellow-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">✏️</span>
+                                UPDATE - Mengubah Data
+                            </h3>
+                            <div class="code-block mb-4">
+                                <pre><code>public int updateSiswa(int id, String nama, String kelas, int umur) {
+    SQLiteDatabase db = this.getWritableDatabase();
+    ContentValues values = new ContentValues();
+    
+    values.put(COLUMN_NAMA, nama);
+    values.put(COLUMN_KELAS, kelas);
+    values.put(COLUMN_UMUR, umur);
+    
+    // Update data berdasarkan ID
+    int result = db.update(TABLE_SISWA, values, 
+                          COLUMN_ID + " = ?", 
+                          new String[]{String.valueOf(id)});
+    db.close();
+    
+    return result; // Return jumlah row yang diupdate
+}</code></pre>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-yellow-600 font-semibold">💡 Cara pakai:</p>
+                                <code class="text-sm">int updated = db.updateSiswa(1, "Budi Santoso", "XII TKJ");</code>
+                            </div>
+                        </div>
+                        
+                        <!-- DELETE -->
+                        <div class="bg-red-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-red-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🗑️</span>
+                                DELETE - Menghapus Data
+                            </h3>
+                            <div class="code-block mb-4">
+                                <pre><code>public int deleteSiswa(int id) {
+    SQLiteDatabase db = this.getWritableDatabase();
+    
+    int result = db.delete(TABLE_SISWA, 
+                          COLUMN_ID + " = ?", 
+                          new String[]{String.valueOf(id)});
+    db.close();
+    
+    return result; // Return jumlah row yang dihapus
+}</code></pre>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-red-600 font-semibold">💡 Cara pakai:</p>
+                                <code class="text-sm">int deleted = db.deleteSiswa(1);<br>
+                                if (deleted > 0) {<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;// Data berhasil dihapus<br>
+                                }</code>
+                            </div>
+                        </div>
+                        
+                        <!-- Error Handling -->
+                        <div class="bg-orange-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-orange-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">⚠️</span>
+                                Error Handling & Best Practices
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-orange-600 mb-2">Tips Penting:</h4>
+                                    <ul class="space-y-1 text-gray-700 text-sm">
+                                        <li>• Selalu tutup database dengan <code>db.close()</code></li>
+                                        <li>• Gunakan try-catch untuk menangani error</li>
+                                        <li>• Validasi input sebelum menyimpan ke database</li>
+                                        <li>• Gunakan transaksi untuk operasi multiple</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-orange-600 mb-2">Contoh Error Handling:</h4>
+                                    <div class="text-xs text-gray-600">
+                                        <code>try {<br>
+                                        &nbsp;&nbsp;long id = db.tambahSiswa(nama, kelas, umur);<br>
+                                        &nbsp;&nbsp;Log.d("DB", "Data tersimpan dengan ID: " + id);<br>
+                                        } catch (Exception e) {<br>
+                                        &nbsp;&nbsp;Log.e("DB", "Error: " + e.getMessage());<br>
+                                        }</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="goToNextSection('crud-operations')" class="bg-gradient-to-r from-indigo-400 to-purple-500 hover:from-indigo-500 hover:to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Praktik Langsung 💻
+                    </button>
+                </div>
+            </div>
+
+            <!-- Praktik Section -->
+            <div id="praktik" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-4xl mr-3">💻</span>
+                        Praktik Simulasi
+                    </h2>
+                    
+                    <div class="bg-gradient-to-r from-cyan-50 to-blue-50 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-cyan-700 mb-4 flex items-center">
+                            <span class="text-2xl mr-2">🎮</span>
+                            Simulasi Database Siswa
+                        </h3>
+                        <p class="text-gray-700 text-lg mb-4">
+                            Mari praktik operasi CRUD dengan simulasi sederhana!
+                        </p>
+                        
+                        <!-- Form Input -->
+                        <div class="bg-white p-6 rounded-xl mb-6">
+                            <h4 class="font-bold text-gray-700 mb-4">➕ Tambah Siswa Baru</h4>
+                            <div class="grid md:grid-cols-4 gap-4 mb-4">
+                                <input type="text" id="inputNama" placeholder="Nama siswa" class="p-3 border-2 border-gray-200 rounded-lg focus:border-blue-400 focus:outline-none text-lg">
+                                <input type="text" id="inputKelas" placeholder="Kelas (contoh: XII RPL)" class="p-3 border-2 border-gray-200 rounded-lg focus:border-blue-400 focus:outline-none text-lg">
+                                <input type="number" id="inputUmur" placeholder="Umur" min="15" max="25" class="p-3 border-2 border-gray-200 rounded-lg focus:border-blue-400 focus:outline-none text-lg">
+                                <button onclick="tambahSiswa()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200">
+                                    Tambah Siswa
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Tabel Data -->
+                        <div class="bg-white p-6 rounded-xl">
+                            <h4 class="font-bold text-gray-700 mb-4">📊 Data Siswa</h4>
+                            <div class="overflow-x-auto">
+                                <table class="w-full" id="tabelSiswa">
+                                    <thead>
+                                        <tr class="bg-gray-100">
+                                            <th class="p-3 text-left">ID</th>
+                                            <th class="p-3 text-left">Nama</th>
+                                            <th class="p-3 text-left">Kelas</th>
+                                            <th class="p-3 text-left">Umur</th>
+                                            <th class="p-3 text-left">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bodyTabel">
+                                        <tr>
+                                            <td class="p-3">1</td>
+                                            <td class="p-3">Andi Pratama</td>
+                                            <td class="p-3">XII RPL</td>
+                                            <td class="p-3">17</td>
+                                            <td class="p-3">
+                                                <button onclick="editSiswa(1)" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded mr-2 text-sm">Edit</button>
+                                                <button onclick="hapusSiswa(1)" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">Hapus</button>
+                                            </td>
+                                        </tr>
+                                        <tr class="bg-gray-50">
+                                            <td class="p-3">2</td>
+                                            <td class="p-3">Sari Dewi</td>
+                                            <td class="p-3">XII TKJ</td>
+                                            <td class="p-3">18</td>
+                                            <td class="p-3">
+                                                <button onclick="editSiswa(2)" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded mr-2 text-sm">Edit</button>
+                                                <button onclick="hapusSiswa(2)" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">Hapus</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Status -->
+                        <div id="statusPraktik" class="mt-4 p-4 bg-blue-100 rounded-lg">
+                            <p class="text-blue-700 font-semibold">💡 Status: Siap untuk praktik!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-purple-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">📝</span>
+                                Langkah Praktik
+                            </h3>
+                            <ol class="space-y-2 text-gray-700 text-lg">
+                                <li>1. Coba tambah siswa baru</li>
+                                <li>2. Edit data siswa yang ada</li>
+                                <li>3. Hapus data siswa</li>
+                                <li>4. Perhatikan perubahan di tabel</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="bg-orange-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-orange-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🎯</span>
+                                Tips Praktik
+                            </h3>
+                            <ul class="space-y-2 text-gray-700 text-lg">
+                                <li>• Gunakan nama dan kelas yang realistis</li>
+                                <li>• Perhatikan ID yang otomatis bertambah</li>
+                                <li>• Coba berbagai operasi CRUD</li>
+                                <li>• Amati feedback dari sistem</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="goToNextSection('praktik')" class="bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Kerjakan Tugas 📝
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tugas Section -->
+            <div id="tugas" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-4xl mr-3">📝</span>
+                        Tugas Pembelajaran
+                    </h2>
+                    
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center">
+                            <span class="text-2xl mr-2">📋</span>
+                            Petunjuk Pengerjaan
+                        </h3>
+                        <ul class="space-y-2 text-gray-700 text-lg">
+                            <li>• Jawab semua pertanyaan dengan lengkap dan jelas</li>
+                            <li>• Gunakan bahasa yang mudah dipahami</li>
+                            <li>• Berikan contoh jika diperlukan</li>
+                            <li>• Tulis jawaban di buku tugas atau dokumen</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <!-- Soal 1 -->
+                        <div class="bg-green-50 p-6 rounded-2xl">
+                            <h4 class="text-lg font-bold text-green-700 mb-3 flex items-center">
+                                <span class="bg-green-200 text-green-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">1</span>
+                                Konsep Dasar
+                            </h4>
+                            <p class="text-gray-700 text-lg leading-relaxed">
+                                Jelaskan dengan kata-kata sendiri apa itu SQLite dan mengapa SQLite cocok digunakan untuk aplikasi Android! 
+                                Sebutkan minimal 3 keunggulan SQLite dibandingkan database lain.
+                            </p>
+                        </div>
+                        
+                        <!-- Soal 2 -->
+                        <div class="bg-blue-50 p-6 rounded-2xl">
+                            <h4 class="text-lg font-bold text-blue-700 mb-3 flex items-center">
+                                <span class="bg-blue-200 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">2</span>
+                                Analogi Database
+                            </h4>
+                            <p class="text-gray-700 text-lg leading-relaxed">
+                                Buatlah analogi sederhana untuk menjelaskan komponen database (Database, Tabel, Record, Field) 
+                                menggunakan contoh kehidupan sehari-hari selain perpustakaan! Jelaskan dengan detail.
+                            </p>
+                        </div>
+                        
+                        <!-- Soal 3 -->
+                        <div class="bg-yellow-50 p-6 rounded-2xl">
+                            <h4 class="text-lg font-bold text-yellow-700 mb-3 flex items-center">
+                                <span class="bg-yellow-200 text-yellow-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</span>
+                                Desain Tabel
+                            </h4>
+                            <p class="text-gray-700 text-lg leading-relaxed">
+                                Rancanglah struktur tabel untuk aplikasi "Toko Buku Online" yang memiliki fitur:
+                                - Menyimpan data buku (judul, pengarang, harga, stok)
+                                - Menyimpan data pelanggan
+                                - Menyimpan data pesanan
+                                <br><br>
+                                Tentukan nama tabel, field/kolom, dan tipe data yang sesuai untuk masing-masing tabel!
+                            </p>
+                        </div>
+                        
+                        <!-- Soal 4 -->
+                        <div class="bg-purple-50 p-6 rounded-2xl">
+                            <h4 class="text-lg font-bold text-purple-700 mb-3 flex items-center">
+                                <span class="bg-purple-200 text-purple-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">4</span>
+                                Operasi CRUD
+                            </h4>
+                            <p class="text-gray-700 text-lg leading-relaxed">
+                                Jelaskan kegunaan masing-masing operasi CRUD (Create, Read, Update, Delete) dan berikan contoh 
+                                penggunaannya dalam aplikasi sehari-hari seperti WhatsApp, Instagram, atau aplikasi e-commerce!
+                            </p>
+                        </div>
+                        
+                        <!-- Soal 5 -->
+                        <div class="bg-pink-50 p-6 rounded-2xl">
+                            <h4 class="text-lg font-bold text-pink-700 mb-3 flex items-center">
+                                <span class="bg-pink-200 text-pink-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">5</span>
+                                Studi Kasus
+                            </h4>
+                            <p class="text-gray-700 text-lg leading-relaxed">
+                                Kamu diminta membuat aplikasi "Catatan Harian" yang bisa menyimpan catatan dengan tanggal, judul, dan isi catatan. 
+                                Jelaskan langkah-langkah yang perlu dilakukan untuk mengimplementasikan SQLite dalam aplikasi tersebut, 
+                                mulai dari setup hingga operasi CRUD!
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-teal-700 mb-4 flex items-center">
+                            <span class="text-2xl mr-2">⏰</span>
+                            Informasi Tugas
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4 text-gray-700 text-lg">
+                            <div>
+                                <p><strong>Waktu pengerjaan:</strong> 1 minggu</p>
+                                <p><strong>Format:</strong> Tulis tangan atau ketik</p>
+                            </div>
+                            <div>
+                                <p><strong>Penilaian:</strong> Kelengkapan & pemahaman</p>
+                                <p><strong>Konsultasi:</strong> Boleh bertanya ke guru</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="goToNextSection('tugas')" class="bg-gradient-to-r from-red-400 to-pink-500 hover:from-red-500 hover:to-pink-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Ikuti Kuis 🎯
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-4xl mr-3">🎯</span>
+                        Kuis Interaktif
+                    </h2>
+                    
+                    <!-- Form Nama -->
+                    <div id="formNama" class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center">
+                            <span class="text-2xl mr-2">👤</span>
+                            Sebelum Mulai Kuis
+                        </h3>
+                        <div class="flex flex-col md:flex-row gap-4 items-end">
+                            <div class="flex-1">
+                                <label class="block text-gray-700 font-semibold mb-2 text-lg">Masukkan nama kamu:</label>
+                                <input type="text" id="namaKuis" placeholder="Nama lengkap" class="w-full p-4 border-2 border-gray-200 rounded-lg focus:border-purple-400 focus:outline-none text-lg">
+                            </div>
+                            <button onclick="mulaiKuis()" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-4 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105">
+                                Mulai Kuis! 🚀
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Area Kuis -->
+                    <div id="areaKuis" class="hidden">
+                        <div class="bg-blue-50 p-6 rounded-2xl mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-bold text-blue-700">
+                                    <span id="namaUser"></span> - Kuis SQLite Android
+                                </h3>
+                                <div class="text-lg font-semibold text-blue-600">
+                                    Soal <span id="nomorSoal">1</span> dari 10
+                                </div>
+                            </div>
+                            
+                            <!-- Progress Bar -->
+                            <div class="w-full bg-gray-200 rounded-full h-3 mb-6">
+                                <div id="progressBar" class="bg-gradient-to-r from-blue-400 to-purple-500 h-3 rounded-full transition-all duration-300" style="width: 10%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Soal Kuis -->
+                        <div id="soalKuis" class="bg-white p-8 rounded-2xl shadow-lg mb-6">
+                            <!-- Soal akan dimuat di sini -->
+                        </div>
+                        
+                        <!-- Tombol Navigasi -->
+                        <div class="flex justify-between">
+                            <button id="btnSebelumnya" onclick="soalSebelumnya()" class="bg-gray-400 hover:bg-gray-500 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200 disabled:opacity-50" disabled>
+                                ← Sebelumnya
+                            </button>
+                            <button id="btnSelanjutnya" onclick="soalSelanjutnya()" class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300">
+                                Selanjutnya →
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Hasil Kuis -->
+                    <div id="hasilKuis" class="hidden">
+                        <div class="text-center">
+                            <div class="text-6xl mb-4">🎉</div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">Kuis Selesai!</h3>
+                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-2xl mb-6">
+                                <p class="text-xl text-gray-700 mb-2">Hasil kuis <strong id="namaHasil"></strong>:</p>
+                                <div class="text-4xl font-bold text-green-600 mb-2" id="skorAkhir">0/10</div>
+                                <div class="text-lg text-gray-600" id="persentase">0%</div>
+                                <div class="mt-4 p-4 rounded-lg" id="feedback">
+                                    <!-- Feedback akan dimuat di sini -->
+                                </div>
+                            </div>
+                            <button onclick="ulangiKuis()" class="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                                Ulangi Kuis 🔄
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="goToNextSection('kuis')" class="bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-teal-500 hover:to-cyan-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Ke Penutup 🎉
+                    </button>
+                </div>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden fade-in">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+                        <span class="text-4xl mr-3">🎉</span>
+                        Penutup Pembelajaran
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-2xl card-hover">
+                            <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🤔</span>
+                                Refleksi
+                            </h3>
+                            <div class="space-y-3 text-gray-700 text-lg">
+                                <p><strong>Apa yang sudah kamu pelajari?</strong></p>
+                                <ul class="space-y-1 text-base">
+                                    <li>• Konsep dasar SQLite</li>
+                                    <li>• Setup database di Android</li>
+                                    <li>• Operasi CRUD lengkap</li>
+                                    <li>• Praktik implementasi</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-2xl card-hover">
+                            <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">📚</span>
+                                Kesimpulan
+                            </h3>
+                            <p class="text-gray-700 text-lg leading-relaxed">
+                                SQLite adalah solusi database yang <span class="highlight">sempurna</span> untuk aplikasi Android. 
+                                Dengan menguasai CRUD operations, kamu sudah bisa membuat aplikasi yang canggih dan profesional!
+                            </p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl card-hover">
+                            <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🚀</span>
+                                Tindak Lanjut
+                            </h3>
+                            <ul class="space-y-2 text-gray-700 text-lg">
+                                <li>• Praktik membuat aplikasi sendiri</li>
+                                <li>• Pelajari Room Database</li>
+                                <li>• Eksplorasi fitur advanced</li>
+                                <li>• Join komunitas developer</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-8 rounded-2xl mb-6">
+                        <h3 class="text-2xl font-bold text-orange-700 mb-4 flex items-center">
+                            <span class="text-3xl mr-3">🌟</span>
+                            Selamat!
+                        </h3>
+                        <p class="text-gray-700 text-xl leading-relaxed mb-4">
+                            Kamu telah berhasil menyelesaikan pembelajaran SQLite untuk Android! 
+                            Skill yang kamu pelajari hari ini adalah fondasi penting untuk menjadi Android Developer yang handal.
+                        </p>
+                        <div class="bg-white p-6 rounded-xl">
+                            <p class="text-lg text-gray-600 text-center font-semibold">
+                                💡 "Database yang baik adalah jantung dari aplikasi yang hebat!"
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="text-6xl mb-4 bounce">🎓</div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Terima Kasih Telah Belajar!</h3>
+                        <p class="text-lg text-gray-600 mb-6">
+                            Terus semangat belajar dan jangan lupa praktik ya! 💪
+                        </p>
+                        <button onclick="showSection('intro')" class="bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                            Kembali ke Awal 🔄
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-pink-400 to-purple-500 hover:from-pink-500 hover:to-purple-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 z-30 opacity-0 pointer-events-none">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Data untuk simulasi praktik
+        let dataSiswa = [
+            {id: 1, nama: "Andi Pratama", kelas: "XII RPL", umur: 17},
+            {id: 2, nama: "Sari Dewi", kelas: "XII TKJ", umur: 18}
+        ];
+        let nextId = 3;
+        
+        // Data kuis
+        const soalKuis = [
+            {
+                pertanyaan: "Apa kepanjangan dari SQLite?",
+                pilihan: ["Structured Query Language Lite", "Simple Query Language Text", "Standard Query Language Table", "System Query Language Type"],
+                jawaban: 0
+            },
+            {
+                pertanyaan: "Mengapa SQLite cocok untuk aplikasi mobile?",
+                pilihan: ["Membutuhkan server terpisah", "Ukurannya besar dan powerful", "Ringan dan tidak butuh server", "Hanya bisa digunakan di Android"],
+                jawaban: 2
+            },
+            {
+                pertanyaan: "Apa fungsi PRIMARY KEY dalam tabel database?",
+                pilihan: ["Membuat tabel lebih cepat", "Mengidentifikasi record secara unik", "Menyimpan password", "Mengurutkan data"],
+                jawaban: 1
+            },
+            {
+                pertanyaan: "Class apa yang digunakan untuk mengelola SQLite di Android?",
+                pilihan: ["DatabaseManager", "SQLiteOpenHelper", "SQLiteController", "DatabaseHelper"],
+                jawaban: 1
+            },
+            {
+                pertanyaan: "Operasi CRUD terdiri dari berapa operasi dasar?",
+                pilihan: ["3 operasi", "4 operasi", "5 operasi", "6 operasi"],
+                jawaban: 1
+            },
+            {
+                pertanyaan: "Apa yang dimaksud dengan CREATE dalam CRUD?",
+                pilihan: ["Membaca data", "Menghapus data", "Menambah data baru", "Mengubah data"],
+                jawaban: 2
+            },
+            {
+                pertanyaan: "Method apa yang digunakan untuk membaca data dari SQLite?",
+                pilihan: ["insert()", "query()", "update()", "delete()"],
+                jawaban: 1
+            },
+            {
+                pertanyaan: "Kapan method onCreate() dipanggil?",
+                pilihan: ["Setiap kali aplikasi dibuka", "Saat database pertama kali dibuat", "Saat data diupdate", "Saat aplikasi ditutup"],
+                jawaban: 1
+            },
+            {
+                pertanyaan: "Apa fungsi ContentValues dalam SQLite Android?",
+                pilihan: ["Membaca data dari tabel", "Menyimpan pasangan key-value untuk insert/update", "Menghapus data", "Membuat tabel baru"],
+                jawaban: 1
+            },
+            {
+                pertanyaan: "Tipe data apa yang cocok untuk menyimpan nama siswa di SQLite?",
+                pilihan: ["INTEGER", "TEXT", "REAL", "BLOB"],
+                jawaban: 1
+            }
+        ];
+        
+        let kuisState = {
+            soalSekarang: 0,
+            jawaban: new Array(10).fill(-1),
+            namaUser: ""
+        };
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.getElementById(sectionId).classList.add('fade-in');
+            
+            // Close mobile menu
+            document.getElementById('sidebar').classList.remove('translate-x-0');
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            
+            // Update active nav item
+            updateActiveNavItem(sectionId);
+            
+            // Scroll to top dengan delay untuk memastikan DOM sudah terupdate
+            setTimeout(() => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }, 50);
+        }
+
+        function updateActiveNavItem(activeSection) {
+            // Remove all active classes
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-pink-100', 'bg-blue-100', 'bg-green-100', 'bg-yellow-100', 'bg-purple-100', 'bg-indigo-100', 'bg-orange-100', 'bg-red-100', 'bg-teal-100');
+                item.classList.remove('border-l-4', 'border-pink-400', 'border-blue-400', 'border-green-400', 'border-yellow-400', 'border-purple-400', 'border-indigo-400', 'border-orange-400', 'border-red-400', 'border-teal-400');
+            });
+            
+            // Add active class to current section
+            const navColors = {
+                'intro': ['bg-pink-100', 'border-pink-400'],
+                'pengenalan': ['bg-blue-100', 'border-blue-400'],
+                'konsep-dasar': ['bg-green-100', 'border-green-400'],
+                'setup-sqlite': ['bg-yellow-100', 'border-yellow-400'],
+                'crud-operations': ['bg-purple-100', 'border-purple-400'],
+                'praktik': ['bg-indigo-100', 'border-indigo-400'],
+                'tugas': ['bg-orange-100', 'border-orange-400'],
+                'kuis': ['bg-red-100', 'border-red-400'],
+                'penutup': ['bg-teal-100', 'border-teal-400']
+            };
+            
+            if (navColors[activeSection]) {
+                const targetNav = document.querySelector(`[onclick="showSection('${activeSection}')"]`);
+                if (targetNav) {
+                    targetNav.classList.add(navColors[activeSection][0], 'border-l-4', navColors[activeSection][1]);
+                }
+            }
+        }
+
+        function goToNextSection(currentSection) {
+            const sections = ['intro', 'pengenalan', 'konsep-dasar', 'setup-sqlite', 'crud-operations', 'praktik', 'tugas', 'kuis', 'penutup'];
+            const currentIndex = sections.indexOf(currentSection);
+            
+            if (currentIndex < sections.length - 1) {
+                const nextSection = sections[currentIndex + 1];
+                showSection(nextSection);
+                
+                // Pastikan scroll ke atas dengan delay kecil untuk memastikan section sudah dimuat
+                setTimeout(() => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                }, 100);
+            }
+        }
+
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+            sidebar.classList.toggle('translate-x-0');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            
+            if (window.innerWidth < 1024 && !sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                sidebar.classList.add('-translate-x-full');
+                sidebar.classList.remove('translate-x-0');
+            }
+        });
+
+        // Back to top button
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.remove('opacity-0', 'pointer-events-none');
+                backToTop.classList.add('opacity-100');
+            } else {
+                backToTop.classList.add('opacity-0', 'pointer-events-none');
+                backToTop.classList.remove('opacity-100');
+            }
+        });
+
+        document.getElementById('backToTop').addEventListener('click', function() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+
+        // Praktik functions
+        function tambahSiswa() {
+            const nama = document.getElementById('inputNama').value.trim();
+            const kelas = document.getElementById('inputKelas').value.trim();
+            const umur = parseInt(document.getElementById('inputUmur').value);
+            
+            if (!nama || !kelas || !umur || umur < 15 || umur > 25) {
+                updateStatus('❌ Mohon isi semua data dengan benar! (Umur: 15-25 tahun)', 'bg-red-100', 'text-red-700');
+                return;
+            }
+            
+            const siswa = {
+                id: nextId++,
+                nama: nama,
+                kelas: kelas,
+                umur: umur
+            };
+            
+            dataSiswa.push(siswa);
+            updateTabelSiswa();
+            
+            // Clear inputs
+            document.getElementById('inputNama').value = '';
+            document.getElementById('inputKelas').value = '';
+            document.getElementById('inputUmur').value = '';
+            
+            updateStatus(`✅ Siswa "${nama}" berhasil ditambahkan!`, 'bg-green-100', 'text-green-700');
+        }
+
+        function editSiswa(id) {
+            const siswa = dataSiswa.find(s => s.id === id);
+            if (!siswa) return;
+            
+            const namaBaru = prompt('Edit nama siswa:', siswa.nama);
+            if (namaBaru === null) return;
+            
+            const kelasBaru = prompt('Edit kelas siswa:', siswa.kelas);
+            if (kelasBaru === null) return;
+            
+            const umurBaru = prompt('Edit umur siswa (15-25):', siswa.umur);
+            if (umurBaru === null) return;
+            
+            const umurInt = parseInt(umurBaru);
+            if (namaBaru.trim() && kelasBaru.trim() && umurInt >= 15 && umurInt <= 25) {
+                siswa.nama = namaBaru.trim();
+                siswa.kelas = kelasBaru.trim();
+                siswa.umur = umurInt;
+                updateTabelSiswa();
+                updateStatus(`✏️ Data siswa ID ${id} berhasil diupdate!`, 'bg-yellow-100', 'text-yellow-700');
+            } else {
+                updateStatus('❌ Data tidak valid! Pastikan umur antara 15-25 tahun.', 'bg-red-100', 'text-red-700');
+            }
+        }
+
+        function hapusSiswa(id) {
+            const siswa = dataSiswa.find(s => s.id === id);
+            if (!siswa) return;
+            
+            if (confirm(`Yakin ingin menghapus siswa "${siswa.nama}"?`)) {
+                dataSiswa = dataSiswa.filter(s => s.id !== id);
+                updateTabelSiswa();
+                updateStatus(`🗑️ Siswa "${siswa.nama}" berhasil dihapus!`, 'bg-red-100', 'text-red-700');
+            }
+        }
+
+        function updateTabelSiswa() {
+            const tbody = document.getElementById('bodyTabel');
+            tbody.innerHTML = '';
+            
+            dataSiswa.forEach((siswa, index) => {
+                const row = document.createElement('tr');
+                row.className = index % 2 === 0 ? '' : 'bg-gray-50';
+                row.innerHTML = `
+                    <td class="p-3">${siswa.id}</td>
+                    <td class="p-3">${siswa.nama}</td>
+                    <td class="p-3">${siswa.kelas}</td>
+                    <td class="p-3">${siswa.umur}</td>
+                    <td class="p-3">
+                        <button onclick="editSiswa(${siswa.id})" class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded mr-2 text-sm">Edit</button>
+                        <button onclick="hapusSiswa(${siswa.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function updateStatus(message, bgClass, textClass) {
+            const status = document.getElementById('statusPraktik');
+            status.className = `mt-4 p-4 rounded-lg ${bgClass}`;
+            status.innerHTML = `<p class="${textClass} font-semibold">${message}</p>`;
+        }
+
+        // Kuis functions
+        function mulaiKuis() {
+            const nama = document.getElementById('namaKuis').value.trim();
+            if (!nama) {
+                alert('Mohon masukkan nama terlebih dahulu!');
+                return;
+            }
+            
+            kuisState.namaUser = nama;
+            kuisState.soalSekarang = 0;
+            kuisState.jawaban = new Array(10).fill(-1);
+            
+            document.getElementById('formNama').classList.add('hidden');
+            document.getElementById('areaKuis').classList.remove('hidden');
+            document.getElementById('namaUser').textContent = nama;
+            
+            tampilkanSoal();
+        }
+
+        function tampilkanSoal() {
+            const soal = soalKuis[kuisState.soalSekarang];
+            const soalDiv = document.getElementById('soalKuis');
+            
+            document.getElementById('nomorSoal').textContent = kuisState.soalSekarang + 1;
+            document.getElementById('progressBar').style.width = ((kuisState.soalSekarang + 1) / 10 * 100) + '%';
+            
+            soalDiv.innerHTML = `
+                <h4 class="text-xl font-bold text-gray-800 mb-6">${soal.pertanyaan}</h4>
+                <div class="space-y-3">
+                    ${soal.pilihan.map((pilihan, index) => `
+                        <label class="flex items-center p-4 bg-gray-50 hover:bg-blue-50 rounded-lg cursor-pointer transition-colors duration-200">
+                            <input type="radio" name="jawaban" value="${index}" class="mr-4 w-5 h-5" ${kuisState.jawaban[kuisState.soalSekarang] === index ? 'checked' : ''}>
+                            <span class="text-lg">${pilihan}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+            
+            // Update tombol navigasi
+            document.getElementById('btnSebelumnya').disabled = kuisState.soalSekarang === 0;
+            document.getElementById('btnSelanjutnya').textContent = kuisState.soalSekarang === 9 ? 'Selesai' : 'Selanjutnya →';
+            
+            // Event listener untuk jawaban
+            document.querySelectorAll('input[name="jawaban"]').forEach(input => {
+                input.addEventListener('change', function() {
+                    kuisState.jawaban[kuisState.soalSekarang] = parseInt(this.value);
+                });
+            });
+        }
+
+        function soalSelanjutnya() {
+            if (kuisState.soalSekarang < 9) {
+                kuisState.soalSekarang++;
+                tampilkanSoal();
+            } else {
+                selesaiKuis();
+            }
+        }
+
+        function soalSebelumnya() {
+            if (kuisState.soalSekarang > 0) {
+                kuisState.soalSekarang--;
+                tampilkanSoal();
+            }
+        }
+
+        function selesaiKuis() {
+            let skor = 0;
+            for (let i = 0; i < 10; i++) {
+                if (kuisState.jawaban[i] === soalKuis[i].jawaban) {
+                    skor++;
+                }
+            }
+            
+            const persentase = (skor / 10) * 100;
+            
+            document.getElementById('areaKuis').classList.add('hidden');
+            document.getElementById('hasilKuis').classList.remove('hidden');
+            
+            document.getElementById('namaHasil').textContent = kuisState.namaUser;
+            document.getElementById('skorAkhir').textContent = `${skor}/10`;
+            document.getElementById('persentase').textContent = `${persentase}%`;
+            
+            // Feedback berdasarkan skor
+            const feedbackDiv = document.getElementById('feedback');
+            if (persentase >= 80) {
+                feedbackDiv.className = 'mt-4 p-4 rounded-lg bg-green-100';
+                feedbackDiv.innerHTML = '<p class="text-green-700 font-semibold">🎉 Excellent! Kamu sangat memahami materi SQLite!</p>';
+            } else if (persentase >= 60) {
+                feedbackDiv.className = 'mt-4 p-4 rounded-lg bg-yellow-100';
+                feedbackDiv.innerHTML = '<p class="text-yellow-700 font-semibold">👍 Good job! Masih ada beberapa konsep yang perlu diperdalam.</p>';
+            } else {
+                feedbackDiv.className = 'mt-4 p-4 rounded-lg bg-red-100';
+                feedbackDiv.innerHTML = '<p class="text-red-700 font-semibold">💪 Keep learning! Coba pelajari materi lagi dan ulangi kuis.</p>';
+            }
+        }
+
+        function ulangiKuis() {
+            document.getElementById('hasilKuis').classList.add('hidden');
+            document.getElementById('formNama').classList.remove('hidden');
+            document.getElementById('namaKuis').value = '';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('intro');
+            updateActiveNavItem('intro');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98c5b55610727550',t:'MTc2MDA5NTAxNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
