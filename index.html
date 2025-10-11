@@ -1623,104 +1623,161 @@
         let currentViewMode = 'list'; // 'list' or 'grid'
 
         // Function to open file
-        function openFile(filename, folder) {
-            // Build the file path based on folder structure
-            let filePath = '';
-            
-            if (folder === '.') {
-                filePath = filename;
-            } else {
-                // Check if this is a nested folder (subfolder of RPL)
-                const nestedFolders = ['Basis Data', 'Pemrograman Berbasis Teks, Grafis, dan Multimedia', 'Pemrograman Web', 'Pemrograman Perangkat Bergerak'];
-                
-                if (nestedFolders.includes(folder)) {
-                    // This is a nested folder, build the full path
-                    filePath = `Rekayasa Perangkat Lunak/${folder}/${filename}`;
-                } else {
-                    // This is a top-level folder
-                    const folderMap = {
-                        'Informatika': 'Informatika', 
-                        'Koding dan Kecerdasan Artifisial': 'Koding dan Kecerdasan Artifisial',
-                        'Mapil - Pemrograman Web': 'Mapil - Pemrograman Web',
-                        'PKL - Prakerin': 'PKL - Prakerin',
-                        'Rekayasa Perangkat Lunak': 'Rekayasa Perangkat Lunak'
-                    };
-                    
-                    const mappedFolder = folderMap[folder] || folder;
-                    filePath = `${mappedFolder}/${filename}`;
-                }
-            }
-            
-            // Open file in new tab
-            window.open(filePath, '_blank');
+function openFile(filename, folder) {
+    let filePath = '';
+
+    if (folder === '.') {
+        // File berada di root
+        filePath = filename;
+    } else {
+        // Daftar subfolder dalam folder "Rekayasa Perangkat Lunak"
+        const nestedRPLFolders = [
+            'Basis Data',
+            'Pemrograman Berbasis Teks, Grafis, dan Multimedia',
+            'Pemrograman Web',
+            'Pemrograman Perangkat Bergerak'
+        ];
+
+        // Daftar subfolder dalam folder "Dasar Dasar Pengembangan Perangkat Lunak Dan Gim"
+        const nestedDDPFolders = [
+            'Wawasan Dunia Kerja Bidang Pengembangan Perangkat Lunak dan Gim',
+            'Kecakapan Kerja Dasar (Basic Job Skills), K3, dan Budaya Kerja',
+            'Teknologi Jaringan Komputer',
+            'Pemrograman Terstruktur',
+            'Pemrograman Berorientasi Objek'
+        ];
+
+        // Mapping folder top-level (yang bukan nested)
+        const folderMap = {
+            'Informatika': 'Informatika',
+            'Koding dan Kecerdasan Artifisial': 'Koding dan Kecerdasan Artifisial',
+            'Mapil - Web Development': 'Mapil - Web Development',
+            'PKL - Prakerin': 'PKL - Prakerin',
+            'Rekayasa Perangkat Lunak': 'Rekayasa Perangkat Lunak',
+            'Dasar Dasar Pengembangan Perangkat Lunak Dan Gim': 'Dasar Dasar Pengembangan Perangkat Lunak Dan Gim',
+            'Gelar Karya Rekayasa Perangkat Lunak': 'Gelar Karya Rekayasa Perangkat Lunak'
+        };
+
+        if (nestedRPLFolders.includes(folder)) {
+            // Subfolder di dalam Rekayasa Perangkat Lunak
+            filePath = `Rekayasa Perangkat Lunak/${folder}/${filename}`;
+        } else if (nestedDDPFolders.includes(folder)) {
+            // Subfolder di dalam Dasar Dasar PPLG
+            filePath = `Dasar Dasar Pengembangan Perangkat Lunak Dan Gim/${folder}/${filename}`;
+        } else {
+            // Folder top-level
+            const mappedFolder = folderMap[folder] || folder;
+            filePath = `${mappedFolder}/${filename}`;
         }
+    }
+
+    // Buka file di tab baru
+    window.open(filePath, '_blank');
+}
+
 
         // Update breadcrumb
-        function updateBreadcrumb() {
-            const breadcrumbPath = document.getElementById('breadcrumbPath');
-            if (currentDirectory === '.') {
-                breadcrumbPath.innerHTML = '';
-            } else {
-                // For nested folders, we need to show the proper hierarchy
-                let breadcrumbHTML = '';
-                
-                // Check if current directory is a nested folder
-                const isNestedFolder = ['Basis Data', 'Pemrograman Berbasis Teks, Grafis, dan Multimedia', 
-                                       'Pemrograman Web', 'Pemrograman Perangkat Bergerak'].includes(currentDirectory);
-                
-                if (isNestedFolder) {
-                    // Show parent folder first
-                    breadcrumbHTML += `
-                        <div class="flex items-center space-x-2">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                            <button 
-                                class="font-medium theme-text-600 dark:theme-text-400 hover:theme-text-800 dark:hover:theme-text-200 transition-colors duration-200 px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                                onclick="navigateToDirectory('Rekayasa Perangkat Lunak')"
-                                title="Klik untuk masuk ke folder Rekayasa Perangkat Lunak"
-                            >
-                                Rekayasa Perangkat Lunak
-                            </button>
-                        </div>
-                    `;
-                    
-                    // Show current folder
-                    breadcrumbHTML += `
-                        <div class="flex items-center space-x-2">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                            <button 
-                                class="font-medium theme-text-600 dark:theme-text-400 hover:theme-text-800 dark:hover:theme-text-200 transition-colors duration-200 px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                                onclick="navigateToDirectory('${currentDirectory}')"
-                                title="Klik untuk masuk ke folder ${currentDirectory}"
-                            >
-                                ${currentDirectory}
-                            </button>
-                        </div>
-                    `;
-                } else {
-                    // Regular folder - just show it
-                    breadcrumbHTML += `
-                        <div class="flex items-center space-x-2">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                            <button 
-                                class="font-medium theme-text-600 dark:theme-text-400 hover:theme-text-800 dark:hover:theme-text-200 transition-colors duration-200 px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-                                onclick="navigateToDirectory('${currentDirectory}')"
-                                title="Klik untuk masuk ke folder ${currentDirectory}"
-                            >
-                                ${currentDirectory}
-                            </button>
-                        </div>
-                    `;
-                }
-                
-                breadcrumbPath.innerHTML = breadcrumbHTML;
+function updateBreadcrumb() {
+    const breadcrumbPath = document.getElementById('breadcrumbPath');
+    if (!breadcrumbPath) return;
+
+    // keep previous behaviour for root
+    if (currentDirectory === '.' || !currentDirectory) {
+        breadcrumbPath.innerHTML = '';
+        return;
+    }
+
+    // helper: escape single quotes to safely inject into onclick=''
+    const esc = txt => String(txt).replace(/'/g, "\\'");
+
+    // svg chevron used for each breadcrumb item (same as original)
+    const chevronSVG = `
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+    `;
+
+    let breadcrumbHTML = '';
+
+    // If user passed a path-like string (e.g. "Parent/Child"), split and show each segment.
+    if (currentDirectory.includes('/')) {
+        const parts = currentDirectory.split('/').filter(Boolean);
+        parts.forEach(part => {
+            breadcrumbHTML += `
+                <div class="flex items-center space-x-2">
+                    ${chevronSVG}
+                    <button
+                        class="font-medium theme-text-600 dark:theme-text-400 hover:theme-text-800 dark:hover:theme-text-200 transition-colors duration-200 px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onclick="navigateToDirectory('${esc(part)}')"
+                        title="Klik untuk masuk ke folder ${part}"
+                    >
+                        ${part}
+                    </button>
+                </div>
+            `;
+        });
+    } else {
+        // Try to detect a parent by scanning fileStructure keys whose 'folders' include currentDirectory
+        let parent = null;
+        for (const key in fileStructure) {
+            if (!fileStructure.hasOwnProperty(key)) continue;
+            const entry = fileStructure[key];
+            if (entry && Array.isArray(entry.folders) && entry.folders.includes(currentDirectory)) {
+                parent = key;
+                break;
             }
         }
+
+        if (parent) {
+            // show parent first
+            breadcrumbHTML += `
+                <div class="flex items-center space-x-2">
+                    ${chevronSVG}
+                    <button
+                        class="font-medium theme-text-600 dark:theme-text-400 hover:theme-text-800 dark:hover:theme-text-200 transition-colors duration-200 px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onclick="navigateToDirectory('${esc(parent)}')"
+                        title="Klik untuk masuk ke folder ${parent}"
+                    >
+                        ${parent}
+                    </button>
+                </div>
+            `;
+
+            // then show current
+            breadcrumbHTML += `
+                <div class="flex items-center space-x-2">
+                    ${chevronSVG}
+                    <button
+                        class="font-medium theme-text-600 dark:theme-text-400 hover:theme-text-800 dark:hover:theme-text-200 transition-colors duration-200 px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onclick="navigateToDirectory('${esc(currentDirectory)}')"
+                        title="Klik untuk masuk ke folder ${currentDirectory}"
+                        aria-current="page"
+                    >
+                        ${currentDirectory}
+                    </button>
+                </div>
+            `;
+        } else {
+            // regular/top-level folder (no detected parent) -> show it alone
+            breadcrumbHTML += `
+                <div class="flex items-center space-x-2">
+                    ${chevronSVG}
+                    <button
+                        class="font-medium theme-text-600 dark:theme-text-400 hover:theme-text-800 dark:hover:theme-text-200 transition-colors duration-200 px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onclick="navigateToDirectory('${esc(currentDirectory)}')"
+                        title="Klik untuk masuk ke folder ${currentDirectory}"
+                        aria-current="page"
+                    >
+                        ${currentDirectory}
+                    </button>
+                </div>
+            `;
+        }
+    }
+
+    breadcrumbPath.innerHTML = breadcrumbHTML;
+}
+
 
         // Navigate to directory
         function navigateToDirectory(dirName) {
@@ -1944,43 +2001,66 @@
                             }
                             
                             // Deteksi ukuran file secara otomatis
-                            if (file.size === null) {
-                                let filePath = '';
-                                
-                                // Check if this is a nested folder (subfolder of RPL)
-                                const nestedFolders = ['Basis Data', 'Pemrograman Berbasis Teks, Grafis, dan Multimedia', 'Pemrograman Web', 'Pemrograman Perangkat Bergerak'];
-                                
-                                if (nestedFolders.includes(folderKey)) {
-                                    // This is a nested folder, build the full path
-                                    filePath = `Rekayasa Perangkat Lunak/${folderKey}/${file.name}`;
-                                } else {
-                                    // This is a top-level folder
-                                    const folderMap = {
-                                        'Informatika': 'Informatika', 
-                                        'Koding dan Kecerdasan Artifisial': 'Koding dan Kecerdasan Artifisial',
-                                        'Mapil - Pemrograman Web': 'Mapil - Pemrograman Web',
-                                        'PKL - Prakerin': 'PKL - Prakerin',
-                                        'Rekayasa Perangkat Lunak': 'Rekayasa Perangkat Lunak'
-                                    };
-                                    
-                                    const mappedFolder = folderMap[folderKey] || folderKey;
-                                    filePath = `${mappedFolder}/${file.name}`;
-                                }
-                                
-                                detectFileSize(filePath).then(size => {
-                                    if (size !== null) {
-                                        file.size = size; // Update cache
-                                        updateFileSizeInDisplay(filePath, size, fileItem);
-                                    } else {
-                                        updateFileSizeInDisplay(filePath, 'Tidak diketahui', fileItem);
-                                    }
-                                });
-                            }
-                            
-                            fileList.appendChild(fileItem);
-                        }
-                    });
-                });
+if (file.size === null) {
+    let filePath = '';
+
+    // Daftar nested folder RPL
+    const nestedRPLFolders = [
+        'Basis Data',
+        'Pemrograman Berbasis Teks, Grafis, dan Multimedia',
+        'Pemrograman Web',
+        'Pemrograman Perangkat Bergerak'
+    ];
+
+    // Daftar nested folder Dasar Dasar PPLG
+    const nestedDDPFolders = [
+        'Wawasan Dunia Kerja Bidang Pengembangan Perangkat Lunak dan Gim',
+        'Kecakapan Kerja Dasar (Basic Job Skills), K3, dan Budaya Kerja',
+        'Teknologi Jaringan Komputer',
+        'Pemrograman Terstruktur',
+        'Pemrograman Berorientasi Objek'
+    ];
+
+    // Mapping folder top-level
+    const folderMap = {
+        'Informatika': 'Informatika',
+        'Koding dan Kecerdasan Artifisial': 'Koding dan Kecerdasan Artifisial',
+        'Mapil - Web Development': 'Mapil - Web Development',
+        'PKL - Prakerin': 'PKL - Prakerin',
+        'Rekayasa Perangkat Lunak': 'Rekayasa Perangkat Lunak',
+        'Dasar Dasar Pengembangan Perangkat Lunak Dan Gim': 'Dasar Dasar Pengembangan Perangkat Lunak Dan Gim',
+        'Gelar Karya Rekayasa Perangkat Lunak': 'Gelar Karya Rekayasa Perangkat Lunak'
+    };
+
+    // Tentukan path file berdasarkan struktur folder
+    if (folderKey === '.') {
+        // Root folder
+        filePath = file.name;
+    } else if (nestedRPLFolders.includes(folderKey)) {
+        // Subfolder RPL
+        filePath = `Rekayasa Perangkat Lunak/${folderKey}/${file.name}`;
+    } else if (nestedDDPFolders.includes(folderKey)) {
+        // Subfolder Dasar Dasar PPLG
+        filePath = `Dasar Dasar Pengembangan Perangkat Lunak Dan Gim/${folderKey}/${file.name}`;
+    } else {
+        // Top-level folder
+        const mappedFolder = folderMap[folderKey] || folderKey;
+        filePath = `${mappedFolder}/${file.name}`;
+    }
+
+    // Deteksi ukuran file dari server
+    detectFileSize(filePath).then(size => {
+        if (size !== null) {
+            file.size = size; // Cache ukuran supaya tidak request ulang
+            updateFileSizeInDisplay(filePath, size, fileItem);
+        } else {
+            updateFileSizeInDisplay(filePath, 'Tidak diketahui', fileItem);
+        }
+    });
+}
+
+fileList.appendChild(fileItem);
+
                 
                 if (!hasResults) {
                     fileList.innerHTML = `
