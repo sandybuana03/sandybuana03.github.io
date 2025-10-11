@@ -1,0 +1,2075 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autentikasi & Otorisasi Android - Pembelajaran Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #ffeef8 0%, #f0f9ff 50%, #f0fdf4 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .quiz-option {
+            transition: all 0.2s ease;
+        }
+        
+        .quiz-option:hover {
+            background-color: #fce7f3;
+            transform: scale(1.02);
+        }
+        
+        .quiz-option.selected {
+            background-color: #ec4899;
+            color: white;
+        }
+        
+        .quiz-option.correct {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        .quiz-option.incorrect {
+            background-color: #ef4444;
+            color: white;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-full">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-pink-400 text-white p-3 rounded-full shadow-lg">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-xl z-40 transform -translate-x-full lg:translate-x-0 sidebar-transition overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center mb-8">
+                <div class="text-4xl mr-3">🔐</div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">Auth & Security</h1>
+                    <p class="text-sm text-gray-600">Android Development</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" onclick="showSection('intro')" class="nav-item flex items-center p-3 rounded-lg hover:bg-pink-100 transition-colors">
+                    <span class="text-2xl mr-3">🚀</span>
+                    <span class="font-medium text-gray-700">Intro</span>
+                </a>
+                <a href="#" onclick="showSection('pengenalan')" class="nav-item flex items-center p-3 rounded-lg hover:bg-blue-100 transition-colors">
+                    <span class="text-2xl mr-3">📱</span>
+                    <span class="font-medium text-gray-700">Pengenalan</span>
+                </a>
+                <a href="#" onclick="showSection('autentikasi')" class="nav-item flex items-center p-3 rounded-lg hover:bg-green-100 transition-colors">
+                    <span class="text-2xl mr-3">🔑</span>
+                    <span class="font-medium text-gray-700">Autentikasi</span>
+                </a>
+                <a href="#" onclick="showSection('otorisasi')" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                    <span class="text-2xl mr-3">🛡️</span>
+                    <span class="font-medium text-gray-700">Otorisasi</span>
+                </a>
+                <a href="#" onclick="showSection('implementasi')" class="nav-item flex items-center p-3 rounded-lg hover:bg-yellow-100 transition-colors">
+                    <span class="text-2xl mr-3">⚙️</span>
+                    <span class="font-medium text-gray-700">Implementasi</span>
+                </a>
+                <a href="#" onclick="showSection('keamanan')" class="nav-item flex items-center p-3 rounded-lg hover:bg-red-100 transition-colors">
+                    <span class="text-2xl mr-3">🔒</span>
+                    <span class="font-medium text-gray-700">Keamanan</span>
+                </a>
+                <a href="#" onclick="showSection('tugas')" class="nav-item flex items-center p-3 rounded-lg hover:bg-indigo-100 transition-colors">
+                    <span class="text-2xl mr-3">📝</span>
+                    <span class="font-medium text-gray-700">Tugas</span>
+                </a>
+                <a href="#" onclick="showSection('kuis')" class="nav-item flex items-center p-3 rounded-lg hover:bg-orange-100 transition-colors">
+                    <span class="text-2xl mr-3">🎯</span>
+                    <span class="font-medium text-gray-700">Kuis</span>
+                </a>
+                <a href="#" onclick="showSection('penutup')" class="nav-item flex items-center p-3 rounded-lg hover:bg-teal-100 transition-colors">
+                    <span class="text-2xl mr-3">🎉</span>
+                    <span class="font-medium text-gray-700">Penutup</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-full">
+        <div class="max-w-4xl mx-auto p-6">
+            <!-- Intro Section -->
+            <div id="intro" class="section fade-in">
+                <div class="bg-white rounded-3xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4 bounce">🔐</div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Autentikasi & Otorisasi Android</h1>
+                        <p class="text-xl text-gray-600">Pembelajaran Interaktif untuk SMK</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-pink-50 rounded-2xl p-6 card-hover">
+                            <div class="text-3xl mb-3">🤔</div>
+                            <h3 class="text-xl font-bold text-pink-800 mb-3">Pertanyaan Pemantik</h3>
+                            <p class="text-gray-700 text-lg">Pernahkah kamu bertanya-tanya bagaimana aplikasi seperti Instagram atau WhatsApp bisa tahu bahwa yang login adalah benar-benar kamu? Dan mengapa kamu tidak bisa melihat chat orang lain?</p>
+                        </div>
+                        
+                        <div class="bg-blue-50 rounded-2xl p-6 card-hover">
+                            <div class="text-3xl mb-3">🎯</div>
+                            <h3 class="text-xl font-bold text-blue-800 mb-3">Apa yang Dipelajari</h3>
+                            <ul class="text-gray-700 text-lg space-y-2">
+                                <li>• Konsep Autentikasi</li>
+                                <li>• Konsep Otorisasi</li>
+                                <li>• Implementasi di Android</li>
+                                <li>• Praktik Keamanan</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-2xl p-6 mb-6">
+                        <div class="text-3xl mb-3">🏆</div>
+                        <h3 class="text-xl font-bold text-purple-800 mb-3">Tujuan Pembelajaran</h3>
+                        <div class="grid md:grid-cols-2 gap-4 text-gray-700 text-lg">
+                            <div>
+                                <p>✅ Memahami perbedaan autentikasi dan otorisasi</p>
+                                <p>✅ Mengenal metode autentikasi di Android</p>
+                            </div>
+                            <div>
+                                <p>✅ Mampu implementasi sistem login</p>
+                                <p>✅ Memahami praktik keamanan dasar</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-yellow-50 rounded-2xl p-6 mb-6">
+                        <div class="text-3xl mb-3">💡</div>
+                        <h3 class="text-xl font-bold text-yellow-800 mb-3">Pemahaman Bermakna</h3>
+                        <p class="text-gray-700 text-lg">Setelah mempelajari materi ini, kamu akan memahami bagaimana melindungi data pengguna dan membuat aplikasi Android yang aman. Skill ini sangat penting untuk menjadi developer profesional!</p>
+                    </div>
+
+                    <div class="bg-green-50 rounded-2xl p-6">
+                        <div class="text-3xl mb-3">🌟</div>
+                        <h3 class="text-xl font-bold text-green-800 mb-3">Motivasi</h3>
+                        <p class="text-gray-700 text-lg">Keamanan aplikasi adalah hal yang sangat penting di era digital ini. Dengan menguasai autentikasi dan otorisasi, kamu akan menjadi developer yang lebih kompeten dan siap menghadapi tantangan dunia kerja!</p>
+                    </div>
+                </div>
+                
+                <button onclick="showSection('pengenalan')" class="w-full bg-gradient-to-r from-pink-400 to-purple-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-pink-500 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg">
+                    Mulai Belajar! 🚀
+                </button>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">📱</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Pengenalan Keamanan Android</h2>
+                        <p class="text-xl text-gray-600">Mari kenali dasar-dasar keamanan aplikasi mobile</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-blue-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🔍</span>
+                                Mengapa Keamanan Penting?
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-bold text-lg mb-2 text-blue-700">Data Pribadi</h4>
+                                    <p class="text-gray-700 text-lg">Aplikasi menyimpan informasi sensitif seperti foto, pesan, dan data keuangan yang harus dilindungi.</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-lg mb-2 text-blue-700">Kepercayaan Pengguna</h4>
+                                    <p class="text-gray-700 text-lg">Pengguna hanya akan menggunakan aplikasi yang mereka percaya dapat menjaga keamanan data mereka.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-green-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🛡️</span>
+                                Konsep Dasar Keamanan
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-xl p-4 shadow-sm">
+                                    <div class="flex items-center mb-2">
+                                        <span class="text-2xl mr-3">🔑</span>
+                                        <h4 class="font-bold text-lg text-green-700">Autentikasi (Authentication)</h4>
+                                    </div>
+                                    <p class="text-gray-700 text-lg ml-11">Proses memverifikasi identitas pengguna - "Siapa kamu?"</p>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-4 shadow-sm">
+                                    <div class="flex items-center mb-2">
+                                        <span class="text-2xl mr-3">🚪</span>
+                                        <h4 class="font-bold text-lg text-green-700">Otorisasi (Authorization)</h4>
+                                    </div>
+                                    <p class="text-gray-700 text-lg ml-11">Proses menentukan hak akses pengguna - "Apa yang boleh kamu lakukan?"</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-purple-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">📊</span>
+                                Contoh dalam Kehidupan Sehari-hari
+                            </h3>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-white rounded-xl p-4 text-center card-hover">
+                                    <div class="text-3xl mb-2">🏦</div>
+                                    <h4 class="font-bold text-purple-700 mb-2">ATM Bank</h4>
+                                    <p class="text-gray-700">Kartu + PIN = Autentikasi<br>Saldo rekening = Otorisasi</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 text-center card-hover">
+                                    <div class="text-3xl mb-2">🏠</div>
+                                    <h4 class="font-bold text-purple-700 mb-2">Rumah</h4>
+                                    <p class="text-gray-700">Kunci rumah = Autentikasi<br>Kamar pribadi = Otorisasi</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 text-center card-hover">
+                                    <div class="text-3xl mb-2">📱</div>
+                                    <h4 class="font-bold text-purple-700 mb-2">Smartphone</h4>
+                                    <p class="text-gray-700">Fingerprint = Autentikasi<br>App permissions = Otorisasi</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-orange-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-orange-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🔄</span>
+                                Siklus Keamanan Android
+                            </h3>
+                            <div class="relative">
+                                <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+                                    <div class="bg-white rounded-xl p-4 text-center w-full md:w-1/4 card-hover">
+                                        <div class="text-3xl mb-2">👤</div>
+                                        <h4 class="font-bold text-orange-700">User Login</h4>
+                                        <p class="text-sm text-gray-600">Pengguna memasukkan kredensial</p>
+                                    </div>
+                                    <div class="text-2xl text-orange-500 hidden md:block">→</div>
+                                    <div class="bg-white rounded-xl p-4 text-center w-full md:w-1/4 card-hover">
+                                        <div class="text-3xl mb-2">🔍</div>
+                                        <h4 class="font-bold text-orange-700">Verification</h4>
+                                        <p class="text-sm text-gray-600">Sistem memverifikasi identitas</p>
+                                    </div>
+                                    <div class="text-2xl text-orange-500 hidden md:block">→</div>
+                                    <div class="bg-white rounded-xl p-4 text-center w-full md:w-1/4 card-hover">
+                                        <div class="text-3xl mb-2">🎫</div>
+                                        <h4 class="font-bold text-orange-700">Token Issue</h4>
+                                        <p class="text-sm text-gray-600">Memberikan token akses</p>
+                                    </div>
+                                    <div class="text-2xl text-orange-500 hidden md:block">→</div>
+                                    <div class="bg-white rounded-xl p-4 text-center w-full md:w-1/4 card-hover">
+                                        <div class="text-3xl mb-2">🚪</div>
+                                        <h4 class="font-bold text-orange-700">Access Control</h4>
+                                        <p class="text-sm text-gray-600">Mengatur hak akses fitur</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-teal-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-teal-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">📈</span>
+                                Statistik Keamanan Mobile
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-teal-700 mb-3">Fakta Menarik</h4>
+                                    <div class="space-y-2">
+                                        <p class="text-gray-700">📊 95% malware menyerang Android (AV-TEST 2024)</p>
+                                        <p class="text-gray-700">🔐 83% pengguna menggunakan password lemah</p>
+                                        <p class="text-gray-700">📱 65% aplikasi meminta permission berlebihan</p>
+                                        <p class="text-gray-700">⚡ 2FA mengurangi risiko hingga 99.9%</p>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-teal-700 mb-3">Tren Keamanan 2024</h4>
+                                    <div class="space-y-2">
+                                        <p class="text-gray-700">👆 Biometric authentication naik 150%</p>
+                                        <p class="text-gray-700">🔒 Zero-trust security model</p>
+                                        <p class="text-gray-700">🤖 AI-powered threat detection</p>
+                                        <p class="text-gray-700">🌐 Privacy-first development</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="showSection('autentikasi')" class="w-full bg-gradient-to-r from-blue-400 to-green-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-blue-500 hover:to-green-600 transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Autentikasi 🔑
+                </button>
+            </div>
+
+            <!-- Autentikasi Section -->
+            <div id="autentikasi" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🔑</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Autentikasi di Android</h2>
+                        <p class="text-xl text-gray-600">Memverifikasi identitas pengguna dengan berbagai metode</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-pink-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-pink-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">📝</span>
+                                Metode Autentikasi
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-4 shadow-sm card-hover">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-3">🔤</span>
+                                            <h4 class="font-bold text-lg text-pink-700">Username & Password</h4>
+                                        </div>
+                                        <p class="text-gray-700">Metode paling umum menggunakan kombinasi nama pengguna dan kata sandi.</p>
+                                    </div>
+                                    
+                                    <div class="bg-white rounded-xl p-4 shadow-sm card-hover">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-3">👆</span>
+                                            <h4 class="font-bold text-lg text-pink-700">Biometric</h4>
+                                        </div>
+                                        <p class="text-gray-700">Sidik jari, wajah, atau iris mata untuk keamanan yang lebih tinggi.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-4 shadow-sm card-hover">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-3">📱</span>
+                                            <h4 class="font-bold text-lg text-pink-700">SMS/OTP</h4>
+                                        </div>
+                                        <p class="text-gray-700">Kode verifikasi yang dikirim melalui SMS atau aplikasi authenticator.</p>
+                                    </div>
+                                    
+                                    <div class="bg-white rounded-xl p-4 shadow-sm card-hover">
+                                        <div class="flex items-center mb-2">
+                                            <span class="text-2xl mr-3">🌐</span>
+                                            <h4 class="font-bold text-lg text-pink-700">OAuth/Social Login</h4>
+                                        </div>
+                                        <p class="text-gray-700">Login menggunakan akun Google, Facebook, atau platform lainnya.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🛠️</span>
+                                Demo: Simulasi Login
+                            </h3>
+                            <div class="bg-white rounded-xl p-6 max-w-md mx-auto">
+                                <h4 class="text-lg font-bold text-center mb-4 text-blue-700">Login Demo</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                        <input type="text" id="demoUsername" class="w-full p-3 border border-gray-300 rounded-lg text-lg" placeholder="Masukkan username">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                        <input type="password" id="demoPassword" class="w-full p-3 border border-gray-300 rounded-lg text-lg" placeholder="Masukkan password">
+                                    </div>
+                                    <button onclick="demoLogin()" class="w-full bg-blue-500 text-white py-3 rounded-lg font-bold hover:bg-blue-600 transition-colors">
+                                        Login 🔐
+                                    </button>
+                                    <div id="loginResult" class="text-center font-medium"></div>
+                                </div>
+                                <div class="mt-4 p-3 bg-gray-100 rounded-lg text-base text-gray-600">
+                                    <p><strong>Hint:</strong> Username: admin, Password: 123456</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-green-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">⚡</span>
+                                Implementasi di Android
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-green-700 mb-2">1. SharedPreferences untuk Token</h4>
+                                    <p class="text-gray-700 text-lg">Menyimpan token autentikasi secara lokal setelah login berhasil.</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-green-700 mb-2">2. Biometric API</h4>
+                                    <p class="text-gray-700 text-lg">Menggunakan BiometricPrompt untuk autentikasi sidik jari atau wajah.</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-green-700 mb-2">3. Firebase Authentication</h4>
+                                    <p class="text-gray-700 text-lg">Layanan autentikasi siap pakai dari Google Firebase.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-indigo-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-indigo-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🔐</span>
+                                Multi-Factor Authentication (MFA)
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-indigo-700 mb-3">Apa itu MFA?</h4>
+                                    <p class="text-gray-700 mb-3">Sistem keamanan berlapis yang membutuhkan 2 atau lebih faktor verifikasi:</p>
+                                    <div class="space-y-2">
+                                        <p class="text-gray-700">🧠 <strong>Something you know</strong> - Password</p>
+                                        <p class="text-gray-700">📱 <strong>Something you have</strong> - Phone/Token</p>
+                                        <p class="text-gray-700">👤 <strong>Something you are</strong> - Biometric</p>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-indigo-700 mb-3">Implementasi MFA</h4>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center p-2 bg-indigo-50 rounded">
+                                            <span class="text-xl mr-2">1️⃣</span>
+                                            <span class="text-gray-700">Login dengan password</span>
+                                        </div>
+                                        <div class="flex items-center p-2 bg-indigo-50 rounded">
+                                            <span class="text-xl mr-2">2️⃣</span>
+                                            <span class="text-gray-700">Verifikasi SMS/Email OTP</span>
+                                        </div>
+                                        <div class="flex items-center p-2 bg-indigo-50 rounded">
+                                            <span class="text-xl mr-2">3️⃣</span>
+                                            <span class="text-gray-700">Konfirmasi biometric (opsional)</span>
+                                        </div>
+                                        <div class="mt-3 p-3 bg-indigo-100 rounded-lg">
+                                            <p class="text-base text-indigo-800"><strong>Catatan:</strong> MFA wajib untuk aplikasi finansial dan data sensitif</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-yellow-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-yellow-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎯</span>
+                                Studi Kasus: Aplikasi Banking
+                            </h3>
+                            <div class="bg-white rounded-xl p-6">
+                                <h4 class="font-bold text-lg text-yellow-700 mb-4">Skenario: Mobile Banking BCA</h4>
+                                <div class="grid md:grid-cols-3 gap-4">
+                                    <div class="text-center">
+                                        <div class="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                                            <span class="text-2xl">📱</span>
+                                        </div>
+                                        <h5 class="font-bold text-yellow-700 mb-2">Step 1: Login</h5>
+                                        <p class="text-base text-gray-700">User ID + PIN 6 digit</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                                            <span class="text-2xl">📲</span>
+                                        </div>
+                                        <h5 class="font-bold text-yellow-700 mb-2">Step 2: OTP</h5>
+                                        <p class="text-base text-gray-700">SMS verification code</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="bg-yellow-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-3">
+                                            <span class="text-2xl">👆</span>
+                                        </div>
+                                        <h5 class="font-bold text-yellow-700 mb-2">Step 3: Biometric</h5>
+                                        <p class="text-base text-gray-700">Fingerprint untuk transaksi</p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 p-3 bg-yellow-100 rounded-lg">
+                                    <p class="text-base text-yellow-800"><strong>Mengapa 3 layer?</strong> Jika password bocor, masih ada SMS OTP. Jika HP hilang, masih butuh biometric.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="showSection('otorisasi')" class="w-full bg-gradient-to-r from-green-400 to-blue-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-green-500 hover:to-blue-600 transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Otorisasi 🛡️
+                </button>
+            </div>
+
+            <!-- Otorisasi Section -->
+            <div id="otorisasi" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🛡️</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Otorisasi di Android</h2>
+                        <p class="text-xl text-gray-600">Mengatur hak akses dan permission pengguna</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-purple-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎭</span>
+                                Konsep Role & Permission
+                            </h3>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-white rounded-xl p-4 text-center card-hover">
+                                    <div class="text-3xl mb-2">👑</div>
+                                    <h4 class="font-bold text-purple-700 mb-2">Admin</h4>
+                                    <p class="text-gray-700 text-sm">Akses penuh ke semua fitur dan data aplikasi</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 text-center card-hover">
+                                    <div class="text-3xl mb-2">👤</div>
+                                    <h4 class="font-bold text-purple-700 mb-2">User</h4>
+                                    <p class="text-gray-700 text-sm">Akses terbatas sesuai dengan kebutuhan pengguna</p>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 text-center card-hover">
+                                    <div class="text-3xl mb-2">👁️</div>
+                                    <h4 class="font-bold text-purple-700 mb-2">Guest</h4>
+                                    <p class="text-gray-700 text-sm">Akses minimal, hanya bisa melihat konten publik</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-orange-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-orange-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">📋</span>
+                                Android Permissions
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-3">
+                                    <div class="bg-white rounded-xl p-4 flex items-center">
+                                        <span class="text-2xl mr-3">📷</span>
+                                        <div>
+                                            <h4 class="font-bold text-orange-700">CAMERA</h4>
+                                            <p class="text-gray-600 text-sm">Akses kamera untuk foto/video</p>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 flex items-center">
+                                        <span class="text-2xl mr-3">📍</span>
+                                        <div>
+                                            <h4 class="font-bold text-orange-700">LOCATION</h4>
+                                            <p class="text-gray-600 text-sm">Akses lokasi GPS pengguna</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="bg-white rounded-xl p-4 flex items-center">
+                                        <span class="text-2xl mr-3">📁</span>
+                                        <div>
+                                            <h4 class="font-bold text-orange-700">STORAGE</h4>
+                                            <p class="text-gray-600 text-base">Akses penyimpanan internal</p>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 flex items-center">
+                                        <span class="text-2xl mr-3">📞</span>
+                                        <div>
+                                            <h4 class="font-bold text-orange-700">PHONE</h4>
+                                            <p class="text-gray-600 text-base">Akses untuk melakukan panggilan</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-red-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-red-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎮</span>
+                                Demo: Simulasi Permission
+                            </h3>
+                            <div class="bg-white rounded-xl p-6">
+                                <h4 class="text-lg font-bold text-center mb-4 text-red-700">Permission Manager</h4>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center">
+                                            <span class="text-2xl mr-3">📷</span>
+                                            <span class="font-medium">Camera Access</span>
+                                        </div>
+                                        <button onclick="togglePermission('camera')" id="cameraBtn" class="bg-gray-400 text-white px-4 py-2 rounded-lg transition-colors">
+                                            Denied
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center">
+                                            <span class="text-2xl mr-3">📍</span>
+                                            <span class="font-medium">Location Access</span>
+                                        </div>
+                                        <button onclick="togglePermission('location')" id="locationBtn" class="bg-gray-400 text-white px-4 py-2 rounded-lg transition-colors">
+                                            Denied
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center">
+                                            <span class="text-2xl mr-3">📁</span>
+                                            <span class="font-medium">Storage Access</span>
+                                        </div>
+                                        <button onclick="togglePermission('storage')" id="storageBtn" class="bg-gray-400 text-white px-4 py-2 rounded-lg transition-colors">
+                                            Denied
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="permissionStatus" class="mt-4 p-3 bg-blue-100 rounded-lg text-center text-blue-700 font-medium text-base">
+                                    Klik tombol untuk mengubah permission
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-teal-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-teal-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🏗️</span>
+                                RBAC (Role-Based Access Control)
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-teal-700 mb-3">Konsep RBAC</h4>
+                                    <p class="text-gray-700 mb-3">Sistem otorisasi berdasarkan peran (role) pengguna dalam organisasi. Setiap role memiliki kumpulan permission yang spesifik, sehingga mudah dikelola dan aman.</p>
+                                    <div class="grid md:grid-cols-3 gap-4">
+                                        <div class="text-center p-3 bg-teal-50 rounded-lg">
+                                            <div class="text-2xl mb-2">👤</div>
+                                            <h5 class="font-bold text-teal-700">User</h5>
+                                            <p class="text-base text-gray-600">Individu yang menggunakan sistem</p>
+                                        </div>
+                                        <div class="text-center p-3 bg-teal-50 rounded-lg">
+                                            <div class="text-2xl mb-2">🎭</div>
+                                            <h5 class="font-bold text-teal-700">Role</h5>
+                                            <p class="text-base text-gray-600">Kumpulan permission yang terkait</p>
+                                        </div>
+                                        <div class="text-center p-3 bg-teal-50 rounded-lg">
+                                            <div class="text-2xl mb-2">🔑</div>
+                                            <h5 class="font-bold text-teal-700">Permission</h5>
+                                            <p class="text-base text-gray-600">Hak akses spesifik ke resource</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-teal-700 mb-3">Contoh Implementasi E-Commerce</h4>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                            <div class="flex items-center">
+                                                <span class="text-xl mr-3">👑</span>
+                                                <div>
+                                                    <h5 class="font-bold text-green-700">Super Admin</h5>
+                                                    <p class="text-base text-gray-600">Kelola user, produk, order, laporan</p>
+                                                </div>
+                                            </div>
+                                            <span class="text-green-600 font-bold">Full Access</span>
+                                        </div>
+                                        <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                            <div class="flex items-center">
+                                                <span class="text-xl mr-3">🛍️</span>
+                                                <div>
+                                                    <h5 class="font-bold text-blue-700">Store Manager</h5>
+                                                    <p class="text-base text-gray-600">Kelola produk, stok, promo</p>
+                                                </div>
+                                            </div>
+                                            <span class="text-blue-600 font-bold">Limited Access</span>
+                                        </div>
+                                        <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                                            <div class="flex items-center">
+                                                <span class="text-xl mr-3">🛒</span>
+                                                <div>
+                                                    <h5 class="font-bold text-purple-700">Customer</h5>
+                                                    <p class="text-base text-gray-600">Browse, beli, review produk</p>
+                                                </div>
+                                            </div>
+                                            <span class="text-purple-600 font-bold">Basic Access</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-pink-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-pink-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">⚖️</span>
+                                Permission vs Intent di Android
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-pink-700 mb-3">🔐 Dangerous Permissions</h4>
+                                    <p class="text-gray-700 mb-3">Memerlukan persetujuan eksplisit pengguna:</p>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center p-2 bg-pink-50 rounded">
+                                            <span class="text-red-500 mr-2">⚠️</span>
+                                            <span class="text-gray-700">CAMERA, MICROPHONE</span>
+                                        </div>
+                                        <div class="flex items-center p-2 bg-pink-50 rounded">
+                                            <span class="text-red-500 mr-2">⚠️</span>
+                                            <span class="text-gray-700">LOCATION, CONTACTS</span>
+                                        </div>
+                                        <div class="flex items-center p-2 bg-pink-50 rounded">
+                                            <span class="text-red-500 mr-2">⚠️</span>
+                                            <span class="text-gray-700">READ_SMS, CALL_PHONE, WRITE_EXTERNAL_STORAGE</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-pink-700 mb-3">✅ Normal Permissions</h4>
+                                    <p class="text-gray-700 mb-3">Otomatis diberikan sistem:</p>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center p-2 bg-green-50 rounded">
+                                            <span class="text-green-500 mr-2">✅</span>
+                                            <span class="text-gray-700">INTERNET, WIFI_STATE</span>
+                                        </div>
+                                        <div class="flex items-center p-2 bg-green-50 rounded">
+                                            <span class="text-green-500 mr-2">✅</span>
+                                            <span class="text-gray-700">VIBRATE, FLASHLIGHT</span>
+                                        </div>
+                                        <div class="flex items-center p-2 bg-green-50 rounded">
+                                            <span class="text-green-500 mr-2">✅</span>
+                                            <span class="text-gray-700">BLUETOOTH, NFC</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="showSection('implementasi')" class="w-full bg-gradient-to-r from-purple-400 to-pink-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-purple-500 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Implementasi ⚙️
+                </button>
+            </div>
+
+            <!-- Implementasi Section -->
+            <div id="implementasi" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">⚙️</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Implementasi Praktis</h2>
+                        <p class="text-xl text-gray-600">Cara menerapkan autentikasi dan otorisasi di Android</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-yellow-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-yellow-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🔧</span>
+                                Langkah-langkah Implementasi
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-xl p-4 flex items-start">
+                                    <div class="bg-yellow-200 text-yellow-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">1</div>
+                                    <div>
+                                        <h4 class="font-bold text-lg text-yellow-700 mb-1">Setup Authentication</h4>
+                                        <p class="text-gray-700">Buat sistem login dengan validasi username dan password</p>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 flex items-start">
+                                    <div class="bg-yellow-200 text-yellow-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">2</div>
+                                    <div>
+                                        <h4 class="font-bold text-lg text-yellow-700 mb-1">Token Management</h4>
+                                        <p class="text-gray-700">Simpan dan kelola token autentikasi dengan aman</p>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 flex items-start">
+                                    <div class="bg-yellow-200 text-yellow-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">3</div>
+                                    <div>
+                                        <h4 class="font-bold text-lg text-yellow-700 mb-1">Permission Handling</h4>
+                                        <p class="text-gray-700">Implementasi request dan check permission runtime</p>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 flex items-start">
+                                    <div class="bg-yellow-200 text-yellow-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">4</div>
+                                    <div>
+                                        <h4 class="font-bold text-lg text-yellow-700 mb-1">Session Management</h4>
+                                        <p class="text-gray-700">Kelola sesi pengguna dan auto-logout jika diperlukan</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-indigo-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-indigo-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">📚</span>
+                                Tools & Library Populer
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-4 card-hover">
+                                        <h4 class="font-bold text-lg text-indigo-700 mb-2">🔥 Firebase Auth</h4>
+                                        <p class="text-gray-700">Solusi autentikasi lengkap dari Google dengan berbagai provider login (Google, Facebook, Email/Password, Phone)</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 card-hover">
+                                        <h4 class="font-bold text-lg text-indigo-700 mb-2">🔐 Retrofit + JWT</h4>
+                                        <p class="text-gray-700">Kombinasi untuk API calls dengan JSON Web Token authentication - standar industri untuk REST API</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-4 card-hover">
+                                        <h4 class="font-bold text-lg text-indigo-700 mb-2">👆 BiometricPrompt</h4>
+                                        <p class="text-gray-700">API Android untuk autentikasi biometrik (sidik jari, wajah, iris) - tersedia mulai Android 6.0+</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 card-hover">
+                                        <h4 class="font-bold text-lg text-indigo-700 mb-2">🗄️ Room Database</h4>
+                                        <p class="text-gray-700">Penyimpanan lokal yang aman untuk data pengguna dengan enkripsi SQLCipher untuk data sensitif</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-teal-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-teal-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">💡</span>
+                                Best Practices
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <div class="bg-white rounded-xl p-4 flex items-center">
+                                        <span class="text-green-500 text-xl mr-3">✅</span>
+                                        <p class="text-gray-700">Gunakan HTTPS untuk semua komunikasi</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 flex items-center">
+                                        <span class="text-green-500 text-xl mr-3">✅</span>
+                                        <p class="text-gray-700">Enkripsi data sensitif sebelum disimpan</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 flex items-center">
+                                        <span class="text-green-500 text-xl mr-3">✅</span>
+                                        <p class="text-gray-700">Implementasi session timeout</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="bg-white rounded-xl p-4 flex items-center">
+                                        <span class="text-red-500 text-xl mr-3">❌</span>
+                                        <p class="text-gray-700">Jangan simpan password dalam plain text</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 flex items-center">
+                                        <span class="text-red-500 text-xl mr-3">❌</span>
+                                        <p class="text-gray-700">Jangan hardcode API keys dalam kode</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 flex items-center">
+                                        <span class="text-red-500 text-xl mr-3">❌</span>
+                                        <p class="text-gray-700">Jangan abaikan validasi input pengguna</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-cyan-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-cyan-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🏗️</span>
+                                Arsitektur Keamanan Modern
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-cyan-700 mb-3">Zero Trust Architecture</h4>
+                                    <p class="text-gray-700 mb-3">Prinsip "never trust, always verify" - setiap request harus diverifikasi terlepas dari sumbernya.</p>
+                                    <div class="grid md:grid-cols-3 gap-3">
+                                        <div class="text-center p-3 bg-cyan-50 rounded-lg">
+                                            <div class="text-xl mb-1">🔍</div>
+                                            <p class="text-sm font-medium text-cyan-700">Verify Identity</p>
+                                        </div>
+                                        <div class="text-center p-3 bg-cyan-50 rounded-lg">
+                                            <div class="text-xl mb-1">🔒</div>
+                                            <p class="text-sm font-medium text-cyan-700">Secure Access</p>
+                                        </div>
+                                        <div class="text-center p-3 bg-cyan-50 rounded-lg">
+                                            <div class="text-xl mb-1">📊</div>
+                                            <p class="text-sm font-medium text-cyan-700">Monitor Activity</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-cyan-700 mb-3">API Security</h4>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center p-3 bg-cyan-50 rounded-lg">
+                                            <span class="text-xl mr-3">🔑</span>
+                                            <div>
+                                                <h5 class="font-bold text-cyan-700">API Key Management</h5>
+                                                <p class="text-sm text-gray-600">Rotasi berkala, enkripsi, dan monitoring penggunaan</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center p-3 bg-cyan-50 rounded-lg">
+                                            <span class="text-xl mr-3">⚡</span>
+                                            <div>
+                                                <h5 class="font-bold text-cyan-700">Rate Limiting</h5>
+                                                <p class="text-sm text-gray-600">Batasi jumlah request untuk mencegah abuse</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center p-3 bg-cyan-50 rounded-lg">
+                                            <span class="text-xl mr-3">🛡️</span>
+                                            <div>
+                                                <h5 class="font-bold text-cyan-700">Input Sanitization</h5>
+                                                <p class="text-sm text-gray-600">Bersihkan semua input sebelum diproses</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-rose-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-rose-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎯</span>
+                                Checklist Keamanan Pre-Launch
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-rose-700 mb-3">📋 Development Phase</h4>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2 text-rose-600">
+                                            <span class="text-gray-700 text-base">Code obfuscation enabled</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2 text-rose-600">
+                                            <span class="text-gray-700 text-base">No hardcoded secrets</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2 text-rose-600">
+                                            <span class="text-gray-700 text-base">Input validation implemented</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2 text-rose-600">
+                                            <span class="text-gray-700 text-base">HTTPS only communication</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-rose-700 mb-3">🔍 Testing Phase</h4>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2 text-rose-600">
+                                            <span class="text-gray-700 text-base">Penetration testing done</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2 text-rose-600">
+                                            <span class="text-gray-700 text-base">Vulnerability scan passed</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2 text-rose-600">
+                                            <span class="text-gray-700">Authentication flow tested</span>
+                                        </label>
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="mr-2 text-rose-600">
+                                            <span class="text-gray-700">Permission handling verified</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="showSection('keamanan')" class="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-yellow-500 hover:to-orange-600 transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Keamanan 🔒
+                </button>
+            </div>
+
+            <!-- Keamanan Section -->
+            <div id="keamanan" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🔒</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Keamanan & Best Practices</h2>
+                        <p class="text-xl text-gray-600">Implementasi praktis untuk menjaga keamanan aplikasi Android</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-red-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-red-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">⚠️</span>
+                                Ancaman Keamanan Umum
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-4 border-l-4 border-red-400">
+                                        <h4 class="font-bold text-lg text-red-700 mb-2">🎣 Phishing</h4>
+                                        <p class="text-gray-700">Aplikasi palsu yang meniru aplikasi asli untuk mencuri data login</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border-l-4 border-red-400">
+                                        <h4 class="font-bold text-lg text-red-700 mb-2">🕳️ SQL Injection</h4>
+                                        <p class="text-gray-700">Serangan melalui input yang tidak divalidasi dengan baik</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-4 border-l-4 border-red-400">
+                                        <h4 class="font-bold text-lg text-red-700 mb-2">👨‍💻 Man in the Middle</h4>
+                                        <p class="text-gray-700">Intersepsi komunikasi antara aplikasi dan server</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 border-l-4 border-red-400">
+                                        <h4 class="font-bold text-lg text-red-700 mb-2">📱 Malware</h4>
+                                        <p class="text-gray-700">Aplikasi berbahaya yang dapat mengakses data tanpa izin</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-green-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🛡️</span>
+                                Strategi Perlindungan
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-xl p-4">
+                                    <div class="flex items-center mb-3">
+                                        <span class="text-2xl mr-3">🔐</span>
+                                        <h4 class="font-bold text-lg text-green-700">Enkripsi Data</h4>
+                                    </div>
+                                    <p class="text-gray-700 mb-3">Selalu enkripsi data sensitif sebelum disimpan atau dikirim</p>
+                                    <div class="bg-green-100 p-3 rounded-lg">
+                                        <p class="text-sm text-green-800"><strong>Contoh:</strong> Gunakan AES untuk enkripsi lokal, TLS untuk komunikasi</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-4">
+                                    <div class="flex items-center mb-3">
+                                        <span class="text-2xl mr-3">🔍</span>
+                                        <h4 class="font-bold text-lg text-green-700">Input Validation</h4>
+                                    </div>
+                                    <p class="text-gray-700 mb-3">Validasi semua input dari pengguna untuk mencegah serangan injection</p>
+                                    <div class="bg-green-100 p-3 rounded-lg">
+                                        <p class="text-sm text-green-800"><strong>Contoh:</strong> Sanitasi input, gunakan prepared statements</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl p-4">
+                                    <div class="flex items-center mb-3">
+                                        <span class="text-2xl mr-3">🕐</span>
+                                        <h4 class="font-bold text-lg text-green-700">Session Management</h4>
+                                    </div>
+                                    <p class="text-gray-700 mb-3">Kelola sesi pengguna dengan timeout dan refresh token</p>
+                                    <div class="bg-green-100 p-3 rounded-lg">
+                                        <p class="text-sm text-green-800"><strong>Contoh:</strong> Auto-logout setelah 30 menit tidak aktif</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎯</span>
+                                Demo: Security Checker
+                            </h3>
+                            <div class="bg-white rounded-xl p-6">
+                                <h4 class="text-lg font-bold text-center mb-4 text-blue-700">Password Security Checker</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Test Password</label>
+                                        <input type="password" id="securityPassword" class="w-full p-3 border border-gray-300 rounded-lg text-lg" placeholder="Masukkan password untuk ditest" oninput="checkPasswordSecurity()">
+                                    </div>
+                                    <div id="securityResult" class="space-y-2">
+                                        <div class="flex items-center justify-between p-2 bg-gray-100 rounded">
+                                            <span>Panjang minimal 8 karakter</span>
+                                            <span id="lengthCheck">❌</span>
+                                        </div>
+                                        <div class="flex items-center justify-between p-2 bg-gray-100 rounded">
+                                            <span>Mengandung huruf besar</span>
+                                            <span id="upperCheck">❌</span>
+                                        </div>
+                                        <div class="flex items-center justify-between p-2 bg-gray-100 rounded">
+                                            <span>Mengandung huruf kecil</span>
+                                            <span id="lowerCheck">❌</span>
+                                        </div>
+                                        <div class="flex items-center justify-between p-2 bg-gray-100 rounded">
+                                            <span>Mengandung angka</span>
+                                            <span id="numberCheck">❌</span>
+                                        </div>
+                                        <div class="flex items-center justify-between p-2 bg-gray-100 rounded">
+                                            <span>Mengandung karakter khusus</span>
+                                            <span id="specialCheck">❌</span>
+                                        </div>
+                                    </div>
+                                    <div id="passwordStrength" class="text-center font-bold text-lg p-3 bg-gray-200 rounded-lg">
+                                        Masukkan password untuk melihat kekuatan
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-purple-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🛠️</span>
+                                Implementasi Praktis Keamanan
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-purple-700 mb-3 flex items-center">
+                                        <span class="text-xl mr-2">🔐</span>
+                                        1. Enkripsi Data Lokal
+                                    </h4>
+                                    <div class="bg-gray-900 rounded-lg mb-3 overflow-hidden">
+                                        <div class="bg-gray-800 px-4 py-2 border-b border-gray-700">
+                                            <p class="text-sm text-gray-300 font-medium">📄 EncryptionHelper.java</p>
+                                        </div>
+                                        <div class="p-4 font-mono text-sm leading-relaxed">
+                                            <div class="flex">
+                                                <div class="text-gray-500 select-none mr-4 text-right" style="min-width: 2rem;">
+                                                    <div>1</div>
+                                                    <div>2</div>
+                                                    <div>3</div>
+                                                    <div>4</div>
+                                                    <div>5</div>
+                                                    <div>6</div>
+                                                    <div>7</div>
+                                                    <div>8</div>
+                                                    <div>9</div>
+                                                    <div>10</div>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <div><span class="text-gray-500">// Enkripsi dengan AES menggunakan Android Keystore</span></div>
+                                                    <div><span class="text-blue-400">public</span> <span class="text-blue-400">class</span> <span class="text-yellow-300">EncryptionHelper</span> {</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">public</span> <span class="text-blue-400">static</span> <span class="text-green-400">String</span> <span class="text-yellow-300">encryptData</span>(<span class="text-green-400">String</span> <span class="text-white">data</span>) {</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">try</span> {</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-green-400">KeyGenerator</span> <span class="text-white">keyGen</span> = <span class="text-green-400">KeyGenerator</span>.<span class="text-yellow-300">getInstance</span>(<span class="text-orange-400">"AES"</span>);</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-green-400">SecretKey</span> <span class="text-white">secretKey</span> = <span class="text-white">keyGen</span>.<span class="text-yellow-300">generateKey</span>();</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-green-400">String</span> <span class="text-white">encryptedData</span> = <span class="text-green-400">AESUtil</span>.<span class="text-yellow-300">encrypt</span>(<span class="text-white">data</span>, <span class="text-white">secretKey</span>);</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">return</span> <span class="text-white">encryptedData</span>;</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-700">Selalu enkripsi data sensitif seperti token, password, atau informasi pribadi sebelum menyimpan di SharedPreferences atau database lokal.</p>
+                                </div>
+
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-purple-700 mb-3 flex items-center">
+                                        <span class="text-xl mr-2">🌐</span>
+                                        2. Network Security Config
+                                    </h4>
+                                    <div class="bg-gray-900 rounded-lg mb-3 overflow-hidden">
+                                        <div class="bg-gray-800 px-4 py-2 border-b border-gray-700">
+                                            <p class="text-sm text-gray-300 font-medium">📄 res/xml/network_security_config.xml</p>
+                                        </div>
+                                        <div class="p-4 font-mono text-sm leading-relaxed">
+                                            <div class="flex">
+                                                <div class="text-gray-500 select-none mr-4 text-right" style="min-width: 2rem;">
+                                                    <div>1</div>
+                                                    <div>2</div>
+                                                    <div>3</div>
+                                                    <div>4</div>
+                                                    <div>5</div>
+                                                    <div>6</div>
+                                                    <div>7</div>
+                                                    <div>8</div>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <div><span class="text-gray-500">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></div>
+                                                    <div><span class="text-red-400">&lt;network-security-config</span><span class="text-white">&gt;</span></div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-red-400">&lt;domain-config</span> <span class="text-yellow-300">cleartextTrafficPermitted</span>=<span class="text-green-400">"false"</span><span class="text-white">&gt;</span></div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-red-400">&lt;domain</span> <span class="text-yellow-300">includeSubdomains</span>=<span class="text-green-400">"true"</span><span class="text-white">&gt;</span><span class="text-white">api.myapp.com</span><span class="text-red-400">&lt;/domain&gt;</span></div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-red-400">&lt;pin-set</span> <span class="text-yellow-300">expiration</span>=<span class="text-green-400">"2025-12-31"</span><span class="text-white">&gt;</span></div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-red-400">&lt;pin</span> <span class="text-yellow-300">digest</span>=<span class="text-green-400">"SHA-256"</span><span class="text-white">&gt;</span><span class="text-white">7HIpactkIAq2Y49orFOOQKurWxmmSFZhBCoQYcRhJ3Y=</span><span class="text-red-400">&lt;/pin&gt;</span></div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-red-400">&lt;/pin-set&gt;</span></div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-red-400">&lt;/domain-config&gt;</span></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-700">Konfigurasi ini memastikan aplikasi hanya berkomunikasi melalui HTTPS dan mencegah serangan man-in-the-middle dengan certificate pinning.</p>
+                                </div>
+
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-purple-700 mb-3 flex items-center">
+                                        <span class="text-xl mr-2">🔍</span>
+                                        3. Input Validation
+                                    </h4>
+                                    <div class="bg-gray-900 rounded-lg mb-3 overflow-hidden">
+                                        <div class="bg-gray-800 px-4 py-2 border-b border-gray-700">
+                                            <p class="text-sm text-gray-300 font-medium">📄 ValidationUtils.java</p>
+                                        </div>
+                                        <div class="p-4 font-mono text-sm leading-relaxed">
+                                            <div class="flex">
+                                                <div class="text-gray-500 select-none mr-4 text-right" style="min-width: 2rem;">
+                                                    <div>1</div>
+                                                    <div>2</div>
+                                                    <div>3</div>
+                                                    <div>4</div>
+                                                    <div>5</div>
+                                                    <div>6</div>
+                                                    <div>7</div>
+                                                    <div>8</div>
+                                                    <div>9</div>
+                                                    <div>10</div>
+                                                    <div>11</div>
+                                                    <div>12</div>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <div><span class="text-gray-500">// Validasi input untuk mencegah injection</span></div>
+                                                    <div><span class="text-blue-400">public</span> <span class="text-blue-400">boolean</span> <span class="text-yellow-300">validateEmail</span>(<span class="text-green-400">String</span> <span class="text-white">email</span>) {</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">if</span> (!<span class="text-green-400">Patterns</span>.<span class="text-white">EMAIL_ADDRESS</span>.<span class="text-yellow-300">matcher</span>(<span class="text-white">email</span>).<span class="text-yellow-300">matches</span>()) {</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-yellow-300">showError</span>(<span class="text-orange-400">"Format email tidak valid"</span>);</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">return</span> <span class="text-orange-400">false</span>;</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">return</span> <span class="text-orange-400">true</span>;</div>
+                                                    <div>}</div>
+                                                    <div></div>
+                                                    <div><span class="text-gray-500">// Sanitasi input SQL</span></div>
+                                                    <div><span class="text-blue-400">public</span> <span class="text-green-400">String</span> <span class="text-yellow-300">sanitizeInput</span>(<span class="text-green-400">String</span> <span class="text-white">input</span>) {</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">return</span> <span class="text-white">input</span>.<span class="text-yellow-300">replaceAll</span>(<span class="text-orange-400">"[';\"\\-\\-]"</span>, <span class="text-orange-400">""</span>);</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-700">Selalu validasi input pengguna untuk mencegah injection attacks dan memastikan data yang masuk sesuai format yang diharapkan.</p>
+                                </div>
+
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-purple-700 mb-3 flex items-center">
+                                        <span class="text-xl mr-2">⏰</span>
+                                        4. Session Timeout
+                                    </h4>
+                                    <div class="bg-gray-900 rounded-lg mb-3 overflow-hidden">
+                                        <div class="bg-gray-800 px-4 py-2 border-b border-gray-700">
+                                            <p class="text-sm text-gray-300 font-medium">📄 SessionManager.java</p>
+                                        </div>
+                                        <div class="p-4 font-mono text-sm leading-relaxed">
+                                            <div class="flex">
+                                                <div class="text-gray-500 select-none mr-4 text-right" style="min-width: 2rem;">
+                                                    <div>1</div>
+                                                    <div>2</div>
+                                                    <div>3</div>
+                                                    <div>4</div>
+                                                    <div>5</div>
+                                                    <div>6</div>
+                                                    <div>7</div>
+                                                    <div>8</div>
+                                                    <div>9</div>
+                                                    <div>10</div>
+                                                    <div>11</div>
+                                                    <div>12</div>
+                                                    <div>13</div>
+                                                    <div>14</div>
+                                                </div>
+                                                <div class="flex-1">
+                                                    <div><span class="text-gray-500">// Auto logout setelah 30 menit tidak aktif</span></div>
+                                                    <div><span class="text-blue-400">public</span> <span class="text-blue-400">class</span> <span class="text-yellow-300">SessionManager</span> {</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">private</span> <span class="text-blue-400">static</span> <span class="text-blue-400">final</span> <span class="text-blue-400">long</span> <span class="text-white">SESSION_TIMEOUT</span> = <span class="text-orange-400">30</span> * <span class="text-orange-400">60</span> * <span class="text-orange-400">1000</span>; <span class="text-gray-500">// 30 menit</span></div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">private</span> <span class="text-blue-400">long</span> <span class="text-white">lastActivity</span>;</div>
+                                                    <div></div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">public</span> <span class="text-blue-400">void</span> <span class="text-yellow-300">updateActivity</span>() {</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-white">lastActivity</span> = <span class="text-green-400">System</span>.<span class="text-yellow-300">currentTimeMillis</span>();</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+                                                    <div></div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">private</span> <span class="text-blue-400">void</span> <span class="text-yellow-300">checkSessionTimeout</span>() {</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-blue-400">if</span> (<span class="text-green-400">System</span>.<span class="text-yellow-300">currentTimeMillis</span>() - <span class="text-white">lastActivity</span> > <span class="text-white">SESSION_TIMEOUT</span>) {</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-yellow-300">logout</span>();</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+                                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="text-gray-700">Implementasi session timeout untuk logout otomatis jika pengguna tidak aktif dalam periode tertentu. Penting untuk keamanan aplikasi banking dan e-commerce.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-orange-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-orange-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🔧</span>
+                                Tools Keamanan Android
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-4 card-hover">
+                                        <h4 class="font-bold text-lg text-orange-700 mb-2 flex items-center">
+                                            <span class="text-xl mr-2">🛡️</span>
+                                            ProGuard/R8
+                                        </h4>
+                                        <p class="text-gray-700 mb-2">Code obfuscation untuk menyembunyikan logika aplikasi dari reverse engineering.</p>
+                                        <div class="bg-orange-100 p-2 rounded text-sm text-orange-800">
+                                            <strong>Fungsi:</strong> Minifikasi, obfuskasi, optimasi kode
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white rounded-xl p-4 card-hover">
+                                        <h4 class="font-bold text-lg text-orange-700 mb-2 flex items-center">
+                                            <span class="text-xl mr-2">🔐</span>
+                                            Android Keystore
+                                        </h4>
+                                        <p class="text-gray-700 mb-2">Sistem penyimpanan kunci kriptografi yang aman di level hardware (TEE/SE).</p>
+                                        <div class="bg-orange-100 p-2 rounded text-sm text-orange-800">
+                                            <strong>Kegunaan:</strong> Simpan private keys, sertifikat, kunci enkripsi dengan perlindungan hardware
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-4 card-hover">
+                                        <h4 class="font-bold text-lg text-orange-700 mb-2 flex items-center">
+                                            <span class="text-xl mr-2">🔍</span>
+                                            OWASP ZAP
+                                        </h4>
+                                        <p class="text-gray-700 mb-2">Tool untuk testing keamanan aplikasi dan menemukan vulnerability.</p>
+                                        <div class="bg-orange-100 p-2 rounded text-sm text-orange-800">
+                                            <strong>Fitur:</strong> Penetration testing, security scanning
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white rounded-xl p-4 card-hover">
+                                        <h4 class="font-bold text-lg text-orange-700 mb-2 flex items-center">
+                                            <span class="text-xl mr-2">📱</span>
+                                            App Bundle
+                                        </h4>
+                                        <p class="text-gray-700 mb-2">Format distribusi yang lebih aman dengan signing key yang terpisah.</p>
+                                        <div class="bg-orange-100 p-2 rounded text-sm text-orange-800">
+                                            <strong>Benefit:</strong> Play App Signing, ukuran APK lebih kecil
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="showSection('tugas')" class="w-full bg-gradient-to-r from-red-400 to-pink-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-red-500 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Tugas 📝
+                </button>
+            </div>
+
+            <!-- Tugas Section -->
+            <div id="tugas" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">📝</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Tugas Pembelajaran</h2>
+                        <p class="text-xl text-gray-600">Uji pemahaman kamu dengan mengerjakan tugas berikut</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-indigo-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-indigo-800 mb-6 flex items-center">
+                                <span class="text-3xl mr-3">📋</span>
+                                Soal Essay
+                            </h3>
+                            
+                            <div class="space-y-6">
+                                <div class="bg-white rounded-xl p-6 border-l-4 border-indigo-400">
+                                    <h4 class="font-bold text-lg text-indigo-700 mb-3">Soal 1</h4>
+                                    <p class="text-gray-700 text-lg mb-4">Jelaskan perbedaan antara autentikasi dan otorisasi dalam konteks pengembangan aplikasi Android. Berikan contoh implementasi masing-masing!</p>
+                                    <textarea class="w-full p-4 border border-gray-300 rounded-lg text-lg h-32" placeholder="Tulis jawaban kamu di sini..."></textarea>
+                                </div>
+
+                                <div class="bg-white rounded-xl p-6 border-l-4 border-green-400">
+                                    <h4 class="font-bold text-lg text-green-700 mb-3">Soal 2</h4>
+                                    <p class="text-gray-700 text-lg mb-4">Sebutkan dan jelaskan minimal 3 metode autentikasi yang dapat diimplementasikan dalam aplikasi Android. Apa kelebihan dan kekurangan masing-masing metode?</p>
+                                    <textarea class="w-full p-4 border border-gray-300 rounded-lg text-lg h-32" placeholder="Tulis jawaban kamu di sini..."></textarea>
+                                </div>
+
+                                <div class="bg-white rounded-xl p-6 border-l-4 border-purple-400">
+                                    <h4 class="font-bold text-lg text-purple-700 mb-3">Soal 3</h4>
+                                    <p class="text-gray-700 text-lg mb-4">Mengapa permission management penting dalam aplikasi Android? Jelaskan proses request permission dan berikan contoh kasus penggunaannya!</p>
+                                    <textarea class="w-full p-4 border border-gray-300 rounded-lg text-lg h-32" placeholder="Tulis jawaban kamu di sini..."></textarea>
+                                </div>
+
+                                <div class="bg-white rounded-xl p-6 border-l-4 border-orange-400">
+                                    <h4 class="font-bold text-lg text-orange-700 mb-3">Soal 4</h4>
+                                    <p class="text-gray-700 text-lg mb-4">Apa saja ancaman keamanan yang umum terjadi pada aplikasi mobile? Bagaimana cara mencegah atau mengatasi ancaman tersebut?</p>
+                                    <textarea class="w-full p-4 border border-gray-300 rounded-lg text-lg h-32" placeholder="Tulis jawaban kamu di sini..."></textarea>
+                                </div>
+
+                                <div class="bg-white rounded-xl p-6 border-l-4 border-red-400">
+                                    <h4 class="font-bold text-lg text-red-700 mb-3">Soal 5 (Studi Kasus)</h4>
+                                    <p class="text-gray-700 text-lg mb-4">Kamu diminta membuat aplikasi e-commerce Android. Rancang sistem autentikasi dan otorisasi yang sesuai! Jelaskan role pengguna, metode login yang akan digunakan, dan permission apa saja yang diperlukan.</p>
+                                    <textarea class="w-full p-4 border border-gray-300 rounded-lg text-lg h-40" placeholder="Tulis rancangan sistem kamu di sini..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="mt-8 text-center">
+                                <button onclick="submitTugas()" class="bg-indigo-500 text-white py-3 px-8 rounded-xl text-lg font-bold hover:bg-indigo-600 transition-colors">
+                                    Submit Tugas 📤
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="bg-yellow-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-yellow-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">💡</span>
+                                Tips Mengerjakan
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <div class="bg-white rounded-xl p-4 flex items-center">
+                                        <span class="text-yellow-500 text-xl mr-3">✨</span>
+                                        <p class="text-gray-700">Jawab dengan bahasa sendiri</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 flex items-center">
+                                        <span class="text-yellow-500 text-xl mr-3">✨</span>
+                                        <p class="text-gray-700">Berikan contoh konkret</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="bg-white rounded-xl p-4 flex items-center">
+                                        <span class="text-yellow-500 text-xl mr-3">✨</span>
+                                        <p class="text-gray-700">Hubungkan dengan materi yang dipelajari</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4 flex items-center">
+                                        <span class="text-yellow-500 text-xl mr-3">✨</span>
+                                        <p class="text-gray-700">Jelaskan dengan detail dan sistematis</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="showSection('kuis')" class="w-full bg-gradient-to-r from-indigo-400 to-purple-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-indigo-500 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Kuis 🎯
+                </button>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🎯</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Kuis Interaktif</h2>
+                        <p class="text-xl text-gray-600">Test pemahaman kamu dengan 10 soal pilihan ganda</p>
+                    </div>
+
+                    <!-- Quiz Start Screen -->
+                    <div id="quizStart" class="text-center">
+                        <div class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-2xl p-8 mb-6">
+                            <div class="text-4xl mb-4">🎮</div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">Siap untuk Tantangan?</h3>
+                            <p class="text-lg text-gray-600 mb-6">Masukkan nama kamu untuk memulai kuis</p>
+                            <input type="text" id="studentName" class="w-full max-w-md mx-auto p-4 border border-gray-300 rounded-xl text-lg text-center" placeholder="Nama lengkap kamu">
+                        </div>
+                        <button onclick="startQuiz()" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-blue-600 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg">
+                            Mulai Kuis! 🚀
+                        </button>
+                    </div>
+
+                    <!-- Quiz Questions -->
+                    <div id="quizContent" class="hidden">
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-lg font-medium text-gray-600">Soal <span id="currentQuestion">1</span> dari 10</span>
+                                <span class="text-lg font-medium text-blue-600">Skor: <span id="currentScore">0</span></span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-300" style="width: 10%"></div>
+                            </div>
+                        </div>
+
+                        <div id="questionContainer" class="bg-gradient-to-r from-pink-50 to-blue-50 rounded-2xl p-6 mb-6">
+                            <h3 id="questionText" class="text-xl font-bold text-gray-800 mb-6"></h3>
+                            <div id="optionsContainer" class="space-y-3"></div>
+                        </div>
+
+                        <div class="text-center">
+                            <button id="nextButton" onclick="nextQuestion()" class="bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 px-8 rounded-xl text-lg font-bold hover:from-green-600 hover:to-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                Soal Berikutnya ➡️
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Results -->
+                    <div id="quizResults" class="hidden text-center">
+                        <div class="bg-gradient-to-r from-green-100 to-blue-100 rounded-2xl p-8 mb-6">
+                            <div id="resultEmoji" class="text-6xl mb-4">🎉</div>
+                            <h3 class="text-3xl font-bold text-gray-800 mb-4">Selamat <span id="finalName"></span>!</h3>
+                            <div class="text-2xl font-bold mb-4">
+                                <span class="text-blue-600">Skor Akhir: </span>
+                                <span id="finalScore" class="text-green-600">0</span>
+                                <span class="text-gray-600">/100</span>
+                            </div>
+                            <div id="scoreMessage" class="text-lg text-gray-700 mb-4"></div>
+                            <div class="bg-white rounded-xl p-4 inline-block">
+                                <p class="text-sm text-gray-600">Jawaban Benar: <span id="correctAnswers" class="font-bold text-green-600">0</span>/10</p>
+                            </div>
+                        </div>
+                        <button onclick="restartQuiz()" class="bg-gradient-to-r from-purple-500 to-pink-600 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-purple-600 hover:to-pink-700 transition-all transform hover:scale-105 shadow-lg mr-4">
+                            Ulangi Kuis 🔄
+                        </button>
+                    </div>
+                </div>
+                
+                <button onclick="showSection('penutup')" class="w-full bg-gradient-to-r from-orange-400 to-red-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-orange-500 hover:to-red-600 transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Penutup 🎉
+                </button>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-5xl mb-4">🎉</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Penutup Pembelajaran</h2>
+                        <p class="text-xl text-gray-600">Refleksi dan langkah selanjutnya</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-purple-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🤔</span>
+                                Refleksi Pembelajaran
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-purple-700 mb-2">Apa yang sudah kamu pelajari?</h4>
+                                    <textarea class="w-full p-3 border border-gray-300 rounded-lg text-lg h-24" placeholder="Tulis refleksi kamu tentang materi yang sudah dipelajari..."></textarea>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-purple-700 mb-2">Bagian mana yang paling menarik?</h4>
+                                    <textarea class="w-full p-3 border border-gray-300 rounded-lg text-lg h-24" placeholder="Ceritakan bagian materi yang paling menarik buat kamu..."></textarea>
+                                </div>
+                                <div class="bg-white rounded-xl p-4">
+                                    <h4 class="font-bold text-lg text-purple-700 mb-2">Apa yang masih perlu diperdalam?</h4>
+                                    <textarea class="w-full p-3 border border-gray-300 rounded-lg text-lg h-24" placeholder="Tulis topik yang ingin kamu pelajari lebih lanjut..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-green-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">📚</span>
+                                Kesimpulan Pembelajaran
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-4">
+                                        <h4 class="font-bold text-lg text-green-700 mb-2">🔑 Autentikasi</h4>
+                                        <p class="text-gray-700">Proses verifikasi identitas pengguna dengan berbagai metode seperti password, biometric, dan OTP.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4">
+                                        <h4 class="font-bold text-lg text-green-700 mb-2">🛡️ Otorisasi</h4>
+                                        <p class="text-gray-700">Pengaturan hak akses dan permission untuk menentukan apa yang boleh dilakukan pengguna.</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-xl p-4">
+                                        <h4 class="font-bold text-lg text-green-700 mb-2">⚙️ Implementasi</h4>
+                                        <p class="text-gray-700">Penerapan praktis menggunakan tools seperti Firebase Auth, BiometricPrompt, dan JWT.</p>
+                                    </div>
+                                    <div class="bg-white rounded-xl p-4">
+                                        <h4 class="font-bold text-lg text-green-700 mb-2">🔒 Keamanan</h4>
+                                        <p class="text-gray-700">Best practices untuk melindungi aplikasi dari berbagai ancaman keamanan.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🚀</span>
+                                Tindak Lanjut
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white rounded-xl p-4 flex items-start">
+                                    <div class="bg-blue-200 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">1</div>
+                                    <div>
+                                        <h4 class="font-bold text-lg text-blue-700 mb-1">Praktik Langsung</h4>
+                                        <p class="text-gray-700">Coba implementasikan sistem login sederhana di Android Studio dengan Firebase Auth</p>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 flex items-start">
+                                    <div class="bg-blue-200 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">2</div>
+                                    <div>
+                                        <h4 class="font-bold text-lg text-blue-700 mb-1">Eksplorasi Lanjutan</h4>
+                                        <p class="text-gray-700">Pelajari topik advanced seperti OAuth 2.0, JWT, dan Multi-Factor Authentication</p>
+                                    </div>
+                                </div>
+                                <div class="bg-white rounded-xl p-4 flex items-start">
+                                    <div class="bg-blue-200 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center font-bold mr-4 mt-1">3</div>
+                                    <div>
+                                        <h4 class="font-bold text-lg text-blue-700 mb-1">Project Portfolio</h4>
+                                        <p class="text-gray-700">Buat aplikasi dengan sistem autentikasi lengkap untuk portfolio kamu</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-pink-100 to-purple-100 rounded-2xl p-6 text-center">
+                            <div class="text-4xl mb-4">🌟</div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">Selamat!</h3>
+                            <p class="text-lg text-gray-700 mb-4">Kamu telah menyelesaikan pembelajaran tentang Autentikasi dan Otorisasi di Android. Terus semangat belajar dan berkarya!</p>
+                            <div class="flex justify-center space-x-4">
+                                <span class="text-2xl">🎓</span>
+                                <span class="text-2xl">💪</span>
+                                <span class="text-2xl">🚀</span>
+                                <span class="text-2xl">⭐</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="showSection('intro')" class="w-full bg-gradient-to-r from-pink-400 to-purple-500 text-white py-4 px-8 rounded-2xl text-xl font-bold hover:from-pink-500 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg">
+                    Kembali ke Awal 🔄
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-full shadow-lg hover:from-pink-600 hover:to-purple-700 transition-all transform hover:scale-110 z-30 hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Global variables
+        let currentSection = 'intro';
+        let quizData = [
+            {
+                question: "Apa yang dimaksud dengan autentikasi dalam konteks aplikasi Android?",
+                options: [
+                    "Proses mengatur hak akses pengguna",
+                    "Proses memverifikasi identitas pengguna",
+                    "Proses enkripsi data aplikasi",
+                    "Proses backup data pengguna"
+                ],
+                correct: 1
+            },
+            {
+                question: "Manakah yang BUKAN merupakan metode autentikasi?",
+                options: [
+                    "Username dan Password",
+                    "Biometric (sidik jari)",
+                    "File Permission",
+                    "SMS OTP"
+                ],
+                correct: 2
+            },
+            {
+                question: "Apa perbedaan utama antara autentikasi dan otorisasi?",
+                options: [
+                    "Tidak ada perbedaan, keduanya sama",
+                    "Autentikasi untuk verifikasi identitas, otorisasi untuk mengatur hak akses",
+                    "Autentikasi untuk enkripsi, otorisasi untuk dekripsi",
+                    "Autentikasi untuk server, otorisasi untuk client"
+                ],
+                correct: 1
+            },
+            {
+                question: "Permission mana yang diperlukan untuk mengakses kamera di Android?",
+                options: [
+                    "CAMERA_ACCESS",
+                    "CAMERA",
+                    "ACCESS_CAMERA",
+                    "USE_CAMERA"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa kegunaan utama SharedPreferences dalam konteks autentikasi?",
+                options: [
+                    "Menyimpan password pengguna dalam plain text",
+                    "Menyimpan token autentikasi dan preferensi login secara lokal",
+                    "Mengenkripsi semua data aplikasi",
+                    "Mengirim data autentikasi ke server"
+                ],
+                correct: 1
+            },
+            {
+                question: "Manakah yang merupakan ancaman keamanan umum pada aplikasi mobile?",
+                options: [
+                    "Slow loading",
+                    "Man in the Middle Attack",
+                    "Low battery",
+                    "Small screen size"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa yang dimaksud dengan JWT (JSON Web Token)?",
+                options: [
+                    "Format file untuk menyimpan gambar",
+                    "Protokol komunikasi jaringan",
+                    "Standar terbuka untuk token autentikasi yang aman",
+                    "Library untuk UI Android"
+                ],
+                correct: 2
+            },
+            {
+                question: "Mengapa penting melakukan validasi input pengguna?",
+                options: [
+                    "Untuk mempercepat aplikasi",
+                    "Untuk mencegah serangan injection",
+                    "Untuk menghemat memori",
+                    "Untuk memperbaiki tampilan UI"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa yang sebaiknya dilakukan dengan password sebelum disimpan?",
+                options: [
+                    "Disimpan dalam plain text",
+                    "Di-hash atau dienkripsi",
+                    "Disimpan di file terpisah",
+                    "Dikirim ke server langsung"
+                ],
+                correct: 1
+            },
+            {
+                question: "Manakah yang merupakan best practice untuk session management?",
+                options: [
+                    "Session tidak pernah expired",
+                    "Implementasi session timeout",
+                    "Simpan session di file publik",
+                    "Share session antar aplikasi"
+                ],
+                correct: 1
+            }
+        ];
+        
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedAnswer = null;
+        let studentName = '';
+
+        // Navigation functions
+        function showSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionName).classList.remove('hidden');
+            document.getElementById(sectionName).classList.add('fade-in');
+            
+            // Update current section
+            currentSection = sectionName;
+            
+            // Close mobile menu
+            closeMobileMenu();
+            
+            // Scroll to top immediately and smoothly
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Update active nav item
+            updateActiveNavItem(sectionName);
+        }
+
+        function updateActiveNavItem(sectionName) {
+            // Remove all active classes
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-pink-200', 'bg-blue-200', 'bg-green-200', 'bg-purple-200', 'bg-yellow-200', 'bg-red-200', 'bg-indigo-200', 'bg-orange-200', 'bg-teal-200');
+                item.classList.remove('border-l-4', 'border-pink-500', 'border-blue-500', 'border-green-500', 'border-purple-500', 'border-yellow-500', 'border-red-500', 'border-indigo-500', 'border-orange-500', 'border-teal-500');
+                item.classList.remove('shadow-md', 'transform', 'scale-105');
+            });
+            
+            // Find and highlight active item
+            const activeItem = document.querySelector(`[onclick="showSection('${sectionName}')"]`);
+            if (activeItem) {
+                const colorMap = {
+                    'intro': { bg: 'bg-pink-200', border: 'border-pink-500' },
+                    'pengenalan': { bg: 'bg-blue-200', border: 'border-blue-500' },
+                    'autentikasi': { bg: 'bg-green-200', border: 'border-green-500' },
+                    'otorisasi': { bg: 'bg-purple-200', border: 'border-purple-500' },
+                    'implementasi': { bg: 'bg-yellow-200', border: 'border-yellow-500' },
+                    'keamanan': { bg: 'bg-red-200', border: 'border-red-500' },
+                    'tugas': { bg: 'bg-indigo-200', border: 'border-indigo-500' },
+                    'kuis': { bg: 'bg-orange-200', border: 'border-orange-500' },
+                    'penutup': { bg: 'bg-teal-200', border: 'border-teal-500' }
+                };
+                
+                const colors = colorMap[sectionName] || { bg: 'bg-gray-200', border: 'border-gray-500' };
+                activeItem.classList.add(colors.bg, 'border-l-4', colors.border, 'shadow-md', 'transform', 'scale-105');
+            }
+        }
+
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.add('-translate-x-full');
+        }
+
+        // Demo functions
+        function demoLogin() {
+            const username = document.getElementById('demoUsername').value;
+            const password = document.getElementById('demoPassword').value;
+            const result = document.getElementById('loginResult');
+            
+            if (username === 'admin' && password === '123456') {
+                result.innerHTML = '<span class="text-green-600">✅ Login berhasil! Selamat datang, Admin!</span>';
+                result.className = 'text-center font-medium bg-green-100 p-3 rounded-lg mt-3';
+            } else {
+                result.innerHTML = '<span class="text-red-600">❌ Login gagal! Username atau password salah.</span>';
+                result.className = 'text-center font-medium bg-red-100 p-3 rounded-lg mt-3';
+            }
+        }
+
+        function togglePermission(type) {
+            const button = document.getElementById(type + 'Btn');
+            const status = document.getElementById('permissionStatus');
+            
+            if (button.textContent === 'Denied') {
+                button.textContent = 'Granted';
+                button.className = 'bg-green-500 text-white px-4 py-2 rounded-lg transition-colors';
+            } else {
+                button.textContent = 'Denied';
+                button.className = 'bg-gray-400 text-white px-4 py-2 rounded-lg transition-colors';
+            }
+            
+            // Update status
+            const permissions = ['camera', 'location', 'storage'];
+            const granted = permissions.filter(p => document.getElementById(p + 'Btn').textContent === 'Granted');
+            
+            if (granted.length === 0) {
+                status.innerHTML = 'Semua permission ditolak - Fitur terbatas';
+                status.className = 'mt-4 p-3 bg-red-100 rounded-lg text-center text-red-700 font-medium';
+            } else if (granted.length === permissions.length) {
+                status.innerHTML = 'Semua permission diberikan - Akses penuh';
+                status.className = 'mt-4 p-3 bg-green-100 rounded-lg text-center text-green-700 font-medium';
+            } else {
+                status.innerHTML = `${granted.length} dari ${permissions.length} permission diberikan`;
+                status.className = 'mt-4 p-3 bg-yellow-100 rounded-lg text-center text-yellow-700 font-medium';
+            }
+        }
+
+        function checkPasswordSecurity() {
+            const password = document.getElementById('securityPassword').value;
+            const strength = document.getElementById('passwordStrength');
+            
+            // Check criteria
+            const hasLength = password.length >= 8;
+            const hasUpper = /[A-Z]/.test(password);
+            const hasLower = /[a-z]/.test(password);
+            const hasNumber = /\d/.test(password);
+            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            
+            // Update checkmarks
+            document.getElementById('lengthCheck').textContent = hasLength ? '✅' : '❌';
+            document.getElementById('upperCheck').textContent = hasUpper ? '✅' : '❌';
+            document.getElementById('lowerCheck').textContent = hasLower ? '✅' : '❌';
+            document.getElementById('numberCheck').textContent = hasNumber ? '✅' : '❌';
+            document.getElementById('specialCheck').textContent = hasSpecial ? '✅' : '❌';
+            
+            // Calculate strength
+            const score = [hasLength, hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length;
+            
+            if (password === '') {
+                strength.textContent = 'Masukkan password untuk melihat kekuatan';
+                strength.className = 'text-center font-bold text-lg p-3 bg-gray-200 rounded-lg';
+            } else if (score <= 2) {
+                strength.textContent = 'Lemah 😟';
+                strength.className = 'text-center font-bold text-lg p-3 bg-red-200 text-red-800 rounded-lg';
+            } else if (score <= 3) {
+                strength.textContent = 'Sedang 😐';
+                strength.className = 'text-center font-bold text-lg p-3 bg-yellow-200 text-yellow-800 rounded-lg';
+            } else if (score <= 4) {
+                strength.textContent = 'Kuat 😊';
+                strength.className = 'text-center font-bold text-lg p-3 bg-blue-200 text-blue-800 rounded-lg';
+            } else {
+                strength.textContent = 'Sangat Kuat 🔒';
+                strength.className = 'text-center font-bold text-lg p-3 bg-green-200 text-green-800 rounded-lg';
+            }
+        }
+
+        // Tugas functions
+        function submitTugas() {
+            const textareas = document.querySelectorAll('#tugas textarea');
+            let allFilled = true;
+            
+            textareas.forEach(textarea => {
+                if (textarea.value.trim() === '') {
+                    allFilled = false;
+                }
+            });
+            
+            if (allFilled) {
+                alert('🎉 Tugas berhasil dikumpulkan! Terima kasih atas partisipasinya.');
+            } else {
+                alert('⚠️ Mohon lengkapi semua jawaban sebelum submit.');
+            }
+        }
+
+        // Quiz functions
+        function startQuiz() {
+            const name = document.getElementById('studentName').value.trim();
+            if (name === '') {
+                alert('Mohon masukkan nama kamu terlebih dahulu!');
+                return;
+            }
+            
+            studentName = name;
+            document.getElementById('quizStart').classList.add('hidden');
+            document.getElementById('quizContent').classList.remove('hidden');
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizData[currentQuestionIndex];
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('currentScore').textContent = score;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'quiz-option bg-white p-4 rounded-xl border-2 border-gray-200 cursor-pointer';
+                optionDiv.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full border-2 border-gray-300 flex items-center justify-center mr-4 font-bold">
+                            ${String.fromCharCode(65 + index)}
+                        </div>
+                        <span class="text-lg">${option}</span>
+                    </div>
+                `;
+                optionDiv.onclick = () => selectAnswer(index, optionDiv);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            // Update progress bar
+            const progress = ((currentQuestionIndex + 1) / quizData.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Reset next button
+            document.getElementById('nextButton').disabled = true;
+            selectedAnswer = null;
+        }
+
+        function selectAnswer(answerIndex, optionElement) {
+            // Remove previous selections
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+                option.classList.add('bg-white');
+            });
+            
+            // Mark selected answer
+            optionElement.classList.add('selected');
+            selectedAnswer = answerIndex;
+            
+            // Show correct answer
+            const question = quizData[currentQuestionIndex];
+            document.querySelectorAll('.quiz-option').forEach((option, index) => {
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === answerIndex && answerIndex !== question.correct) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            // Update score
+            if (answerIndex === question.correct) {
+                score += 10;
+                document.getElementById('currentScore').textContent = score;
+            }
+            
+            // Enable next button
+            document.getElementById('nextButton').disabled = false;
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < quizData.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizContent').classList.add('hidden');
+            document.getElementById('quizResults').classList.remove('hidden');
+            
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('correctAnswers').textContent = score / 10;
+            
+            // Set emoji and message based on score
+            const resultEmoji = document.getElementById('resultEmoji');
+            const scoreMessage = document.getElementById('scoreMessage');
+            
+            if (score >= 90) {
+                resultEmoji.textContent = '🏆';
+                scoreMessage.textContent = 'Luar biasa! Kamu menguasai materi dengan sangat baik!';
+                scoreMessage.className = 'text-lg text-green-700 mb-4 font-bold';
+            } else if (score >= 70) {
+                resultEmoji.textContent = '🎉';
+                scoreMessage.textContent = 'Bagus! Pemahaman kamu sudah cukup baik!';
+                scoreMessage.className = 'text-lg text-blue-700 mb-4 font-bold';
+            } else if (score >= 50) {
+                resultEmoji.textContent = '😊';
+                scoreMessage.textContent = 'Tidak buruk! Masih ada ruang untuk improvement.';
+                scoreMessage.className = 'text-lg text-yellow-700 mb-4 font-bold';
+            } else {
+                resultEmoji.textContent = '💪';
+                scoreMessage.textContent = 'Jangan menyerah! Coba pelajari materi lagi ya.';
+                scoreMessage.className = 'text-lg text-red-700 mb-4 font-bold';
+            }
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizResults').classList.add('hidden');
+            document.getElementById('quizStart').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+        }
+
+        // Back to top functionality
+        function setupBackToTop() {
+            const backToTopBtn = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('hidden');
+                } else {
+                    backToTopBtn.classList.add('hidden');
+                }
+            });
+            
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(event) {
+                const sidebar = document.getElementById('sidebar');
+                const mobileBtn = document.getElementById('mobileMenuBtn');
+                
+                if (!sidebar.contains(event.target) && !mobileBtn.contains(event.target)) {
+                    closeMobileMenu();
+                }
+            });
+            
+            // Setup back to top
+            setupBackToTop();
+            
+            // Initialize active nav item
+            updateActiveNavItem('intro');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98cb02bed638283c',t:'MTc2MDE1MDYxNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
