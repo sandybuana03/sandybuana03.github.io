@@ -2246,45 +2246,69 @@ if (file.size === null) {
                 }
                 
                 // Deteksi ukuran file secara otomatis
-                if (file.size === null) {
-                    let filePath = '';
-                    
-                    if (currentDirectory === '.') {
-                        filePath = file.name;
-                    } else {
-                        // Check if this is a nested folder (subfolder of RPL)
-                        const nestedFolders = ['Basis Data', 'Pemrograman Berbasis Teks, Grafis, dan Multimedia', 'Pemrograman Web', 'Pemrograman Perangkat Bergerak'];
-                        
-                        if (nestedFolders.includes(currentDirectory)) {
-                            // This is a nested folder, build the full path
-                            filePath = `Rekayasa Perangkat Lunak/${currentDirectory}/${file.name}`;
-                        } else {
-                            // This is a top-level folder
-                            const folderMap = {
-                                'Informatika': 'Informatika', 
-                                'Koding dan Kecerdasan Artifisial': 'Koding dan Kecerdasan Artifisial',
-                                'Mapil - Pemrograman Web': 'Mapil - Pemrograman Web',
-                                'PKL - Prakerin': 'PKL - Prakerin',
-                                'Rekayasa Perangkat Lunak': 'Rekayasa Perangkat Lunak'
-                            };
-                            
-                            const mappedFolder = folderMap[currentDirectory] || currentDirectory;
-                            filePath = `${mappedFolder}/${file.name}`;
-                        }
-                    }
-                    
-                    detectFileSize(filePath).then(size => {
-                        if (size !== null) {
-                            file.size = size; // Update cache
-                            updateFileSizeInDisplay(filePath, size, fileItem);
-                        } else {
-                            updateFileSizeInDisplay(filePath, 'Tidak diketahui', fileItem);
-                        }
-                    });
-                }
-                
-                fileList.appendChild(fileItem);
-            });
+if (file.size === null) {
+    let filePath = '';
+
+    if (currentDirectory === '.') {
+        // File ada di root
+        filePath = file.name;
+    } else {
+        // Daftar nested folder RPL
+        const nestedRPLFolders = [
+            'Basis Data',
+            'Pemrograman Berbasis Teks, Grafis, dan Multimedia',
+            'Pemrograman Web',
+            'Pemrograman Perangkat Bergerak'
+        ];
+
+        // Daftar nested folder Dasar Dasar PPLG
+        const nestedDDPFolders = [
+            'Wawasan Dunia Kerja Bidang Pengembangan Perangkat Lunak dan Gim',
+            'Kecakapan Kerja Dasar (Basic Job Skills), K3, dan Budaya Kerja',
+            'Teknologi Jaringan Komputer',
+            'Pemrograman Terstruktur',
+            'Pemrograman Berorientasi Objek'
+        ];
+
+        // Mapping folder utama
+        const folderMap = {
+            'Informatika': 'Informatika',
+            'Koding dan Kecerdasan Artifisial': 'Koding dan Kecerdasan Artifisial',
+            'Mapil - Web Development': 'Mapil - Web Development',
+            'PKL - Prakerin': 'PKL - Prakerin',
+            'Rekayasa Perangkat Lunak': 'Rekayasa Perangkat Lunak',
+            'Dasar Dasar Pengembangan Perangkat Lunak Dan Gim': 'Dasar Dasar Pengembangan Perangkat Lunak Dan Gim',
+            'Gelar Karya Rekayasa Perangkat Lunak': 'Gelar Karya Rekayasa Perangkat Lunak'
+        };
+
+        if (nestedRPLFolders.includes(currentDirectory)) {
+            // Nested RPL
+            filePath = `Rekayasa Perangkat Lunak/${currentDirectory}/${file.name}`;
+        } else if (nestedDDPFolders.includes(currentDirectory)) {
+            // Nested Dasar Dasar PPLG
+            filePath = `Dasar Dasar Pengembangan Perangkat Lunak Dan Gim/${currentDirectory}/${file.name}`;
+        } else {
+            // Folder top-level biasa
+            const mappedFolder = folderMap[currentDirectory] || currentDirectory;
+            filePath = `${mappedFolder}/${file.name}`;
+        }
+    }
+
+    // Encode path agar aman untuk fetch (spasi, tanda kurung, koma, dll)
+    const encodedPath = encodeURI(filePath);
+
+    detectFileSize(encodedPath).then(size => {
+        if (size !== null) {
+            file.size = size; // Update cache
+            updateFileSizeInDisplay(encodedPath, size, fileItem);
+        } else {
+            updateFileSizeInDisplay(encodedPath, 'Tidak diketahui', fileItem);
+        }
+    });
+}
+
+fileList.appendChild(fileItem);
+
 
             // Debug logging untuk troubleshooting
             console.log('=== DEBUG INFO ===');
