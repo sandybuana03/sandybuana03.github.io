@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembelajaran Waterfall - SMK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #ffeef8 0%, #e8f4fd 50%, #fff2e8 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .waterfall-step {
+            background: linear-gradient(45deg, #a8e6cf, #88d8c0);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .waterfall-step::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s;
+        }
+        
+        .waterfall-step:hover::before {
+            animation: shine 0.6s ease-in-out;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .sidebar {
+            transition: transform 0.3s ease;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 50;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        
+        @media (min-width: 769px) {
+            .sidebar {
+                position: fixed;
+                transform: translateX(0) !important;
+            }
+            
+            .main-content {
+                margin-left: 320px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            background: #fef3c7;
+            transform: scale(1.02);
+        }
+        
+        .quiz-option.selected {
+            background: #a7f3d0;
+            border-color: #10b981;
+        }
+        
+        .quiz-option.correct {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .quiz-option.incorrect {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+            color: white !important;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            transform: scale(1.02);
+        }
+        
+        .nav-btn.active:hover {
+            background: linear-gradient(135deg, #5855eb, #7c3aed) !important;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-full">
+    <div class="flex min-h-full">
+        <!-- Mobile Menu Button -->
+        <button id="mobileMenuBtn" class="md:hidden fixed top-4 left-4 z-50 bg-pink-200 p-3 rounded-full shadow-lg">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar sidebar-hidden md:translate-x-0 w-80 bg-white/90 backdrop-blur-sm border-r-2 border-pink-100 flex-shrink-0">
+            <div class="p-6 h-full overflow-y-auto">
+                <div class="mb-8">
+                    <h1 class="text-2xl font-bold text-purple-600 mb-2">🌊 Waterfall Method</h1>
+                    <p class="text-sm text-gray-600">Pembelajaran Interaktif SMK</p>
+                </div>
+                
+                <nav class="space-y-2">
+                    <button onclick="showSection('intro')" class="nav-btn w-full text-left p-3 rounded-lg bg-pink-100 hover:bg-pink-200 transition-colors" data-section="intro">
+                        🎯 Intro
+                    </button>
+                    <button onclick="showSection('pengenalan')" class="nav-btn w-full text-left p-3 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors" data-section="pengenalan">
+                        👋 Pengenalan
+                    </button>
+                    <button onclick="showSection('pengertian')" class="nav-btn w-full text-left p-3 rounded-lg bg-green-100 hover:bg-green-200 transition-colors" data-section="pengertian">
+                        📚 Pengertian Waterfall
+                    </button>
+                    <button onclick="showSection('tahapan')" class="nav-btn w-full text-left p-3 rounded-lg bg-yellow-100 hover:bg-yellow-200 transition-colors" data-section="tahapan">
+                        🔄 Tahapan Waterfall
+                    </button>
+                    <button onclick="showSection('karakteristik')" class="nav-btn w-full text-left p-3 rounded-lg bg-purple-100 hover:bg-purple-200 transition-colors" data-section="karakteristik">
+                        ⭐ Karakteristik
+                    </button>
+                    <button onclick="showSection('kelebihan')" class="nav-btn w-full text-left p-3 rounded-lg bg-emerald-100 hover:bg-emerald-200 transition-colors" data-section="kelebihan">
+                        ✅ Kelebihan & Kekurangan
+                    </button>
+                    <button onclick="showSection('simulasi')" class="nav-btn w-full text-left p-3 rounded-lg bg-orange-100 hover:bg-orange-200 transition-colors" data-section="simulasi">
+                        🎮 Simulasi
+                    </button>
+                    <button onclick="showSection('tugas')" class="nav-btn w-full text-left p-3 rounded-lg bg-red-100 hover:bg-red-200 transition-colors" data-section="tugas">
+                        📝 Tugas
+                    </button>
+                    <button onclick="showSection('kuis')" class="nav-btn w-full text-left p-3 rounded-lg bg-indigo-100 hover:bg-indigo-200 transition-colors" data-section="kuis">
+                        🧠 Kuis
+                    </button>
+                    <button onclick="showSection('penutup')" class="nav-btn w-full text-left p-3 rounded-lg bg-teal-100 hover:bg-teal-200 transition-colors" data-section="penutup">
+                        🎊 Penutup
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content flex-1 min-h-full">
+            <div class="max-w-4xl mx-auto p-6">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-lg card-hover mb-8">
+                    <div class="text-center mb-8">
+                        <h1 class="text-4xl font-bold text-purple-600 mb-4">🌊 Selamat Datang!</h1>
+                        <p class="text-xl text-gray-700">Mari Belajar Metode Pengembangan Waterfall</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-pink-600 mb-4">🤔 Pertanyaan Pemantik</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li>• Bagaimana cara membuat aplikasi yang terstruktur?</li>
+                                <li>• Mengapa perlu ada tahapan dalam pengembangan software?</li>
+                                <li>• Apa yang terjadi jika kita langsung coding tanpa perencanaan?</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-blue-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-blue-600 mb-4">📖 Apa yang Dipelajari</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li>• Pengertian Metode Waterfall</li>
+                                <li>• Tahapan-tahapan Waterfall</li>
+                                <li>• Kelebihan dan Kekurangan</li>
+                                <li>• Simulasi Pengembangan</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-purple-600 mb-4">🎯 Tujuan Pembelajaran</h3>
+                        <p class="text-gray-700 mb-4">Setelah mempelajari materi ini, kalian diharapkan dapat:</p>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>✅ Memahami konsep dasar metode Waterfall</li>
+                            <li>✅ Menjelaskan tahapan-tahapan dalam Waterfall</li>
+                            <li>✅ Menganalisis kelebihan dan kekurangan Waterfall</li>
+                            <li>✅ Menerapkan konsep Waterfall dalam project sederhana</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-yellow-50 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-yellow-600 mb-4">💡 Pemahaman Bermakna</h3>
+                        <p class="text-gray-700">
+                            Metode Waterfall seperti membangun rumah - kita tidak bisa langsung pasang atap tanpa membuat pondasi dulu! 
+                            Setiap tahap harus diselesaikan dengan baik sebelum lanjut ke tahap berikutnya. 
+                            Ini membantu kita membuat software yang berkualitas dan sesuai kebutuhan.
+                        </p>
+                    </div>
+                    
+                    <div class="bg-green-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-green-600 mb-4">🚀 Motivasi</h3>
+                        <p class="text-gray-700">
+                            Dengan memahami Waterfall, kalian akan menjadi programmer yang lebih terstruktur dan profesional! 
+                            Banyak perusahaan besar masih menggunakan metode ini untuk project-project penting. 
+                            Yuk, kita mulai perjalanan belajar yang seru ini! 🎉
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('pengenalan')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105">
+                        Mulai Belajar! 🚀
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-lg card-hover mb-8">
+                    <h2 class="text-3xl font-bold text-blue-600 mb-6 text-center">👋 Pengenalan Metode Waterfall</h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <div class="bg-blue-50 p-6 rounded-2xl mb-6">
+                                <h3 class="text-xl font-bold text-blue-600 mb-4">🌊 Kenapa Disebut "Waterfall"?</h3>
+                                <p class="text-gray-700 mb-4">
+                                    Bayangkan air terjun yang mengalir dari atas ke bawah secara berurutan. 
+                                    Air tidak bisa mengalir ke atas, begitu juga dengan metode Waterfall - 
+                                    setiap tahap harus diselesaikan sebelum lanjut ke tahap berikutnya!
+                                </p>
+                                <div class="text-6xl text-center">🌊💧</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-green-50 p-6 rounded-2xl mb-6">
+                                <h3 class="text-xl font-bold text-green-600 mb-4">📱 Contoh Sederhana</h3>
+                                <p class="text-gray-700 mb-4">
+                                    Misalnya kita mau bikin aplikasi kasir untuk warung:
+                                </p>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>1️⃣ Analisis: Apa yang dibutuhkan warung?</li>
+                                    <li>2️⃣ Desain: Gimana tampilan aplikasinya?</li>
+                                    <li>3️⃣ Coding: Mulai buat programnya</li>
+                                    <li>4️⃣ Testing: Coba aplikasinya</li>
+                                    <li>5️⃣ Maintenance: Perbaiki kalau ada bug</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-orange-600 mb-4">🏗️ Analogi Membangun Rumah</h3>
+                        <div class="grid md:grid-cols-5 gap-4 text-center">
+                            <div class="bg-white p-4 rounded-lg">
+                                <div class="text-3xl mb-2">📋</div>
+                                <p class="font-semibold">Perencanaan</p>
+                                <p class="text-sm text-gray-600">Gambar rumah</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <div class="text-3xl mb-2">🏗️</div>
+                                <p class="font-semibold">Pondasi</p>
+                                <p class="text-sm text-gray-600">Buat pondasi</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <div class="text-3xl mb-2">🧱</div>
+                                <p class="font-semibold">Dinding</p>
+                                <p class="text-sm text-gray-600">Bangun dinding</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <div class="text-3xl mb-2">🏠</div>
+                                <p class="font-semibold">Atap</p>
+                                <p class="text-sm text-gray-600">Pasang atap</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <div class="text-3xl mb-2">🎨</div>
+                                <p class="font-semibold">Finishing</p>
+                                <p class="text-sm text-gray-600">Cat & dekorasi</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-purple-600 mb-4">🎯 Poin Penting</h3>
+                        <ul class="space-y-3 text-gray-700">
+                            <li class="flex items-center">
+                                <span class="text-2xl mr-3">⏰</span>
+                                <span><strong>Sequential:</strong> Tahap demi tahap, tidak bisa loncat-loncat</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-2xl mr-3">📋</span>
+                                <span><strong>Dokumentasi:</strong> Setiap tahap harus didokumentasikan dengan baik</span>
+                            </li>
+                            <li class="flex items-center">
+                                <span class="text-2xl mr-3">✅</span>
+                                <span><strong>Validation:</strong> Setiap tahap harus selesai 100% sebelum lanjut</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('pengertian')" class="bg-gradient-to-r from-blue-500 to-green-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-blue-600 hover:to-green-600 transition-all transform hover:scale-105">
+                        Lanjut ke Pengertian! 📚
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pengertian Section -->
+            <div id="pengertian" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-lg card-hover mb-8">
+                    <h2 class="text-3xl font-bold text-green-600 mb-6 text-center">📚 Pengertian Metode Waterfall</h2>
+                    
+                    <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-2xl mb-8">
+                        <h3 class="text-2xl font-bold text-green-600 mb-4 text-center">🎯 Definisi</h3>
+                        <p class="text-lg text-gray-700 text-center leading-relaxed">
+                            Metode Waterfall adalah model pengembangan perangkat lunak (software) yang menggunakan pendekatan 
+                            <strong class="text-green-600">sekuensial linear</strong>, dimana setiap fase dalam siklus pengembangan 
+                            harus diselesaikan sepenuhnya sebelum melanjutkan ke fase berikutnya, dan tidak memungkinkan untuk 
+                            kembali ke fase sebelumnya.
+                        </p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-pink-600 mb-4">👨‍💻 Sejarah Singkat</h3>
+                            <ul class="space-y-3 text-gray-700">
+                                <li class="flex items-start">
+                                    <span class="text-xl mr-3">📅</span>
+                                    <span><strong>1970:</strong> Pertama kali diperkenalkan oleh Dr. Winston W. Royce dalam paper "Managing the Development of Large Software Systems"</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-xl mr-3">🏭</span>
+                                    <span><strong>Asal:</strong> Diadaptasi dari industri manufaktur dan konstruksi yang sudah menggunakan pendekatan sekuensial</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-xl mr-3">💼</span>
+                                    <span><strong>Adopsi:</strong> Menjadi standar industri software pada era 1980-1990an</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-xl mr-3">🌍</span>
+                                    <span><strong>Pengaruh:</strong> Menjadi dasar untuk model SDLC (Software Development Life Cycle) lainnya</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-yellow-600 mb-4">🔑 Prinsip Utama</h3>
+                            <ul class="space-y-3 text-gray-700">
+                                <li class="flex items-start">
+                                    <span class="text-xl mr-3">⬇️</span>
+                                    <span><strong>Sequential:</strong> Alur pengembangan dari atas ke bawah secara berurutan</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-xl mr-3">📋</span>
+                                    <span><strong>Document-Driven:</strong> Setiap tahap menghasilkan dokumen sebagai deliverable</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-xl mr-3">🚫</span>
+                                    <span><strong>No Overlap:</strong> Tidak ada tahap yang berjalan bersamaan</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-xl mr-3">✅</span>
+                                    <span><strong>Phase-Gate:</strong> Setiap fase harus lulus review sebelum lanjut</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-blue-600 mb-4">🎨 Visualisasi Waterfall</h3>
+                        <div class="relative">
+                            <div class="flex flex-col space-y-4">
+                                <div class="waterfall-step bg-gradient-to-r from-red-200 to-red-300 transform rotate-1">
+                                    <div class="flex items-center">
+                                        <span class="text-2xl mr-4">📋</span>
+                                        <div>
+                                            <h4 class="font-bold">Requirements Analysis</h4>
+                                            <p class="text-sm">Analisis kebutuhan sistem</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="waterfall-step bg-gradient-to-r from-orange-200 to-orange-300 transform -rotate-1">
+                                    <div class="flex items-center">
+                                        <span class="text-2xl mr-4">🎨</span>
+                                        <div>
+                                            <h4 class="font-bold">System Design</h4>
+                                            <p class="text-sm">Perancangan sistem</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="waterfall-step bg-gradient-to-r from-yellow-200 to-yellow-300 transform rotate-1">
+                                    <div class="flex items-center">
+                                        <span class="text-2xl mr-4">💻</span>
+                                        <div>
+                                            <h4 class="font-bold">Implementation</h4>
+                                            <p class="text-sm">Coding dan pemrograman</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="waterfall-step bg-gradient-to-r from-green-200 to-green-300 transform -rotate-1">
+                                    <div class="flex items-center">
+                                        <span class="text-2xl mr-4">🧪</span>
+                                        <div>
+                                            <h4 class="font-bold">Testing</h4>
+                                            <p class="text-sm">Pengujian sistem</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="waterfall-step bg-gradient-to-r from-blue-200 to-blue-300 transform rotate-1">
+                                    <div class="flex items-center">
+                                        <span class="text-2xl mr-4">🚀</span>
+                                        <div>
+                                            <h4 class="font-bold">Deployment</h4>
+                                            <p class="text-sm">Peluncuran sistem</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="waterfall-step bg-gradient-to-r from-purple-200 to-purple-300 transform -rotate-1">
+                                    <div class="flex items-center">
+                                        <span class="text-2xl mr-4">🔧</span>
+                                        <div>
+                                            <h4 class="font-bold">Maintenance</h4>
+                                            <p class="text-sm">Pemeliharaan sistem</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-purple-600 mb-4">💡 Ingat!</h3>
+                        <p class="text-gray-700 text-lg">
+                            Waterfall itu seperti <strong>resep masakan</strong> - kita harus ikuti langkah demi langkah. 
+                            Tidak bisa langsung goreng telur sebelum pecahin telurnya dulu, kan? 😄
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('tahapan')" class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-green-600 hover:to-blue-600 transition-all transform hover:scale-105">
+                        Pelajari Tahapannya! 🔄
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tahapan Section -->
+            <div id="tahapan" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-lg card-hover mb-8">
+                    <h2 class="text-3xl font-bold text-yellow-600 mb-6 text-center">🔄 Tahapan Metode Waterfall</h2>
+                    
+                    <div class="space-y-8">
+                        <!-- Tahap 1 -->
+                        <div class="bg-gradient-to-r from-red-100 to-pink-100 p-6 rounded-2xl">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-red-500 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mr-4">1</div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-red-600">📋 Requirements Analysis</h3>
+                                    <p class="text-gray-600">Analisis Kebutuhan</p>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-bold text-red-600 mb-2">Apa yang dilakukan?</h4>
+                                    <ul class="space-y-2 text-gray-700 text-base">
+                                        <li>• Wawancara dengan client/user</li>
+                                        <li>• Mengumpulkan semua kebutuhan sistem</li>
+                                        <li>• Membuat dokumen spesifikasi</li>
+                                        <li>• Menentukan batasan sistem</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-red-600 mb-2">Output:</h4>
+                                    <ul class="space-y-2 text-gray-700 text-base">
+                                        <li>📄 Software Requirements Specification (SRS)</li>
+                                        <li>📋 Daftar fitur yang dibutuhkan</li>
+                                        <li>🎯 Tujuan sistem</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-4 bg-white rounded-lg">
+                                <p class="text-base text-gray-600"><strong>Contoh:</strong> Untuk aplikasi kasir warung, kita tanya: "Fitur apa saja yang dibutuhkan? Input barang? Hitung total? Print struk?"</p>
+                            </div>
+                        </div>
+
+                        <!-- Tahap 2 -->
+                        <div class="bg-gradient-to-r from-orange-100 to-yellow-100 p-6 rounded-2xl">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mr-4">2</div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-orange-600">🎨 System Design</h3>
+                                    <p class="text-gray-600">Perancangan Sistem</p>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-bold text-orange-600 mb-2">Apa yang dilakukan?</h4>
+                                    <ul class="space-y-2 text-gray-700 text-base">
+                                        <li>• Membuat arsitektur sistem</li>
+                                        <li>• Desain database</li>
+                                        <li>• Desain interface/tampilan</li>
+                                        <li>• Menentukan teknologi yang digunakan</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-orange-600 mb-2">Output:</h4>
+                                    <ul class="space-y-2 text-gray-700 text-base">
+                                        <li>🏗️ System Architecture Document</li>
+                                        <li>🗄️ Database Design</li>
+                                        <li>🎨 UI/UX Mockup</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-4 bg-white rounded-lg">
+                                <p class="text-base text-gray-600"><strong>Contoh:</strong> Buat wireframe aplikasi kasir, tentukan tabel database (barang, transaksi), pilih teknologi (web/mobile).</p>
+                            </div>
+                        </div>
+
+                        <!-- Tahap 3 -->
+                        <div class="bg-gradient-to-r from-yellow-100 to-green-100 p-6 rounded-2xl">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-yellow-500 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mr-4">3</div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-yellow-600">💻 Implementation</h3>
+                                    <p class="text-gray-600">Implementasi/Coding</p>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-bold text-yellow-600 mb-2">Apa yang dilakukan?</h4>
+                                    <ul class="space-y-2 text-gray-700 text-base">
+                                        <li>• Menulis kode program berdasarkan desain</li>
+                                        <li>• Membuat dan mengimplementasikan database</li>
+                                        <li>• Mengembangkan user interface (UI)</li>
+                                        <li>• Integrasi antar modul/komponen</li>
+                                        <li>• Unit testing pada level kode</li>
+                                        <li>• Code review dan dokumentasi kode</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-yellow-600 mb-2">Output:</h4>
+                                    <ul class="space-y-2 text-gray-700 text-base">
+                                        <li>💾 Source Code yang lengkap</li>
+                                        <li>🗄️ Database dengan struktur dan data</li>
+                                        <li>📱 Executable program/aplikasi</li>
+                                        <li>📚 Code documentation</li>
+                                        <li>🔧 Installation guide</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-4 bg-white rounded-lg">
+                                <p class="text-base text-gray-600"><strong>Contoh:</strong> Coding aplikasi kasir: buat database tabel barang & transaksi, coding form input barang, fungsi hitung total, print struk, dan integrasi semua modul.</p>
+                            </div>
+                        </div>
+
+                        <!-- Tahap 4 -->
+                        <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-2xl">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-green-500 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mr-4">4</div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-green-600">🧪 Testing</h3>
+                                    <p class="text-gray-600">Pengujian Sistem</p>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-bold text-green-600 mb-2">Jenis Testing:</h4>
+                                    <ul class="space-y-2 text-gray-700 text-base">
+                                        <li>• <strong>Unit Testing:</strong> Test setiap fungsi/modul</li>
+                                        <li>• <strong>Integration Testing:</strong> Test integrasi antar modul</li>
+                                        <li>• <strong>System Testing:</strong> Test keseluruhan sistem</li>
+                                        <li>• <strong>Performance Testing:</strong> Test kecepatan & beban</li>
+                                        <li>• <strong>Security Testing:</strong> Test keamanan sistem</li>
+                                        <li>• <strong>User Acceptance Testing (UAT):</strong> Test oleh user</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-green-600 mb-2">Output:</h4>
+                                    <ul class="space-y-2 text-gray-700 text-base">
+                                        <li>📊 Test Plan & Test Cases</li>
+                                        <li>📋 Test Execution Report</li>
+                                        <li>🐛 Bug Report & Status</li>
+                                        <li>✅ Test Summary Report</li>
+                                        <li>🔒 Security Assessment</li>
+                                        <li>📈 Performance Report</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-4 bg-white rounded-lg">
+                                <p class="text-base text-gray-600"><strong>Contoh:</strong> Test aplikasi kasir: input barang valid/invalid, hitung total dengan berbagai skenario, print struk format benar, test dengan banyak user bersamaan, test keamanan data.</p>
+                            </div>
+                        </div>
+
+                        <!-- Tahap 5 -->
+                        <div class="bg-gradient-to-r from-blue-100 to-purple-100 p-6 rounded-2xl">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-blue-500 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mr-4">5</div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-blue-600">🚀 Deployment</h3>
+                                    <p class="text-gray-600">Peluncuran Sistem</p>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-bold text-blue-600 mb-2">Apa yang dilakukan?</h4>
+                                    <ul class="space-y-2 text-gray-700 text-base">
+                                        <li>• Install aplikasi di server/komputer user</li>
+                                        <li>• Konfigurasi sistem</li>
+                                        <li>• Training user</li>
+                                        <li>• Go-live sistem</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-blue-600 mb-2">Output:</h4>
+                                    <ul class="space-y-2 text-gray-700 text-base">
+                                        <li>🌐 Sistem yang sudah live</li>
+                                        <li>📚 User Manual</li>
+                                        <li>👥 User yang sudah ditraining</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-4 bg-white rounded-lg">
+                                <p class="text-base text-gray-600"><strong>Contoh:</strong> Install aplikasi kasir di komputer warung, ajari pemilik warung cara pakainya.</p>
+                            </div>
+                        </div>
+
+                        <!-- Tahap 6 -->
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl">
+                            <div class="flex items-center mb-4">
+                                <div class="bg-purple-500 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold mr-4">6</div>
+                                <div>
+                                    <h3 class="text-2xl font-bold text-purple-600">🔧 Maintenance</h3>
+                                    <p class="text-gray-600">Pemeliharaan Sistem</p>
+                                </div>
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="font-bold text-purple-600 mb-2">Jenis Maintenance:</h4>
+                                    <ul class="space-y-2 text-gray-700 text-base">
+                                        <li>• <strong>Corrective:</strong> Perbaikan bug/error</li>
+                                        <li>• <strong>Adaptive:</strong> Adaptasi dengan lingkungan baru</li>
+                                        <li>• <strong>Perfective:</strong> Peningkatan performa/fitur</li>
+                                        <li>• <strong>Preventive:</strong> Pencegahan masalah di masa depan</li>
+                                        <li>• Technical support & help desk</li>
+                                        <li>• Backup & recovery management</li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-purple-600 mb-2">Output:</h4>
+                                    <ul class="space-y-2 text-gray-700 text-base">
+                                        <li>🔄 Software updates/patches</li>
+                                        <li>📞 Support documentation</li>
+                                        <li>📈 Performance monitoring report</li>
+                                        <li>🛠️ Maintenance schedule</li>
+                                        <li>📋 Change request log</li>
+                                        <li>💾 Backup & recovery procedures</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-4 bg-white rounded-lg">
+                                <p class="text-base text-gray-600"><strong>Contoh:</strong> Perbaiki bug hitung pajak, update untuk OS baru, tambah fitur diskon, optimasi kecepatan, backup data harian, training user baru.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('karakteristik')" class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-yellow-600 hover:to-orange-600 transition-all transform hover:scale-105">
+                        Pelajari Karakteristiknya! ⭐
+                    </button>
+                </div>
+            </div>
+
+            <!-- Karakteristik Section -->
+            <div id="karakteristik" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-lg card-hover mb-8">
+                    <h2 class="text-3xl font-bold text-purple-600 mb-6 text-center">⭐ Karakteristik Metode Waterfall</h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div class="space-y-6">
+                            <div class="bg-gradient-to-r from-red-100 to-pink-100 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-red-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-3">⬇️</span>
+                                    Sequential (Berurutan)
+                                </h3>
+                                <p class="text-gray-700 mb-3 text-base">
+                                    Setiap fase harus diselesaikan sepenuhnya sebelum melanjutkan ke fase berikutnya.
+                                </p>
+                                <div class="bg-white p-3 rounded-lg">
+                                    <p class="text-base text-gray-600">
+                                        <strong>Contoh:</strong> Tidak bisa mulai coding sebelum desain selesai 100%
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-orange-100 to-yellow-100 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-orange-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-3">📋</span>
+                                    Document-Driven
+                                </h3>
+                                <p class="text-gray-700 mb-3 text-base">
+                                    Setiap fase menghasilkan dokumen yang menjadi input untuk fase berikutnya.
+                                </p>
+                                <div class="bg-white p-3 rounded-lg">
+                                    <p class="text-base text-gray-600">
+                                        <strong>Contoh:</strong> SRS → Design Document → Source Code → Test Report
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-yellow-100 to-green-100 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-yellow-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-3">🔒</span>
+                                    Rigid Structure
+                                </h3>
+                                <p class="text-gray-700 mb-3 text-base">
+                                    Struktur yang kaku, sulit untuk kembali ke fase sebelumnya.
+                                </p>
+                                <div class="bg-white p-3 rounded-lg">
+                                    <p class="text-base text-gray-600">
+                                        <strong>Contoh:</strong> Kalau sudah coding, susah ubah requirements
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-green-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-3">✅</span>
+                                    Verification & Validation
+                                </h3>
+                                <p class="text-gray-700 mb-3 text-base">
+                                    Setiap fase harus diverifikasi dan divalidasi sebelum lanjut.
+                                </p>
+                                <div class="bg-white p-3 rounded-lg">
+                                    <p class="text-base text-gray-600">
+                                        <strong>Contoh:</strong> Review desain dengan client sebelum mulai coding
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-blue-100 to-purple-100 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-blue-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-3">⏰</span>
+                                    Predictable Timeline
+                                </h3>
+                                <p class="text-gray-700 mb-3 text-base">
+                                    Timeline dan milestone yang jelas dan dapat diprediksi.
+                                </p>
+                                <div class="bg-white p-3 rounded-lg">
+                                    <p class="text-base text-gray-600">
+                                        <strong>Contoh:</strong> Analisis 2 minggu, Desain 3 minggu, Coding 8 minggu
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-purple-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-3">👥</span>
+                                    Clear Roles & Responsibilities
+                                </h3>
+                                <p class="text-gray-700 mb-3 text-base">
+                                    Peran dan tanggung jawab setiap anggota tim sangat jelas dan terdefinisi dengan baik.
+                                </p>
+                                <div class="bg-white p-3 rounded-lg">
+                                    <p class="text-base text-gray-600">
+                                        <strong>Contoh:</strong> Business Analyst → System Designer → Programmer → QA Tester → DevOps
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="bg-gradient-to-r from-indigo-100 to-cyan-100 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-indigo-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-3">🎯</span>
+                                    Big Bang Integration
+                                </h3>
+                                <p class="text-gray-700 mb-3 text-base">
+                                    Semua modul diintegrasikan sekaligus di akhir fase implementation.
+                                </p>
+                                <div class="bg-white p-3 rounded-lg">
+                                    <p class="text-base text-gray-600">
+                                        <strong>Contoh:</strong> Semua modul (login, input, laporan) digabung bersamaan
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-teal-100 to-green-100 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-teal-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-3">📏</span>
+                                    Measurable Progress
+                                </h3>
+                                <p class="text-gray-700 mb-3 text-base">
+                                    Progress dapat diukur dengan jelas melalui deliverable setiap fase.
+                                </p>
+                                <div class="bg-white p-3 rounded-lg">
+                                    <p class="text-base text-gray-600">
+                                        <strong>Contoh:</strong> 20% (Analysis) → 40% (Design) → 80% (Coding) → 100% (Testing)
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-indigo-100 to-purple-100 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-indigo-600 mb-4 text-center">🎯 Kapan Cocok Pakai Waterfall?</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-bold text-green-600 mb-3">✅ Cocok untuk:</h4>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• Requirements sudah jelas dan stabil</li>
+                                    <li>• Project dengan deadline ketat</li>
+                                    <li>• Tim yang berpengalaman</li>
+                                    <li>• Teknologi yang sudah familiar</li>
+                                    <li>• Project dengan regulasi ketat</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-red-600 mb-3">❌ Tidak cocok untuk:</h4>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• Requirements sering berubah</li>
+                                    <li>• Project eksperimental</li>
+                                    <li>• Tim yang belum berpengalaman</li>
+                                    <li>• Teknologi baru/cutting-edge</li>
+                                    <li>• Project yang butuh feedback cepat</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-yellow-600 mb-4 text-center">💡 Tips Sukses Waterfall</h3>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div class="text-center">
+                                <div class="text-3xl mb-2">📝</div>
+                                <h4 class="font-bold mb-2">Dokumentasi Lengkap</h4>
+                                <p class="text-base text-gray-600">Buat dokumen yang detail dan jelas</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl mb-2">🤝</div>
+                                <h4 class="font-bold mb-2">Komunikasi Baik</h4>
+                                <p class="text-base text-gray-600">Selalu komunikasi dengan stakeholder</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl mb-2">🔍</div>
+                                <h4 class="font-bold mb-2">Review Berkala</h4>
+                                <p class="text-base text-gray-600">Review setiap fase sebelum lanjut</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('kelebihan')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105">
+                        Lihat Kelebihan & Kekurangan! ✅
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kelebihan Section -->
+            <div id="kelebihan" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-lg card-hover mb-8">
+                    <h2 class="text-3xl font-bold text-emerald-600 mb-6 text-center">✅ Kelebihan & Kekurangan Waterfall</h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <!-- Kelebihan -->
+                        <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-600 mb-6 text-center flex items-center justify-center">
+                                <span class="text-3xl mr-3">✅</span>
+                                Kelebihan
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-bold text-green-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">📋</span>
+                                        Mudah Dipahami
+                                    </h4>
+                                    <p class="text-gray-700 text-base">
+                                        Konsep yang sederhana dan mudah dimengerti, cocok untuk pemula
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-bold text-green-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">📊</span>
+                                        Manajemen yang Baik
+                                    </h4>
+                                    <p class="text-gray-700 text-base">
+                                        Progress mudah dimonitor, timeline jelas, milestone terukur
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-bold text-green-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">📚</span>
+                                        Dokumentasi Lengkap
+                                    </h4>
+                                    <p class="text-gray-700 text-base">
+                                        Setiap fase menghasilkan dokumen yang berguna untuk maintenance
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-bold text-green-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">🎯</span>
+                                        Fokus yang Jelas
+                                    </h4>
+                                    <p class="text-gray-700 text-base">
+                                        Tim fokus pada satu fase, tidak bingung harus ngapain
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-bold text-green-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">💰</span>
+                                        Budget Terkontrol
+                                    </h4>
+                                    <p class="text-gray-700 text-base">
+                                        Biaya dan waktu bisa diprediksi dengan baik
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Kekurangan -->
+                        <div class="bg-gradient-to-br from-red-100 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-red-600 mb-6 text-center flex items-center justify-center">
+                                <span class="text-3xl mr-3">❌</span>
+                                Kekurangan
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-bold text-red-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">🔒</span>
+                                        Tidak Fleksibel
+                                    </h4>
+                                    <p class="text-gray-700 text-base">
+                                        Susah mengakomodasi perubahan requirements di tengah jalan
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-bold text-red-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">⏰</span>
+                                        Feedback Terlambat
+                                    </h4>
+                                    <p class="text-gray-700 text-base">
+                                        User baru bisa lihat hasil di akhir, kalau salah susah perbaiki
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-bold text-red-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">🐛</span>
+                                        Bug Mahal
+                                    </h4>
+                                    <p class="text-gray-700 text-base">
+                                        Bug yang ditemukan di akhir sangat mahal untuk diperbaiki
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-bold text-red-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">❓</span>
+                                        Asumsi Requirements
+                                    </h4>
+                                    <p class="text-gray-700 text-base">
+                                        Mengasumsikan requirements bisa didefinisikan dengan sempurna di awal
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-bold text-red-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">😴</span>
+                                        Resource Underutilization
+                                    </h4>
+                                    <p class="text-gray-700 text-base">
+                                        Programmer menganggur saat fase analisis, tester menganggur saat coding, tidak efisien
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-bold text-red-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">💸</span>
+                                        High Risk & Cost
+                                    </h4>
+                                    <p class="text-gray-700 text-base">
+                                        Risiko tinggi jika ada kesalahan di awal, biaya perbaikan sangat mahal
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg shadow-sm">
+                                    <h4 class="font-bold text-red-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">🚫</span>
+                                        No Working Software Until End
+                                    </h4>
+                                    <p class="text-gray-700 text-base">
+                                        Tidak ada software yang bisa digunakan sampai project selesai 100%
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-yellow-600 mb-4 text-center">💡 Tips Memilih Metode yang Tepat</h3>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div class="text-center">
+                                <div class="text-3xl mb-2">🎯</div>
+                                <h4 class="font-bold mb-2">Pilih Waterfall jika:</h4>
+                                <ul class="text-base text-gray-600 text-left">
+                                    <li>• Requirements jelas & stabil</li>
+                                    <li>• Budget & timeline ketat</li>
+                                    <li>• Tim berpengalaman</li>
+                                    <li>• Project regulasi tinggi</li>
+                                </ul>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl mb-2">🚀</div>
+                                <h4 class="font-bold mb-2">Pilih Agile jika:</h4>
+                                <ul class="text-base text-gray-600 text-left">
+                                    <li>• Requirements sering berubah</li>
+                                    <li>• Butuh feedback cepat</li>
+                                    <li>• Tim kecil & fleksibel</li>
+                                    <li>• Project inovatif</li>
+                                </ul>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl mb-2">🔬</div>
+                                <h4 class="font-bold mb-2">Pilih Prototype jika:</h4>
+                                <ul class="text-base text-gray-600 text-left">
+                                    <li>• Requirements tidak jelas</li>
+                                    <li>• Butuh proof of concept</li>
+                                    <li>• User tidak tahu maunya apa</li>
+                                    <li>• Project eksperimental</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('simulasi')" class="bg-gradient-to-r from-emerald-500 to-blue-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-emerald-600 hover:to-blue-600 transition-all transform hover:scale-105">
+                        Coba Simulasi! 🎮
+                    </button>
+                </div>
+            </div>
+
+            <!-- Simulasi Section -->
+            <div id="simulasi" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-lg card-hover mb-8">
+                    <h2 class="text-3xl font-bold text-orange-600 mb-6 text-center">🎮 Simulasi Pengembangan Waterfall</h2>
+                    
+                    <div class="bg-gradient-to-r from-orange-100 to-yellow-100 p-6 rounded-2xl mb-8">
+                        <h3 class="text-xl font-bold text-orange-600 mb-4 text-center">📱 Project: Aplikasi Perpustakaan Sekolah</h3>
+                        <p class="text-gray-700 text-center">
+                            Mari kita simulasikan pengembangan aplikasi perpustakaan sekolah menggunakan metode Waterfall!
+                        </p>
+                    </div>
+                    
+                    <div class="bg-blue-50 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-blue-600 mb-4">🎯 Skenario Project</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-bold text-blue-600 mb-2">📋 Requirements:</h4>
+                                <ul class="space-y-1 text-gray-700 text-sm">
+                                    <li>• Sistem manajemen buku perpustakaan</li>
+                                    <li>• Fitur peminjaman dan pengembalian</li>
+                                    <li>• Pencarian buku berdasarkan kategori</li>
+                                    <li>• Laporan untuk pustakawan</li>
+                                    <li>• Interface yang user-friendly</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-blue-600 mb-2">👥 Tim Project:</h4>
+                                <ul class="space-y-1 text-gray-700 text-sm">
+                                    <li>• 1 Project Manager</li>
+                                    <li>• 1 System Analyst</li>
+                                    <li>• 1 UI/UX Designer</li>
+                                    <li>• 2 Programmer</li>
+                                    <li>• 1 Tester</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-green-50 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-green-600 mb-4">⏰ Timeline Project (12 Minggu)</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-red-500 rounded-full mr-3"></div>
+                                <span class="flex-1">Week 1-2: Requirements Analysis</span>
+                                <span class="text-red-600 font-semibold">✅ Completed</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-orange-500 rounded-full mr-3"></div>
+                                <span class="flex-1">Week 3-4: System Design</span>
+                                <span class="text-orange-600 font-semibold">✅ Completed</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-yellow-500 rounded-full mr-3"></div>
+                                <span class="flex-1">Week 5-8: Implementation</span>
+                                <span class="text-yellow-600 font-semibold">✅ Completed</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-green-500 rounded-full mr-3"></div>
+                                <span class="flex-1">Week 9-10: Testing</span>
+                                <span class="text-green-600 font-semibold">✅ Completed</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-blue-500 rounded-full mr-3"></div>
+                                <span class="flex-1">Week 11: Deployment</span>
+                                <span class="text-blue-600 font-semibold">✅ Completed</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-4 h-4 bg-purple-500 rounded-full mr-3"></div>
+                                <span class="flex-1">Week 12+: Maintenance</span>
+                                <span class="text-purple-600 font-semibold">🔄 Ongoing</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-purple-50 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-purple-600 mb-4">📊 Hasil Simulasi</h3>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div class="text-center p-4 bg-white rounded-lg">
+                                <div class="text-2xl font-bold text-green-600">✅ Sukses</div>
+                                <div class="text-sm text-gray-600">Project selesai tepat waktu</div>
+                            </div>
+                            <div class="text-center p-4 bg-white rounded-lg">
+                                <div class="text-2xl font-bold text-blue-600">12 Minggu</div>
+                                <div class="text-sm text-gray-600">Sesuai timeline</div>
+                            </div>
+                            <div class="text-center p-4 bg-white rounded-lg">
+                                <div class="text-2xl font-bold text-purple-600">100%</div>
+                                <div class="text-sm text-gray-600">Fitur terpenuhi</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-yellow-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-yellow-600 mb-4">💡 Pelajaran dari Simulasi</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-bold text-green-600 mb-2">✅ Yang Berhasil:</h4>
+                                <ul class="space-y-1 text-gray-700 text-sm">
+                                    <li>• Requirements jelas dari awal</li>
+                                    <li>• Dokumentasi lengkap setiap fase</li>
+                                    <li>• Timeline terprediksi dengan baik</li>
+                                    <li>• Kualitas output terjaga</li>
+                                    <li>• Tim fokus pada tugasnya masing-masing</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-red-600 mb-2">⚠️ Tantangan:</h4>
+                                <ul class="space-y-1 text-gray-700 text-sm">
+                                    <li>• Tidak ada feedback user sampai akhir</li>
+                                    <li>• Sulit mengubah requirements</li>
+                                    <li>• Beberapa anggota tim menganggur</li>
+                                    <li>• Testing baru dilakukan di akhir</li>
+                                    <li>• Risiko jika ada kesalahan di awal</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('tugas')" class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-105">
+                        Lanjut ke Tugas! 📝
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tugas Section -->
+            <div id="tugas" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-lg card-hover mb-8">
+                    <h2 class="text-3xl font-bold text-red-600 mb-6 text-center">📝 Tugas Pembelajaran</h2>
+                    
+                    <div class="bg-gradient-to-r from-red-100 to-pink-100 p-6 rounded-2xl mb-8">
+                        <h3 class="text-xl font-bold text-red-600 mb-4 text-center">🎯 Petunjuk Pengerjaan</h3>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-bold text-red-600 mb-2">📋 Aturan:</h4>
+                                <ul class="space-y-1 text-gray-700 text-base">
+                                    <li>• Jawab semua soal dengan lengkap</li>
+                                    <li>• Gunakan bahasa yang jelas dan mudah dipahami</li>
+                                    <li>• Berikan contoh jika diperlukan</li>
+                                    <li>• Kerjakan secara individu</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-red-600 mb-2">⏰ Waktu:</h4>
+                                <ul class="space-y-1 text-gray-700 text-base">
+                                    <li>• Waktu pengerjaan: 60 menit</li>
+                                    <li>• Kumpulkan dalam bentuk tulisan tangan</li>
+                                    <li>• Tulis nama dan kelas dengan jelas</li>
+                                    <li>• Periksa jawaban sebelum dikumpulkan</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <!-- Soal 1 -->
+                        <div class="bg-blue-50 p-6 rounded-2xl">
+                            <h3 class="text-lg font-bold text-blue-600 mb-4">📚 Soal 1: Pemahaman Konsep (20 poin)</h3>
+                            <p class="text-gray-700 mb-4">
+                                Jelaskan pengertian metode Waterfall dan mengapa disebut "Waterfall"! 
+                                Berikan analogi sederhana yang mudah dipahami untuk menjelaskan konsep ini.
+                            </p>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-base text-gray-600">
+                                    <strong>Tips:</strong> Gunakan analogi yang familiar seperti membangun rumah, memasak, atau aktivitas sehari-hari lainnya.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Soal 2 -->
+                        <div class="bg-green-50 p-6 rounded-2xl">
+                            <h3 class="text-lg font-bold text-green-600 mb-4">🔄 Soal 2: Tahapan Waterfall (25 poin)</h3>
+                            <p class="text-gray-700 mb-4">
+                                Sebutkan dan jelaskan 6 tahapan dalam metode Waterfall! Untuk setiap tahapan, 
+                                jelaskan aktivitas utama yang dilakukan dan output yang dihasilkan.
+                            </p>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-base text-gray-600">
+                                    <strong>Format jawaban:</strong> Tahapan → Aktivitas → Output
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Soal 3 -->
+                        <div class="bg-yellow-50 p-6 rounded-2xl">
+                            <h3 class="text-lg font-bold text-yellow-600 mb-4">⚖️ Soal 3: Analisis Kelebihan dan Kekurangan (20 poin)</h3>
+                            <p class="text-gray-700 mb-4">
+                                Sebutkan minimal 3 kelebihan dan 3 kekurangan metode Waterfall! 
+                                Berikan penjelasan singkat untuk masing-masing poin yang kalian sebutkan.
+                            </p>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-base text-gray-600">
+                                    <strong>Contoh format:</strong> Kelebihan: Mudah dipahami → karena alurnya linear dan sederhana
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Soal 4 -->
+                        <div class="bg-purple-50 p-6 rounded-2xl">
+                            <h3 class="text-lg font-bold text-purple-600 mb-4">🎯 Soal 4: Studi Kasus (25 poin)</h3>
+                            <p class="text-gray-700 mb-4">
+                                Kalian diminta mengembangkan aplikasi "Sistem Informasi Siswa" untuk sekolah kalian. 
+                                Aplikasi ini harus bisa mengelola data siswa, nilai, dan absensi. 
+                                Buatlah rencana pengembangan menggunakan metode Waterfall!
+                            </p>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-base text-gray-600 mb-2">
+                                    <strong>Yang harus dijawab:</strong>
+                                </p>
+                                <ul class="text-base text-gray-600 space-y-1">
+                                    <li>a. Apa saja requirements yang dibutuhkan?</li>
+                                    <li>b. Bagaimana desain sistem secara umum?</li>
+                                    <li>c. Teknologi apa yang akan digunakan?</li>
+                                    <li>d. Bagaimana rencana testing?</li>
+                                    <li>e. Estimasi waktu untuk setiap tahapan?</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Soal 5 -->
+                        <div class="bg-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-lg font-bold text-pink-600 mb-4">💭 Soal 5: Refleksi (10 poin)</h3>
+                            <p class="text-gray-700 mb-4">
+                                Menurut kalian, kapan sebaiknya menggunakan metode Waterfall dan kapan sebaiknya tidak? 
+                                Berikan alasan yang logis berdasarkan karakteristik metode Waterfall yang sudah dipelajari.
+                            </p>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-base text-gray-600">
+                                    <strong>Tips:</strong> Pikirkan jenis project, kondisi tim, dan kebutuhan client
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-orange-100 to-red-100 p-6 rounded-2xl mt-8">
+                        <h3 class="text-xl font-bold text-orange-600 mb-4 text-center">📊 Kriteria Penilaian</h3>
+                        <div class="grid md:grid-cols-4 gap-4 text-center">
+                            <div class="bg-white p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-green-600">A</div>
+                                <div class="text-base text-gray-600">85-100</div>
+                                <div class="text-sm text-gray-500">Sangat Baik</div>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-blue-600">B</div>
+                                <div class="text-base text-gray-600">70-84</div>
+                                <div class="text-sm text-gray-500">Baik</div>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-yellow-600">C</div>
+                                <div class="text-base text-gray-600">55-69</div>
+                                <div class="text-sm text-gray-500">Cukup</div>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-red-600">D</div>
+                                <div class="text-base text-gray-600">< 55</div>
+                                <div class="text-sm text-gray-500">Kurang</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('kuis')" class="bg-gradient-to-r from-red-500 to-purple-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-red-600 hover:to-purple-600 transition-all transform hover:scale-105">
+                        Lanjut ke Kuis! 🧠
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-lg card-hover mb-8">
+                    <h2 class="text-3xl font-bold text-indigo-600 mb-6 text-center">🧠 Kuis Interaktif</h2>
+                    
+                    <!-- Quiz Start Screen -->
+                    <div id="quizStart" class="text-center">
+                        <div class="bg-gradient-to-r from-indigo-100 to-purple-100 p-8 rounded-2xl mb-8">
+                            <h3 class="text-2xl font-bold text-indigo-600 mb-4">🎯 Siap untuk Kuis?</h3>
+                            <p class="text-gray-700 mb-6">
+                                Kuis ini terdiri dari 12 soal pilihan ganda tentang Metode Waterfall. 
+                                Setiap soal bernilai 8.33 poin (total 100 poin). Masukkan nama kalian terlebih dahulu!
+                            </p>
+                            
+                            <div class="max-w-md mx-auto mb-6">
+                                <label class="block text-left font-semibold text-gray-700 mb-2">Nama Lengkap:</label>
+                                <input type="text" id="studentName" class="w-full p-3 border-2 border-indigo-200 rounded-lg focus:border-indigo-500 focus:outline-none" placeholder="Masukkan nama lengkap kalian...">
+                            </div>
+                            
+                            <button onclick="startQuiz()" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-indigo-600 hover:to-purple-600 transition-all transform hover:scale-105">
+                                Mulai Kuis! 🚀
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quiz Questions -->
+                    <div id="quizQuestions" class="hidden">
+                        <div class="flex justify-between items-center mb-6">
+                            <div class="bg-indigo-100 px-4 py-2 rounded-full">
+                                <span class="font-semibold text-indigo-600">Soal <span id="currentQuestion">1</span> dari 12</span>
+                            </div>
+                            <div class="bg-purple-100 px-4 py-2 rounded-full">
+                                <span class="font-semibold text-purple-600">Skor: <span id="currentScore">0</span></span>
+                            </div>
+                        </div>
+                        
+                        <div id="questionContainer" class="mb-8">
+                            <!-- Questions will be loaded here -->
+                        </div>
+                        
+                        <div class="text-center">
+                            <button id="nextBtn" onclick="nextQuestion()" class="bg-indigo-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-indigo-600 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                Soal Berikutnya →
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quiz Results -->
+                    <div id="quizResults" class="hidden text-center">
+                        <div class="bg-gradient-to-r from-green-100 to-blue-100 p-8 rounded-2xl">
+                            <div class="text-6xl mb-4">🎉</div>
+                            <h3 class="text-3xl font-bold text-green-600 mb-4">Kuis Selesai!</h3>
+                            <div class="bg-white p-6 rounded-2xl mb-6">
+                                <p class="text-xl text-gray-700 mb-2">
+                                    <strong id="finalName"></strong>
+                                </p>
+                                <p class="text-3xl font-bold text-indigo-600 mb-2">
+                                    Skor: <span id="finalScore"></span>/100
+                                </p>
+                                <p class="text-lg" id="gradeMessage"></p>
+                            </div>
+                            <button onclick="restartQuiz()" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-6 py-3 rounded-full font-semibold hover:from-indigo-600 hover:to-purple-600 transition-all transform hover:scale-105">
+                                Ulangi Kuis 🔄
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="nextSection('penutup')" class="bg-gradient-to-r from-indigo-500 to-teal-500 text-white px-8 py-4 rounded-full text-lg font-semibold hover:from-indigo-600 hover:to-teal-600 transition-all transform hover:scale-105">
+                        Ke Penutup! 🎊
+                    </button>
+                </div>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-lg card-hover mb-8">
+                    <h2 class="text-3xl font-bold text-teal-600 mb-6 text-center">🎊 Penutup Pembelajaran</h2>
+                    
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎓</div>
+                        <h3 class="text-2xl font-bold text-teal-600 mb-4">Selamat! Kalian Telah Menyelesaikan Pembelajaran</h3>
+                        <p class="text-lg text-gray-700">
+                            Metode Pengembangan Waterfall (Air Terjun)
+                        </p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-gradient-to-r from-green-100 to-emerald-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-green-600 mb-4">🎯 Refleksi Pembelajaran</h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-green-600 mb-2">💭 Apa yang sudah kalian pelajari?</h4>
+                                    <ul class="space-y-1 text-gray-700 text-sm">
+                                        <li>• Konsep dasar metode Waterfall</li>
+                                        <li>• 6 tahapan pengembangan software</li>
+                                        <li>• Kelebihan dan kekurangan Waterfall</li>
+                                        <li>• Kapan menggunakan metode ini</li>
+                                        <li>• Simulasi project nyata</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-green-600 mb-2">🚀 Skill yang sudah dikuasai:</h4>
+                                    <ul class="space-y-1 text-gray-700 text-sm">
+                                        <li>• Analisis kebutuhan sistem</li>
+                                        <li>• Perencanaan project software</li>
+                                        <li>• Pemahaman SDLC (Software Development Life Cycle)</li>
+                                        <li>• Berpikir sistematis dan terstruktur</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-100 to-purple-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-blue-600 mb-4">📝 Kesimpulan Pembelajaran</h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-blue-600 mb-2">🌊 Metode Waterfall adalah:</h4>
+                                    <p class="text-gray-700 text-sm">
+                                        Pendekatan pengembangan software yang berurutan dan sistematis, 
+                                        cocok untuk project dengan requirements yang jelas dan stabil.
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-blue-600 mb-2">🎯 Kunci sukses Waterfall:</h4>
+                                    <ul class="space-y-1 text-gray-700 text-sm">
+                                        <li>• Dokumentasi yang lengkap</li>
+                                        <li>• Komunikasi yang baik</li>
+                                        <li>• Perencanaan yang matang</li>
+                                        <li>• Review berkala setiap fase</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-2xl mb-8">
+                        <h3 class="text-xl font-bold text-orange-600 mb-4 text-center">🔮 Tindak Lanjut</h3>
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="text-center">
+                                <div class="text-3xl mb-2">📚</div>
+                                <h4 class="font-bold mb-2">Pelajari Lebih Lanjut</h4>
+                                <p class="text-sm text-gray-600">
+                                    Eksplorasi metode pengembangan lain seperti Agile, Scrum, dan DevOps
+                                </p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl mb-2">💻</div>
+                                <h4 class="font-bold mb-2">Praktik Langsung</h4>
+                                <p class="text-sm text-gray-600">
+                                    Coba terapkan Waterfall dalam project kecil di sekolah atau pribadi
+                                </p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl mb-2">🤝</div>
+                                <h4 class="font-bold mb-2">Diskusi & Sharing</h4>
+                                <p class="text-sm text-gray-600">
+                                    Diskusikan dengan teman tentang pengalaman belajar metode ini
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-pink-100 to-purple-100 p-6 rounded-2xl mb-8">
+                        <h3 class="text-xl font-bold text-pink-600 mb-4 text-center">💌 Pesan Penutup</h3>
+                        <p class="text-gray-700 text-center text-lg leading-relaxed">
+                            Kalian telah menyelesaikan pembelajaran tentang Metode Waterfall dengan baik! 
+                            Ingatlah bahwa menjadi seorang developer yang baik bukan hanya tentang coding, 
+                            tapi juga tentang perencanaan, analisis, dan pemecahan masalah yang sistematis. 
+                            <br><br>
+                            <strong class="text-pink-600">Terus belajar, terus berkarya, dan jadilah programmer yang profesional! 🚀</strong>
+                        </p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="bg-gradient-to-r from-teal-100 to-green-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-teal-600 mb-4">🙏 Terima Kasih</h3>
+                            <p class="text-gray-700">
+                                Terima kasih telah mengikuti pembelajaran ini dengan antusias. 
+                                Semoga ilmu yang kalian dapatkan bermanfaat untuk masa depan kalian sebagai developer profesional!
+                            </p>
+                            <div class="mt-4 text-4xl">🎉✨🌟</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="backToTop" class="floating-btn bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Global variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let studentName = '';
+        
+        // Quiz questions (12 soal)
+        const quizQuestions = [
+            {
+                question: "Apa pengertian dari metode Waterfall?",
+                options: [
+                    "Metode pengembangan software yang fleksibel dan dapat berubah-ubah",
+                    "Metode pengembangan software yang dilakukan secara berurutan dan sistematis",
+                    "Metode pengembangan software yang fokus pada testing",
+                    "Metode pengembangan software yang tidak memerlukan dokumentasi"
+                ],
+                correct: 1
+            },
+            {
+                question: "Mengapa metode ini disebut 'Waterfall'?",
+                options: [
+                    "Karena prosesnya seperti air yang mengalir dari atas ke bawah secara berurutan",
+                    "Karena dikembangkan di dekat air terjun",
+                    "Karena prosesnya sangat cepat seperti air terjun",
+                    "Karena memerlukan banyak air dalam pengembangannya"
+                ],
+                correct: 0
+            },
+            {
+                question: "Berapa jumlah tahapan utama dalam metode Waterfall?",
+                options: ["4 tahapan", "5 tahapan", "6 tahapan", "7 tahapan"],
+                correct: 2
+            },
+            {
+                question: "Apa tahapan pertama dalam metode Waterfall?",
+                options: [
+                    "System Design",
+                    "Requirements Analysis", 
+                    "Implementation",
+                    "Testing"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa output utama dari tahapan Requirements Analysis?",
+                options: [
+                    "Source Code dan Database",
+                    "UI/UX Design dan Mockup",
+                    "Software Requirements Specification (SRS)",
+                    "Test Report dan Bug List"
+                ],
+                correct: 2
+            },
+            {
+                question: "Karakteristik utama metode Waterfall adalah:",
+                options: [
+                    "Fleksibel dan dapat berubah kapan saja",
+                    "Sequential dan tidak dapat kembali ke tahap sebelumnya",
+                    "Fokus pada rapid prototyping",
+                    "Menggunakan iterative development"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa kelebihan utama metode Waterfall?",
+                options: [
+                    "Sangat fleksibel terhadap perubahan",
+                    "Mudah dipahami dan memiliki struktur yang jelas",
+                    "Tidak memerlukan perencanaan",
+                    "Feedback user didapat sejak awal"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa kekurangan utama metode Waterfall?",
+                options: [
+                    "Terlalu mudah dipahami",
+                    "Dokumentasi terlalu lengkap",
+                    "Sulit mengakomodasi perubahan requirements",
+                    "Timeline terlalu cepat"
+                ],
+                correct: 2
+            },
+            {
+                question: "Metode Waterfall cocok digunakan untuk project yang:",
+                options: [
+                    "Requirements sering berubah",
+                    "Bersifat eksperimental",
+                    "Requirements sudah jelas dan stabil",
+                    "Membutuhkan feedback user yang cepat"
+                ],
+                correct: 2
+            },
+            {
+                question: "Pada tahapan mana user baru bisa melihat hasil aplikasi dalam metode Waterfall?",
+                options: [
+                    "Requirements Analysis",
+                    "System Design", 
+                    "Implementation",
+                    "Deployment"
+                ],
+                correct: 3
+            },
+            {
+                question: "Apa yang dimaksud dengan 'Big Bang Integration' dalam Waterfall?",
+                options: [
+                    "Integrasi dilakukan secara bertahap",
+                    "Semua modul diintegrasikan sekaligus di akhir",
+                    "Integrasi dilakukan di awal project",
+                    "Tidak ada proses integrasi"
+                ],
+                correct: 1
+            },
+            {
+                question: "Mengapa biaya perbaikan bug sangat mahal di metode Waterfall?",
+                options: [
+                    "Karena bug ditemukan di awal development",
+                    "Karena testing dilakukan bersamaan dengan coding",
+                    "Karena bug baru ditemukan di akhir setelah semua fase selesai",
+                    "Karena tidak ada dokumentasi yang lengkap"
+                ],
+                correct: 2
+            }
+        ];
+
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('sidebar-hidden');
+        });
+
+        // Show section function
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.add('hidden'));
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update active navigation
+            updateActiveNavigation(sectionId);
+            
+            // Hide mobile menu
+            document.getElementById('sidebar').classList.add('sidebar-hidden');
+            
+            // Scroll to top immediately
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        }
+
+        // Update active navigation
+        function updateActiveNavigation(activeSectionId) {
+            // Remove active class from all nav buttons
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to current section button
+            const activeButton = document.querySelector(`[data-section="${activeSectionId}"]`);
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+        }
+
+        // Next section function
+        function nextSection(sectionId) {
+            showSection(sectionId);
+        }
+
+        // Back to top functionality
+        const backToTopBtn = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.remove('hidden');
+            } else {
+                backToTopBtn.classList.add('hidden');
+            }
+        });
+        
+        backToTopBtn.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Quiz functions
+        function startQuiz() {
+            const nameInput = document.getElementById('studentName');
+            if (!nameInput.value.trim()) {
+                alert('Silakan masukkan nama lengkap terlebih dahulu!');
+                return;
+            }
+            
+            studentName = nameInput.value.trim();
+            currentQuestionIndex = 0;
+            score = 0;
+            
+            document.getElementById('quizStart').classList.add('hidden');
+            document.getElementById('quizQuestions').classList.remove('hidden');
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = quizQuestions[currentQuestionIndex];
+            const container = document.getElementById('questionContainer');
+            
+            container.innerHTML = `
+                <div class="bg-gradient-to-r from-indigo-100 to-purple-100 p-6 rounded-2xl">
+                    <h3 class="text-xl font-bold text-indigo-600 mb-6">${question.question}</h3>
+                    <div class="space-y-3">
+                        ${question.options.map((option, index) => `
+                            <button onclick="selectAnswer(${index})" class="quiz-option w-full text-left p-4 bg-white border-2 border-gray-200 rounded-lg hover:border-indigo-300 transition-all">
+                                <span class="font-semibold text-indigo-600">${String.fromCharCode(65 + index)}.</span> ${option}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('nextBtn').disabled = true;
+        }
+
+        function selectAnswer(selectedIndex) {
+            const question = quizQuestions[currentQuestionIndex];
+            const options = document.querySelectorAll('.quiz-option');
+            
+            // Remove previous selections
+            options.forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            // Mark selected answer
+            options[selectedIndex].classList.add('selected');
+            
+            // Show correct answer after a delay
+            setTimeout(() => {
+                options[question.correct].classList.add('correct');
+                if (selectedIndex !== question.correct) {
+                    options[selectedIndex].classList.add('incorrect');
+                } else {
+                    score += Math.round(100/12); // 8.33 dibulatkan menjadi 8 per soal
+                    document.getElementById('currentScore').textContent = score;
+                }
+                
+                // Disable all options
+                options.forEach(option => {
+                    option.style.pointerEvents = 'none';
+                });
+                
+                document.getElementById('nextBtn').disabled = false;
+            }, 1000);
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < quizQuestions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizQuestions').classList.add('hidden');
+            document.getElementById('quizResults').classList.remove('hidden');
+            
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = score;
+            
+            let gradeMessage = '';
+            if (score >= 80) {
+                gradeMessage = '🌟 Excellent! Kalian sangat memahami materi Waterfall!';
+            } else if (score >= 70) {
+                gradeMessage = '👍 Good! Pemahaman kalian tentang Waterfall sudah baik!';
+            } else if (score >= 60) {
+                gradeMessage = '👌 Not bad! Masih perlu belajar lagi tentang Waterfall.';
+            } else {
+                gradeMessage = '📚 Keep learning! Yuk baca materi lagi dan coba lagi!';
+            }
+            
+            document.getElementById('gradeMessage').innerHTML = gradeMessage;
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizResults').classList.add('hidden');
+            document.getElementById('quizStart').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('intro');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98d4808aa3784ad6',t:'MTc2MDI1MDEzOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
