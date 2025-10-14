@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumut Loncat - Jumping Moss Game</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #87CEEB 0%, #98FB98 100%);
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100%;
+            overflow-y: auto;
+        }
+
+        .game-container {
+            position: relative;
+            width: 400px;
+            height: 600px;
+            background: linear-gradient(180deg, #87CEEB 0%, #98FB98 50%, #90EE90 100%);
+            border: 3px solid #228B22;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin: 10px 0;
+        }
+
+        canvas {
+            display: block;
+            background: transparent;
+        }
+
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #2F4F2F;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            pointer-events: all;
+        }
+
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            background: #228B22;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: all 0.1s;
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            pointer-events: all;
+            display: none;
+        }
+
+        .restart-btn {
+            background: #228B22;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
+
+        .restart-btn:hover {
+            background: #32CD32;
+        }
+
+        .instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.95);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            pointer-events: all;
+        }
+
+        .start-btn {
+            background: #228B22;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.3s;
+        }
+
+        .start-btn:hover {
+            background: #32CD32;
+        }
+
+        .legend {
+            font-size: 12px;
+            text-align: left;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+        
+        <div class="ui-overlay">
+            <div class="score">
+                Skor: <span id="scoreValue">0</span><br>
+                <span style="font-size: 16px;">Level: <span id="levelValue">1</span></span>
+            </div>
+            
+            <div class="controls">
+                <button class="control-btn" id="leftBtn">←</button>
+                <button class="control-btn" id="rightBtn">→</button>
+            </div>
+        </div>
+
+        <div class="instructions" id="instructions">
+            <h2 style="color: #228B22; margin-top: 0;">🌿 Lumut Loncat 🌿</h2>
+            <p>Bantu Lumut melompat setinggi mungkin!</p>
+            <p>• Gunakan tombol ← → untuk bergerak</p>
+            <p>• Hindari jatuh ke bagian bawah</p>
+            <div class="legend">
+                <strong>Level Progression:</strong><br>
+                Level 1: Platform normal saja<br>
+                Level 2: + Platform bouncy<br>
+                Level 3: + Platform bergerak & duri<br>
+                Level 4+: + Platform menghilang & semua rintangan<br><br>
+                <strong>Platform:</strong> 🟤 Normal • 🔴 Bouncy • 🔵 Bergerak • 🟠 Menghilang<br>
+                <strong>Rintangan:</strong> 🔺 Duri • ⚫ Batu Jatuh • 💨 Angin
+            </div>
+            <button class="start-btn" onclick="startGame()">Mulai Bermain</button>
+        </div>
+
+        <div class="game-over" id="gameOver">
+            <h2 style="color: #228B22; margin-top: 0;">Game Over!</h2>
+            <p>Skor Akhir: <span id="finalScore">0</span></p>
+            <p>Skor Tertinggi: <span id="highScore">0</span></p>
+            <button class="restart-btn" onclick="restartGame()">Main Lagi</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let gameState = 'menu';
+        let score = 0;
+        let highScore = localStorage.getItem('mossHighScore') || 0;
+        let camera = { y: 0 };
+        
+        // Game objects
+        let moss = {
+            x: 200,
+            y: 500,
+            width: 30,
+            height: 30,
+            velocityX: 0,
+            velocityY: 0,
+            onGround: false,
+            jumpPower: -15,
+            gravity: 0.6,
+            maxSpeed: 5
+        };
+        
+        let platforms = [];
+        let particles = [];
+        let obstacles = [];
+        
+        // Initialize platforms and obstacles
+        function initPlatforms() {
+            platforms = [];
+            obstacles = [];
+            
+            // Starting platform
+            platforms.push({
+                x: 150,
+                y: 550,
+                width: 120,
+                height: 15,
+                type: 'normal'
+            });
+            
+            // Generate initial platforms (easier start)
+            for (let i = 1; i < 25; i++) {
+                const platformY = 550 - i * 70; // Closer platforms
+                const level = Math.floor(i / 5); // Level increases every 5 platforms
+                const difficulty = Math.min(level * 0.15, 0.8); // Max 80% difficulty
+                
+                let platformType = 'normal';
+                const rand = Math.random();
+                
+                // Level-based platform distribution
+                if (level === 0) {
+                    // Level 1: Only normal platforms
+                    platformType = 'normal';
+                } else if (level === 1) {
+                    // Level 2: Normal + some bouncy
+                    if (rand < 0.8) platformType = 'normal';
+                    else platformType = 'bouncy';
+                } else if (level === 2) {
+                    // Level 3: Add moving platforms
+                    if (rand < 0.6) platformType = 'normal';
+                    else if (rand < 0.85) platformType = 'bouncy';
+                    else platformType = 'moving';
+                } else {
+                    // Level 4+: All types with increasing difficulty
+                    if (rand < 0.4 - difficulty * 0.1) platformType = 'normal';
+                    else if (rand < 0.65) platformType = 'bouncy';
+                    else if (rand < 0.85) platformType = 'moving';
+                    else platformType = 'disappearing';
+                }
+                
+                const platform = {
+                    x: Math.random() * (320 - (100 + level * 10)), // Wider platforms at start
+                    y: platformY,
+                    width: Math.max(100 - level * 8, 60), // Platforms get smaller with level
+                    height: 15,
+                    type: platformType,
+                    moveDirection: Math.random() < 0.5 ? -1 : 1,
+                    moveSpeed: 0.5 + level * 0.2, // Slower movement at start
+                    visible: true,
+                    blinkTimer: 0
+                };
+                
+                platforms.push(platform);
+                
+                // Add obstacles based on level
+                const obstacleChance = Math.max(0, (level - 1) * 0.15); // No obstacles in level 1
+                if (i > 8 && Math.random() < obstacleChance) {
+                    const obstacleType = Math.random();
+                    
+                    if (obstacleType < 0.5 && level >= 2) {
+                        // Spikes (from level 2)
+                        obstacles.push({
+                            type: 'spike',
+                            x: Math.random() * 350,
+                            y: platformY - 35,
+                            width: 20,
+                            height: 20
+                        });
+                    } else if (obstacleType < 0.75 && level >= 3) {
+                        // Falling rocks (from level 3)
+                        obstacles.push({
+                            type: 'rock',
+                            x: Math.random() * 350,
+                            y: platformY - 150,
+                            width: 18,
+                            height: 18,
+                            velocityY: 0.8 + level * 0.3,
+                            active: true
+                        });
+                    } else if (level >= 4) {
+                        // Wind zones (from level 4)
+                        obstacles.push({
+                            type: 'wind',
+                            x: Math.random() * 280,
+                            y: platformY - 50,
+                            width: 70,
+                            height: 80,
+                            direction: Math.random() < 0.5 ? -1 : 1,
+                            strength: 0.2 + level * 0.05
+                        });
+                    }
+                }
+            }
+        }
+        
+        // Generate new platforms as player goes higher
+        function generatePlatforms() {
+            const highestPlatform = Math.min(...platforms.map(p => p.y));
+            const cameraTop = camera.y - 100;
+            
+            if (highestPlatform > cameraTop - 500) {
+                for (let i = 0; i < 5; i++) {
+                    const platformY = highestPlatform - 70 - i * 70;
+                    const currentLevel = Math.floor(Math.abs(platformY - 550) / 350); // Level every 350 units
+                    const difficulty = Math.min(currentLevel * 0.15, 0.8);
+                    
+                    let platformType = 'normal';
+                    const rand = Math.random();
+                    
+                    // Progressive difficulty based on current level
+                    if (currentLevel === 0) {
+                        platformType = 'normal';
+                    } else if (currentLevel === 1) {
+                        if (rand < 0.8) platformType = 'normal';
+                        else platformType = 'bouncy';
+                    } else if (currentLevel === 2) {
+                        if (rand < 0.6) platformType = 'normal';
+                        else if (rand < 0.85) platformType = 'bouncy';
+                        else platformType = 'moving';
+                    } else {
+                        if (rand < 0.4 - difficulty * 0.1) platformType = 'normal';
+                        else if (rand < 0.65) platformType = 'bouncy';
+                        else if (rand < 0.85) platformType = 'moving';
+                        else platformType = 'disappearing';
+                    }
+                    
+                    const platform = {
+                        x: Math.random() * (320 - Math.max(100 + currentLevel * 10, 150)),
+                        y: platformY,
+                        width: Math.max(100 - currentLevel * 6, 50),
+                        height: 15,
+                        type: platformType,
+                        moveDirection: Math.random() < 0.5 ? -1 : 1,
+                        moveSpeed: 0.5 + currentLevel * 0.15,
+                        visible: true,
+                        blinkTimer: 0
+                    };
+                    
+                    platforms.push(platform);
+                    
+                    // Add obstacles based on level
+                    const obstacleChance = Math.max(0, (currentLevel - 1) * 0.12);
+                    if (Math.random() < obstacleChance) {
+                        const obstacleType = Math.random();
+                        
+                        if (obstacleType < 0.5 && currentLevel >= 2) {
+                            obstacles.push({
+                                type: 'spike',
+                                x: Math.random() * 350,
+                                y: platformY - 35,
+                                width: 20,
+                                height: 20
+                            });
+                        } else if (obstacleType < 0.75 && currentLevel >= 3) {
+                            obstacles.push({
+                                type: 'rock',
+                                x: Math.random() * 350,
+                                y: platformY - 150,
+                                width: 18,
+                                height: 18,
+                                velocityY: 0.8 + currentLevel * 0.2,
+                                active: true
+                            });
+                        } else if (currentLevel >= 4) {
+                            obstacles.push({
+                                type: 'wind',
+                                x: Math.random() * 280,
+                                y: platformY - 50,
+                                width: 70,
+                                height: 80,
+                                direction: Math.random() < 0.5 ? -1 : 1,
+                                strength: 0.2 + currentLevel * 0.03
+                            });
+                        }
+                    }
+                }
+            }
+            
+            platforms = platforms.filter(p => p.y < camera.y + 700);
+            obstacles = obstacles.filter(o => o.y < camera.y + 700);
+        }
+        
+        // Create particle effect
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 8; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    velocityX: (Math.random() - 0.5) * 8,
+                    velocityY: Math.random() * -5 - 2,
+                    life: 30,
+                    maxLife: 30,
+                    color: color
+                });
+            }
+        }
+        
+        // Update particles
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                particle.x += particle.velocityX;
+                particle.y += particle.velocityY;
+                particle.velocityY += 0.2;
+                particle.life--;
+                
+                if (particle.life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+        
+        // Update obstacles
+        function updateObstacles() {
+            obstacles.forEach(obstacle => {
+                if (obstacle.type === 'rock' && obstacle.active) {
+                    obstacle.y += obstacle.velocityY;
+                    obstacle.velocityY += 0.1; // Gravity for rocks
+                    
+                    // Remove rocks that fall too far
+                    if (obstacle.y > camera.y + 700) {
+                        obstacle.active = false;
+                    }
+                }
+            });
+            
+            // Remove inactive obstacles
+            obstacles = obstacles.filter(o => o.type !== 'rock' || o.active);
+        }
+        
+        // Update platforms
+        function updatePlatforms() {
+            platforms.forEach(platform => {
+                if (platform.type === 'moving') {
+                    platform.x += platform.moveDirection * platform.moveSpeed;
+                    
+                    if (platform.x <= 0 || platform.x + platform.width >= canvas.width) {
+                        platform.moveDirection *= -1;
+                    }
+                } else if (platform.type === 'disappearing') {
+                    platform.blinkTimer++;
+                    
+                    if (platform.blinkTimer > 120) { // 2 seconds at 60fps
+                        platform.visible = !platform.visible;
+                        platform.blinkTimer = 0;
+                    }
+                }
+            });
+        }
+        
+        // Draw moss character
+        function drawMoss() {
+            const screenY = moss.y - camera.y;
+            
+            // Moss body
+            ctx.fillStyle = '#228B22';
+            ctx.beginPath();
+            ctx.arc(moss.x + moss.width/2, screenY + moss.height/2, moss.width/2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Moss texture
+            ctx.fillStyle = '#32CD32';
+            for (let i = 0; i < 6; i++) {
+                const angle = (i / 6) * Math.PI * 2;
+                const dotX = moss.x + moss.width/2 + Math.cos(angle) * 8;
+                const dotY = screenY + moss.height/2 + Math.sin(angle) * 8;
+                ctx.beginPath();
+                ctx.arc(dotX, dotY, 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Eyes
+            ctx.fillStyle = 'white';
+            ctx.beginPath();
+            ctx.arc(moss.x + moss.width/2 - 6, screenY + moss.height/2 - 3, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(moss.x + moss.width/2 + 6, screenY + moss.height/2 - 3, 4, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = 'black';
+            ctx.beginPath();
+            ctx.arc(moss.x + moss.width/2 - 6, screenY + moss.height/2 - 3, 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(moss.x + moss.width/2 + 6, screenY + moss.height/2 - 3, 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        // Draw platforms
+        function drawPlatforms() {
+            platforms.forEach(platform => {
+                const screenY = platform.y - camera.y;
+                
+                if (screenY > -50 && screenY < canvas.height + 50) {
+                    if (platform.type === 'disappearing' && !platform.visible) return;
+                    
+                    if (platform.type === 'bouncy') {
+                        ctx.fillStyle = '#FF6B6B';
+                        ctx.strokeStyle = '#FF4444';
+                    } else if (platform.type === 'moving') {
+                        ctx.fillStyle = '#4169E1';
+                        ctx.strokeStyle = '#0000CD';
+                    } else if (platform.type === 'disappearing') {
+                        ctx.fillStyle = '#FFA500';
+                        ctx.strokeStyle = '#FF8C00';
+                    } else {
+                        ctx.fillStyle = '#8B4513';
+                        ctx.strokeStyle = '#654321';
+                    }
+                    
+                    ctx.fillRect(platform.x, screenY, platform.width, platform.height);
+                    ctx.strokeRect(platform.x, screenY, platform.width, platform.height);
+                    
+                    // Platform texture
+                    let textureColor = '#A0522D';
+                    if (platform.type === 'bouncy') textureColor = '#FFB6C1';
+                    else if (platform.type === 'moving') textureColor = '#87CEEB';
+                    else if (platform.type === 'disappearing') textureColor = '#FFFF99';
+                    
+                    ctx.fillStyle = textureColor;
+                    for (let i = 0; i < platform.width; i += 10) {
+                        ctx.fillRect(platform.x + i + 2, screenY + 2, 6, platform.height - 4);
+                    }
+                }
+            });
+        }
+        
+        // Draw obstacles
+        function drawObstacles() {
+            obstacles.forEach(obstacle => {
+                const screenY = obstacle.y - camera.y;
+                
+                if (screenY > -50 && screenY < canvas.height + 50) {
+                    if (obstacle.type === 'spike') {
+                        ctx.fillStyle = '#DC143C';
+                        ctx.strokeStyle = '#8B0000';
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(obstacle.x + obstacle.width/2, screenY);
+                        ctx.lineTo(obstacle.x, screenY + obstacle.height);
+                        ctx.lineTo(obstacle.x + obstacle.width, screenY + obstacle.height);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.stroke();
+                        
+                    } else if (obstacle.type === 'rock' && obstacle.active) {
+                        ctx.fillStyle = '#696969';
+                        ctx.strokeStyle = '#2F4F4F';
+                        
+                        ctx.beginPath();
+                        ctx.arc(obstacle.x + obstacle.width/2, screenY + obstacle.height/2, obstacle.width/2, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                        
+                    } else if (obstacle.type === 'wind') {
+                        const time = Date.now() * 0.005;
+                        const alpha = 0.3 + Math.sin(time) * 0.1;
+                        
+                        ctx.fillStyle = `rgba(173, 216, 230, ${alpha})`;
+                        ctx.fillRect(obstacle.x, screenY, obstacle.width, obstacle.height);
+                        
+                        ctx.strokeStyle = '#4682B4';
+                        ctx.lineWidth = 2;
+                        
+                        for (let i = 0; i < 3; i++) {
+                            const arrowY = screenY + 20 + i * 25;
+                            const arrowX = obstacle.x + obstacle.width/2;
+                            const offset = Math.sin(time + i) * 5;
+                            
+                            ctx.beginPath();
+                            if (obstacle.direction > 0) {
+                                ctx.moveTo(arrowX - 15 + offset, arrowY);
+                                ctx.lineTo(arrowX + 15 + offset, arrowY);
+                                ctx.lineTo(arrowX + 10 + offset, arrowY - 5);
+                                ctx.moveTo(arrowX + 15 + offset, arrowY);
+                                ctx.lineTo(arrowX + 10 + offset, arrowY + 5);
+                            } else {
+                                ctx.moveTo(arrowX + 15 + offset, arrowY);
+                                ctx.lineTo(arrowX - 15 + offset, arrowY);
+                                ctx.lineTo(arrowX - 10 + offset, arrowY - 5);
+                                ctx.moveTo(arrowX - 15 + offset, arrowY);
+                                ctx.lineTo(arrowX - 10 + offset, arrowY + 5);
+                            }
+                            ctx.stroke();
+                        }
+                        ctx.lineWidth = 1;
+                    }
+                }
+            });
+        }
+        
+        // Draw particles
+        function drawParticles() {
+            particles.forEach(particle => {
+                const screenY = particle.y - camera.y;
+                const alpha = particle.life / particle.maxLife;
+                
+                ctx.fillStyle = particle.color + Math.floor(alpha * 255).toString(16).padStart(2, '0');
+                ctx.beginPath();
+                ctx.arc(particle.x, screenY, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+        
+        // Draw background
+        function drawBackground() {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            
+            for (let i = 0; i < 5; i++) {
+                const cloudY = (i * 150 - camera.y * 0.3) % canvas.height;
+                const cloudX = (i * 80) % canvas.width;
+                
+                ctx.beginPath();
+                ctx.arc(cloudX, cloudY, 20, 0, Math.PI * 2);
+                ctx.arc(cloudX + 25, cloudY, 25, 0, Math.PI * 2);
+                ctx.arc(cloudX + 50, cloudY, 20, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // Collision detection
+        function checkCollisions() {
+            moss.onGround = false;
+            
+            // Platform collisions
+            platforms.forEach(platform => {
+                if (platform.type === 'disappearing' && !platform.visible) return;
+                
+                if (moss.x < platform.x + platform.width &&
+                    moss.x + moss.width > platform.x &&
+                    moss.y < platform.y + platform.height &&
+                    moss.y + moss.height > platform.y) {
+                    
+                    if (moss.velocityY > 0 && moss.y < platform.y) {
+                        moss.y = platform.y - moss.height;
+                        
+                        if (platform.type === 'bouncy') {
+                            moss.velocityY = moss.jumpPower * 1.5;
+                            createParticles(moss.x + moss.width/2, moss.y + moss.height, '#FF6B6B');
+                        } else {
+                            moss.velocityY = moss.jumpPower;
+                            createParticles(moss.x + moss.width/2, moss.y + moss.height, '#8B4513');
+                        }
+                        
+                        moss.onGround = true;
+                    }
+                }
+            });
+            
+            // Obstacle collisions
+            obstacles.forEach(obstacle => {
+                if (obstacle.type === 'spike') {
+                    if (moss.x < obstacle.x + obstacle.width &&
+                        moss.x + moss.width > obstacle.x &&
+                        moss.y < obstacle.y + obstacle.height &&
+                        moss.y + moss.height > obstacle.y) {
+                        
+                        createParticles(moss.x + moss.width/2, moss.y + moss.height/2, '#DC143C');
+                        gameOver();
+                    }
+                } else if (obstacle.type === 'rock' && obstacle.active) {
+                    if (moss.x < obstacle.x + obstacle.width &&
+                        moss.x + moss.width > obstacle.x &&
+                        moss.y < obstacle.y + obstacle.height &&
+                        moss.y + moss.height > obstacle.y) {
+                        
+                        createParticles(moss.x + moss.width/2, moss.y + moss.height/2, '#696969');
+                        gameOver();
+                    }
+                } else if (obstacle.type === 'wind') {
+                    if (moss.x < obstacle.x + obstacle.width &&
+                        moss.x + moss.width > obstacle.x &&
+                        moss.y < obstacle.y + obstacle.height &&
+                        moss.y + moss.height > obstacle.y) {
+                        
+                        moss.velocityX += obstacle.direction * obstacle.strength;
+                    }
+                }
+            });
+        }
+        
+        // Update game logic
+        function update() {
+            if (gameState !== 'playing') return;
+            
+            moss.x += moss.velocityX;
+            moss.y += moss.velocityY;
+            moss.velocityY += moss.gravity;
+            
+            if (moss.x < -moss.width) {
+                moss.x = canvas.width;
+            } else if (moss.x > canvas.width) {
+                moss.x = -moss.width;
+            }
+            
+            moss.velocityX *= 0.85;
+            
+            checkCollisions();
+            updatePlatforms();
+            updateObstacles();
+            
+            const targetCameraY = moss.y - canvas.height * 0.7;
+            if (targetCameraY < camera.y) {
+                camera.y = targetCameraY;
+            }
+            
+            const newScore = Math.max(0, Math.floor((550 - moss.y) / 10));
+            if (newScore > score) {
+                score = newScore;
+                document.getElementById('scoreValue').textContent = score;
+                
+                // Update level display
+                const currentLevel = Math.floor(Math.abs(moss.y - 550) / 350) + 1;
+                document.getElementById('levelValue').textContent = currentLevel;
+            }
+            
+            generatePlatforms();
+            updateParticles();
+            
+            if (moss.y > camera.y + canvas.height + 100) {
+                gameOver();
+            }
+        }
+        
+        // Render game
+        function render() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawBackground();
+            drawPlatforms();
+            drawObstacles();
+            drawParticles();
+            drawMoss();
+        }
+        
+        // Game loop
+        function gameLoop() {
+            update();
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Start game
+        function startGame() {
+            gameState = 'playing';
+            score = 0;
+            camera.y = 0;
+            
+            moss.x = 200;
+            moss.y = 500;
+            moss.velocityX = 0;
+            moss.velocityY = 0;
+            
+            initPlatforms();
+            particles = [];
+            
+            document.getElementById('instructions').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'none';
+            document.getElementById('scoreValue').textContent = '0';
+            document.getElementById('levelValue').textContent = '1';
+        }
+        
+        // Game over
+        function gameOver() {
+            gameState = 'gameOver';
+            
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('mossHighScore', highScore);
+            }
+            
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('highScore').textContent = highScore;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+        
+        // Restart game
+        function restartGame() {
+            startGame();
+        }
+        
+        // Controls
+        let keys = {};
+        
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+        
+        // Touch controls
+        document.getElementById('leftBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keys['ArrowLeft'] = true;
+        });
+        
+        document.getElementById('leftBtn').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keys['ArrowLeft'] = false;
+        });
+        
+        document.getElementById('rightBtn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keys['ArrowRight'] = true;
+        });
+        
+        document.getElementById('rightBtn').addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keys['ArrowRight'] = false;
+        });
+        
+        // Mouse controls
+        document.getElementById('leftBtn').addEventListener('mousedown', () => {
+            keys['ArrowLeft'] = true;
+        });
+        
+        document.getElementById('leftBtn').addEventListener('mouseup', () => {
+            keys['ArrowLeft'] = false;
+        });
+        
+        document.getElementById('rightBtn').addEventListener('mousedown', () => {
+            keys['ArrowRight'] = true;
+        });
+        
+        document.getElementById('rightBtn').addEventListener('mouseup', () => {
+            keys['ArrowRight'] = false;
+        });
+        
+        // Handle movement
+        function handleInput() {
+            if (gameState === 'playing') {
+                if (keys['ArrowLeft'] || keys['a'] || keys['A']) {
+                    moss.velocityX = Math.max(moss.velocityX - 0.8, -moss.maxSpeed);
+                }
+                if (keys['ArrowRight'] || keys['d'] || keys['D']) {
+                    moss.velocityX = Math.min(moss.velocityX + 0.8, moss.maxSpeed);
+                }
+            }
+        }
+        
+        // Input handling loop
+        function inputLoop() {
+            handleInput();
+            requestAnimationFrame(inputLoop);
+        }
+        
+        // Initialize game
+        initPlatforms();
+        gameLoop();
+        inputLoop();
+        
+        document.getElementById('highScore').textContent = highScore;
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98e3bc18e02d8740',t:'MTc2MDQwOTg2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
