@@ -238,7 +238,7 @@
             <div class="instructions" id="instructions">
                 <h3>🌿 Lumut Loncat</h3>
                 <p>Bantu Lumut melompat setinggi mungkin!</p>
-                <p>• Gunakan ← → untuk bergerak</p>
+                <p>• Gunakan ← → atau geser jari untuk bergerak</p>
                 <p>• Kumpulkan power-up untuk bantuan:</p>
                 <p>  ↑ Spring: Lompatan super tinggi</p>
                 <p>  🚀 Rocket: Dorongan roket</p>
@@ -1048,7 +1048,56 @@
             keys[e.key] = false;
         });
 
-        // Touch controls
+        // Touch swipe variables
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        let isSwipeActive = false;
+
+        // Touch swipe controls on canvas
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+            touchStartTime = Date.now();
+            isSwipeActive = true;
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!isSwipeActive) return;
+            
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = touch.clientY - touchStartY;
+            const deltaTime = Date.now() - touchStartTime;
+            
+            // Only process horizontal swipes (ignore vertical)
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 20) {
+                if (deltaX > 0) {
+                    // Swipe right
+                    keys['ArrowRight'] = true;
+                    keys['ArrowLeft'] = false;
+                } else {
+                    // Swipe left
+                    keys['ArrowLeft'] = true;
+                    keys['ArrowRight'] = false;
+                }
+            }
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            isSwipeActive = false;
+            // Gradually stop movement instead of instant stop for smoother feel
+            setTimeout(() => {
+                keys['ArrowLeft'] = false;
+                keys['ArrowRight'] = false;
+            }, 100);
+        });
+
+        // Touch controls for buttons
         leftBtn.addEventListener('touchstart', (e) => {
             e.preventDefault();
             keys['ArrowLeft'] = true;
@@ -1078,5 +1127,5 @@
         // Initialize
         document.getElementById('bestScore').textContent = `Rekor Terbaik: ${bestScore}m`;
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98e453a175778740',t:'MTc2MDQxNjA3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98e466ab9728b5b8',t:'MTc2MDQxNjg1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
