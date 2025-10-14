@@ -700,20 +700,106 @@
             });
         }
 
-        // Draw background elements
+        // Draw background elements with height-based changes
         function drawBackground() {
-            // Draw clouds that move with camera
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            for (let i = 0; i < 10; i++) {
-                const baseY = i * -200;
-                const y = baseY + cameraY;
-                const x = (i * 150) % canvas.width;
+            const playerHeight = Math.max(0, Math.floor((player.startY - player.y) / 10));
+            
+            // Change background gradient based on height - every 750m
+            let gradient;
+            if (playerHeight < 750) {
+                // Ground level (0-750m) - green to light blue
+                gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, '#87CEEB'); // Sky blue
+                gradient.addColorStop(0.5, '#98FB98'); // Pale green
+                gradient.addColorStop(1, '#90EE90'); // Light green
+            } else if (playerHeight < 1500) {
+                // Mid level (750-1500m) - more blue sky
+                gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, '#4169E1'); // Royal blue
+                gradient.addColorStop(0.5, '#87CEEB'); // Sky blue
+                gradient.addColorStop(1, '#98FB98'); // Pale green
+            } else if (playerHeight < 2250) {
+                // High level (1500-2250m) - deeper blue with purple hints
+                gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, '#191970'); // Midnight blue
+                gradient.addColorStop(0.5, '#4169E1'); // Royal blue
+                gradient.addColorStop(1, '#87CEEB'); // Sky blue
+            } else if (playerHeight < 3000) {
+                // Very high (2250-3000m) - space-like with stars
+                gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, '#000080'); // Navy
+                gradient.addColorStop(0.5, '#191970'); // Midnight blue
+                gradient.addColorStop(1, '#4169E1'); // Royal blue
+            } else {
+                // Extreme height (3000m+) - deep space
+                gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+                gradient.addColorStop(0, '#000000'); // Black
+                gradient.addColorStop(0.5, '#000080'); // Navy
+                gradient.addColorStop(1, '#191970'); // Midnight blue
+            }
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw stars at high altitudes (starting from 1500m)
+            if (playerHeight > 1500) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                for (let i = 0; i < 50; i++) {
+                    const starX = (i * 73) % canvas.width;
+                    const starY = (i * -100 + cameraY * 0.1) % canvas.height;
+                    
+                    if (starY > -10 && starY < canvas.height + 10) {
+                        ctx.beginPath();
+                        ctx.arc(starX, starY, 1, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Add twinkling effect
+                        if (Math.random() < 0.1) {
+                            ctx.beginPath();
+                            ctx.arc(starX, starY, 2, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                }
+            }
+            
+            // Draw clouds at lower altitudes (fade out by 2250m)
+            if (playerHeight < 2250) {
+                const cloudOpacity = Math.max(0.1, 0.8 - (playerHeight / 2250));
+                ctx.fillStyle = `rgba(255, 255, 255, ${cloudOpacity})`;
                 
-                if (y > -100 && y < canvas.height + 100) {
+                for (let i = 0; i < 15; i++) {
+                    const baseY = i * -150;
+                    const y = baseY + cameraY * 0.3;
+                    const x = (i * 120) % canvas.width;
+                    
+                    if (y > -100 && y < canvas.height + 100) {
+                        ctx.beginPath();
+                        ctx.arc(x, y, 15, 0, Math.PI * 2);
+                        ctx.arc(x + 20, y, 20, 0, Math.PI * 2);
+                        ctx.arc(x + 40, y, 15, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            }
+            
+            // Draw planets/moon at extreme heights (starting from 2250m)
+            if (playerHeight > 2250) {
+                ctx.fillStyle = 'rgba(220, 220, 220, 0.6)';
+                const moonX = canvas.width * 0.8;
+                const moonY = 100 + cameraY * 0.05;
+                
+                if (moonY > -50 && moonY < canvas.height + 50) {
                     ctx.beginPath();
-                    ctx.arc(x, y, 20, 0, Math.PI * 2);
-                    ctx.arc(x + 25, y, 25, 0, Math.PI * 2);
-                    ctx.arc(x + 50, y, 20, 0, Math.PI * 2);
+                    ctx.arc(moonX, moonY, 30, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Add moon craters
+                    ctx.fillStyle = 'rgba(180, 180, 180, 0.4)';
+                    ctx.beginPath();
+                    ctx.arc(moonX - 8, moonY - 5, 4, 0, Math.PI * 2);
+                    ctx.arc(moonX + 6, moonY + 8, 3, 0, Math.PI * 2);
+                    ctx.arc(moonX - 2, moonY + 12, 2, 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
@@ -992,5 +1078,5 @@
         // Initialize
         document.getElementById('bestScore').textContent = `Rekor Terbaik: ${bestScore}m`;
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98e41333169db5b8',t:'MTc2MDQxMzQzMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98e453a175778740',t:'MTc2MDQxNjA3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
