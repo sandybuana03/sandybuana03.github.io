@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar CLI Dasar - Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #ffeef8 0%, #f0f9ff 25%, #f0fdf4 50%, #fefce8 75%, #fdf2f8 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .terminal {
+            background: #1a1a1a;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+            position: relative;
+        }
+        
+        .terminal::before {
+            content: "● ● ●";
+            position: absolute;
+            top: 8px;
+            left: 12px;
+            color: #ff5f56;
+            font-size: 12px;
+        }
+        
+        .terminal-content {
+            margin-top: 20px;
+        }
+        
+        .typing-animation {
+            overflow: hidden;
+            border-right: 2px solid #00ff00;
+            white-space: nowrap;
+            animation: typing 2s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: #00ff00 }
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-full">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-pink-200 p-3 rounded-full shadow-lg">
+        <div class="w-6 h-6 flex flex-col justify-center items-center">
+            <span class="block w-5 h-0.5 bg-pink-600 mb-1 transition-all"></span>
+            <span class="block w-5 h-0.5 bg-pink-600 mb-1 transition-all"></span>
+            <span class="block w-5 h-0.5 bg-pink-600 transition-all"></span>
+        </div>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white/90 backdrop-blur-sm shadow-xl transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 overflow-y-auto">
+        <div class="p-6">
+            <div class="text-center mb-8">
+                <div class="text-4xl mb-2">💻</div>
+                <h1 class="text-2xl font-bold text-purple-600">CLI Dasar</h1>
+                <p class="text-sm text-gray-600">Command Line Interface</p>
+            </div>
+            
+            <nav class="space-y-2">
+                <button onclick="showSection('intro')" class="nav-btn w-full text-left p-3 rounded-lg bg-pink-100 hover:bg-pink-200 transition-colors flex items-center">
+                    <span class="text-2xl mr-3">🚀</span>
+                    <span class="font-medium text-pink-700">Intro</span>
+                </button>
+                
+                <button onclick="showSection('pengenalan')" class="nav-btn w-full text-left p-3 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors flex items-center">
+                    <span class="text-2xl mr-3">👋</span>
+                    <span class="font-medium text-blue-700">Pengenalan</span>
+                </button>
+                
+                <button onclick="showSection('apa-itu-cli')" class="nav-btn w-full text-left p-3 rounded-lg bg-green-100 hover:bg-green-200 transition-colors flex items-center">
+                    <span class="text-2xl mr-3">❓</span>
+                    <span class="font-medium text-green-700">Apa itu CLI?</span>
+                </button>
+                
+                <button onclick="showSection('perintah-dasar')" class="nav-btn w-full text-left p-3 rounded-lg bg-yellow-100 hover:bg-yellow-200 transition-colors flex items-center">
+                    <span class="text-2xl mr-3">⚡</span>
+                    <span class="font-medium text-yellow-700">Perintah Dasar</span>
+                </button>
+                
+                <button onclick="showSection('navigasi-file')" class="nav-btn w-full text-left p-3 rounded-lg bg-purple-100 hover:bg-purple-200 transition-colors flex items-center">
+                    <span class="text-2xl mr-3">📁</span>
+                    <span class="font-medium text-purple-700">Navigasi File</span>
+                </button>
+                
+                <button onclick="showSection('manipulasi-file')" class="nav-btn w-full text-left p-3 rounded-lg bg-indigo-100 hover:bg-indigo-200 transition-colors flex items-center">
+                    <span class="text-2xl mr-3">✏️</span>
+                    <span class="font-medium text-indigo-700">Manipulasi File</span>
+                </button>
+                
+                <button onclick="showSection('tips-tricks')" class="nav-btn w-full text-left p-3 rounded-lg bg-teal-100 hover:bg-teal-200 transition-colors flex items-center">
+                    <span class="text-2xl mr-3">💡</span>
+                    <span class="font-medium text-teal-700">Tips & Tricks</span>
+                </button>
+                
+                <button onclick="showSection('tugas')" class="nav-btn w-full text-left p-3 rounded-lg bg-orange-100 hover:bg-orange-200 transition-colors flex items-center">
+                    <span class="text-2xl mr-3">📝</span>
+                    <span class="font-medium text-orange-700">Tugas</span>
+                </button>
+                
+                <button onclick="showSection('kuis')" class="nav-btn w-full text-left p-3 rounded-lg bg-red-100 hover:bg-red-200 transition-colors flex items-center">
+                    <span class="text-2xl mr-3">🎯</span>
+                    <span class="font-medium text-red-700">Kuis</span>
+                </button>
+                
+                <button onclick="showSection('penutup')" class="nav-btn w-full text-left p-3 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors flex items-center">
+                    <span class="text-2xl mr-3">🎉</span>
+                    <span class="font-medium text-gray-700">Penutup</span>
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-full">
+        <div class="max-w-4xl mx-auto p-4 lg:p-8">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4 bounce">🚀</div>
+                        <h1 class="text-4xl font-bold text-purple-600 mb-4">Selamat Datang!</h1>
+                        <p class="text-xl text-gray-600">Mari belajar Command Line Interface (CLI) dengan cara yang menyenangkan!</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-pink-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🤔</span>
+                                Pertanyaan Pemantik
+                            </h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li>• Pernahkah kamu melihat layar hitam dengan tulisan putih di film hacker?</li>
+                                <li>• Bagaimana cara berkomunikasi dengan komputer tanpa mouse?</li>
+                                <li>• Mengapa programmer suka menggunakan terminal?</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-blue-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-blue-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🎯</span>
+                                Tujuan Pembelajaran
+                            </h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li>• Memahami konsep CLI</li>
+                                <li>• Menguasai perintah dasar</li>
+                                <li>• Mampu navigasi file system</li>
+                                <li>• Terampil manipulasi file</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl mb-8">
+                        <h3 class="text-xl font-bold text-purple-600 mb-4 flex items-center">
+                            <span class="text-2xl mr-2">💡</span>
+                            Pemahaman Bermakna
+                        </h3>
+                        <p class="text-gray-700 text-lg leading-relaxed">
+                            CLI adalah jendela komunikasi langsung dengan komputer. Seperti berbicara dengan teman, kita memberikan instruksi dalam bentuk teks, dan komputer merespons dengan cepat dan akurat. Skill ini akan membuatmu menjadi pengguna komputer yang lebih powerful!
+                        </p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-orange-600 mb-4 flex items-center">
+                            <span class="text-2xl mr-2">🔥</span>
+                            Motivasi
+                        </h3>
+                        <p class="text-gray-700 text-lg leading-relaxed">
+                            Setiap programmer profesional menguasai CLI! Dengan CLI, kamu bisa bekerja lebih cepat, mengotomatisasi tugas, dan terlihat seperti hacker keren di film. Mari mulai perjalanan menjadi tech-savvy!
+                        </p>
+                    </div>
+                </div>
+                
+                <button onclick="navigateToNext('pengenalan')" class="mt-8 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                    Mulai Belajar! 🎉
+                </button>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4 pulse">👋</div>
+                        <h1 class="text-4xl font-bold text-blue-600 mb-4">Pengenalan CLI</h1>
+                        <p class="text-xl text-gray-600">Mari berkenalan dengan Command Line Interface!</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-blue-600 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🖥️</span>
+                                Apa itu Command Line Interface?
+                            </h3>
+                            <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                                Command Line Interface (CLI) adalah cara berkomunikasi dengan komputer menggunakan perintah teks. Bayangkan seperti chatting dengan komputer, tapi menggunakan bahasa khusus yang dia mengerti!
+                            </p>
+                            
+                            <div class="terminal">
+                                <div class="terminal-content">
+                                    <div class="typing-animation">C:\Users\Siswa> dir</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-green-50 p-6 rounded-2xl">
+                                <h4 class="text-xl font-bold text-green-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">✅</span>
+                                    Keunggulan CLI
+                                </h4>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li>• ⚡ Lebih cepat dari GUI</li>
+                                    <li>• 🎯 Presisi tinggi</li>
+                                    <li>• 🤖 Bisa diotomatisasi</li>
+                                    <li>• 💾 Hemat resource</li>
+                                    <li>• 🔧 Kontrol penuh sistem</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-yellow-50 p-6 rounded-2xl">
+                                <h4 class="text-xl font-bold text-yellow-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">🎨</span>
+                                    GUI vs CLI
+                                </h4>
+                                <div class="space-y-3">
+                                    <div class="flex items-center">
+                                        <span class="text-2xl mr-2">🖱️</span>
+                                        <span class="text-gray-700">GUI: Point & Click</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="text-2xl mr-2">⌨️</span>
+                                        <span class="text-gray-700">CLI: Type & Enter</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-purple-50 p-6 rounded-2xl">
+                            <h4 class="text-xl font-bold text-purple-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🌟</span>
+                                Mengapa Penting untuk SMK?
+                            </h4>
+                            <p class="text-gray-700 text-lg leading-relaxed">
+                                Sebagai siswa SMK, menguasai CLI akan membuatmu unggul di dunia kerja. Banyak pekerjaan IT membutuhkan skill ini, dari web development, system administration, hingga cybersecurity. CLI adalah fondasi untuk menjadi teknisi yang handal!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="navigateToNext('apa-itu-cli')" class="mt-8 bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-blue-600 hover:to-cyan-600 transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Materi! 📚
+                </button>
+            </div>
+
+            <!-- Apa itu CLI Section -->
+            <div id="apa-itu-cli" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">❓</div>
+                        <h1 class="text-4xl font-bold text-green-600 mb-4">Apa itu CLI?</h1>
+                        <p class="text-xl text-gray-600">Memahami CLI secara mendalam</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-600 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🔍</span>
+                                Definisi Lengkap
+                            </h3>
+                            <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                                CLI adalah antarmuka berbasis teks yang memungkinkan pengguna berinteraksi dengan sistem operasi atau aplikasi melalui perintah yang diketik. Tidak seperti GUI yang menggunakan ikon dan menu, CLI menggunakan perintah teks.
+                            </p>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="bg-pink-50 p-6 rounded-2xl text-center">
+                                <div class="text-4xl mb-3">🖥️</div>
+                                <h4 class="font-bold text-pink-600 mb-2">Terminal</h4>
+                                <p class="text-gray-600 text-sm">Program yang menjalankan CLI</p>
+                            </div>
+                            
+                            <div class="bg-blue-50 p-6 rounded-2xl text-center">
+                                <div class="text-4xl mb-3">🐚</div>
+                                <h4 class="font-bold text-blue-600 mb-2">Shell</h4>
+                                <p class="text-gray-600 text-sm">Interpreter perintah</p>
+                            </div>
+                            
+                            <div class="bg-yellow-50 p-6 rounded-2xl text-center">
+                                <div class="text-4xl mb-3">⚡</div>
+                                <h4 class="font-bold text-yellow-600 mb-2">Command</h4>
+                                <p class="text-gray-600 text-sm">Perintah yang dijalankan</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-indigo-50 p-6 rounded-2xl">
+                            <h4 class="text-xl font-bold text-indigo-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🎭</span>
+                                Jenis-jenis CLI
+                            </h4>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h5 class="font-bold text-gray-700 mb-2">🪟 Windows</h5>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        <li>• Command Prompt (cmd)</li>
+                                        <li>• PowerShell</li>
+                                        <li>• Windows Terminal</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h5 class="font-bold text-gray-700 mb-2">🐧 Linux/Mac</h5>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        <li>• Bash</li>
+                                        <li>• Zsh</li>
+                                        <li>• Fish</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-orange-50 p-6 rounded-2xl">
+                            <h4 class="text-xl font-bold text-orange-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🎯</span>
+                                Cara Membuka CLI
+                            </h4>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h5 class="font-bold mb-2 text-yellow-600">🪟 Windows:</h5>
+                                    <ul class="text-gray-600 space-y-2 text-base mb-3">
+                                        <li>• Win + R → ketik "cmd" → Enter</li>
+                                        <li>• Win + X → pilih "Command Prompt"</li>
+                                        <li>• Start Menu → ketik "cmd"</li>
+                                        <li>• Shift + Right-click di folder → "Open command window here"</li>
+                                    </ul>
+                                    <div class="terminal mt-2">
+                                        <div class="terminal-content text-base">
+                                            <div>Microsoft Windows [Version 10.0.19041.1]</div>
+                                            <div>(c) Microsoft Corporation. All rights reserved.</div>
+                                            <div class="mt-1">C:\Users\Siswa></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h5 class="font-bold mb-2 text-cyan-600">🐧 Linux/Mac:</h5>
+                                    <ul class="text-gray-600 space-y-2 text-base mb-3">
+                                        <li>• Ctrl + Alt + T (Linux)</li>
+                                        <li>• Cmd + Space → ketik "terminal" (Mac)</li>
+                                        <li>• Applications → Terminal</li>
+                                        <li>• Right-click → "Open Terminal Here"</li>
+                                    </ul>
+                                    <div class="terminal mt-2">
+                                        <div class="terminal-content text-base">
+                                            <div class="text-green-400">user@computer:~$ </div>
+                                            <div class="text-yellow-400">Welcome to Ubuntu 20.04 LTS</div>
+                                            <div class="text-cyan-400">user@computer:~$ </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="navigateToNext('perintah-dasar')" class="mt-8 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-green-600 hover:to-emerald-600 transition-all transform hover:scale-105 shadow-lg">
+                    Pelajari Perintah Dasar! ⚡
+                </button>
+            </div>
+
+            <!-- Perintah Dasar Section -->
+            <div id="perintah-dasar" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">⚡</div>
+                        <h1 class="text-4xl font-bold text-yellow-600 mb-4">Perintah Dasar CLI</h1>
+                        <p class="text-xl text-gray-600">Mari pelajari perintah-perintah fundamental!</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-yellow-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">📋</span>
+                                    dir / ls
+                                </h3>
+                                <p class="text-gray-700 mb-3">Melihat isi folder/direktori</p>
+                                <div class="terminal">
+                                    <div class="terminal-content">
+                                        <div class="text-yellow-400">Windows:</div>
+                                        <div>C:\Users\Siswa> dir</div>
+                                        <div class="mt-1 text-green-400">
+                                            <div>Desktop/</div>
+                                            <div>Documents/</div>
+                                            <div>Downloads/</div>
+                                        </div>
+                                        <div class="mt-3 text-cyan-400">Linux/Mac:</div>
+                                        <div>user@computer:~$ ls</div>
+                                        <div class="mt-1 text-green-400">
+                                            <div>Desktop  Documents  Downloads</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-blue-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">📍</span>
+                                    cd
+                                </h3>
+                                <p class="text-gray-700 mb-3">Pindah ke folder lain (Change Directory)</p>
+                                <div class="terminal">
+                                    <div class="terminal-content">
+                                        <div class="text-yellow-400">Windows:</div>
+                                        <div>C:\Users\Siswa> cd Desktop</div>
+                                        <div class="mt-1">C:\Users\Siswa\Desktop></div>
+                                        <div class="mt-3 text-cyan-400">Linux/Mac:</div>
+                                        <div>user@computer:~$ cd Desktop</div>
+                                        <div class="mt-1">user@computer:~/Desktop$</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-purple-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-purple-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🎮</span>
+                                Simulasi Interaktif
+                            </h3>
+                            <div class="bg-gray-900 rounded-lg p-4">
+                                <div class="text-green-400 font-mono">
+                                    <div id="sim-output" class="mb-2">C:\Users\Siswa> <span class="text-white">Ketik perintah di bawah!</span></div>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-green-400 font-mono">C:\Users\Siswa> </span>
+                                    <input type="text" id="sim-input" class="bg-transparent text-green-400 font-mono flex-1 outline-none ml-1" placeholder="Coba ketik 'dir' atau 'help'">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div class="bg-green-50 p-4 rounded-xl">
+                                <h4 class="font-bold text-green-600 mb-2 flex items-center">
+                                    <span class="text-xl mr-2">❓</span>
+                                    help
+                                </h4>
+                                <p class="text-base text-gray-600">Menampilkan bantuan</p>
+                            </div>
+                            
+                            <div class="bg-pink-50 p-4 rounded-xl">
+                                <h4 class="font-bold text-pink-600 mb-2 flex items-center">
+                                    <span class="text-xl mr-2">🧹</span>
+                                    cls / clear
+                                </h4>
+                                <p class="text-base text-gray-600">Windows: cls | Linux/Mac: clear</p>
+                                <p class="text-sm text-gray-500 mt-1">Membersihkan layar terminal</p>
+                            </div>
+                            
+                            <div class="bg-red-50 p-4 rounded-xl">
+                                <h4 class="font-bold text-red-600 mb-2 flex items-center">
+                                    <span class="text-xl mr-2">🚪</span>
+                                    exit
+                                </h4>
+                                <p class="text-base text-gray-600">Keluar dari CLI</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl">
+                            <h4 class="text-xl font-bold text-indigo-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">💡</span>
+                                Tips Penting
+                            </h4>
+                            <ul class="space-y-2 text-gray-700">
+                                <li class="flex items-center"><span class="text-xl mr-2">⌨️</span> Gunakan Tab untuk auto-complete</li>
+                                <li class="flex items-center"><span class="text-xl mr-2">⬆️</span> Panah atas untuk perintah sebelumnya</li>
+                                <li class="flex items-center"><span class="text-xl mr-2">📝</span> Linux/Mac case-sensitive, Windows tidak (huruf besar/kecil)</li>
+                                <li class="flex items-center"><span class="text-xl mr-2">🔤</span> Spasi memisahkan perintah dan parameter</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="navigateToNext('navigasi-file')" class="mt-8 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-yellow-600 hover:to-orange-600 transition-all transform hover:scale-105 shadow-lg">
+                    Belajar Navigasi File! 📁
+                </button>
+            </div>
+
+            <!-- Navigasi File Section -->
+            <div id="navigasi-file" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📁</div>
+                        <h1 class="text-4xl font-bold text-purple-600 mb-4">Navigasi File System</h1>
+                        <p class="text-xl text-gray-600">Menjelajahi file dan folder dengan CLI</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-purple-600 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🗂️</span>
+                                Struktur Direktori
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h5 class="font-bold text-yellow-600 mb-2">🪟 Windows Structure:</h5>
+                                    <div class="font-mono text-sm">
+                                        <div class="text-blue-600">C:\</div>
+                                        <div class="ml-3 text-green-600">├── Users/</div>
+                                        <div class="ml-6 text-green-600">│   ├── Siswa/</div>
+                                        <div class="ml-9 text-yellow-600">│   │   ├── Desktop/</div>
+                                        <div class="ml-9 text-yellow-600">│   │   ├── Documents/</div>
+                                        <div class="ml-9 text-yellow-600">│   │   └── Downloads/</div>
+                                        <div class="ml-3 text-green-600">├── Program Files/</div>
+                                        <div class="ml-3 text-green-600">└── Windows/</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h5 class="font-bold text-cyan-600 mb-2">🐧 Linux Structure:</h5>
+                                    <div class="font-mono text-sm">
+                                        <div class="text-blue-600">/</div>
+                                        <div class="ml-3 text-green-600">├── home/</div>
+                                        <div class="ml-6 text-green-600">│   └── user/</div>
+                                        <div class="ml-9 text-yellow-600">│       ├── Desktop/</div>
+                                        <div class="ml-9 text-yellow-600">│       ├── Documents/</div>
+                                        <div class="ml-9 text-yellow-600">│       └── Downloads/</div>
+                                        <div class="ml-3 text-green-600">├── usr/</div>
+                                        <div class="ml-3 text-green-600">└── etc/</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-blue-50 p-6 rounded-2xl">
+                                <h4 class="text-xl font-bold text-blue-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">🎯</span>
+                                    Path Absolut
+                                </h4>
+                                <p class="text-gray-700 mb-3">Path lengkap dari root directory</p>
+                                <div class="terminal">
+                                    <div class="terminal-content">
+                                        <div>cd C:\Users\Siswa\Desktop</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-green-50 p-6 rounded-2xl">
+                                <h4 class="text-xl font-bold text-green-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">🔗</span>
+                                    Path Relatif
+                                </h4>
+                                <p class="text-gray-700 mb-3">Path dari lokasi saat ini</p>
+                                <div class="terminal">
+                                    <div class="terminal-content">
+                                        <div>cd Desktop</div>
+                                        <div>cd ..</div>
+                                        <div>cd ./Documents</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-yellow-50 p-6 rounded-2xl">
+                            <h4 class="text-xl font-bold text-yellow-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🧭</span>
+                                Perintah Navigasi Penting
+                            </h4>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <div class="text-base space-y-1">
+                                            <div><code class="text-yellow-600 font-bold">Windows: cd</code> (tanpa parameter)</div>
+                                            <div><code class="text-cyan-600 font-bold">Linux/Mac: pwd</code></div>
+                                        </div>
+                                        <p class="text-base text-gray-600 mt-1">Lihat lokasi/direktori saat ini</p>
+                                    </div>
+                                    
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <code class="text-blue-600 font-bold">cd ..</code>
+                                        <p class="text-base text-gray-600">Naik satu level</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <div class="text-base space-y-1">
+                                            <div><code class="text-yellow-600 font-bold">Windows: cd %USERPROFILE%</code></div>
+                                            <div><code class="text-cyan-600 font-bold">Linux/Mac: cd ~</code></div>
+                                        </div>
+                                        <p class="text-base text-gray-600 mt-1">Ke home directory (folder user)</p>
+                                    </div>
+                                    
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <div class="text-base space-y-1">
+                                            <div><code class="text-yellow-600 font-bold">Windows: cd \</code> atau <code class="text-yellow-600 font-bold">cd C:\</code></div>
+                                            <div><code class="text-cyan-600 font-bold">Linux/Mac: cd /</code></div>
+                                        </div>
+                                        <p class="text-base text-gray-600 mt-1">Ke root directory (direktori utama)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-indigo-50 p-6 rounded-2xl">
+                            <h4 class="text-xl font-bold text-indigo-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🎮</span>
+                                Latihan Navigasi
+                            </h4>
+                            <div class="bg-gray-900 rounded-lg p-4">
+                                <div class="text-green-400 font-mono mb-4">
+                                    <div>Tantangan: Navigasi ke folder Documents!</div>
+                                    <div class="text-yellow-400">Lokasi saat ini: C:\Users\Siswa</div>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-green-400 font-mono">C:\Users\Siswa> </span>
+                                    <input type="text" id="nav-input" class="bg-transparent text-green-400 font-mono flex-1 outline-none ml-1" placeholder="Ketik perintah navigasi...">
+                                </div>
+                                <div id="nav-result" class="text-green-400 font-mono mt-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="navigateToNext('manipulasi-file')" class="mt-8 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                    Manipulasi File! ✏️
+                </button>
+            </div>
+
+            <!-- Manipulasi File Section -->
+            <div id="manipulasi-file" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">✏️</div>
+                        <h1 class="text-4xl font-bold text-indigo-600 mb-4">Manipulasi File & Folder</h1>
+                        <p class="text-xl text-gray-600">Membuat, menghapus, dan mengelola file</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-green-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">📁</span>
+                                    Membuat Folder
+                                </h3>
+                                <div class="terminal mb-3">
+                                    <div class="terminal-content">
+                                        <div class="text-yellow-400">Windows: mkdir nama_folder</div>
+                                        <div class="text-yellow-400">Windows: md nama_folder</div>
+                                        <div class="text-cyan-400">Linux/Mac: mkdir nama_folder</div>
+                                    </div>
+                                </div>
+                                <p class="text-base text-gray-600">Kedua sistem operasi menggunakan mkdir, Windows juga bisa pakai md</p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-blue-50 to-cyan-50 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-blue-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">📄</span>
+                                    Membuat File
+                                </h3>
+                                <div class="terminal mb-3">
+                                    <div class="terminal-content">
+                                        <div class="text-yellow-400">Windows: echo "Hello" > file.txt</div>
+                                        <div class="text-yellow-400">Windows: type nul > file.txt (kosong)</div>
+                                        <div class="text-cyan-400">Linux/Mac: echo "Hello" > file.txt</div>
+                                        <div class="text-cyan-400">Linux/Mac: touch file.txt (kosong)</div>
+                                    </div>
+                                </div>
+                                <p class="text-base text-gray-600">Membuat file dengan isi atau file kosong</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-red-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-red-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🗑️</span>
+                                Menghapus File & Folder
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-gray-700 mb-2">Hapus File:</h4>
+                                    <div class="terminal">
+                                        <div class="terminal-content text-base">
+                                            <div class="text-yellow-400">Windows: del nama_file.txt</div>
+                                            <div class="text-cyan-400">Linux/Mac: rm nama_file.txt</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-gray-700 mb-2">Hapus Folder:</h4>
+                                    <div class="terminal">
+                                        <div class="terminal-content text-base">
+                                            <div class="text-yellow-400">Windows: rmdir nama_folder (kosong)</div>
+                                            <div class="text-yellow-400">Windows: rmdir /s nama_folder (berisi)</div>
+                                            <div class="text-cyan-400">Linux/Mac: rmdir nama_folder (kosong)</div>
+                                            <div class="text-cyan-400">Linux/Mac: rm -r nama_folder (berisi)</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 p-3 bg-red-100 rounded-lg">
+                                <p class="text-red-700 text-sm flex items-center">
+                                    <span class="text-lg mr-2">⚠️</span>
+                                    Hati-hati! Penghapusan melalui CLI bersifat permanen!
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-purple-50 p-6 rounded-2xl">
+                                <h4 class="text-xl font-bold text-purple-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">📋</span>
+                                    Copy & Move
+                                </h4>
+                                <div class="space-y-3">
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <h5 class="font-bold text-base mb-1">Copy:</h5>
+                                        <div class="text-base space-y-1">
+                                            <div><code class="text-yellow-600">Windows: copy file.txt backup.txt</code></div>
+                                            <div><code class="text-cyan-600">Linux/Mac: cp file.txt backup.txt</code></div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <h5 class="font-bold text-base mb-1">Move:</h5>
+                                        <div class="text-base space-y-1">
+                                            <div><code class="text-yellow-600">Windows: move file.txt folder/</code></div>
+                                            <div><code class="text-cyan-600">Linux/Mac: mv file.txt folder/</code></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-orange-50 p-6 rounded-2xl">
+                                <h4 class="text-xl font-bold text-orange-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">👁️</span>
+                                    Melihat Isi File
+                                </h4>
+                                <div class="space-y-3">
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <h5 class="font-bold text-base mb-1">Melihat Seluruh Isi:</h5>
+                                        <div class="text-base space-y-1">
+                                            <div><code class="text-yellow-600">Windows: type nama_file.txt</code></div>
+                                            <div><code class="text-cyan-600">Linux/Mac: cat nama_file.txt</code></div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <h5 class="font-bold text-base mb-1">Melihat Per Halaman:</h5>
+                                        <div class="text-base space-y-1">
+                                            <div><code class="text-yellow-600">Windows: more nama_file.txt</code></div>
+                                            <div><code class="text-cyan-600">Linux/Mac: less nama_file.txt</code></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-2xl">
+                            <h4 class="text-xl font-bold text-teal-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🎯</span>
+                                Praktik Langsung
+                            </h4>
+                            <div class="bg-gray-900 rounded-lg p-4">
+                                <div class="text-green-400 font-mono mb-2">
+                                    <div>Simulasi File Manager CLI</div>
+                                    <div class="text-yellow-400">Coba perintah: mkdir, echo, dir, del</div>
+                                </div>
+                                <div class="flex">
+                                    <span class="text-green-400 font-mono">C:\Practice> </span>
+                                    <input type="text" id="file-input" class="bg-transparent text-green-400 font-mono flex-1 outline-none ml-1" placeholder="Ketik perintah file...">
+                                </div>
+                                <div id="file-result" class="text-green-400 font-mono mt-2 max-h-32 overflow-y-auto"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="navigateToNext('tips-tricks')" class="mt-8 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-indigo-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg">
+                    Tips & Tricks! 💡
+                </button>
+            </div>
+
+            <!-- Tips & Tricks Section -->
+            <div id="tips-tricks" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">💡</div>
+                        <h1 class="text-4xl font-bold text-teal-600 mb-4">Tips & Tricks</h1>
+                        <p class="text-xl text-gray-600">Menjadi master CLI dengan tips jitu!</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-yellow-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">⚡</span>
+                                    Shortcut Keyboard
+                                </h3>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="space-y-2 text-gray-700">
+                                        <h5 class="font-bold text-base text-yellow-600">Universal:</h5>
+                                        <li class="flex items-center text-base"><kbd class="bg-gray-200 px-2 py-1 rounded text-sm mr-2">Tab</kbd> Auto-complete</li>
+                                        <li class="flex items-center text-base"><kbd class="bg-gray-200 px-2 py-1 rounded text-sm mr-2">↑↓</kbd> History perintah</li>
+                                        <li class="flex items-center text-base"><kbd class="bg-gray-200 px-2 py-1 rounded text-sm mr-2">Ctrl+C</kbd> Stop perintah</li>
+                                        <li class="flex items-center text-base"><kbd class="bg-gray-200 px-2 py-1 rounded text-sm mr-2">Ctrl+L</kbd> Clear screen</li>
+                                    </div>
+                                    <div class="space-y-2 text-gray-700">
+                                        <h5 class="font-bold text-base text-cyan-600">Linux/Mac:</h5>
+                                        <li class="flex items-center text-base"><kbd class="bg-gray-200 px-2 py-1 rounded text-sm mr-2">Ctrl+A</kbd> Awal baris</li>
+                                        <li class="flex items-center text-base"><kbd class="bg-gray-200 px-2 py-1 rounded text-sm mr-2">Ctrl+E</kbd> Akhir baris</li>
+                                        <li class="flex items-center text-base"><kbd class="bg-gray-200 px-2 py-1 rounded text-sm mr-2">Ctrl+U</kbd> Hapus baris</li>
+                                        <li class="flex items-center text-base"><kbd class="bg-gray-200 px-2 py-1 rounded text-sm mr-2">Ctrl+R</kbd> Search history</li>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-green-600 mb-4 flex items-center">
+                                    <span class="text-2xl mr-2">🔍</span>
+                                    Wildcard & Pattern
+                                </h3>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li class="text-base"><code class="bg-gray-200 px-2 py-1 rounded text-base">*</code> - Semua file</li>
+                                    <li class="text-base"><code class="bg-gray-200 px-2 py-1 rounded text-base">*.txt</code> - File .txt saja</li>
+                                    <li class="text-base"><code class="bg-gray-200 px-2 py-1 rounded text-base">?</code> - Satu karakter</li>
+                                    <li class="text-base"><code class="bg-gray-200 px-2 py-1 rounded text-base">file?.txt</code> - file1.txt, file2.txt</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-blue-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🔗</span>
+                                Piping & Redirection
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold mb-2">Output ke File:</h4>
+                                    <div class="terminal">
+                                        <div class="terminal-content text-base">
+                                            <div>dir > daftar.txt</div>
+                                            <div class="text-yellow-400">echo "Hello" >> file.txt</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold mb-2">Pipe Commands:</h4>
+                                    <div class="terminal">
+                                        <div class="terminal-content text-base">
+                                            <div>dir | find "txt"</div>
+                                            <div class="text-yellow-400">ls | grep "file"</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-purple-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-purple-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🎨</span>
+                                Kustomisasi CLI
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold mb-2">Ubah Warna:</h4>
+                                    <code class="text-blue-600">color 0A</code> <span class="text-sm text-gray-600">(Hijau di hitam)</span>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold mb-2">Ubah Title:</h4>
+                                    <code class="text-blue-600">title "CLI Keren Saya"</code>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-red-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-red-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">⚠️</span>
+                                Kesalahan Umum
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <h5 class="font-bold text-red-600 text-base">❌ Salah:</h5>
+                                        <code class="text-base">CD desktop</code>
+                                        <p class="text-sm text-gray-600 mt-1">Huruf besar semua</p>
+                                    </div>
+                                    
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <h5 class="font-bold text-green-600 text-base">✅ Benar:</h5>
+                                        <code class="text-base">cd Desktop</code>
+                                        <p class="text-sm text-gray-600 mt-1">Sesuai nama asli folder</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <h5 class="font-bold text-red-600 text-base">❌ Salah:</h5>
+                                        <code class="text-base">del *.* /s</code>
+                                        <p class="text-sm text-gray-600 mt-1">Berbahaya!</p>
+                                    </div>
+                                    
+                                    <div class="bg-white p-3 rounded-lg">
+                                        <h5 class="font-bold text-green-600 text-base">✅ Benar:</h5>
+                                        <code class="text-base">del file.txt</code>
+                                        <p class="text-sm text-gray-600 mt-1">Spesifik file</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-indigo-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">🏆</span>
+                                Pro Tips
+                            </h3>
+                            <ul class="space-y-3 text-gray-700">
+                                <li class="flex items-start">
+                                    <span class="text-xl mr-3 mt-1">🎯</span>
+                                    <div class="text-base">
+                                        <strong>Gunakan alias:</strong> Buat shortcut untuk perintah panjang
+                                        <code class="block bg-gray-200 px-2 py-1 rounded text-base mt-1">doskey ll=dir /w</code>
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-xl mr-3 mt-1">📚</span>
+                                    <div class="text-base">
+                                        <strong>Pelajari help:</strong> Setiap perintah punya manual
+                                        <code class="block bg-gray-200 px-2 py-1 rounded text-base mt-1">dir /?</code>
+                                    </div>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-xl mr-3 mt-1">🔄</span>
+                                    <div class="text-base">
+                                        <strong>Batch files:</strong> Otomatisasi tugas berulang dengan .bat
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="navigateToNext('tugas')" class="mt-8 bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-teal-600 hover:to-cyan-600 transition-all transform hover:scale-105 shadow-lg">
+                    Kerjakan Tugas! 📝
+                </button>
+            </div>
+
+            <!-- Tugas Section -->
+            <div id="tugas" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📝</div>
+                        <h1 class="text-4xl font-bold text-orange-600 mb-4">Tugas Praktik</h1>
+                        <p class="text-xl text-gray-600">Uji kemampuan CLI mu!</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-orange-600 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎯</span>
+                                Tugas 1: Eksplorasi Dasar
+                            </h3>
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <p class="text-gray-700 mb-3">
+                                    <strong>Instruksi:</strong> Buat laporan tentang struktur folder di komputer sekolah/rumah menggunakan CLI.
+                                </p>
+                                <ol class="list-decimal list-inside space-y-2 text-gray-700 text-base">
+                                    <li>Buka Command Prompt atau Terminal</li>
+                                    <li>Navigasi ke folder Documents</li>
+                                    <li>Buat folder baru bernama "Tugas_CLI"</li>
+                                    <li>Masuk ke folder tersebut</li>
+                                    <li>Buat file teks bernama "laporan.txt"</li>
+                                    <li>Tuliskan 5 perintah CLI yang sudah dipelajari beserta fungsinya</li>
+                                </ol>
+                            </div>
+                            <textarea class="w-full h-32 p-4 border rounded-lg" placeholder="Tuliskan jawaban Tugas 1 di sini..."></textarea>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-blue-600 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🔍</span>
+                                Tugas 2: Analisis Perintah
+                            </h3>
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <p class="text-gray-700 mb-3">
+                                    <strong>Pertanyaan:</strong> Jelaskan perbedaan dan kegunaan perintah-perintah berikut:
+                                </p>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="space-y-2">
+                                        <div class="bg-gray-100 p-2 rounded">
+                                            <code>dir</code> vs <code>dir /w</code>
+                                        </div>
+                                        <div class="bg-gray-100 p-2 rounded">
+                                            <code>cd ..</code> vs <code>cd \</code>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <div class="bg-gray-100 p-2 rounded">
+                                            <code>copy</code> vs <code>move</code>
+                                        </div>
+                                        <div class="bg-gray-100 p-2 rounded">
+                                            <code>del</code> vs <code>rmdir</code>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <textarea class="w-full h-32 p-4 border rounded-lg" placeholder="Tuliskan jawaban Tugas 2 di sini..."></textarea>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-600 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🛠️</span>
+                                Tugas 3: Skenario Praktis
+                            </h3>
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <p class="text-gray-700 mb-3">
+                                    <strong>Skenario:</strong> Kamu diminta membuat struktur folder untuk proyek sekolah.
+                                </p>
+                                <div class="bg-gray-100 p-3 rounded font-mono text-sm mb-3">
+                                    <div>Proyek_Sekolah/</div>
+                                    <div>├── Matematika/</div>
+                                    <div>│   ├── Tugas/</div>
+                                    <div>│   └── Materi/</div>
+                                    <div>├── Bahasa_Indonesia/</div>
+                                    <div>│   ├── Tugas/</div>
+                                    <div>│   └── Materi/</div>
+                                    <div>└── TIK/</div>
+                                    <div>    ├── Tugas/</div>
+                                    <div>    └── Materi/</div>
+                                </div>
+                                <p class="text-gray-700">
+                                    Tuliskan urutan perintah CLI yang diperlukan untuk membuat struktur folder di atas!
+                                </p>
+                            </div>
+                            <textarea class="w-full h-40 p-4 border rounded-lg" placeholder="Tuliskan urutan perintah CLI di sini..."></textarea>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-purple-600 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">💭</span>
+                                Tugas 4: Refleksi
+                            </h3>
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <p class="text-gray-700 mb-3">
+                                    Jawab pertanyaan refleksi berikut:
+                                </p>
+                                <ol class="list-decimal list-inside space-y-2 text-gray-700 text-base">
+                                    <li>Apa keuntungan menggunakan CLI dibanding GUI untuk mengelola file?</li>
+                                    <li>Dalam situasi apa CLI lebih efisien daripada menggunakan mouse?</li>
+                                    <li>Bagaimana CLI dapat membantu pekerjaan di bidang IT?</li>
+                                    <li>Apa tantangan terbesar saat belajar CLI dan bagaimana mengatasinya?</li>
+                                </ol>
+                            </div>
+                            <textarea class="w-full h-40 p-4 border rounded-lg" placeholder="Tuliskan refleksi kamu di sini..."></textarea>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-yellow-600 mb-4 flex items-center">
+                                <span class="text-2xl mr-2">📋</span>
+                                Kriteria Penilaian
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-green-600 mb-2">Aspek Teknis (50%)</h4>
+                                    <ul class="text-base text-gray-600 space-y-1">
+                                        <li>• Ketepatan perintah CLI</li>
+                                        <li>• Pemahaman konsep</li>
+                                        <li>• Struktur jawaban</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-blue-600 mb-2">Aspek Analisis (50%)</h4>
+                                    <ul class="text-base text-gray-600 space-y-1">
+                                        <li>• Kemampuan analisis</li>
+                                        <li>• Kreativitas solusi</li>
+                                        <li>• Refleksi mendalam</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="navigateToNext('kuis')" class="mt-8 bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-105 shadow-lg">
+                    Ikuti Kuis! 🎯
+                </button>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎯</div>
+                        <h1 class="text-4xl font-bold text-red-600 mb-4">Kuis CLI Dasar</h1>
+                        <p class="text-xl text-gray-600">Uji pemahamanmu dengan 11 soal!</p>
+                    </div>
+                    
+                    <!-- Input Nama -->
+                    <div id="quiz-start" class="text-center">
+                        <div class="bg-gradient-to-r from-red-50 to-pink-50 p-8 rounded-2xl mb-8">
+                            <h3 class="text-2xl font-bold text-red-600 mb-4">Siap untuk tantangan?</h3>
+                            <div class="max-w-md mx-auto">
+                                <label class="block text-gray-700 font-bold mb-2">Masukkan nama kamu:</label>
+                                <input type="text" id="student-name" class="w-full p-4 border-2 border-red-200 rounded-lg text-center text-lg font-bold" placeholder="Nama lengkap...">
+                                <button onclick="startQuiz()" class="mt-4 bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-3 rounded-full font-bold hover:from-red-600 hover:to-pink-600 transition-all transform hover:scale-105">
+                                    Mulai Kuis! 🚀
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quiz Content -->
+                    <div id="quiz-content" class="hidden">
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-lg font-bold text-gray-600">Soal <span id="current-question">1</span> dari 11</span>
+                                <div class="bg-red-100 px-4 py-2 rounded-full">
+                                    <span class="text-red-600 font-bold">Skor: <span id="current-score">0</span></span>
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div id="progress-bar" class="bg-gradient-to-r from-red-500 to-pink-500 h-3 rounded-full transition-all duration-300" style="width: 10%"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="question-container" class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-2xl mb-6">
+                            <h3 id="question-text" class="text-xl font-bold text-blue-600 mb-4"></h3>
+                            <div id="options-container" class="space-y-3"></div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button id="next-btn" onclick="nextQuestion()" class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-8 py-3 rounded-full font-bold hover:from-blue-600 hover:to-cyan-600 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                Soal Berikutnya
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quiz Result -->
+                    <div id="quiz-result" class="hidden text-center">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-2xl">
+                            <div class="text-6xl mb-4">🎉</div>
+                            <h3 class="text-3xl font-bold text-green-600 mb-4">Selamat!</h3>
+                            <div class="text-xl text-gray-700 mb-6">
+                                <p><strong id="final-name"></strong></p>
+                                <p>Skor akhir: <span id="final-score" class="text-2xl font-bold text-green-600"></span>/100</p>
+                                <p id="grade-message" class="mt-2 text-lg"></p>
+                            </div>
+                            <button onclick="restartQuiz()" class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-3 rounded-full font-bold hover:from-green-600 hover:to-emerald-600 transition-all transform hover:scale-105">
+                                Ulangi Kuis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <button onclick="navigateToNext('penutup')" class="mt-8 bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-red-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                    Ke Penutup! 🎉
+                </button>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl card-hover">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎉</div>
+                        <h1 class="text-4xl font-bold text-gray-600 mb-4">Penutup</h1>
+                        <p class="text-xl text-gray-600">Selamat! Kamu telah menyelesaikan pembelajaran CLI Dasar</p>
+                    </div>
+                    
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-purple-600 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🤔</span>
+                                Refleksi Pembelajaran
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-gray-700 mb-2">Apa yang sudah kamu pelajari?</h4>
+                                    <ul class="text-gray-600 space-y-1">
+                                        <li>• Konsep dasar Command Line Interface</li>
+                                        <li>• Perintah-perintah fundamental CLI</li>
+                                        <li>• Navigasi file system dengan CLI</li>
+                                        <li>• Manipulasi file dan folder</li>
+                                        <li>• Tips dan tricks untuk efisiensi</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-gray-700 mb-2">Bagaimana perasaanmu setelah belajar CLI?</h4>
+                                    <textarea class="w-full h-24 p-3 border rounded-lg" placeholder="Tuliskan refleksi kamu di sini..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-blue-600 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">📚</span>
+                                Kesimpulan Pembelajaran
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-green-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">✅</span>
+                                        Pencapaian Tujuan
+                                    </h4>
+                                    <p class="text-gray-700">
+                                        Kamu telah berhasil memahami konsep CLI, menguasai perintah dasar, mampu navigasi file system, dan terampil dalam manipulasi file. Selamat!
+                                    </p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-blue-600 mb-2 flex items-center">
+                                        <span class="text-xl mr-2">🎯</span>
+                                        Skill yang Dikuasai
+                                    </h4>
+                                    <div class="grid md:grid-cols-2 gap-3">
+                                        <ul class="text-gray-600 space-y-1">
+                                            <li>• Membuka dan menggunakan terminal</li>
+                                            <li>• Navigasi direktori dengan cd</li>
+                                            <li>• Melihat isi folder dengan dir/ls</li>
+                                        </ul>
+                                        <ul class="text-gray-600 space-y-1">
+                                            <li>• Membuat dan menghapus file/folder</li>
+                                            <li>• Copy dan move file</li>
+                                            <li>• Menggunakan wildcard dan shortcuts</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-yellow-600 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🚀</span>
+                                Tindak Lanjut
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-orange-600 mb-3 flex items-center">
+                                        <span class="text-xl mr-2">📖</span>
+                                        Materi Lanjutan
+                                    </h4>
+                                    <ul class="text-gray-600 space-y-2">
+                                        <li>• Scripting dan Batch Files</li>
+                                        <li>• Advanced CLI Commands</li>
+                                        <li>• PowerShell untuk Windows</li>
+                                        <li>• Linux Terminal Commands</li>
+                                        <li>• Network Commands</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-green-600 mb-3 flex items-center">
+                                        <span class="text-xl mr-2">💼</span>
+                                        Aplikasi di Dunia Kerja
+                                    </h4>
+                                    <ul class="text-gray-600 space-y-2">
+                                        <li>• System Administration</li>
+                                        <li>• Web Development</li>
+                                        <li>• Database Management</li>
+                                        <li>• DevOps dan Automation</li>
+                                        <li>• Cybersecurity</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-600 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🌟</span>
+                                Motivasi Penutup
+                            </h3>
+                            <div class="bg-white p-6 rounded-lg text-center">
+                                <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                                    "CLI adalah kunci untuk membuka potensi penuh komputer. Dengan menguasai CLI, kamu telah mengambil langkah besar menuju menjadi teknisi IT yang handal. Terus berlatih dan jangan takut untuk bereksperimen!"
+                                </p>
+                                <div class="text-4xl mb-2">💪</div>
+                                <p class="font-bold text-green-600 text-xl">Keep Learning, Keep Growing!</p>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center bg-gradient-to-r from-gray-100 to-gray-200 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-600 mb-4">Terima Kasih!</h3>
+                            <p class="text-gray-600 mb-4">Semoga pembelajaran ini bermanfaat untuk perjalanan IT kamu</p>
+                            <div class="flex justify-center space-x-4">
+                                <button onclick="showSection('intro')" class="bg-purple-500 text-white px-6 py-2 rounded-full hover:bg-purple-600 transition-colors">
+                                    🔄 Ulangi Pembelajaran
+                                </button>
+                                <button onclick="window.print()" class="bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors">
+                                    🖨️ Cetak Materi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-110 hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <script>
+        // Quiz data
+        const quizData = [
+            {
+                question: "Apa kepanjangan dari CLI?",
+                options: ["Command Line Interface", "Computer Language Interface", "Control Line Interface", "Common Line Interface"],
+                correct: 0
+            },
+            {
+                question: "Perintah untuk melihat isi folder adalah:",
+                options: ["Windows: dir, Linux/Mac: ls", "Windows: ls, Linux/Mac: dir", "Semua sistem: show", "Semua sistem: list"],
+                correct: 0
+            },
+            {
+                question: "Perintah untuk pindah ke direktori lain adalah:",
+                options: ["move", "go", "cd", "nav"],
+                correct: 2
+            },
+            {
+                question: "Simbol '..' dalam CLI berarti:",
+                options: ["Direktori saat ini", "Direktori parent/atas", "Semua file", "File tersembunyi"],
+                correct: 1
+            },
+            {
+                question: "Perintah untuk membuat folder baru di Windows:",
+                options: ["mkdir", "create", "new", "make"],
+                correct: 0
+            },
+            {
+                question: "Perintah untuk menghapus file adalah:",
+                options: ["Windows: del, Linux/Mac: rm", "Semua sistem: delete", "Semua sistem: remove", "Windows: rm, Linux/Mac: del"],
+                correct: 0
+            },
+            {
+                question: "Shortcut keyboard untuk membersihkan layar terminal:",
+                options: ["Ctrl+C", "Ctrl+L", "Ctrl+Z", "Ctrl+X"],
+                correct: 1
+            },
+            {
+                question: "Wildcard '*' dalam CLI digunakan untuk:",
+                options: ["Satu karakter", "Semua file", "File tersembunyi", "Folder saja"],
+                correct: 1
+            },
+            {
+                question: "Perintah 'cd ..' berfungsi untuk:",
+                options: ["Masuk ke folder", "Keluar satu level", "Hapus folder", "Buat folder"],
+                correct: 1
+            },
+            {
+                question: "Perbedaan case sensitivity antara Windows dan Linux:",
+                options: ["Windows case-sensitive, Linux tidak", "Linux case-sensitive, Windows tidak", "Keduanya case-sensitive", "Keduanya tidak case-sensitive"],
+                correct: 1
+            },
+            {
+                question: "Keuntungan utama CLI dibanding GUI adalah:",
+                options: ["Lebih mudah", "Lebih cepat dan efisien", "Lebih cantik", "Lebih aman"],
+                correct: 1
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let studentName = '';
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update active menu item
+            updateActiveMenu(sectionId);
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Close mobile menu
+            closeMobileMenu();
+        }
+
+        function updateActiveMenu(activeSection) {
+            // Remove active class from all nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-purple-400', 'shadow-lg');
+                btn.style.transform = 'scale(1)';
+            });
+            
+            // Add active class to current section button
+            const sectionMap = {
+                'intro': 0,
+                'pengenalan': 1,
+                'apa-itu-cli': 2,
+                'perintah-dasar': 3,
+                'navigasi-file': 4,
+                'manipulasi-file': 5,
+                'tips-tricks': 6,
+                'tugas': 7,
+                'kuis': 8,
+                'penutup': 9
+            };
+            
+            const navButtons = document.querySelectorAll('.nav-btn');
+            const activeIndex = sectionMap[activeSection];
+            
+            if (activeIndex !== undefined && navButtons[activeIndex]) {
+                navButtons[activeIndex].classList.add('ring-2', 'ring-purple-400', 'shadow-lg');
+                navButtons[activeIndex].style.transform = 'scale(1.05)';
+            }
+        }
+
+        function navigateToNext(sectionId) {
+            // First scroll to top immediately
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            
+            // Then show the section
+            setTimeout(() => {
+                showSection(sectionId);
+            }, 100);
+        }
+
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.add('-translate-x-full');
+        }
+
+        // Quiz functions
+        function startQuiz() {
+            studentName = document.getElementById('student-name').value.trim();
+            if (!studentName) {
+                alert('Silakan masukkan nama terlebih dahulu!');
+                return;
+            }
+            
+            document.getElementById('quiz-start').classList.add('hidden');
+            document.getElementById('quiz-content').classList.remove('hidden');
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizData[currentQuestionIndex];
+            document.getElementById('current-question').textContent = currentQuestionIndex + 1;
+            document.getElementById('current-score').textContent = score;
+            document.getElementById('question-text').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'w-full p-4 text-left bg-white hover:bg-blue-50 border-2 border-blue-200 rounded-lg transition-colors';
+                button.textContent = `${String.fromCharCode(65 + index)}. ${option}`;
+                button.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(button);
+            });
+            
+            document.getElementById('next-btn').disabled = true;
+            updateProgressBar();
+        }
+
+        function selectAnswer(selectedIndex) {
+            const question = quizData[currentQuestionIndex];
+            const options = document.querySelectorAll('#options-container button');
+            
+            options.forEach((button, index) => {
+                button.disabled = true;
+                if (index === question.correct) {
+                    button.classList.add('bg-green-100', 'border-green-500', 'text-green-700');
+                } else if (index === selectedIndex && index !== question.correct) {
+                    button.classList.add('bg-red-100', 'border-red-500', 'text-red-700');
+                }
+            });
+            
+            if (selectedIndex === question.correct) {
+                score += Math.round(100/11); // ~9 points per question for 11 questions
+                document.getElementById('current-score').textContent = score;
+            }
+            
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < quizData.length) {
+                showQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz-content').classList.add('hidden');
+            document.getElementById('quiz-result').classList.remove('hidden');
+            
+            document.getElementById('final-name').textContent = studentName;
+            document.getElementById('final-score').textContent = score;
+            
+            let message = '';
+            if (score >= 90) message = '🏆 Excellent! Kamu menguasai CLI dengan sangat baik!';
+            else if (score >= 80) message = '🌟 Great! Pemahaman CLI kamu sudah bagus!';
+            else if (score >= 70) message = '👍 Good! Terus belajar untuk meningkatkan pemahaman!';
+            else if (score >= 60) message = '📚 Keep Learning! Pelajari lagi materi yang belum dikuasai!';
+            else message = '💪 Don\'t Give Up! Ulangi pembelajaran dan coba lagi!';
+            
+            document.getElementById('grade-message').textContent = message;
+        }
+
+        function restartQuiz() {
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('quiz-start').classList.remove('hidden');
+            document.getElementById('student-name').value = '';
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex + 1) / quizData.length) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+        }
+
+        // Simulation functions
+        function setupSimulations() {
+            // Basic command simulation
+            const simInput = document.getElementById('sim-input');
+            if (simInput) {
+                simInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const command = this.value.toLowerCase().trim();
+                        const output = document.getElementById('sim-output');
+                        
+                        let response = '';
+                        switch(command) {
+                            case 'dir':
+                            case 'ls':
+                                response = 'Desktop/\nDocuments/\nDownloads/\nPictures/';
+                                break;
+                            case 'help':
+                                response = 'Perintah yang tersedia:\ndir/ls - Lihat isi folder\ncd - Pindah folder\ncls/clear - Bersihkan layar\nhelp - Bantuan';
+                                break;
+                            case 'cls':
+                            case 'clear':
+                                output.innerHTML = 'C:\\Users\\Siswa> <span class="text-white">Layar dibersihkan!</span>';
+                                this.value = '';
+                                return;
+                            case 'pwd':
+                                response = 'C:\\Users\\Siswa (Windows menggunakan "cd" tanpa parameter)';
+                                break;
+                            default:
+                                response = `'${command}' tidak dikenali. Coba: dir/ls, cd, cls/clear, help, pwd`;
+                        }
+                        
+                        output.innerHTML = `C:\\Users\\Siswa> ${command}\n<span class="text-yellow-400">${response}</span>\nC:\\Users\\Siswa> <span class="text-white">Ketik perintah lain!</span>`;
+                        this.value = '';
+                    }
+                });
+            }
+
+            // Navigation simulation
+            const navInput = document.getElementById('nav-input');
+            if (navInput) {
+                navInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const command = this.value.toLowerCase().trim();
+                        const result = document.getElementById('nav-result');
+                        
+                        if (command === 'cd documents') {
+                            result.innerHTML = '✅ Berhasil! Kamu sekarang di C:\\Users\\Siswa\\Documents>';
+                            result.className = 'text-green-400 font-mono mt-2';
+                        } else if (command.startsWith('cd')) {
+                            result.innerHTML = '❌ Coba lagi! Hint: cd documents';
+                            result.className = 'text-red-400 font-mono mt-2';
+                        } else {
+                            result.innerHTML = '💡 Gunakan perintah cd untuk navigasi!';
+                            result.className = 'text-yellow-400 font-mono mt-2';
+                        }
+                        
+                        this.value = '';
+                    }
+                });
+            }
+
+            // File manipulation simulation
+            const fileInput = document.getElementById('file-input');
+            if (fileInput) {
+                let virtualFiles = [];
+                
+                fileInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        const command = this.value.trim();
+                        const result = document.getElementById('file-result');
+                        
+                        let response = '';
+                        const parts = command.split(' ');
+                        const cmd = parts[0].toLowerCase();
+                        
+                        switch(cmd) {
+                            case 'mkdir':
+                            case 'md':
+                                if (parts[1]) {
+                                    virtualFiles.push({name: parts[1], type: 'folder'});
+                                    response = `Folder '${parts[1]}' berhasil dibuat!`;
+                                } else {
+                                    response = 'Syntax: mkdir nama_folder';
+                                }
+                                break;
+                            case 'echo':
+                                if (parts.includes('>') && parts[parts.length-1]) {
+                                    const fileName = parts[parts.length-1];
+                                    virtualFiles.push({name: fileName, type: 'file'});
+                                    response = `File '${fileName}' berhasil dibuat!`;
+                                } else {
+                                    response = 'Syntax: echo "text" > nama_file.txt';
+                                }
+                                break;
+                            case 'touch':
+                                if (parts[1]) {
+                                    virtualFiles.push({name: parts[1], type: 'file'});
+                                    response = `File kosong '${parts[1]}' berhasil dibuat!`;
+                                } else {
+                                    response = 'Syntax: touch nama_file.txt';
+                                }
+                                break;
+                            case 'dir':
+                            case 'ls':
+                                if (virtualFiles.length === 0) {
+                                    response = 'Folder kosong. Coba buat file atau folder!';
+                                } else {
+                                    response = virtualFiles.map(f => 
+                                        f.type === 'folder' ? `📁 ${f.name}/` : `📄 ${f.name}`
+                                    ).join('\n');
+                                }
+                                break;
+                            case 'del':
+                            case 'rm':
+                                if (parts[1]) {
+                                    const index = virtualFiles.findIndex(f => f.name === parts[1]);
+                                    if (index !== -1) {
+                                        virtualFiles.splice(index, 1);
+                                        response = `File '${parts[1]}' berhasil dihapus!`;
+                                    } else {
+                                        response = `File '${parts[1]}' tidak ditemukan!`;
+                                    }
+                                } else {
+                                    response = 'Syntax: del/rm nama_file';
+                                }
+                                break;
+                            case 'type':
+                            case 'cat':
+                                if (parts[1]) {
+                                    const file = virtualFiles.find(f => f.name === parts[1] && f.type === 'file');
+                                    if (file) {
+                                        response = `Isi file '${parts[1]}':\nHello World! (contoh isi file)`;
+                                    } else {
+                                        response = `File '${parts[1]}' tidak ditemukan!`;
+                                    }
+                                } else {
+                                    response = 'Syntax: type/cat nama_file.txt';
+                                }
+                                break;
+                            default:
+                                response = `Perintah '${cmd}' tidak dikenali. Coba: mkdir, echo, touch, dir/ls, del/rm, type/cat`;
+                        }
+                        
+                        result.innerHTML += `\nC:\\Practice> ${command}\n${response}`;
+                        result.scrollTop = result.scrollHeight;
+                        this.value = '';
+                    }
+                });
+            }
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu button
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(e) {
+                const sidebar = document.getElementById('sidebar');
+                const mobileBtn = document.getElementById('mobileMenuBtn');
+                
+                if (!sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                    closeMobileMenu();
+                }
+            });
+            
+            // Back to top button
+            const backToTop = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTop.classList.remove('hidden');
+                } else {
+                    backToTop.classList.add('hidden');
+                }
+            });
+            
+            backToTop.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            
+            // Setup simulations
+            setupSimulations();
+            
+            // Show intro section by default and set active menu
+            showSection('intro');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98ec068316e2a396',t:'MTc2MDQ5Njc5OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
