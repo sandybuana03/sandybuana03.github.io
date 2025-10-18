@@ -1,0 +1,2112 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pembelajaran Troubleshooting Jaringan</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #fef7ff 0%, #f0f9ff 25%, #f0fdf4 50%, #fffbeb 75%, #fdf2f8 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-12px); }
+            60% { transform: translateY(-6px); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            transform: translateX(4px);
+        }
+        
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.9) !important;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid #8b5cf6;
+        }
+        
+        .floating-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        
+        .sparkle {
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        .error-blink {
+            animation: errorBlink 2s ease-in-out infinite;
+        }
+
+        @keyframes errorBlink {
+            0%, 100% { background-color: #fee2e2; }
+            50% { background-color: #fecaca; }
+        }
+
+        .success-glow {
+            animation: successGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes successGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.6); }
+        }
+
+        .warning-pulse {
+            animation: warningPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { background-color: #fef3c7; }
+            50% { background-color: #fde68a; }
+        }
+
+        .network-flow {
+            animation: networkFlow 3s linear infinite;
+        }
+
+        @keyframes networkFlow {
+            0% { transform: translateX(-100%); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%); opacity: 0; }
+        }
+
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+
+        .quiz-option:hover {
+            transform: scale(1.02);
+        }
+
+        .quiz-option.selected {
+            background: #ddd6fe !important;
+            border-color: #8b5cf6 !important;
+        }
+
+        .quiz-option.correct {
+            background: #dcfce7 !important;
+            border-color: #16a34a !important;
+        }
+
+        .quiz-option.incorrect {
+            background: #fee2e2 !important;
+            border-color: #dc2626 !important;
+        }
+
+        .diagnostic-step {
+            animation: diagnosticStep 4s ease-in-out infinite;
+        }
+
+        @keyframes diagnosticStep {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            25% { opacity: 1; transform: scale(1.05); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+            75% { opacity: 1; transform: scale(1.05); }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full gradient-bg font-sans"><!-- Mobile Menu Button --> <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-pink-200 hover:bg-pink-300 p-3 rounded-full shadow-lg transition-colors">
+   <svg class="w-6 h-6 text-pink-800" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+   </svg></button> <!-- Sidebar -->
+  <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-gradient-to-b from-purple-100 via-pink-100 to-blue-100 shadow-xl z-40 sidebar-transition transform -translate-x-full lg:translate-x-0 overflow-y-auto">
+   <div class="p-6">
+    <div class="flex items-center justify-between mb-8">
+     <div class="flex items-center space-x-3">
+      <div class="text-4xl bounce">
+       🔍
+      </div>
+      <div>
+       <h1 id="mainTitle" class="text-xl font-bold text-purple-800">Troubleshooting Jaringan</h1>
+       <p id="subtitle" class="text-base text-purple-600">Identifikasi Masalah Jaringan</p>
+      </div>
+     </div><button id="closeSidebar" class="lg:hidden text-purple-600 hover:text-purple-800">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg></button>
+    </div>
+    <nav class="space-y-2"><a href="#" onclick="showSection('intro')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors active"> <span class="text-2xl">🚀</span> <span class="font-medium text-purple-800 text-base">Intro</span> </a> <a href="#" onclick="showSection('pengenalan')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">📚</span> <span class="font-medium text-purple-800 text-base">Pengenalan</span> </a> <a href="#" onclick="showSection('jenis-masalah')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">⚠️</span> <span class="font-medium text-purple-800 text-base">Jenis Masalah</span> </a> <a href="#" onclick="showSection('masalah-fisik')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">🔌</span> <span class="font-medium text-purple-800 text-base">Masalah Fisik</span> </a> <a href="#" onclick="showSection('tools-diagnostik')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">🛠️</span> <span class="font-medium text-purple-800 text-base">Tools Diagnostik</span> </a> <a href="#" onclick="showSection('tugas')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">📝</span> <span class="font-medium text-purple-800 text-base">Tugas</span> </a> <a href="#" onclick="showSection('kuis')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">🎯</span> <span class="font-medium text-purple-800 text-base">Kuis</span> </a> <a href="#" onclick="showSection('penutup')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">🎉</span> <span class="font-medium text-purple-800 text-base">Penutup</span> </a>
+    </nav>
+   </div>
+  </div><!-- Overlay -->
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div><!-- Main Content -->
+  <div class="lg:ml-80 min-h-full">
+   <main id="mainContent" class="p-4 lg:p-8"><!-- Intro Section -->
+    <div id="intro" class="section fade-in">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-6xl mb-4 bounce">
+        🔍
+       </div>
+       <h2 id="welcomeTitle" class="text-3xl lg:text-5xl font-bold text-purple-800 mb-4">Selamat Datang!</h2>
+       <p id="welcomeMessage" class="text-lg lg:text-2xl text-purple-600">Mari belajar Troubleshooting Jaringan Komputer!</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+       <div class="bg-gradient-to-br from-pink-100 to-rose-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="text-4xl mb-4 pulse">
+         🤔
+        </div>
+        <h3 class="text-xl lg:text-2xl font-bold text-rose-800 mb-4">Pertanyaan Pemantik</h3>
+        <p class="text-rose-700 text-base lg:text-lg">Pernahkah internet di rumah atau sekolah tiba-tiba tidak bisa digunakan? Bagaimana cara mengetahui penyebabnya dan memperbaikinya?</p>
+       </div>
+       <div class="bg-gradient-to-br from-blue-100 to-cyan-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="text-4xl mb-4 pulse">
+         🎯
+        </div>
+        <h3 class="text-xl lg:text-2xl font-bold text-cyan-800 mb-4">Tujuan Pembelajaran</h3>
+        <ul class="text-cyan-700 space-y-2 text-base lg:text-lg">
+         <li>• Mengidentifikasi masalah jaringan</li>
+         <li>• Memahami tools diagnostik</li>
+         <li>• Menguasai langkah troubleshooting</li>
+         <li>• Menyelesaikan masalah jaringan</li>
+        </ul>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-green-100 to-emerald-200 p-6 rounded-2xl shadow-lg mb-8 card-hover">
+       <div class="text-4xl mb-4 pulse">
+        💡
+       </div>
+       <h3 class="text-xl lg:text-2xl font-bold text-emerald-800 mb-4">Apa yang Akan Dipelajari?</h3>
+       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="text-center bg-white bg-opacity-50 p-4 rounded-xl">
+         <div class="text-3xl mb-2 floating-icon">
+          ⚠️
+         </div>
+         <h4 class="font-bold text-emerald-800 text-base">Jenis Masalah</h4>
+         <p class="text-emerald-700 text-sm">Fisik, konfigurasi, dan software</p>
+        </div>
+        <div class="text-center bg-white bg-opacity-50 p-4 rounded-xl">
+         <div class="text-3xl mb-2 floating-icon">
+          🛠️
+         </div>
+         <h4 class="font-bold text-emerald-800 text-base">Tools Diagnostik</h4>
+         <p class="text-emerald-700 text-sm">Command line dan software</p>
+        </div>
+        <div class="text-center bg-white bg-opacity-50 p-4 rounded-xl">
+         <div class="text-3xl mb-2 floating-icon">
+          📋
+         </div>
+         <h4 class="font-bold text-emerald-800 text-base">Langkah Sistematis</h4>
+         <p class="text-emerald-700 text-sm">Metode troubleshooting efektif</p>
+        </div>
+       </div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+       <div class="bg-gradient-to-br from-yellow-100 to-amber-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="text-4xl mb-4 pulse">
+         🌟
+        </div>
+        <h3 class="text-xl lg:text-2xl font-bold text-amber-800 mb-4">Pemahaman Bermakna</h3>
+        <p class="text-amber-700 text-base lg:text-lg">Troubleshooting jaringan seperti menjadi detektif digital! Kita akan belajar mencari petunjuk, menganalisis masalah, dan menemukan solusi yang tepat.</p>
+       </div>
+       <div class="bg-gradient-to-br from-purple-100 to-violet-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="text-4xl mb-4 pulse">
+         🚀
+        </div>
+        <h3 class="text-xl lg:text-2xl font-bold text-violet-800 mb-4">Motivasi</h3>
+        <p class="text-violet-700 text-base lg:text-lg">Dengan menguasai troubleshooting, kamu bisa menjadi "hero" yang menyelamatkan jaringan di rumah, sekolah, atau tempat kerja!</p>
+       </div>
+      </div>
+      <div class="text-center"><button onclick="nextSection()" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-4 px-8 rounded-full text-lg lg:text-xl transition-colors shadow-lg"> Mulai Belajar! 🚀 </button>
+      </div>
+     </div>
+    </div><!-- Pengenalan Section -->
+    <div id="pengenalan" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-5xl mb-4 bounce">
+        📚
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Pengenalan Troubleshooting Jaringan</h2>
+       <p class="text-lg lg:text-xl text-purple-600">Memahami dasar-dasar identifikasi masalah jaringan komputer</p>
+      </div><!-- Definisi dan Konsep Dasar -->
+      <div class="bg-gradient-to-br from-indigo-100 to-blue-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-blue-800 mb-4">Apa itu Troubleshooting Jaringan?</h3>
+       <p class="text-blue-700 mb-6 text-base lg:text-lg">Troubleshooting jaringan adalah proses sistematis untuk mengidentifikasi, menganalisis, dan menyelesaikan masalah yang terjadi pada jaringan komputer. Seperti dokter yang mendiagnosis penyakit, kita akan belajar "mendiagnosis" masalah jaringan dengan pendekatan yang terstruktur dan metodis!</p><!-- Network Problem Simulation -->
+       <div class="bg-white p-6 rounded-xl mb-6">
+        <h4 class="font-bold text-blue-800 mb-4 text-center text-base lg:text-lg">Simulasi Masalah Jaringan</h4>
+        <div class="relative h-56 lg:h-72 flex items-center justify-center"><!-- Computer with problem -->
+         <div class="absolute left-2 lg:left-8 top-1/2 transform -translate-y-1/2">
+          <div class="bg-gradient-to-br from-red-300 to-red-400 p-3 lg:p-4 rounded-xl text-center border-2 lg:border-4 border-red-600 shadow-xl error-blink w-20 lg:w-28">
+           <div class="text-xl lg:text-3xl mb-1 lg:mb-2">
+            💻
+           </div>
+           <div class="text-xs lg:text-sm font-bold text-red-800">
+            Komputer
+           </div>
+           <div class="text-xs lg:text-sm text-red-700">
+            ❌ Tidak Terhubung
+           </div>
+          </div>
+         </div><!-- Broken connection -->
+         <div class="absolute left-24 lg:left-40 right-24 lg:right-40 top-1/2 transform -translate-y-1/2 h-2 lg:h-4 bg-gradient-to-r from-red-300 to-red-400 rounded-full border border-red-500 relative">
+          <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-xl lg:text-3xl">
+           ❌
+          </div>
+          <div class="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 lg:mt-3 text-xs lg:text-sm font-bold text-red-700 whitespace-nowrap">
+           Koneksi Bermasalah
+          </div>
+         </div><!-- Router/Switch -->
+         <div class="absolute right-2 lg:right-8 top-1/2 transform -translate-y-1/2">
+          <div class="bg-gradient-to-br from-yellow-300 to-yellow-400 p-3 lg:p-4 rounded-xl text-center border-2 lg:border-4 border-yellow-600 shadow-xl warning-pulse w-20 lg:w-28">
+           <div class="text-xl lg:text-3xl mb-1 lg:mb-2">
+            📡
+           </div>
+           <div class="text-xs lg:text-sm font-bold text-yellow-800">
+            Router
+           </div>
+           <div class="text-xs lg:text-sm text-yellow-700">
+            ⚠️ Bermasalah
+           </div>
+          </div>
+         </div><!-- Problem indicator -->
+         <div class="absolute top-4 lg:top-6 left-1/2 transform -translate-x-1/2">
+          <div class="bg-gradient-to-br from-red-200 to-red-300 p-2 lg:p-3 rounded-lg text-center border border-red-500 shadow-md error-blink">
+           <div class="text-lg lg:text-xl">
+            🚨
+           </div>
+           <div class="text-xs lg:text-sm font-bold text-red-800">
+            Masalah!
+           </div>
+          </div>
+         </div>
+        </div>
+        <p class="text-center text-blue-600 mt-4 font-semibold text-sm lg:text-lg">🔍 Mari belajar cara mengidentifikasi dan menyelesaikan masalah seperti ini!</p>
+       </div>
+       <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+         <h4 class="font-bold text-blue-800 mb-3 text-base lg:text-lg">🎯 Mengapa Troubleshooting Penting?</h4>
+         <ul class="text-blue-700 space-y-2 text-sm lg:text-base">
+          <li>• <strong>Menghemat Waktu:</strong> Menyelesaikan masalah dengan cepat</li>
+          <li>• <strong>Menghemat Biaya:</strong> Tidak perlu panggil teknisi</li>
+          <li>• <strong>Meningkatkan Skill:</strong> Kemampuan problem solving</li>
+          <li>• <strong>Karir IT:</strong> Skill wajib untuk teknisi jaringan</li>
+          <li>• <strong>Produktivitas:</strong> Meminimalkan downtime</li>
+         </ul>
+        </div>
+        <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+         <h4 class="font-bold text-blue-800 mb-3 text-base lg:text-lg">🔧 Prinsip Dasar Troubleshooting</h4>
+         <ol class="text-blue-700 space-y-2 text-sm lg:text-base list-decimal list-inside">
+          <li>Identifikasi masalah dengan jelas</li>
+          <li>Kumpulkan informasi sebanyak mungkin</li>
+          <li>Analisis kemungkinan penyebab</li>
+          <li>Test solusi satu per satu</li>
+          <li>Dokumentasikan hasil</li>
+         </ol>
+        </div>
+       </div>
+      </div><!-- Model OSI dan Troubleshooting -->
+      <div class="bg-gradient-to-br from-green-100 to-emerald-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-emerald-800 mb-4">Model OSI dalam Troubleshooting</h3>
+       <p class="text-emerald-700 mb-6 text-base lg:text-lg">Model OSI (Open Systems Interconnection) membantu kita memahami di layer mana masalah terjadi. Troubleshooting yang efektif dimulai dari layer paling bawah (Physical) ke atas.</p>
+       <div class="bg-white p-6 rounded-xl mb-6">
+        <h4 class="font-bold text-emerald-800 mb-4 text-center text-base lg:text-lg">7 Layer OSI dan Contoh Masalah</h4>
+        <div class="space-y-2"><!-- Layer 7 - Application (Top) -->
+         <div class="text-center p-3 bg-purple-100 rounded-lg border-2 border-purple-300">
+          <div class="flex items-center justify-center space-x-2">
+           <div class="text-2xl">
+            📱
+           </div>
+           <div>
+            <h5 class="font-bold text-purple-700 text-sm">Layer 7 - Application</h5>
+            <p class="text-sm lg:text-base text-purple-600">Browser error, aplikasi tidak bisa akses</p>
+           </div>
+          </div>
+         </div><!-- Layer 6 - Presentation -->
+         <div class="text-center p-3 bg-indigo-100 rounded-lg border-2 border-indigo-300">
+          <div class="flex items-center justify-center space-x-2">
+           <div class="text-2xl">
+            🔐
+           </div>
+           <div>
+            <h5 class="font-bold text-indigo-700 text-sm lg:text-base">Layer 6 - Presentation</h5>
+            <p class="text-sm lg:text-base text-indigo-600">Encryption error, format data salah</p>
+           </div>
+          </div>
+         </div><!-- Layer 5 - Session -->
+         <div class="text-center p-3 bg-blue-100 rounded-lg border-2 border-blue-300">
+          <div class="flex items-center justify-center space-x-2">
+           <div class="text-2xl">
+            💬
+           </div>
+           <div>
+            <h5 class="font-bold text-blue-700 text-sm lg:text-base">Layer 5 - Session</h5>
+            <p class="text-sm lg:text-base text-blue-600">Session timeout, koneksi terputus</p>
+           </div>
+          </div>
+         </div><!-- Layer 4 - Transport -->
+         <div class="text-center p-3 bg-green-100 rounded-lg border-2 border-green-300">
+          <div class="flex items-center justify-center space-x-2">
+           <div class="text-2xl">
+            🚚
+           </div>
+           <div>
+            <h5 class="font-bold text-green-700 text-sm lg:text-base">Layer 4 - Transport</h5>
+            <p class="text-sm lg:text-base text-green-600">Port blocked, firewall memblokir</p>
+           </div>
+          </div>
+         </div><!-- Layer 3 - Network -->
+         <div class="text-center p-3 bg-yellow-100 rounded-lg border-2 border-yellow-300">
+          <div class="flex items-center justify-center space-x-2">
+           <div class="text-2xl">
+            🌐
+           </div>
+           <div>
+            <h5 class="font-bold text-yellow-700 text-sm lg:text-base">Layer 3 - Network</h5>
+            <p class="text-sm lg:text-base text-yellow-600">IP address salah, routing error</p>
+           </div>
+          </div>
+         </div><!-- Layer 2 - Data Link -->
+         <div class="text-center p-3 bg-orange-100 rounded-lg border-2 border-orange-300">
+          <div class="flex items-center justify-center space-x-2">
+           <div class="text-2xl">
+            🔗
+           </div>
+           <div>
+            <h5 class="font-bold text-orange-700 text-sm lg:text-base">Layer 2 - Data Link</h5>
+            <p class="text-sm lg:text-base text-orange-600">MAC address conflict, switch error</p>
+           </div>
+          </div>
+         </div><!-- Layer 1 - Physical (Bottom) -->
+         <div class="text-center p-3 bg-red-100 rounded-lg border-2 border-red-300">
+          <div class="flex items-center justify-center space-x-2">
+           <div class="text-2xl">
+            🔌
+           </div>
+           <div>
+            <h5 class="font-bold text-red-700 text-sm lg:text-base">Layer 1 - Physical</h5>
+            <p class="text-sm lg:text-base text-red-600">Kabel putus, port rusak, LED mati</p>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+        <h4 class="font-bold text-emerald-800 mb-3 text-base lg:text-lg">💡 Tips Troubleshooting Berdasarkan OSI</h4>
+        <ul class="text-emerald-700 space-y-2 text-sm lg:text-base">
+         <li>• <strong>Bottom-Up Approach:</strong> Mulai dari Physical Layer (kabel, LED)</li>
+         <li>• <strong>Top-Down Approach:</strong> Mulai dari Application Layer (browser, aplikasi)</li>
+         <li>• <strong>Divide and Conquer:</strong> Mulai dari Network Layer (ping, tracert)</li>
+         <li>• <strong>Follow the Path:</strong> Ikuti jalur data dari source ke destination</li>
+        </ul>
+       </div>
+      </div><!-- Metodologi Troubleshooting -->
+      <div class="bg-gradient-to-br from-purple-100 to-violet-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-purple-800 mb-4">Metodologi Troubleshooting Sistematis</h3>
+       <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+         <h4 class="font-bold text-purple-700 mb-3 text-base lg:text-lg">🔍 Langkah 1-3: Identifikasi &amp; Analisis</h4>
+         <div class="space-y-3">
+          <div class="flex items-start space-x-3">
+           <div class="w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+            1
+           </div>
+           <div>
+            <h5 class="font-semibold text-purple-700">Define the Problem</h5>
+            <p class="text-purple-600 text-sm lg:text-base">Jelaskan masalah dengan spesifik dan terukur</p>
+           </div>
+          </div>
+          <div class="flex items-start space-x-3">
+           <div class="w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+            2
+           </div>
+           <div>
+            <h5 class="font-semibold text-purple-700">Gather Information</h5>
+            <p class="text-purple-600 text-sm lg:text-base">Kumpulkan data, log, dan informasi terkait</p>
+           </div>
+          </div>
+          <div class="flex items-start space-x-3">
+           <div class="w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+            3
+           </div>
+           <div>
+            <h5 class="font-semibold text-purple-700">Analyze Symptoms</h5>
+            <p class="text-purple-600 text-sm lg:text-base">Analisis gejala dan pola masalah</p>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+         <h4 class="font-bold text-purple-700 mb-3 text-base lg:text-lg">🛠️ Langkah 4-6: Solusi &amp; Verifikasi</h4>
+         <div class="space-y-3">
+          <div class="flex items-start space-x-3">
+           <div class="w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+            4
+           </div>
+           <div>
+            <h5 class="font-semibold text-purple-700">Develop Action Plan</h5>
+            <p class="text-purple-600 text-sm lg:text-base">Buat rencana solusi berdasarkan prioritas</p>
+           </div>
+          </div>
+          <div class="flex items-start space-x-3">
+           <div class="w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+            5
+           </div>
+           <div>
+            <h5 class="font-semibold text-purple-700">Implement Solution</h5>
+            <p class="text-purple-600 text-sm">Terapkan solusi satu per satu</p>
+           </div>
+          </div>
+          <div class="flex items-start space-x-3">
+           <div class="w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
+            6
+           </div>
+           <div>
+            <h5 class="font-semibold text-purple-700">Verify &amp; Document</h5>
+            <p class="text-purple-600 text-sm">Verifikasi hasil dan dokumentasikan</p>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div><!-- Interactive Troubleshooting Flow -->
+       <div class="bg-white p-6 rounded-xl">
+        <h4 class="font-bold text-purple-800 mb-4 text-center text-base lg:text-lg">Alur Troubleshooting Interaktif</h4>
+        <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4">
+         <div class="text-center p-3 bg-red-100 rounded-lg border-2 border-red-300 diagnostic-step">
+          <div class="text-2xl mb-2">
+           🚨
+          </div>
+          <h5 class="font-bold text-red-700 text-sm">Problem Detected</h5>
+          <p class="text-xs text-red-600">User melaporkan masalah</p>
+         </div>
+         <div class="text-2xl text-gray-400">
+          →
+         </div>
+         <div class="text-center p-3 bg-yellow-100 rounded-lg border-2 border-yellow-300 diagnostic-step" style="animation-delay: 1s;">
+          <div class="text-2xl mb-2">
+           🔍
+          </div>
+          <h5 class="font-bold text-yellow-700 text-sm">Investigation</h5>
+          <p class="text-xs text-yellow-600">Kumpulkan informasi</p>
+         </div>
+         <div class="text-2xl text-gray-400">
+          →
+         </div>
+         <div class="text-center p-3 bg-blue-100 rounded-lg border-2 border-blue-300 diagnostic-step" style="animation-delay: 2s;">
+          <div class="text-2xl mb-2">
+           🧠
+          </div>
+          <h5 class="font-bold text-blue-700 text-sm">Analysis</h5>
+          <p class="text-xs text-blue-600">Analisis root cause</p>
+         </div>
+         <div class="text-2xl text-gray-400">
+          →
+         </div>
+         <div class="text-center p-3 bg-green-100 rounded-lg border-2 border-green-300 diagnostic-step" style="animation-delay: 3s;">
+          <div class="text-2xl mb-2">
+           ✅
+          </div>
+          <h5 class="font-bold text-green-700 text-sm">Resolution</h5>
+          <p class="text-xs text-green-600">Implementasi solusi</p>
+         </div>
+        </div>
+       </div>
+      </div><!-- Best Practices -->
+      <div class="bg-gradient-to-br from-teal-100 to-cyan-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-cyan-800 mb-4">Best Practices Troubleshooting</h3>
+       <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+         <div class="text-3xl mb-3 text-center">
+          📝
+         </div>
+         <h4 class="font-bold text-cyan-700 mb-2 text-center text-base">Dokumentasi</h4>
+         <ul class="text-cyan-600 text-sm space-y-1">
+          <li>• Catat setiap langkah yang dilakukan</li>
+          <li>• Simpan konfigurasi sebelum perubahan</li>
+          <li>• Buat knowledge base untuk masalah serupa</li>
+         </ul>
+        </div>
+        <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+         <div class="text-3xl mb-3 text-center">
+          🎯
+         </div>
+         <h4 class="font-bold text-cyan-700 mb-2 text-center text-base">Prioritas</h4>
+         <ul class="text-cyan-600 text-sm space-y-1">
+          <li>• Selesaikan masalah critical terlebih dahulu</li>
+          <li>• Fokus pada solusi yang paling mungkin</li>
+          <li>• Pertimbangkan impact vs effort</li>
+         </ul>
+        </div>
+        <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+         <div class="text-3xl mb-3 text-center">
+          🤝
+         </div>
+         <h4 class="font-bold text-cyan-700 mb-2 text-center text-base">Komunikasi</h4>
+         <ul class="text-cyan-600 text-sm space-y-1">
+          <li>• Update user tentang progress</li>
+          <li>• Jelaskan solusi dengan bahasa sederhana</li>
+          <li>• Berikan estimasi waktu penyelesaian</li>
+         </ul>
+        </div>
+       </div>
+      </div>
+      <div class="text-center"><button onclick="nextSection()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-base lg:text-lg transition-colors"> Lanjut ke Jenis Masalah ⚠️ </button>
+      </div>
+     </div>
+    </div><!-- Jenis Masalah Section -->
+    <div id="jenis-masalah" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-5xl mb-4 bounce">
+        ⚠️
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Jenis-jenis Masalah Jaringan</h2>
+       <p class="text-lg lg:text-xl text-purple-600">Mengenal kategori masalah yang sering terjadi</p>
+      </div>
+      <div class="space-y-6"><!-- Masalah Konektivitas -->
+       <div class="bg-gradient-to-br from-red-100 to-pink-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="flex items-center mb-4">
+         <div class="text-4xl mr-4 pulse">
+          🚫
+         </div>
+         <h3 class="text-xl lg:text-2xl font-bold text-red-800">1. Masalah Konektivitas</h3>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-red-700 mb-3 text-base lg:text-lg">🔍 Gejala yang Terlihat:</h4>
+          <ul class="text-red-600 text-sm lg:text-base space-y-1">
+           <li>• Tidak bisa mengakses internet</li>
+           <li>• Website tidak bisa dibuka</li>
+           <li>• Koneksi terputus-putus</li>
+           <li>• Ping timeout atau failed</li>
+           <li>• Ikon jaringan menunjukkan "No Internet"</li>
+          </ul>
+         </div>
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-red-700 mb-3 text-base lg:text-lg">🔧 Kemungkinan Penyebab:</h4>
+          <ul class="text-red-600 text-sm lg:text-base space-y-1">
+           <li>• Kabel jaringan putus atau longgar</li>
+           <li>• Router/modem mati atau hang</li>
+           <li>• ISP mengalami gangguan</li>
+           <li>• Konfigurasi IP address salah</li>
+           <li>• DNS server bermasalah</li>
+          </ul>
+         </div>
+        </div><!-- Interactive Demo -->
+        <div class="bg-white p-4 rounded-xl">
+         <h4 class="font-bold text-red-800 mb-3 text-center text-base lg:text-lg">Demo Interaktif: Masalah Konektivitas</h4>
+         <div class="flex justify-center items-center space-x-4 mb-4">
+          <div class="text-center">
+           <div class="w-16 h-16 bg-red-300 rounded-lg flex items-center justify-center error-blink"><span class="text-2xl">💻</span>
+           </div>
+           <p class="text-xs mt-1 font-bold text-red-700">PC Bermasalah</p>
+          </div>
+          <div class="text-2xl text-red-500">
+           ❌
+          </div>
+          <div class="text-center">
+           <div class="w-16 h-16 bg-gray-300 rounded-lg flex items-center justify-center"><span class="text-2xl">🌐</span>
+           </div>
+           <p class="text-xs mt-1 font-bold text-gray-700">Internet</p>
+          </div>
+         </div>
+         <p class="text-center text-red-600 text-sm lg:text-base">Komputer tidak dapat terhubung ke internet</p>
+        </div>
+       </div><!-- Masalah Kecepatan -->
+       <div class="bg-gradient-to-br from-orange-100 to-yellow-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="flex items-center mb-4">
+         <div class="text-4xl mr-4 pulse">
+          🐌
+         </div>
+         <h3 class="text-xl lg:text-2xl font-bold text-orange-800">2. Masalah Kecepatan (Performance)</h3>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-orange-700 mb-3 text-base lg:text-lg">🔍 Gejala yang Terlihat:</h4>
+          <ul class="text-orange-600 text-sm lg:text-base space-y-1">
+           <li>• Internet sangat lambat</li>
+           <li>• Download/upload lama</li>
+           <li>• Video buffering terus</li>
+           <li>• Game online lag</li>
+           <li>• Website lama loading</li>
+          </ul>
+         </div>
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-orange-700 mb-3 text-base lg:text-lg">🔧 Kemungkinan Penyebab:</h4>
+          <ul class="text-orange-600 text-sm lg:text-base space-y-1">
+           <li>• Bandwidth terbatas atau penuh</li>
+           <li>• Terlalu banyak device terhubung</li>
+           <li>• Virus atau malware</li>
+           <li>• Hardware jaringan tua</li>
+           <li>• Interferensi pada WiFi</li>
+          </ul>
+         </div>
+        </div><!-- Speed Test Demo -->
+        <div class="bg-white p-4 rounded-xl">
+         <h4 class="font-bold text-orange-800 mb-3 text-center text-base lg:text-lg">Demo: Perbandingan Kecepatan</h4>
+         <div class="grid md:grid-cols-2 gap-4">
+          <div class="text-center p-3 bg-red-100 rounded-lg">
+           <div class="text-2xl mb-2">
+            🐌
+           </div>
+           <h5 class="font-bold text-red-700 text-sm lg:text-base">Koneksi Lambat</h5>
+           <div class="w-full bg-red-200 rounded-full h-2 mt-2">
+            <div class="bg-red-500 h-2 rounded-full" style="width: 20%"></div>
+           </div>
+           <p class="text-xs mt-1 text-red-600">2 Mbps</p>
+          </div>
+          <div class="text-center p-3 bg-green-100 rounded-lg">
+           <div class="text-2xl mb-2">
+            🚀
+           </div>
+           <h5 class="font-bold text-green-700 text-sm lg:text-base">Koneksi Normal</h5>
+           <div class="w-full bg-green-200 rounded-full h-2 mt-2">
+            <div class="bg-green-500 h-2 rounded-full" style="width: 80%"></div>
+           </div>
+           <p class="text-xs mt-1 text-green-600">50 Mbps</p>
+          </div>
+         </div>
+        </div>
+       </div><!-- Masalah Intermittent -->
+       <div class="bg-gradient-to-br from-purple-100 to-indigo-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="flex items-center mb-4">
+         <div class="text-4xl mr-4 pulse">
+          ⚡
+         </div>
+         <h3 class="text-xl lg:text-2xl font-bold text-purple-800">3. Masalah Intermittent (Putus-Nyambung)</h3>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-purple-700 mb-3 text-base lg:text-lg">🔍 Gejala yang Terlihat:</h4>
+          <ul class="text-purple-600 text-sm lg:text-base space-y-1">
+           <li>• Koneksi kadang ada, kadang tidak</li>
+           <li>• Sering disconnect otomatis</li>
+           <li>• Ping loss tinggi</li>
+           <li>• Koneksi tidak stabil</li>
+           <li>• Harus restart router berkali-kali</li>
+          </ul>
+         </div>
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-purple-700 mb-3 text-base lg:text-lg">🔧 Kemungkinan Penyebab:</h4>
+          <ul class="text-purple-600 text-sm lg:text-base space-y-1">
+           <li>• Kabel jaringan rusak sebagian</li>
+           <li>• Konektor longgar</li>
+           <li>• Overheating pada perangkat</li>
+           <li>• Power supply tidak stabil</li>
+           <li>• Interferensi elektromagnetik</li>
+          </ul>
+         </div>
+        </div><!-- Connection Status Demo -->
+        <div class="bg-white p-4 rounded-xl">
+         <h4 class="font-bold text-purple-800 mb-3 text-center text-base lg:text-lg">Demo: Status Koneksi Intermittent</h4>
+         <div class="flex justify-center items-center space-x-2 mb-4">
+          <div class="w-4 h-4 bg-green-400 rounded-full success-glow"></div>
+          <div class="w-4 h-4 bg-red-400 rounded-full error-blink"></div>
+          <div class="w-4 h-4 bg-green-400 rounded-full success-glow" style="animation-delay: 1s;"></div>
+          <div class="w-4 h-4 bg-red-400 rounded-full error-blink" style="animation-delay: 1.5s;"></div>
+          <div class="w-4 h-4 bg-green-400 rounded-full success-glow" style="animation-delay: 2s;"></div>
+         </div>
+         <p class="text-center text-purple-600 text-sm lg:text-base">🔄 Koneksi: Terhubung → Terputus → Terhubung → Terputus</p>
+        </div>
+       </div>
+      </div>
+      <div class="text-center mt-8"><button onclick="nextSection()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg text-base lg:text-lg transition-colors"> Lanjut ke Masalah Fisik 🔌 </button>
+      </div>
+     </div>
+    </div><!-- Masalah Fisik Section -->
+    <div id="masalah-fisik" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-5xl mb-4 bounce">
+        🔌
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Masalah Fisik Jaringan</h2>
+       <p class="text-lg lg:text-xl text-purple-600">Mengidentifikasi dan mengatasi masalah hardware</p>
+      </div>
+      <div class="space-y-6"><!-- Masalah Kabel -->
+       <div class="bg-gradient-to-br from-green-100 to-emerald-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="flex items-center mb-4">
+         <div class="text-4xl mr-4 pulse">
+          🔗
+         </div>
+         <h3 class="text-xl lg:text-2xl font-bold text-emerald-800">1. Masalah Kabel Jaringan</h3>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-emerald-700 mb-3 text-base lg:text-lg">🔍 Cara Mengecek:</h4>
+          <ul class="text-emerald-600 text-sm lg:text-base space-y-1">
+           <li>• Periksa kabel secara visual</li>
+           <li>• Cek apakah kabel tertekuk/terjepit</li>
+           <li>• Lihat LED indicator di port</li>
+           <li>• Ganti dengan kabel yang baik</li>
+           <li>• Test dengan cable tester</li>
+          </ul>
+         </div>
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-emerald-700 mb-3 text-base lg:text-lg">🔧 Solusi:</h4>
+          <ul class="text-emerald-600 text-sm lg:text-base space-y-1">
+           <li>• Ganti kabel yang rusak</li>
+           <li>• Perbaiki crimping konektor</li>
+           <li>• Hindari tekukan berlebihan</li>
+           <li>• Gunakan cable management</li>
+           <li>• Lindungi dari gangguan fisik</li>
+          </ul>
+         </div>
+        </div><!-- Cable Problem Demo -->
+        <div class="bg-white p-4 rounded-xl">
+         <h4 class="font-bold text-emerald-800 mb-3 text-center text-base lg:text-lg">Demo: Jenis Kerusakan Kabel</h4>
+         <div class="grid md:grid-cols-3 gap-4">
+          <div class="text-center p-3 bg-red-100 rounded-lg">
+           <div class="text-2xl mb-2">
+            💔
+           </div>
+           <h5 class="font-bold text-red-700 text-sm lg:text-base">Kabel Putus</h5>
+           <div class="w-full h-2 bg-red-300 rounded mt-2 relative">
+            <div class="absolute top-0 left-1/2 w-1 h-2 bg-white"></div>
+           </div>
+           <p class="text-sm mt-1 text-red-600">Tidak ada sinyal</p>
+          </div>
+          <div class="text-center p-3 bg-yellow-100 rounded-lg">
+           <div class="text-2xl mb-2">
+            🔌
+           </div>
+           <h5 class="font-bold text-yellow-700 text-sm lg:text-base">Konektor Longgar</h5>
+           <div class="w-full h-2 bg-yellow-300 rounded mt-2 relative">
+            <div class="absolute top-0 right-0 w-2 h-2 bg-yellow-500 rounded-r"></div>
+           </div>
+           <p class="text-sm mt-1 text-yellow-600">Koneksi tidak stabil</p>
+          </div>
+          <div class="text-center p-3 bg-green-100 rounded-lg">
+           <div class="text-2xl mb-2">
+            ✅
+           </div>
+           <h5 class="font-bold text-green-700 text-sm lg:text-base">Kabel Normal</h5>
+           <div class="w-full h-2 bg-green-400 rounded mt-2"></div>
+           <p class="text-sm mt-1 text-green-600">Sinyal bagus</p>
+          </div>
+         </div>
+        </div>
+       </div><!-- Masalah Port -->
+       <div class="bg-gradient-to-br from-blue-100 to-cyan-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="flex items-center mb-4">
+         <div class="text-4xl mr-4 pulse">
+          🔌
+         </div>
+         <h3 class="text-xl lg:text-2xl font-bold text-cyan-800">2. Masalah Port Jaringan</h3>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-cyan-700 mb-3 text-base lg:text-lg">🔍 Gejala Masalah Port:</h4>
+          <ul class="text-cyan-600 text-sm lg:text-base space-y-1">
+           <li>• LED port tidak menyala</li>
+           <li>• Kabel terpasang tapi tidak detect</li>
+           <li>• Port terasa longgar</li>
+           <li>• Koneksi hanya jalan di port tertentu</li>
+           <li>• Speed tidak sesuai spesifikasi</li>
+          </ul>
+         </div>
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-cyan-700 mb-3 text-base lg:text-lg">🔧 Cara Mengatasi:</h4>
+          <ul class="text-cyan-600 text-sm lg:text-base space-y-1">
+           <li>• Coba port lain yang masih baik</li>
+           <li>• Bersihkan port dari debu/kotoran</li>
+           <li>• Periksa pin dalam port</li>
+           <li>• Update driver network adapter</li>
+           <li>• Ganti switch/hub jika perlu</li>
+          </ul>
+         </div>
+        </div><!-- Port Status Demo -->
+        <div class="bg-white p-4 rounded-xl">
+         <h4 class="font-bold text-cyan-800 mb-3 text-center text-base lg:text-lg">Demo: Status LED Port</h4>
+         <div class="grid md:grid-cols-4 gap-3">
+          <div class="text-center p-2 bg-gray-100 rounded">
+           <div class="w-8 h-8 bg-gray-400 rounded mx-auto mb-2"></div>
+           <p class="text-sm font-bold text-gray-600">Port Mati</p>
+           <p class="text-sm text-gray-500">Tidak ada koneksi</p>
+          </div>
+          <div class="text-center p-2 bg-green-100 rounded">
+           <div class="w-8 h-8 bg-green-400 rounded mx-auto mb-2 success-glow"></div>
+           <p class="text-xs font-bold text-green-600">Link Up</p>
+           <p class="text-xs text-green-500">Terhubung normal</p>
+          </div>
+          <div class="text-center p-2 bg-yellow-100 rounded">
+           <div class="w-8 h-8 bg-yellow-400 rounded mx-auto mb-2 warning-pulse"></div>
+           <p class="text-xs font-bold text-yellow-600">Activity</p>
+           <p class="text-xs text-yellow-500">Ada transfer data</p>
+          </div>
+          <div class="text-center p-2 bg-red-100 rounded">
+           <div class="w-8 h-8 bg-red-400 rounded mx-auto mb-2 error-blink"></div>
+           <p class="text-xs font-bold text-red-600">Error</p>
+           <p class="text-xs text-red-500">Ada masalah</p>
+          </div>
+         </div>
+        </div>
+       </div><!-- Masalah Hardware -->
+       <div class="bg-gradient-to-br from-purple-100 to-indigo-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="flex items-center mb-4">
+         <div class="text-4xl mr-4 pulse">
+          🖥️
+         </div>
+         <h3 class="text-xl lg:text-2xl font-bold text-purple-800">3. Masalah Hardware Jaringan</h3>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6">
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-purple-700 mb-3 text-base lg:text-lg">🔍 Komponen yang Sering Bermasalah:</h4>
+          <ul class="text-purple-600 text-sm lg:text-base space-y-1">
+           <li>• Network Interface Card (NIC)</li>
+           <li>• Switch/Hub yang rusak</li>
+           <li>• Router/Modem bermasalah</li>
+           <li>• Access Point WiFi mati</li>
+           <li>• Antena WiFi patah/longgar</li>
+          </ul>
+         </div>
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-purple-700 mb-3 text-base lg:text-lg">🔧 Langkah Troubleshooting:</h4>
+          <ul class="text-purple-600 text-sm lg:text-base space-y-1">
+           <li>• Test dengan hardware lain</li>
+           <li>• Cek di Device Manager</li>
+           <li>• Update/reinstall driver</li>
+           <li>• Reset ke factory default</li>
+           <li>• Ganti hardware jika perlu</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="text-center mt-8"><button onclick="nextSection()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-lg text-base lg:text-lg transition-colors"> Lanjut ke Tools Diagnostik 🛠️ </button>
+      </div>
+     </div>
+    </div><!-- Tools Diagnostik Section -->
+    <div id="tools-diagnostik" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-5xl mb-4 bounce">
+        🛠️
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Tools Diagnostik Jaringan</h2>
+       <p class="text-lg lg:text-xl text-purple-600">Mengenal alat-alat untuk troubleshooting</p>
+      </div>
+      <div class="space-y-6"><!-- Command Line Tools -->
+       <div class="bg-gradient-to-br from-slate-100 to-gray-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="flex items-center mb-4">
+         <div class="text-4xl mr-4 pulse">
+          💻
+         </div>
+         <h3 class="text-xl lg:text-2xl font-bold text-gray-800">1. Command Line Tools</h3>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6 mb-6"><!-- PING Command -->
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-gray-700 mb-3 text-base lg:text-lg">🏓 PING Command</h4>
+          <div class="bg-black text-green-400 p-3 rounded font-mono text-sm lg:text-base mb-3">
+           <div>
+            C:\&gt; ping google.com
+           </div>
+           <div>
+            Reply from 142.250.190.78: bytes=32 time=15ms TTL=117
+           </div>
+           <div>
+            Reply from 142.250.190.78: bytes=32 time=12ms TTL=117
+           </div>
+          </div>
+          <ul class="text-gray-600 text-sm lg:text-base space-y-1">
+           <li>• Test konektivitas ke host</li>
+           <li>• Cek response time (latency)</li>
+           <li>• Deteksi packet loss</li>
+          </ul>
+         </div><!-- IPCONFIG Command -->
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-gray-700 mb-3 text-base lg:text-lg">⚙️ IPCONFIG Command</h4>
+          <div class="bg-black text-green-400 p-3 rounded font-mono text-sm lg:text-base mb-3">
+           <div>
+            C:\&gt; ipconfig /all
+           </div>
+           <div>
+            Ethernet adapter Local Area Connection:
+           </div>
+           <div>
+            IP Address. . . . . . . . . . . . : 192.168.1.100
+           </div>
+           <div>
+            Subnet Mask . . . . . . . . . . . : 255.255.255.0
+           </div>
+           <div>
+            Default Gateway . . . . . . . . . : 192.168.1.1
+           </div>
+           <div>
+            DNS Servers . . . . . . . . . . . : 8.8.8.8
+           </div>
+          </div>
+          <ul class="text-gray-600 text-sm lg:text-base space-y-1">
+           <li>• Lihat konfigurasi IP lengkap</li>
+           <li>• Release/renew IP address (ipconfig /release, /renew)</li>
+           <li>• Flush DNS cache (ipconfig /flushdns)</li>
+           <li>• Cek status DHCP dan adapter</li>
+          </ul>
+         </div><!-- TRACERT Command -->
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-gray-700 mb-3 text-base lg:text-lg">🗺️ TRACERT Command</h4>
+          <div class="bg-black text-green-400 p-3 rounded font-mono text-sm lg:text-base mb-3">
+           <div>
+            C:\&gt; tracert google.com
+           </div>
+           <div>
+            1 2ms 192.168.1.1
+           </div>
+           <div>
+            2 15ms 10.0.0.1
+           </div>
+           <div>
+            3 25ms 203.130.196.5
+           </div>
+          </div>
+          <ul class="text-gray-600 text-sm lg:text-base space-y-1">
+           <li>• Trace jalur ke destination</li>
+           <li>• Identifikasi bottleneck</li>
+           <li>• Cek hop-by-hop latency</li>
+          </ul>
+         </div><!-- NSLOOKUP Command -->
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-gray-700 mb-3 text-base lg:text-lg">🔍 NSLOOKUP Command</h4>
+          <div class="bg-black text-green-400 p-3 rounded font-mono text-sm lg:text-base mb-3">
+           <div>
+            C:\&gt; nslookup google.com
+           </div>
+           <div>
+            Server: 8.8.8.8
+           </div>
+           <div>
+            Address: 142.250.190.78
+           </div>
+          </div>
+          <ul class="text-gray-600 text-sm lg:text-base space-y-1">
+           <li>• Test DNS resolution</li>
+           <li>• Query DNS records</li>
+           <li>• Troubleshoot DNS issues</li>
+          </ul>
+         </div><!-- NETSTAT Command -->
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-gray-700 mb-3 text-base lg:text-lg">📊 NETSTAT Command</h4>
+          <div class="bg-black text-green-400 p-3 rounded font-mono text-sm lg:text-base mb-3">
+           <div>
+            C:\&gt; netstat -an
+           </div>
+           <div>
+            Active Connections
+           </div>
+           <div>
+            TCP 0.0.0.0:80 0.0.0.0:0 LISTENING
+           </div>
+           <div>
+            TCP 192.168.1.100:443 ESTABLISHED
+           </div>
+          </div>
+          <ul class="text-gray-600 text-sm lg:text-base space-y-1">
+           <li>• Lihat koneksi jaringan aktif</li>
+           <li>• Cek port yang sedang listening</li>
+           <li>• Monitor status koneksi</li>
+          </ul>
+         </div>
+        </div><!-- Interactive Command Demo -->
+        <div class="bg-white p-4 rounded-xl">
+         <h4 class="font-bold text-gray-800 mb-3 text-center text-base lg:text-lg">Demo Interaktif: Command Line</h4>
+         <div class="bg-black text-green-400 p-4 rounded font-mono text-sm lg:text-base">
+          <div id="commandOutput">
+           <div>
+            Microsoft Windows [Version 10.0.19044.1889]
+           </div>
+           <div>
+            (c) Microsoft Corporation. All rights reserved.
+           </div>
+           <div></div>
+           <div>
+            C:\Users\Student&gt; <span id="commandCursor" class="animate-pulse">_</span>
+           </div>
+          </div>
+         </div>
+         <div class="mt-3 flex flex-wrap gap-2"><button onclick="runCommand('ping google.com')" class="bg-blue-500 text-white px-3 py-1 rounded text-sm lg:text-base hover:bg-blue-600">ping google.com</button> <button onclick="runCommand('ipconfig /all')" class="bg-green-500 text-white px-3 py-1 rounded text-sm lg:text-base hover:bg-green-600">ipconfig /all</button> <button onclick="runCommand('tracert google.com')" class="bg-yellow-500 text-white px-3 py-1 rounded text-sm lg:text-base hover:bg-yellow-600">tracert google.com</button> <button onclick="runCommand('nslookup google.com')" class="bg-purple-500 text-white px-3 py-1 rounded text-sm lg:text-base hover:bg-purple-600">nslookup google.com</button> <button onclick="runCommand('netstat -an')" class="bg-red-500 text-white px-3 py-1 rounded text-sm lg:text-base hover:bg-red-600">netstat -an</button>
+         </div>
+        </div>
+       </div><!-- Network Monitoring Tools -->
+       <div class="bg-gradient-to-br from-blue-100 to-indigo-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="flex items-center mb-4">
+         <div class="text-4xl mr-4 pulse">
+          📊
+         </div>
+         <h3 class="text-xl lg:text-2xl font-bold text-blue-800">2. Network Monitoring Tools</h3>
+        </div>
+        <div class="grid md:grid-cols-3 gap-4 mb-6">
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl text-center">
+          <div class="text-3xl mb-2">
+           📈
+          </div>
+          <h4 class="font-bold text-blue-700 text-sm lg:text-base">Task Manager</h4>
+          <p class="text-blue-600 text-sm lg:text-base mb-2">Monitor network usage</p>
+          <div class="w-full bg-blue-200 rounded-full h-2">
+           <div class="bg-blue-500 h-2 rounded-full network-flow" style="width: 60%"></div>
+          </div>
+         </div>
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl text-center">
+          <div class="text-3xl mb-2">
+           🔍
+          </div>
+          <h4 class="font-bold text-blue-700 text-sm lg:text-base">Wireshark</h4>
+          <p class="text-blue-600 text-sm lg:text-base mb-2">Packet capture &amp; analysis</p>
+          <div class="text-sm lg:text-base text-blue-500">
+           Advanced tool untuk expert
+          </div>
+         </div>
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl text-center">
+          <div class="text-3xl mb-2">
+           📡
+          </div>
+          <h4 class="font-bold text-blue-700 text-sm lg:text-base">WiFi Analyzer</h4>
+          <p class="text-blue-600 text-sm lg:text-base mb-2">Scan wireless networks</p>
+          <div class="text-sm lg:text-base text-blue-500">
+           Cek channel interference
+          </div>
+         </div>
+        </div><!-- Advanced Tools -->
+        <div class="bg-white p-4 rounded-xl">
+         <h4 class="font-bold text-blue-800 mb-3 text-center text-base lg:text-lg">Tools Monitoring Lanjutan</h4>
+         <div class="grid md:grid-cols-2 gap-4">
+          <div class="space-y-2">
+           <h5 class="font-semibold text-blue-700 text-sm lg:text-base">🖥️ System Tools:</h5>
+           <ul class="text-blue-600 text-sm lg:text-base space-y-1">
+            <li>• Resource Monitor (resmon.exe)</li>
+            <li>• Performance Monitor (perfmon.exe)</li>
+            <li>• Event Viewer untuk network logs</li>
+            <li>• Network and Sharing Center</li>
+           </ul>
+          </div>
+          <div class="space-y-2">
+           <h5 class="font-semibold text-blue-700 text-sm lg:text-base">🌐 Third-Party Tools:</h5>
+           <ul class="text-blue-600 text-sm lg:text-base space-y-1">
+            <li>• PRTG Network Monitor</li>
+            <li>• SolarWinds Network Tools</li>
+            <li>• Angry IP Scanner</li>
+            <li>• Advanced IP Scanner</li>
+           </ul>
+          </div>
+         </div>
+        </div>
+       </div><!-- Studi Kasus Troubleshooting -->
+       <div class="bg-gradient-to-br from-yellow-100 to-amber-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="flex items-center mb-4">
+         <div class="text-4xl mr-4 pulse">
+          📋
+         </div>
+         <h3 class="text-xl lg:text-2xl font-bold text-amber-800">3. Studi Kasus Troubleshooting</h3>
+        </div><!-- Case Study 1 -->
+        <div class="bg-white p-6 rounded-xl mb-4">
+         <h4 class="font-bold text-amber-800 mb-3 text-base lg:text-lg">🔍 Kasus 1: "Internet Lambat di Kantor"</h4>
+         <div class="grid md:grid-cols-2 gap-6">
+          <div>
+           <h5 class="font-semibold text-amber-700 mb-2">📝 Keluhan User:</h5>
+           <ul class="text-amber-600 text-sm lg:text-base space-y-1 mb-4">
+            <li>• Internet sangat lambat sejak pagi</li>
+            <li>• Download file memakan waktu lama</li>
+            <li>• Video conference sering putus</li>
+            <li>• Beberapa website tidak bisa dibuka</li>
+           </ul>
+           <h5 class="font-semibold text-amber-700 mb-2">🔧 Langkah Troubleshooting:</h5>
+           <ol class="text-amber-600 text-sm lg:text-base space-y-1 list-decimal list-inside">
+            <li>Cek speed test dari beberapa komputer</li>
+            <li>Monitor bandwidth usage di router</li>
+            <li>Identifikasi aplikasi yang menggunakan bandwidth tinggi</li>
+            <li>Cek konfigurasi QoS (Quality of Service)</li>
+           </ol>
+          </div>
+          <div>
+           <h5 class="font-semibold text-amber-700 mb-2">🎯 Root Cause:</h5>
+           <div class="bg-red-100 p-3 rounded-lg mb-4">
+            <p class="text-red-700 text-sm lg:text-base">Ditemukan: Satu komputer sedang download file besar (update Windows) yang menghabiskan 80% bandwidth</p>
+           </div>
+           <h5 class="font-semibold text-amber-700 mb-2">✅ Solusi:</h5>
+           <ul class="text-green-600 text-sm lg:text-base space-y-1">
+            <li>• Pause download sementara</li>
+            <li>• Konfigurasi bandwidth limiting</li>
+            <li>• Jadwalkan update di luar jam kerja</li>
+            <li>• Implementasi QoS policy</li>
+           </ul>
+          </div>
+         </div>
+        </div><!-- Case Study 2 -->
+        <div class="bg-white p-6 rounded-xl">
+         <h4 class="font-bold text-amber-800 mb-3 text-base lg:text-lg">🔍 Kasus 2: "WiFi Tidak Bisa Connect"</h4>
+         <div class="grid md:grid-cols-2 gap-6">
+          <div>
+           <h5 class="font-semibold text-amber-700 mb-2">📝 Keluhan User:</h5>
+           <ul class="text-amber-600 text-sm lg:text-base space-y-1 mb-4">
+            <li>• Laptop tidak bisa connect ke WiFi kantor</li>
+            <li>• WiFi terdeteksi tapi gagal connect</li>
+            <li>• Error: "Can't connect to this network"</li>
+            <li>• Laptop lain bisa connect normal</li>
+           </ul>
+           <h5 class="font-semibold text-amber-700 mb-2">🔧 Langkah Troubleshooting:</h5>
+           <ol class="text-amber-600 text-sm lg:text-base space-y-1 list-decimal list-inside">
+            <li>Cek apakah password WiFi benar</li>
+            <li>Forget dan reconnect WiFi network</li>
+            <li>Update driver WiFi adapter</li>
+            <li>Reset network settings</li>
+            <li>Cek MAC address filtering di router</li>
+           </ol>
+          </div>
+          <div>
+           <h5 class="font-semibold text-amber-700 mb-2">🎯 Root Cause:</h5>
+           <div class="bg-red-100 p-3 rounded-lg mb-4">
+            <p class="text-red-700 text-sm lg:text-base">Ditemukan: MAC address laptop tidak terdaftar di whitelist router (MAC filtering enabled)</p>
+           </div>
+           <h5 class="font-semibold text-amber-700 mb-2">✅ Solusi:</h5>
+           <ul class="text-green-600 text-sm lg:text-base space-y-1">
+            <li>• Tambahkan MAC address ke whitelist</li>
+            <li>• Atau disable MAC filtering sementara</li>
+            <li>• Dokumentasikan MAC address baru</li>
+            <li>• Test koneksi setelah perubahan</li>
+           </ul>
+          </div>
+         </div>
+        </div>
+       </div><!-- Hardware Tools -->
+       <div class="bg-gradient-to-br from-orange-100 to-red-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="flex items-center mb-4">
+         <div class="text-4xl mr-4 pulse">
+          🔧
+         </div>
+         <h3 class="text-xl lg:text-2xl font-bold text-orange-800">3. Hardware Testing Tools</h3>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6">
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-orange-700 mb-3 text-base lg:text-lg">🔌 Cable Tester</h4>
+          <div class="flex justify-center mb-3">
+           <div class="w-24 h-16 bg-orange-300 rounded-lg border-2 border-orange-500 flex items-center justify-center">
+            <div class="text-center">
+             <div class="text-lg">
+              📟
+             </div>
+             <div class="text-xs font-bold">
+              PASS
+             </div>
+            </div>
+           </div>
+          </div>
+          <ul class="text-orange-600 text-sm lg:text-base space-y-1">
+           <li>• Test kontinuitas kabel</li>
+           <li>• Deteksi short circuit</li>
+           <li>• Cek pin mapping</li>
+           <li>• Measure cable length</li>
+          </ul>
+         </div>
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-orange-700 mb-3 text-base lg:text-lg">📶 Signal Meter</h4>
+          <div class="flex justify-center mb-3">
+           <div class="w-24 h-16 bg-green-300 rounded-lg border-2 border-green-500 flex items-center justify-center">
+            <div class="text-center">
+             <div class="text-lg">
+              📊
+             </div>
+             <div class="text-sm lg:text-base font-bold">
+              -45dBm
+             </div>
+            </div>
+           </div>
+          </div>
+          <ul class="text-orange-600 text-sm lg:text-base space-y-1">
+           <li>• Ukur kekuatan sinyal WiFi</li>
+           <li>• Deteksi dead zone</li>
+           <li>• Optimasi posisi AP</li>
+           <li>• Cek interference</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="text-center mt-8"><button onclick="nextSection()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg text-base lg:text-lg transition-colors"> Lanjut ke Tugas 📝 </button>
+      </div>
+     </div>
+    </div><!-- Tugas Section -->
+    <div id="tugas" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-5xl mb-4 bounce">
+        📝
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Tugas</h2>
+       <p class="text-lg lg:text-xl text-purple-600">Latihan soal troubleshooting jaringan</p>
+      </div>
+      <div class="bg-gradient-to-br from-teal-100 to-cyan-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-cyan-800 mb-6">Soal Essay</h3>
+       <div class="space-y-6">
+        <div class="bg-white p-6 rounded-xl shadow-md">
+         <h4 class="font-bold text-cyan-800 mb-3 text-base lg:text-lg">1. Jelaskan 3 kategori utama masalah jaringan dan berikan contoh masing-masing!</h4><textarea class="w-full h-24 p-3 border border-cyan-300 rounded-lg resize-none text-sm lg:text-base" placeholder="Tulis jawaban Anda di sini..."></textarea>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-md">
+         <h4 class="font-bold text-cyan-800 mb-3 text-base lg:text-lg">2. Apa perbedaan antara command PING dan TRACERT? Kapan menggunakan masing-masing?</h4><textarea class="w-full h-24 p-3 border border-cyan-300 rounded-lg resize-none text-sm lg:text-base" placeholder="Tulis jawaban Anda di sini..."></textarea>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-md">
+         <h4 class="font-bold text-cyan-800 mb-3 text-base lg:text-lg">3. Jelaskan gejala dan cara mengatasi masalah kabel jaringan yang rusak!</h4><textarea class="w-full h-24 p-3 border border-cyan-300 rounded-lg resize-none text-sm lg:text-base" placeholder="Tulis jawaban Anda di sini..."></textarea>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-md">
+         <h4 class="font-bold text-cyan-800 mb-3 text-base lg:text-lg">4. Sebutkan 3 tools hardware yang digunakan untuk troubleshooting jaringan!</h4><textarea class="w-full h-24 p-3 border border-cyan-300 rounded-lg resize-none text-sm lg:text-base" placeholder="Tulis jawaban Anda di sini..."></textarea>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-md">
+         <h4 class="font-bold text-cyan-800 mb-3 text-base lg:text-lg">5. Bagaimana cara mengidentifikasi masalah konektivitas intermittent?</h4><textarea class="w-full h-24 p-3 border border-cyan-300 rounded-lg resize-none text-sm lg:text-base" placeholder="Tulis jawaban Anda di sini..."></textarea>
+        </div>
+       </div>
+       <div class="text-center mt-6"><button onclick="submitTugas()" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg text-base lg:text-lg transition-colors"> Submit Tugas 📤 </button>
+       </div>
+      </div>
+      <div class="text-center"><button onclick="nextSection()" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-lg text-base lg:text-lg transition-colors"> Lanjut ke Kuis 🎯 </button>
+      </div>
+     </div>
+    </div><!-- Kuis Section -->
+    <div id="kuis" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-5xl mb-4 bounce">
+        🎯
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Kuis Interaktif</h2>
+       <p class="text-lg lg:text-xl text-purple-600">Test pemahaman Anda tentang troubleshooting jaringan</p>
+      </div><!-- Quiz Start Screen -->
+      <div id="quizStart" class="bg-gradient-to-br from-violet-100 to-purple-200 p-6 rounded-2xl shadow-lg card-hover">
+       <div class="text-center mb-6">
+        <div class="text-6xl mb-4 pulse">
+         🎮
+        </div>
+        <h3 class="text-2xl font-bold text-purple-800 mb-4">Siap untuk Kuis?</h3>
+        <p class="text-purple-600 text-lg mb-6">21 soal pilihan ganda tentang troubleshooting jaringan</p>
+       </div>
+       <div class="bg-white p-6 rounded-xl mb-6"><label for="studentName" class="block text-purple-800 font-bold mb-2 text-base lg:text-lg">Masukkan Nama Anda:</label> <input type="text" id="studentName" class="w-full p-3 border border-purple-300 rounded-lg text-base lg:text-lg" placeholder="Nama lengkap...">
+       </div>
+       <div class="text-center"><button onclick="startQuiz()" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-4 px-8 rounded-full text-xl transition-colors shadow-lg"> Mulai Kuis! 🚀 </button>
+       </div>
+      </div><!-- Quiz Questions -->
+      <div id="quizQuestions" class="hidden">
+       <div class="bg-gradient-to-br from-blue-100 to-indigo-200 p-6 rounded-2xl shadow-lg mb-6">
+        <div class="flex justify-between items-center mb-4">
+         <h3 class="text-lg lg:text-xl font-bold text-blue-800">Soal <span id="currentQuestion">1</span> dari 21</h3>
+         <div class="text-blue-600 font-semibold text-base lg:text-lg">
+          Skor: <span id="currentScore">0</span>
+         </div>
+        </div>
+        <div class="w-full bg-blue-200 rounded-full h-2 mb-6">
+         <div id="progressBar" class="bg-blue-500 h-2 rounded-full transition-all duration-300" style="width: 5%"></div>
+        </div>
+       </div>
+       <div id="questionContainer" class="bg-white p-6 rounded-2xl shadow-lg mb-6"><!-- Questions will be loaded here -->
+       </div>
+       <div class="text-center"><button id="nextQuestionBtn" onclick="nextQuestion()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors" disabled> Soal Berikutnya → </button>
+       </div>
+      </div><!-- Quiz Results -->
+      <div id="quizResults" class="hidden">
+       <div class="bg-gradient-to-br from-green-100 to-emerald-200 p-6 rounded-2xl shadow-lg text-center">
+        <div class="text-6xl mb-4 bounce">
+         🎉
+        </div>
+        <h3 class="text-3xl font-bold text-emerald-800 mb-4">Kuis Selesai!</h3>
+        <div class="bg-white p-6 rounded-xl mb-6">
+         <p class="text-2xl font-bold text-emerald-700 mb-2">Selamat <span id="finalName"></span>!</p>
+         <p class="text-xl text-emerald-600 mb-4">Skor Anda: <span id="finalScore" class="font-bold text-2xl"></span>/21</p>
+         <div id="scoreMessage" class="text-lg text-emerald-600"></div>
+        </div><button onclick="restartQuiz()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors mr-4"> Ulangi Kuis 🔄 </button> <button onclick="nextSection()" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors"> Lanjut ke Penutup 🎉 </button>
+       </div>
+      </div>
+     </div>
+    </div><!-- Penutup Section -->
+    <div id="penutup" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-6xl mb-4 bounce">
+        🎉
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-purple-800 mb-4">Selamat!</h2>
+       <p class="text-lg lg:text-xl text-purple-600">Anda telah menyelesaikan pembelajaran troubleshooting jaringan</p>
+      </div>
+      <div class="space-y-6"><!-- Refleksi -->
+       <div class="bg-gradient-to-br from-pink-100 to-rose-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="flex items-center mb-4">
+         <div class="text-4xl mr-4 pulse">
+          🤔
+         </div>
+         <h3 class="text-xl lg:text-2xl font-bold text-rose-800">Refleksi Pembelajaran</h3>
+        </div>
+        <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+         <h4 class="font-bold text-rose-700 mb-3 text-base lg:text-lg">Renungkan pembelajaran hari ini:</h4>
+         <ul class="text-rose-600 text-sm lg:text-base space-y-2">
+          <li>• Apa hal paling menarik yang Anda pelajari?</li>
+          <li>• Bagian mana yang masih perlu diperdalam?</li>
+          <li>• Bagaimana Anda akan menerapkan ilmu ini?</li>
+          <li>• Apakah ada pengalaman troubleshooting yang pernah Anda alami?</li>
+         </ul>
+        </div>
+       </div><!-- Kesimpulan -->
+       <div class="bg-gradient-to-br from-blue-100 to-cyan-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="flex items-center mb-4">
+         <div class="text-4xl mr-4 pulse">
+          📚
+         </div>
+         <h3 class="text-xl lg:text-2xl font-bold text-cyan-800">Kesimpulan Pembelajaran</h3>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6">
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-cyan-700 mb-3 text-base lg:text-lg">✅ Yang Telah Dipelajari:</h4>
+          <ul class="text-cyan-600 text-sm lg:text-base space-y-1">
+           <li>• Jenis-jenis masalah jaringan</li>
+           <li>• Masalah fisik dan hardware</li>
+           <li>• Tools diagnostik jaringan</li>
+           <li>• Command line troubleshooting</li>
+           <li>• Metodologi sistematis</li>
+          </ul>
+         </div>
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-cyan-700 mb-3 text-base lg:text-lg">🎯 Skill yang Dikuasai:</h4>
+          <ul class="text-cyan-600 text-sm lg:text-base space-y-1">
+           <li>• Identifikasi masalah jaringan</li>
+           <li>• Penggunaan command line</li>
+           <li>• Troubleshooting hardware</li>
+           <li>• Analisis dan problem solving</li>
+           <li>• Dokumentasi hasil</li>
+          </ul>
+         </div>
+        </div>
+       </div><!-- Tindak Lanjut -->
+       <div class="bg-gradient-to-br from-green-100 to-emerald-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="flex items-center mb-4">
+         <div class="text-4xl mr-4 pulse">
+          🚀
+         </div>
+         <h3 class="text-xl lg:text-2xl font-bold text-emerald-800">Tindak Lanjut</h3>
+        </div>
+        <div class="grid md:grid-cols-2 gap-6">
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-emerald-700 mb-3 text-base lg:text-lg">📖 Pembelajaran Lanjutan:</h4>
+          <ul class="text-emerald-600 text-sm lg:text-base space-y-1">
+           <li>• Pelajari Wireshark untuk packet analysis</li>
+           <li>• Praktik dengan lab jaringan virtual</li>
+           <li>• Ikuti kursus sertifikasi jaringan</li>
+           <li>• Bergabung dengan komunitas IT</li>
+          </ul>
+         </div>
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <h4 class="font-bold text-emerald-700 mb-3 text-base lg:text-lg">💼 Aplikasi Praktis:</h4>
+          <ul class="text-emerald-600 text-sm lg:text-base space-y-1">
+           <li>• Bantu troubleshoot jaringan di rumah</li>
+           <li>• Volunteer sebagai IT support</li>
+           <li>• Buat dokumentasi troubleshooting</li>
+           <li>• Ajarkan teman-teman yang lain</li>
+          </ul>
+         </div>
+        </div>
+       </div><!-- Motivasi Penutup -->
+       <div class="bg-gradient-to-br from-purple-100 to-violet-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="text-center">
+         <div class="text-5xl mb-4 sparkle">
+          ⭐
+         </div>
+         <h3 class="text-2xl font-bold text-violet-800 mb-4">Selamat Anda Telah Menjadi Troubleshooter!</h3>
+         <p class="text-violet-600 text-lg mb-6">Dengan skill yang telah dipelajari, Anda siap menghadapi tantangan masalah jaringan. Ingat, setiap masalah adalah kesempatan untuk belajar dan berkembang!</p>
+         <div class="bg-white bg-opacity-50 p-4 rounded-xl">
+          <p class="text-violet-700 font-semibold text-base lg:text-lg">"Seorang troubleshooter yang baik bukan yang tidak pernah menemui masalah, tapi yang selalu menemukan solusi!"</p>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="text-center mt-8"><button onclick="showSection('intro')" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-4 px-8 rounded-full text-lg lg:text-xl transition-colors shadow-lg"> Kembali ke Awal 🔄 </button>
+      </div>
+     </div>
+    </div>
+   </main>
+  </div><!-- Floating Back to Top Button --> <button id="backToTop" class="fixed bottom-6 right-6 bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 opacity-0 pointer-events-none z-50">
+   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+   </svg></button>
+  <script>
+        // Configuration object
+        const defaultConfig = {
+            main_title: "Troubleshooting Jaringan",
+            subtitle: "Identifikasi Masalah Jaringan",
+            welcome_message: "Mari belajar Troubleshooting Jaringan Komputer!"
+        };
+
+        // Current section tracking
+        let currentSectionIndex = 0;
+        const sections = ['intro', 'pengenalan', 'jenis-masalah', 'masalah-fisik', 'tools-diagnostik', 'tugas', 'kuis', 'penutup'];
+
+        // Quiz data
+        const quizData = [
+            {
+                question: "Apa yang dimaksud dengan troubleshooting jaringan?",
+                options: [
+                    "Proses instalasi jaringan baru",
+                    "Proses sistematis untuk mengidentifikasi dan menyelesaikan masalah jaringan",
+                    "Proses upgrade hardware jaringan",
+                    "Proses konfigurasi router"
+                ],
+                correct: 1
+            },
+            {
+                question: "Dalam model OSI, masalah kabel jaringan putus terjadi di layer mana?",
+                options: ["Layer 1 - Physical", "Layer 2 - Data Link", "Layer 3 - Network", "Layer 4 - Transport"],
+                correct: 0
+            },
+            {
+                question: "Command apa yang digunakan untuk test konektivitas ke host tertentu?",
+                options: ["IPCONFIG", "TRACERT", "PING", "NSLOOKUP"],
+                correct: 2
+            },
+            {
+                question: "Apa pendekatan troubleshooting yang dimulai dari Physical Layer?",
+                options: ["Top-Down Approach", "Bottom-Up Approach", "Divide and Conquer", "Follow the Path"],
+                correct: 1
+            },
+            {
+                question: "Gejala apa yang menunjukkan masalah kabel jaringan putus?",
+                options: [
+                    "Internet lambat",
+                    "LED port tidak menyala dan tidak ada koneksi",
+                    "Website tertentu tidak bisa dibuka",
+                    "Koneksi kadang ada kadang tidak"
+                ],
+                correct: 1
+            },
+            {
+                question: "Tool apa yang digunakan untuk melihat konfigurasi IP address di Windows?",
+                options: ["PING", "TRACERT", "IPCONFIG", "NETSTAT"],
+                correct: 2
+            },
+            {
+                question: "Apa penyebab utama masalah konektivitas intermittent?",
+                options: [
+                    "DNS server bermasalah",
+                    "Kabel jaringan rusak sebagian atau konektor longgar",
+                    "IP address conflict",
+                    "Firewall blocking"
+                ],
+                correct: 1
+            },
+            {
+                question: "Command TRACERT digunakan untuk:",
+                options: [
+                    "Test DNS resolution",
+                    "Melihat konfigurasi IP",
+                    "Trace jalur paket ke destination",
+                    "Flush DNS cache"
+                ],
+                correct: 2
+            },
+            {
+                question: "Langkah pertama dalam metodologi troubleshooting sistematis adalah:",
+                options: [
+                    "Implement Solution",
+                    "Define the Problem",
+                    "Develop Action Plan",
+                    "Gather Information"
+                ],
+                correct: 1
+            },
+            {
+                question: "Tool hardware apa yang digunakan untuk test kabel jaringan?",
+                options: ["Multimeter", "Cable Tester", "Oscilloscope", "Signal Generator"],
+                correct: 1
+            },
+            {
+                question: "Gejala masalah DNS yang tidak berfungsi adalah:",
+                options: [
+                    "Ping ke IP address berhasil tapi ping ke nama domain (google.com) gagal",
+                    "Semua koneksi jaringan terputus total",
+                    "Kecepatan internet menjadi sangat lambat",
+                    "LED indikator port jaringan tidak menyala"
+                ],
+                correct: 0
+            },
+            {
+                question: "Apa kepanjangan dari NIC dalam konteks jaringan?",
+                options: [
+                    "Network Internet Connection",
+                    "Network Interface Card",
+                    "Network Information Center",
+                    "Network Installation Component"
+                ],
+                correct: 1
+            },
+            {
+                question: "Dalam studi kasus 'Internet Lambat di Kantor', apa root cause yang ditemukan?",
+                options: [
+                    "Router rusak",
+                    "Kabel jaringan putus",
+                    "Satu komputer download file besar menghabiskan bandwidth",
+                    "DNS server bermasalah"
+                ],
+                correct: 2
+            },
+            {
+                question: "QoS (Quality of Service) digunakan untuk:",
+                options: [
+                    "Mengenkripsi data",
+                    "Mengatur prioritas dan alokasi bandwidth",
+                    "Memblokir virus",
+                    "Mempercepat processor"
+                ],
+                correct: 1
+            },
+            {
+                question: "Dalam kasus 'WiFi Tidak Bisa Connect', solusi yang tepat adalah:",
+                options: [
+                    "Ganti router",
+                    "Update Windows",
+                    "Tambahkan MAC address ke whitelist router",
+                    "Restart komputer"
+                ],
+                correct: 2
+            },
+            {
+                question: "Best practice dalam troubleshooting yang paling penting adalah:",
+                options: [
+                    "Selalu ganti hardware terlebih dahulu",
+                    "Dokumentasikan setiap langkah yang dilakukan",
+                    "Langsung implementasi semua solusi sekaligus",
+                    "Tidak perlu komunikasi dengan user"
+                ],
+                correct: 1
+            },
+            {
+                question: "Tool mana yang digunakan untuk packet capture dan analysis?",
+                options: ["Task Manager", "Wireshark", "WiFi Analyzer", "Cable Tester"],
+                correct: 1
+            },
+            {
+                question: "Apa yang dimaksud dengan MAC address filtering?",
+                options: [
+                    "Filter berdasarkan alamat IP",
+                    "Filter berdasarkan alamat fisik network card",
+                    "Filter berdasarkan nama komputer",
+                    "Filter berdasarkan sistem operasi"
+                ],
+                correct: 1
+            },
+            {
+                question: "Command 'ipconfig /release' digunakan untuk:",
+                options: [
+                    "Melihat konfigurasi IP",
+                    "Melepaskan IP address yang sedang digunakan",
+                    "Memperbaharui IP address",
+                    "Menghapus DNS cache"
+                ],
+                correct: 1
+            },
+            {
+                question: "Dalam troubleshooting, apa yang dimaksud dengan 'Divide and Conquer' approach?",
+                options: [
+                    "Membagi tim troubleshooting menjadi beberapa kelompok",
+                    "Memulai dari Network Layer (Layer 3) untuk membagi masalah menjadi bagian yang lebih kecil",
+                    "Mengganti semua hardware jaringan sekaligus",
+                    "Membagi waktu troubleshooting menjadi beberapa sesi"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa fungsi utama dari command 'netstat' dalam troubleshooting jaringan?",
+                options: [
+                    "Menampilkan koneksi jaringan aktif dan port yang sedang listening",
+                    "Mengatur konfigurasi IP address",
+                    "Menghapus cache DNS",
+                    "Mengukur kecepatan internet"
+                ],
+                correct: 0
+            }
+        ];
+
+        let currentQuiz = 0;
+        let quizScore = 0;
+        let selectedAnswer = null;
+        let studentName = "";
+
+        // Mobile menu functionality
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+        });
+
+        document.getElementById('closeSidebar').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        });
+
+        document.getElementById('overlay').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        });
+
+        // Show section function
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.getElementById(sectionId).classList.add('fade-in');
+            
+            // Update active nav item - improved logic
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Find and activate the corresponding nav item by checking onclick attribute
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                const onclickAttr = item.getAttribute('onclick');
+                if (onclickAttr && onclickAttr.includes(`'${sectionId}'`)) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update current section index
+            currentSectionIndex = sections.indexOf(sectionId);
+            
+            // Close mobile menu
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (sidebar) sidebar.classList.add('-translate-x-full');
+            if (overlay) overlay.classList.add('hidden');
+            
+            // Scroll to top immediately and smoothly
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+        }
+
+        // Next section function
+        function nextSection() {
+            if (currentSectionIndex < sections.length - 1) {
+                currentSectionIndex++;
+                const nextSectionId = sections[currentSectionIndex];
+                
+                // Scroll to top first, then show section
+                window.scrollTo({ top: 0, behavior: 'auto' });
+                
+                setTimeout(() => {
+                    showSection(nextSectionId);
+                }, 50);
+            }
+        }
+
+        // Command demo functionality
+        function runCommand(command) {
+            const output = document.getElementById('commandOutput');
+            const cursor = document.getElementById('commandCursor');
+            
+            // Add command to output
+            const commandLine = document.createElement('div');
+            commandLine.innerHTML = `C:\\Users\\Student> ${command}`;
+            output.insertBefore(commandLine, cursor.parentNode);
+            
+            // Simulate command execution
+            setTimeout(() => {
+                let result = '';
+                switch(command) {
+                    case 'ping google.com':
+                        result = `
+                            <div>Pinging google.com [142.250.190.78] with 32 bytes of data:</div>
+                            <div>Reply from 142.250.190.78: bytes=32 time=15ms TTL=117</div>
+                            <div>Reply from 142.250.190.78: bytes=32 time=12ms TTL=117</div>
+                            <div>Reply from 142.250.190.78: bytes=32 time=18ms TTL=117</div>
+                            <div>Reply from 142.250.190.78: bytes=32 time=14ms TTL=117</div>
+                            <div></div>
+                            <div>Ping statistics for 142.250.190.78:</div>
+                            <div>    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss)</div>
+                        `;
+                        break;
+                    case 'ipconfig /all':
+                        result = `
+                            <div>Windows IP Configuration</div>
+                            <div></div>
+                            <div>Ethernet adapter Local Area Connection:</div>
+                            <div>   Connection-specific DNS Suffix  . :</div>
+                            <div>   Description . . . . . . . . . . . : Intel(R) Ethernet Connection</div>
+                            <div>   Physical Address. . . . . . . . . : 00-1B-21-8A-F2-C4</div>
+                            <div>   DHCP Enabled. . . . . . . . . . . : Yes</div>
+                            <div>   IP Address. . . . . . . . . . . . : 192.168.1.100</div>
+                            <div>   Subnet Mask . . . . . . . . . . . : 255.255.255.0</div>
+                            <div>   Default Gateway . . . . . . . . . : 192.168.1.1</div>
+                            <div>   DNS Servers . . . . . . . . . . . : 8.8.8.8</div>
+                            <div>                                       8.8.4.4</div>
+                        `;
+                        break;
+                    case 'tracert google.com':
+                        result = `
+                            <div>Tracing route to google.com [142.250.190.78]</div>
+                            <div>over a maximum of 30 hops:</div>
+                            <div></div>
+                            <div>  1     2 ms     1 ms     2 ms  192.168.1.1</div>
+                            <div>  2    15 ms    12 ms    18 ms  10.0.0.1</div>
+                            <div>  3    25 ms    22 ms    28 ms  203.130.196.5</div>
+                            <div>  4    35 ms    32 ms    38 ms  203.130.196.1</div>
+                            <div>  5    45 ms    42 ms    48 ms  142.250.190.78</div>
+                            <div></div>
+                            <div>Trace complete.</div>
+                        `;
+                        break;
+                    case 'nslookup google.com':
+                        result = `
+                            <div>Server:  dns.google</div>
+                            <div>Address:  8.8.8.8</div>
+                            <div></div>
+                            <div>Non-authoritative answer:</div>
+                            <div>Name:    google.com</div>
+                            <div>Address:  142.250.190.78</div>
+                        `;
+                        break;
+                    case 'netstat -an':
+                        result = `
+                            <div>Active Connections</div>
+                            <div></div>
+                            <div>  Proto  Local Address          Foreign Address        State</div>
+                            <div>  TCP    0.0.0.0:80             0.0.0.0:0              LISTENING</div>
+                            <div>  TCP    0.0.0.0:443            0.0.0.0:0              LISTENING</div>
+                            <div>  TCP    192.168.1.100:1234     142.250.190.78:443     ESTABLISHED</div>
+                            <div>  TCP    192.168.1.100:5678     203.130.196.5:80       TIME_WAIT</div>
+                            <div>  UDP    0.0.0.0:53             *:*</div>
+                            <div>  UDP    192.168.1.100:68       *:*</div>
+                        `;
+                        break;
+                }
+                
+                const resultDiv = document.createElement('div');
+                resultDiv.innerHTML = result;
+                output.insertBefore(resultDiv, cursor.parentNode);
+                
+                // Add new prompt
+                const newPrompt = document.createElement('div');
+                newPrompt.innerHTML = 'C:\\Users\\Student> ';
+                output.insertBefore(newPrompt, cursor.parentNode);
+                
+                // Scroll to bottom
+                output.scrollTop = output.scrollHeight;
+            }, 1000);
+        }
+
+        // Quiz functionality
+        function startQuiz() {
+            const name = document.getElementById('studentName').value.trim();
+            if (!name) {
+                // Create inline message instead of alert
+                const nameInput = document.getElementById('studentName');
+                nameInput.style.borderColor = '#ef4444';
+                nameInput.placeholder = 'Nama harus diisi!';
+                return;
+            }
+            
+            studentName = name;
+            currentQuiz = 0;
+            quizScore = 0;
+            
+            document.getElementById('quizStart').classList.add('hidden');
+            document.getElementById('quizQuestions').classList.remove('hidden');
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = quizData[currentQuiz];
+            const container = document.getElementById('questionContainer');
+            
+            container.innerHTML = `
+                <h4 class="text-xl font-bold text-gray-800 mb-6">${question.question}</h4>
+                <div class="space-y-3">
+                    ${question.options.map((option, index) => `
+                        <div class="quiz-option bg-gray-50 border-2 border-gray-200 p-4 rounded-lg cursor-pointer hover:bg-gray-100" onclick="selectAnswer(${index})">
+                            <div class="flex items-center">
+                                <div class="w-6 h-6 border-2 border-gray-400 rounded-full mr-3 flex items-center justify-center">
+                                    <div class="w-3 h-3 bg-purple-500 rounded-full hidden answer-dot"></div>
+                                </div>
+                                <span class="text-gray-700">${option}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            // Update progress
+            document.getElementById('currentQuestion').textContent = currentQuiz + 1;
+            document.getElementById('progressBar').style.width = `${((currentQuiz + 1) / 21) * 100}%`;
+            
+            // Reset button state
+            document.getElementById('nextQuestionBtn').disabled = true;
+            selectedAnswer = null;
+        }
+
+        function selectAnswer(answerIndex) {
+            // Remove previous selection
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('selected');
+                option.querySelector('.answer-dot').classList.add('hidden');
+            });
+            
+            // Select new answer
+            const options = document.querySelectorAll('.quiz-option');
+            options[answerIndex].classList.add('selected');
+            options[answerIndex].querySelector('.answer-dot').classList.remove('hidden');
+            
+            selectedAnswer = answerIndex;
+            document.getElementById('nextQuestionBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            if (selectedAnswer === null) return;
+            
+            const question = quizData[currentQuiz];
+            const options = document.querySelectorAll('.quiz-option');
+            
+            // Show correct/incorrect answers
+            options.forEach((option, index) => {
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedAnswer && index !== question.correct) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            // Update score
+            if (selectedAnswer === question.correct) {
+                quizScore++;
+                document.getElementById('currentScore').textContent = quizScore;
+            }
+            
+            // Wait before moving to next question
+            setTimeout(() => {
+                currentQuiz++;
+                
+                if (currentQuiz < quizData.length) {
+                    loadQuestion();
+                } else {
+                    showQuizResults();
+                }
+            }, 2000);
+            
+            document.getElementById('nextQuestionBtn').disabled = true;
+        }
+
+        function showQuizResults() {
+            document.getElementById('quizQuestions').classList.add('hidden');
+            document.getElementById('quizResults').classList.remove('hidden');
+            
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = quizScore;
+            
+            let message = '';
+            if (quizScore >= 19) {
+                message = '🌟 Luar biasa! Anda menguasai materi dengan sangat baik!';
+            } else if (quizScore >= 16) {
+                message = '👍 Bagus! Pemahaman Anda sudah cukup baik!';
+            } else if (quizScore >= 13) {
+                message = '📚 Cukup baik, tapi masih perlu belajar lebih giat!';
+            } else if (quizScore >= 9) {
+                message = '💪 Perlu belajar lebih giat lagi!';
+            } else {
+                message = '📖 Jangan menyerah! Ulangi materi dan coba lagi!';
+            }
+            
+            document.getElementById('scoreMessage').textContent = message;
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizResults').classList.add('hidden');
+            document.getElementById('quizStart').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+            currentQuiz = 0;
+            quizScore = 0;
+            selectedAnswer = null;
+        }
+
+        // Submit tugas function
+        function submitTugas() {
+            const textareas = document.querySelectorAll('#tugas textarea');
+            let allFilled = true;
+            
+            textareas.forEach(textarea => {
+                if (textarea.value.trim() === '') {
+                    allFilled = false;
+                    textarea.style.borderColor = '#ef4444';
+                } else {
+                    textarea.style.borderColor = '#10b981';
+                }
+            });
+            
+            if (allFilled) {
+                // Create success message instead of alert
+                const successDiv = document.createElement('div');
+                successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50';
+                successDiv.innerHTML = '✅ Tugas berhasil dikumpulkan!';
+                document.body.appendChild(successDiv);
+                
+                setTimeout(() => {
+                    successDiv.remove();
+                }, 3000);
+            } else {
+                // Create error message instead of alert
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50';
+                errorDiv.innerHTML = '❌ Mohon lengkapi semua jawaban!';
+                document.body.appendChild(errorDiv);
+                
+                setTimeout(() => {
+                    errorDiv.remove();
+                }, 3000);
+            }
+        }
+
+        // Back to top functionality
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.remove('opacity-0', 'pointer-events-none');
+                backToTop.classList.add('opacity-100');
+            } else {
+                backToTop.classList.add('opacity-0', 'pointer-events-none');
+                backToTop.classList.remove('opacity-100');
+            }
+        });
+
+        document.getElementById('backToTop').addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Element SDK implementation
+        async function render(config) {
+            // Update main title and subtitle
+            const mainTitle = document.getElementById('mainTitle');
+            const subtitle = document.getElementById('subtitle');
+            const welcomeTitle = document.getElementById('welcomeTitle');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            
+            if (mainTitle) mainTitle.textContent = config.main_title || defaultConfig.main_title;
+            if (subtitle) subtitle.textContent = config.subtitle || defaultConfig.subtitle;
+            if (welcomeTitle) welcomeTitle.textContent = config.main_title || defaultConfig.main_title;
+            if (welcomeMessage) welcomeMessage.textContent = config.welcome_message || defaultConfig.welcome_message;
+        }
+
+        function mapToCapabilities(config) {
+            return {
+                recolorables: [
+                    {
+                        get: () => config.primary_color || '#8b5cf6',
+                        set: (value) => {
+                            config.primary_color = value;
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ primary_color: value });
+                            }
+                        }
+                    },
+                    {
+                        get: () => config.secondary_color || '#06b6d4',
+                        set: (value) => {
+                            config.secondary_color = value;
+                            if (window.elementSdk) {
+                                window.elementSdk.setConfig({ secondary_color: value });
+                            }
+                        }
+                    }
+                ],
+                borderables: [],
+                fontEditable: {
+                    get: () => config.font_family || 'Inter, sans-serif',
+                    set: (value) => {
+                        config.font_family = value;
+                        if (window.elementSdk) {
+                            window.elementSdk.setConfig({ font_family: value });
+                        }
+                    }
+                },
+                fontSizeable: {
+                    get: () => config.font_size || 16,
+                    set: (value) => {
+                        config.font_size = value;
+                        if (window.elementSdk) {
+                            window.elementSdk.setConfig({ font_size: value });
+                        }
+                    }
+                }
+            };
+        }
+
+        function mapToEditPanelValues(config) {
+            return new Map([
+                ["main_title", config.main_title || defaultConfig.main_title],
+                ["subtitle", config.subtitle || defaultConfig.subtitle],
+                ["welcome_message", config.welcome_message || defaultConfig.welcome_message]
+            ]);
+        }
+
+        // Initialize Element SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig,
+                render,
+                mapToCapabilities,
+                mapToEditPanelValues
+            });
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('intro');
+        });
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'990a34ee60ba34b6',t:'MTc2MDgxMzI3My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
