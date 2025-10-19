@@ -1,0 +1,1896 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topologi Jaringan - Learning Hub</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #fef7ff 0%, #f0f9ff 15%, #f0fdf4 30%, #fffbeb 45%, #fdf2f8 60%, #f3e8ff 75%, #ecfdf5 90%, #fef3c7 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-12px); }
+            60% { transform: translateY(-6px); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item:hover {
+            transform: translateX(4px);
+        }
+        
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.9) !important;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid #f472b6;
+        }
+        
+        .floating-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        
+        .sparkle {
+            animation: sparkle 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+
+        .quiz-option:hover {
+            transform: scale(1.02);
+        }
+
+        .quiz-option.selected {
+            background: #ddd6fe !important;
+            border-color: #f472b6 !important;
+        }
+
+        .quiz-option.correct {
+            background: #dcfce7 !important;
+            border-color: #16a34a !important;
+        }
+
+        .quiz-option.incorrect {
+            background: #fee2e2 !important;
+            border-color: #dc2626 !important;
+        }
+
+        .demo-box {
+            background: linear-gradient(45deg, #f0f9ff, #ecfdf5);
+            border: 2px dashed #60a5fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+
+        .topology-demo {
+            background: linear-gradient(45deg, #fef2f2, #fff7ed);
+            border: 2px solid #f87171;
+            border-radius: 12px;
+            padding: 16px;
+            margin: 12px 0;
+        }
+
+        .network-node {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            position: relative;
+        }
+
+        .network-line {
+            position: absolute;
+            background: #4ade80;
+            height: 3px;
+            z-index: 1;
+        }
+
+        .topology-animation {
+            animation: topologyPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes topologyPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .data-flow {
+            animation: dataMove 3s linear infinite;
+        }
+
+        @keyframes dataMove {
+            0% { transform: translateX(0); opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { transform: translateX(100px); opacity: 1; }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full gradient-bg font-sans"><!-- Mobile Menu Button --> <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-pink-200 hover:bg-pink-300 p-3 rounded-full shadow-lg transition-colors">
+   <svg class="w-6 h-6 text-pink-800" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+   </svg></button> <!-- Sidebar -->
+  <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-gradient-to-b from-pink-100 via-purple-100 to-blue-100 shadow-xl z-40 sidebar-transition transform -translate-x-full lg:translate-x-0 overflow-y-auto">
+   <div class="p-6">
+    <div class="flex items-center justify-between mb-8">
+     <div class="flex items-center space-x-3">
+      <div class="text-4xl bounce">
+       🌐
+      </div>
+      <div>
+       <h1 id="mainTitle" class="text-xl font-bold text-pink-800">Topologi Jaringan</h1>
+       <p id="subtitle" class="text-base text-pink-600">Implementasi &amp; Penerapan</p>
+      </div>
+     </div><button id="closeSidebar" class="lg:hidden text-pink-600 hover:text-pink-800">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg></button>
+    </div>
+    <nav class="space-y-2"><a href="#" onclick="showSection('intro')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors active"> <span class="text-2xl">🚀</span> <span class="font-medium text-pink-800 text-base">Intro</span> </a> <a href="#" onclick="showSection('pengenalan')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">📚</span> <span class="font-medium text-pink-800 text-base">Pengenalan Topologi</span> </a> <a href="#" onclick="showSection('topologi-bus')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">🚌</span> <span class="font-medium text-pink-800 text-base">Topologi Bus</span> </a> <a href="#" onclick="showSection('topologi-star')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">⭐</span> <span class="font-medium text-pink-800 text-base">Topologi Star</span> </a> <a href="#" onclick="showSection('topologi-ring')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">💍</span> <span class="font-medium text-pink-800 text-base">Topologi Ring</span> </a> <a href="#" onclick="showSection('topologi-mesh')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">🕸️</span> <span class="font-medium text-pink-800 text-base">Topologi Mesh</span> </a> <a href="#" onclick="showSection('perbandingan')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">⚖️</span> <span class="font-medium text-pink-800 text-base">Perbandingan</span> </a> <a href="#" onclick="showSection('tugas')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">📝</span> <span class="font-medium text-pink-800 text-base">Tugas</span> </a> <a href="#" onclick="showSection('kuis')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">🎯</span> <span class="font-medium text-pink-800 text-base">Kuis</span> </a> <a href="#" onclick="showSection('penutup')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-60 transition-colors"> <span class="text-2xl">🎉</span> <span class="font-medium text-pink-800 text-base">Penutup</span> </a>
+    </nav>
+   </div>
+  </div><!-- Overlay -->
+  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div><!-- Main Content -->
+  <div class="lg:ml-80 min-h-full">
+   <main id="mainContent" class="p-4 lg:p-8"><!-- Intro Section -->
+    <div id="intro" class="section fade-in">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-6xl mb-4 bounce">
+        🌐
+       </div>
+       <h2 id="welcomeTitle" class="text-3xl lg:text-5xl font-bold text-pink-800 mb-4">Selamat Datang!</h2>
+       <p id="welcomeMessage" class="text-lg lg:text-2xl text-pink-600">Mari belajar Topologi Jaringan bersama!</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+       <div class="bg-gradient-to-br from-rose-100 to-pink-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="text-4xl mb-4 pulse">
+         🤔
+        </div>
+        <h3 class="text-xl lg:text-2xl font-bold text-rose-800 mb-4">Pertanyaan Pemantik</h3>
+        <p class="text-rose-700 text-base lg:text-lg">Pernahkah kamu bertanya mengapa WiFi di rumah bisa menjangkau semua ruangan? Atau bagaimana komputer di lab sekolah bisa saling terhubung? Semua itu berkat topologi jaringan!</p>
+       </div>
+       <div class="bg-gradient-to-br from-blue-100 to-cyan-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="text-4xl mb-4 pulse">
+         🎯
+        </div>
+        <h3 class="text-xl lg:text-2xl font-bold text-cyan-800 mb-4">Tujuan Pembelajaran</h3>
+        <ul class="text-cyan-700 space-y-2 text-lg">
+         <li>• Memahami konsep topologi jaringan</li>
+         <li>• Mengenal jenis-jenis topologi</li>
+         <li>• Memahami kelebihan dan kekurangan</li>
+         <li>• Menentukan topologi yang tepat</li>
+        </ul>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-green-100 to-emerald-200 p-6 rounded-2xl shadow-lg mb-8 card-hover">
+       <div class="text-4xl mb-4 pulse">
+        💡
+       </div>
+       <h3 class="text-xl lg:text-2xl font-bold text-emerald-800 mb-4">Apa yang Akan Dipelajari?</h3>
+       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="text-center bg-white bg-opacity-50 p-4 rounded-xl">
+         <div class="text-3xl mb-2 floating-icon">
+          🚌
+         </div>
+         <h4 class="font-bold text-emerald-800 text-base">Topologi Bus</h4>
+         <p class="text-emerald-700 text-sm">Linear &amp; sederhana</p>
+        </div>
+        <div class="text-center bg-white bg-opacity-50 p-4 rounded-xl">
+         <div class="text-3xl mb-2 floating-icon">
+          ⭐
+         </div>
+         <h4 class="font-bold text-emerald-800 text-base">Topologi Star</h4>
+         <p class="text-emerald-700 text-sm">Terpusat &amp; populer</p>
+        </div>
+        <div class="text-center bg-white bg-opacity-50 p-4 rounded-xl">
+         <div class="text-3xl mb-2 floating-icon">
+          💍
+         </div>
+         <h4 class="font-bold text-emerald-800 text-base">Topologi Ring</h4>
+         <p class="text-emerald-700 text-sm">Melingkar &amp; teratur</p>
+        </div>
+        <div class="text-center bg-white bg-opacity-50 p-4 rounded-xl">
+         <div class="text-3xl mb-2 floating-icon">
+          🕸️
+         </div>
+         <h4 class="font-bold text-emerald-800 text-base">Topologi Mesh</h4>
+         <p class="text-emerald-700 text-sm">Saling terhubung</p>
+        </div>
+       </div>
+       <div class="mt-4 p-4 bg-white bg-opacity-50 rounded-xl">
+        <h4 class="font-bold text-emerald-800 text-base mb-2">💡 Catatan Penting:</h4>
+        <p class="text-emerald-700 text-sm">Dalam praktik modern, sering digunakan <strong>Topologi Hybrid</strong> yang menggabungkan beberapa jenis topologi untuk mendapatkan keuntungan maksimal dari masing-masing topologi.</p>
+       </div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+       <div class="bg-gradient-to-br from-yellow-100 to-amber-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="text-4xl mb-4 pulse">
+         🌟
+        </div>
+        <h3 class="text-xl lg:text-2xl font-bold text-amber-800 mb-4">Pemahaman Bermakna</h3>
+        <p class="text-amber-700 text-lg">Topologi jaringan seperti tata letak kota! Ada jalan raya utama (backbone), persimpangan (hub), dan rumah-rumah (komputer) yang terhubung dengan pola tertentu.</p>
+       </div>
+       <div class="bg-gradient-to-br from-purple-100 to-violet-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="text-4xl mb-4 pulse">
+         🚀
+        </div>
+        <h3 class="text-xl lg:text-2xl font-bold text-violet-800 mb-4">Motivasi</h3>
+        <p class="text-violet-700 text-lg">Dengan memahami topologi jaringan, kamu bisa merancang jaringan yang efisien, troubleshoot masalah koneksi, dan menjadi network administrator handal!</p>
+       </div>
+      </div>
+      <div class="text-center"><button onclick="nextSection()" class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-4 px-8 rounded-full text-lg lg:text-xl transition-colors shadow-lg"> Mulai Belajar! 🚀 </button>
+      </div>
+     </div>
+    </div><!-- Pengenalan Section -->
+    <div id="pengenalan" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-5xl mb-4 bounce">
+        📚
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-pink-800 mb-4">Pengenalan Topologi Jaringan</h2>
+       <p class="text-lg lg:text-xl text-pink-600">Memahami dasar-dasar topologi jaringan</p>
+      </div>
+      <div class="bg-gradient-to-br from-indigo-100 to-blue-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-blue-800 mb-4">Apa itu Topologi Jaringan?</h3>
+       <p class="text-blue-700 mb-6 text-base lg:text-lg">Topologi jaringan adalah cara atau pola pengaturan hubungan antar perangkat dalam sebuah jaringan komputer. Topologi menentukan bagaimana data mengalir dari satu perangkat ke perangkat lainnya.</p>
+       <div class="demo-box">
+        <h4 class="font-bold text-blue-800 mb-4 text-center text-base lg:text-lg">🏘️ Analogi Tata Kota</h4>
+        <div class="grid md:grid-cols-2 gap-6">
+         <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+          <h5 class="font-bold text-blue-700 mb-3 text-base">🏙️ Tata Kota</h5>
+          <ul class="text-blue-600 text-sm lg:text-base space-y-2">
+           <li>🏠 <strong>Rumah:</strong> Tempat tinggal warga</li>
+           <li>🛣️ <strong>Jalan:</strong> Penghubung antar rumah</li>
+           <li>🚦 <strong>Persimpangan:</strong> Titik pertemuan jalan</li>
+           <li>🏢 <strong>Pusat Kota:</strong> Area utama aktivitas</li>
+          </ul>
+         </div>
+         <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+          <h5 class="font-bold text-blue-700 mb-3 text-base">💻 Jaringan Komputer</h5>
+          <ul class="text-blue-600 text-sm lg:text-base space-y-2">
+           <li>💻 <strong>Komputer:</strong> Perangkat pengguna</li>
+           <li>🔗 <strong>Kabel:</strong> Media penghubung</li>
+           <li>🌐 <strong>Hub/Switch:</strong> Titik koneksi</li>
+           <li>🖥️ <strong>Server:</strong> Pusat layanan</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-green-100 to-emerald-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-emerald-800 mb-4">Sejarah Perkembangan Topologi</h3>
+       <div class="space-y-4">
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <div class="flex items-center mb-3">
+          <div class="text-2xl mr-3">
+           🕰️
+          </div>
+          <h4 class="font-bold text-emerald-700 text-base">Era 1960-1970: Awal Mula</h4>
+         </div>
+         <p class="text-emerald-600 text-sm">Topologi Bus pertama kali digunakan dalam jaringan ARPANET. Sederhana tapi rentan terhadap gangguan.</p>
+        </div>
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <div class="flex items-center mb-3">
+          <div class="text-2xl mr-3">
+           ⭐
+          </div>
+          <h4 class="font-bold text-emerald-700 text-base">Era 1980-1990: Revolusi Star</h4>
+         </div>
+         <p class="text-emerald-600 text-sm">Topologi Star mulai populer dengan hadirnya hub dan switch. Lebih stabil dan mudah dikelola.</p>
+        </div>
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <div class="flex items-center mb-3">
+          <div class="text-2xl mr-3">
+           🌐
+          </div>
+          <h4 class="font-bold text-emerald-700 text-base">Era 2000-Sekarang: Hybrid &amp; Wireless</h4>
+         </div>
+         <p class="text-emerald-600 text-sm">Kombinasi berbagai topologi dan integrasi dengan teknologi wireless untuk fleksibilitas maksimal.</p>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-yellow-100 to-amber-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-amber-800 mb-4">Faktor Pemilihan Topologi</h3>
+       <div class="grid md:grid-cols-2 gap-6">
+        <div class="space-y-3">
+         <div class="bg-white bg-opacity-70 p-3 rounded-lg">
+          <div class="flex items-center"><span class="text-xl mr-3">💰</span>
+           <div>
+            <h5 class="font-bold text-amber-700 text-sm">Budget</h5>
+            <p class="text-amber-600 text-xs">Biaya perangkat dan instalasi</p>
+           </div>
+          </div>
+         </div>
+         <div class="bg-white bg-opacity-70 p-3 rounded-lg">
+          <div class="flex items-center"><span class="text-xl mr-3">📏</span>
+           <div>
+            <h5 class="font-bold text-amber-700 text-sm">Skala Jaringan</h5>
+            <p class="text-amber-600 text-xs">Jumlah perangkat yang terhubung</p>
+           </div>
+          </div>
+         </div>
+         <div class="bg-white bg-opacity-70 p-3 rounded-lg">
+          <div class="flex items-center"><span class="text-xl mr-3">🎯</span>
+           <div>
+            <h5 class="font-bold text-amber-700 text-sm">Tujuan Penggunaan</h5>
+            <p class="text-amber-600 text-xs">Gaming, bisnis, atau edukasi</p>
+           </div>
+          </div>
+         </div>
+        </div>
+        <div class="space-y-3">
+         <div class="bg-white bg-opacity-70 p-3 rounded-lg">
+          <div class="flex items-center"><span class="text-xl mr-3">🛡️</span>
+           <div>
+            <h5 class="font-bold text-amber-700 text-sm">Keandalan</h5>
+            <p class="text-amber-600 text-xs">Toleransi terhadap kegagalan</p>
+           </div>
+          </div>
+         </div>
+         <div class="bg-white bg-opacity-70 p-3 rounded-lg">
+          <div class="flex items-center"><span class="text-xl mr-3">⚡</span>
+           <div>
+            <h5 class="font-bold text-amber-700 text-sm">Performa</h5>
+            <p class="text-amber-600 text-xs">Kecepatan dan latensi</p>
+           </div>
+          </div>
+         </div>
+         <div class="bg-white bg-opacity-70 p-3 rounded-lg">
+          <div class="flex items-center"><span class="text-xl mr-3">🔧</span>
+           <div>
+            <h5 class="font-bold text-amber-700 text-sm">Maintenance</h5>
+            <p class="text-amber-600 text-xs">Kemudahan perawatan</p>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-purple-100 to-violet-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-violet-800 mb-4">Konsep Dasar Jaringan</h3>
+       <div class="grid md:grid-cols-3 gap-4">
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl text-center">
+         <div class="text-3xl mb-3">
+          📡
+         </div>
+         <h4 class="font-bold text-violet-700 mb-2 text-base">Physical Topology</h4>
+         <p class="text-violet-600 text-base">Susunan fisik perangkat dan kabel dalam jaringan</p>
+        </div>
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl text-center">
+         <div class="text-3xl mb-3">
+          🔄
+         </div>
+         <h4 class="font-bold text-violet-700 mb-2 text-base">Logical Topology</h4>
+         <p class="text-violet-600 text-base">Cara data mengalir dalam jaringan secara logis</p>
+        </div>
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl text-center">
+         <div class="text-3xl mb-3">
+          🌐
+         </div>
+         <h4 class="font-bold text-violet-700 mb-2 text-base">Network Protocol</h4>
+         <p class="text-violet-600 text-base">Aturan komunikasi antar perangkat</p>
+        </div>
+       </div>
+      </div>
+      <div class="text-center"><button onclick="nextSection()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-base lg:text-lg transition-colors"> Lanjut ke Topologi Bus 🚌 </button>
+      </div>
+     </div>
+    </div><!-- Topologi Bus Section -->
+    <div id="topologi-bus" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-5xl mb-4 bounce">
+        🚌
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-pink-800 mb-4">Topologi Bus</h2>
+       <p class="text-lg lg:text-xl text-pink-600">Topologi linear sederhana</p>
+      </div>
+      <div class="bg-gradient-to-br from-blue-100 to-indigo-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-blue-800 mb-4">Pengertian Topologi Bus</h3>
+       <p class="text-blue-700 mb-4 text-base lg:text-lg">Topologi Bus adalah topologi jaringan yang menggunakan satu kabel utama (backbone) sebagai media transmisi. Semua perangkat terhubung ke kabel utama ini secara linear.</p>
+       <div class="demo-box">
+        <h4 class="font-bold text-blue-800 mb-4 text-center">🚌 Simulasi Topologi Bus</h4>
+        <div class="bg-white p-6 rounded-lg">
+         <div class="relative"><!-- Main Bus Line -->
+          <div class="w-full h-1 bg-green-500 mb-8 relative">
+           <div class="absolute -top-2 left-0 w-4 h-4 bg-red-500 rounded"></div>
+           <div class="absolute -top-2 right-0 w-4 h-4 bg-red-500 rounded"></div>
+           <div class="absolute -top-1 left-2 text-xs text-red-600">
+            Terminator
+           </div>
+           <div class="absolute -top-1 right-2 text-xs text-red-600">
+            Terminator
+           </div>
+          </div><!-- Devices -->
+          <div class="flex justify-between items-center -mt-16">
+           <div class="text-center">
+            <div class="network-node bg-blue-500 topology-animation">
+             💻
+            </div>
+            <p class="text-xs mt-2 text-blue-600">PC 1</p>
+           </div>
+           <div class="text-center">
+            <div class="network-node bg-green-500 topology-animation">
+             💻
+            </div>
+            <p class="text-xs mt-2 text-green-600">PC 2</p>
+           </div>
+           <div class="text-center">
+            <div class="network-node bg-purple-500 topology-animation">
+             🖥️
+            </div>
+            <p class="text-xs mt-2 text-purple-600">Server</p>
+           </div>
+           <div class="text-center">
+            <div class="network-node bg-orange-500 topology-animation">
+             💻
+            </div>
+            <p class="text-xs mt-2 text-orange-600">PC 3</p>
+           </div>
+          </div>
+         </div>
+         <div class="mt-6 text-center">
+          <p class="text-blue-700 text-sm">Semua perangkat terhubung ke satu kabel utama (backbone)</p>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-green-100 to-emerald-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-emerald-800 mb-4">Karakteristik Topologi Bus</h3>
+       <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-emerald-700 mb-3 text-base">✅ Kelebihan</h4>
+         <ul class="text-emerald-600 text-base space-y-2">
+          <li>• <strong>Ekonomis:</strong> Menggunakan kabel sedikit</li>
+          <li>• <strong>Mudah dipasang:</strong> Instalasi sederhana</li>
+          <li>• <strong>Fleksibel:</strong> Mudah menambah perangkat</li>
+          <li>• <strong>Cocok untuk LAN kecil:</strong> Ideal untuk jaringan sederhana</li>
+         </ul>
+        </div>
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-emerald-700 mb-3 text-base">❌ Kekurangan</h4>
+         <ul class="text-emerald-600 text-base space-y-2">
+          <li>• <strong>Single point of failure:</strong> Jika kabel utama rusak, semua terputus</li>
+          <li>• <strong>Collision domain:</strong> Data bisa bertabrakan</li>
+          <li>• <strong>Kinerja menurun:</strong> Semakin banyak perangkat, semakin lambat</li>
+          <li>• <strong>Sulit troubleshooting:</strong> Susah mencari masalah</li>
+         </ul>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-orange-100 to-red-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-red-800 mb-4">Implementasi Nyata Topologi Bus</h3>
+       <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-red-700 mb-3 text-base">🏠 Contoh Penggunaan (Era 1990-2000)</h4>
+         <ul class="text-red-600 text-base space-y-2">
+          <li>• <strong>Warnet era awal:</strong> 5-10 komputer dengan kabel coaxial</li>
+          <li>• <strong>Lab komputer lama:</strong> Sistem pembelajaran sederhana</li>
+          <li>• <strong>Kantor kecil:</strong> Sharing printer dan file basic</li>
+          <li>• <strong>Jaringan rumahan:</strong> Menghubungkan 2-3 PC</li>
+         </ul>
+         <div class="mt-3 p-2 bg-yellow-100 rounded-lg">
+          <p class="text-yellow-700 text-sm"><strong>Catatan:</strong> Topologi Bus jarang digunakan saat ini karena keterbatasannya</p>
+         </div>
+        </div>
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-red-700 mb-3 text-base">⚙️ Spesifikasi Teknis</h4>
+         <ul class="text-red-600 text-base space-y-2">
+          <li>• <strong>Kabel:</strong> Coaxial RG-58 (10Base2) atau RG-8 (10Base5)</li>
+          <li>• <strong>Terminator:</strong> 50 ohm di kedua ujung kabel</li>
+          <li>• <strong>Panjang maksimal:</strong> 185m (10Base2), 500m (10Base5)</li>
+          <li>• <strong>Jumlah node:</strong> Max 30 (10Base2), Max 100 (10Base5)</li>
+          <li>• <strong>Kecepatan:</strong> 10 Mbps</li>
+          <li>• <strong>Metode akses:</strong> CSMA/CD (Carrier Sense Multiple Access with Collision Detection)</li>
+         </ul>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-cyan-100 to-blue-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-blue-800 mb-4">Cara Kerja Data dalam Bus</h3>
+       <div class="demo-box">
+        <h4 class="font-bold text-blue-800 mb-4 text-center">📡 Proses Transmisi Data</h4>
+        <div class="space-y-4">
+         <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+          <div class="flex items-center mb-2"><span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3">1</span>
+           <h5 class="font-bold text-blue-700 text-sm">Carrier Sense</h5>
+          </div>
+          <p class="text-blue-600 text-base ml-9">Komputer mengecek apakah kabel sedang digunakan</p>
+         </div>
+         <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+          <div class="flex items-center mb-2"><span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3">2</span>
+           <h5 class="font-bold text-blue-700 text-base">Multiple Access</h5>
+          </div>
+          <p class="text-blue-600 text-base ml-9">Jika kosong, komputer mulai mengirim data</p>
+         </div>
+         <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+          <div class="flex items-center mb-2"><span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3">3</span>
+           <h5 class="font-bold text-blue-700 text-base">Collision Detection</h5>
+          </div>
+          <p class="text-blue-600 text-base ml-9">Jika ada tabrakan data, tunggu waktu random lalu coba lagi</p>
+         </div>
+         <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+          <div class="flex items-center mb-2"><span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs mr-3">4</span>
+           <h5 class="font-bold text-blue-700 text-base">Broadcast</h5>
+          </div>
+          <p class="text-blue-600 text-base ml-9">Data dikirim ke semua perangkat, hanya yang dituju yang memproses</p>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="text-center"><button onclick="nextSection()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-lg text-base lg:text-lg transition-colors"> Lanjut ke Topologi Star ⭐ </button>
+      </div>
+     </div>
+    </div><!-- Topologi Star Section -->
+    <div id="topologi-star" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-5xl mb-4 bounce">
+        ⭐
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-pink-800 mb-4">Topologi Star</h2>
+       <p class="text-lg lg:text-xl text-pink-600">Topologi terpusat paling populer</p>
+      </div>
+      <div class="bg-gradient-to-br from-blue-100 to-indigo-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-blue-800 mb-4">Pengertian Topologi Star</h3>
+       <p class="text-blue-700 mb-4 text-base lg:text-lg">Topologi Star adalah topologi jaringan dimana semua perangkat terhubung ke satu titik pusat (hub/switch). Setiap perangkat memiliki koneksi langsung ke pusat.</p>
+       <div class="demo-box">
+        <h4 class="font-bold text-blue-800 mb-4 text-center">⭐ Simulasi Topologi Star</h4>
+        <div class="bg-white p-6 rounded-lg">
+         <div class="relative w-80 h-80 mx-auto"><!-- Central Hub/Switch -->
+          <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+           <div class="text-center">
+            <div class="network-node bg-yellow-500 topology-animation text-2xl">
+             🌟
+            </div>
+            <p class="text-xs mt-2 text-yellow-600 font-bold">Hub/Switch</p>
+           </div>
+          </div><!-- Connection lines from center to each device -->
+          <svg class="absolute inset-0 w-full h-full" style="z-index: 1;"><!-- Line to PC 1 (top) --> <line x1="50%" y1="50%" x2="50%" y2="15%" stroke="#4ade80" stroke-width="3" /> <!-- Line to PC 2 (top-right) --> <line x1="50%" y1="50%" x2="80%" y2="25%" stroke="#4ade80" stroke-width="3" /> <!-- Line to Server (bottom-right) --> <line x1="50%" y1="50%" x2="80%" y2="75%" stroke="#4ade80" stroke-width="3" /> <!-- Line to PC 3 (bottom) --> <line x1="50%" y1="50%" x2="50%" y2="85%" stroke="#4ade80" stroke-width="3" /> <!-- Line to Printer (bottom-left) --> <line x1="50%" y1="50%" x2="20%" y2="75%" stroke="#4ade80" stroke-width="3" /> <!-- Line to PC 4 (top-left) --> <line x1="50%" y1="50%" x2="20%" y2="25%" stroke="#4ade80" stroke-width="3" />
+          </svg><!-- Connected Devices positioned around the center --> <!-- PC 1 - Top -->
+          <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4">
+           <div class="text-center">
+            <div class="network-node bg-blue-500 topology-animation">
+             💻
+            </div>
+            <p class="text-xs mt-2 text-blue-600">PC 1</p>
+           </div>
+          </div><!-- PC 2 - Top Right -->
+          <div class="absolute top-1/4 right-0 transform translate-x-4 -translate-y-1/2">
+           <div class="text-center">
+            <div class="network-node bg-green-500 topology-animation">
+             💻
+            </div>
+            <p class="text-xs mt-2 text-green-600">PC 2</p>
+           </div>
+          </div><!-- Server - Bottom Right -->
+          <div class="absolute bottom-1/4 right-0 transform translate-x-4 translate-y-1/2">
+           <div class="text-center">
+            <div class="network-node bg-purple-500 topology-animation">
+             🖥️
+            </div>
+            <p class="text-xs mt-2 text-purple-600">Server</p>
+           </div>
+          </div><!-- PC 3 - Bottom -->
+          <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-4">
+           <div class="text-center">
+            <div class="network-node bg-red-500 topology-animation">
+             💻
+            </div>
+            <p class="text-xs mt-2 text-red-600">PC 3</p>
+           </div>
+          </div><!-- Printer - Bottom Left -->
+          <div class="absolute bottom-1/4 left-0 transform -translate-x-4 translate-y-1/2">
+           <div class="text-center">
+            <div class="network-node bg-orange-500 topology-animation">
+             🖨️
+            </div>
+            <p class="text-xs mt-2 text-orange-600">Printer</p>
+           </div>
+          </div><!-- PC 4 - Top Left -->
+          <div class="absolute top-1/4 left-0 transform -translate-x-4 -translate-y-1/2">
+           <div class="text-center">
+            <div class="network-node bg-pink-500 topology-animation">
+             💻
+            </div>
+            <p class="text-xs mt-2 text-pink-600">PC 4</p>
+           </div>
+          </div>
+         </div>
+         <div class="mt-6 text-center">
+          <p class="text-blue-700 text-sm">Semua perangkat terhubung langsung ke hub/switch pusat</p>
+          <p class="text-blue-600 text-xs mt-1">Setiap perangkat memiliki koneksi dedicated ke pusat</p>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-green-100 to-emerald-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-emerald-800 mb-4">Karakteristik Topologi Star</h3>
+       <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-emerald-700 mb-3 text-base">✅ Kelebihan</h4>
+         <ul class="text-emerald-600 text-base space-y-2">
+          <li>• <strong>Mudah dikelola:</strong> Kontrol terpusat</li>
+          <li>• <strong>Fault tolerance:</strong> Jika satu PC rusak, yang lain tetap jalan</li>
+          <li>• <strong>Mudah troubleshooting:</strong> Masalah mudah dilacak</li>
+          <li>• <strong>Kinerja stabil:</strong> Tidak ada collision</li>
+         </ul>
+        </div>
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-emerald-700 mb-3 text-base">❌ Kekurangan</h4>
+         <ul class="text-emerald-600 text-base space-y-2">
+          <li>• <strong>Ketergantungan pada hub:</strong> Jika hub rusak, semua terputus</li>
+          <li>• <strong>Biaya kabel tinggi:</strong> Butuh banyak kabel</li>
+          <li>• <strong>Biaya hub/switch:</strong> Perlu perangkat pusat</li>
+          <li>• <strong>Keterbatasan port:</strong> Terbatas jumlah port hub</li>
+         </ul>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-purple-100 to-indigo-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-indigo-800 mb-4">Studi Kasus: Implementasi Star di Sekolah</h3>
+       <div class="bg-white bg-opacity-70 p-4 rounded-xl mb-4">
+        <h4 class="font-bold text-indigo-700 mb-3 text-base">🏫 Skenario: SMK Teknologi Maju</h4>
+        <p class="text-indigo-600 text-sm mb-3">SMK dengan 3 lab komputer (masing-masing 25 PC), 1 ruang guru (15 PC), dan 1 server room. Total 90 perangkat.</p>
+        <div class="grid md:grid-cols-2 gap-4">
+         <div class="bg-indigo-50 p-3 rounded-lg">
+          <h5 class="font-bold text-indigo-700 text-sm mb-2">📋 Kebutuhan</h5>
+          <ul class="text-indigo-600 text-sm space-y-1">
+           <li>• Internet sharing untuk semua lab</li>
+           <li>• File server untuk materi pembelajaran</li>
+           <li>• Printer sharing di setiap lab</li>
+           <li>• Monitoring dan kontrol terpusat</li>
+          </ul>
+         </div>
+         <div class="bg-indigo-50 p-3 rounded-lg">
+          <h5 class="font-bold text-indigo-700 text-sm mb-2">💡 Solusi Star</h5>
+          <ul class="text-indigo-600 text-sm space-y-1">
+           <li>• 1 Core Switch 48-port di server room</li>
+           <li>• 4 Access Switch 24-port per ruangan</li>
+           <li>• Kabel UTP Cat6 untuk semua koneksi</li>
+           <li>• Manajemen terpusat via VLAN</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+       <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+        <h4 class="font-bold text-indigo-700 mb-3 text-base">📊 Hasil Implementasi</h4>
+        <div class="grid md:grid-cols-3 gap-3">
+         <div class="text-center bg-green-100 p-3 rounded-lg">
+          <div class="text-2xl mb-1">
+           ✅
+          </div>
+          <h5 class="font-bold text-green-700 text-xs">Uptime 99.8%</h5>
+          <p class="text-green-600 text-xs">Sangat stabil</p>
+         </div>
+         <div class="text-center bg-blue-100 p-3 rounded-lg">
+          <div class="text-2xl mb-1">
+           ⚡
+          </div>
+          <h5 class="font-bold text-blue-700 text-xs">Speed 1 Gbps</h5>
+          <p class="text-blue-600 text-xs">Performa tinggi</p>
+         </div>
+         <div class="text-center bg-purple-100 p-3 rounded-lg">
+          <div class="text-2xl mb-1">
+           🔧
+          </div>
+          <h5 class="font-bold text-purple-700 text-xs">Maintenance 2 jam/bulan</h5>
+          <p class="text-purple-600 text-xs">Mudah dikelola</p>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-yellow-100 to-orange-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-orange-800 mb-4">Troubleshooting Topologi Star</h3>
+       <div class="space-y-4">
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <div class="flex items-center mb-3"><span class="text-2xl mr-3">🚨</span>
+          <h4 class="font-bold text-orange-700 text-base">Masalah: Semua PC tidak bisa akses internet</h4>
+         </div>
+         <div class="ml-11">
+          <p class="text-orange-600 text-sm mb-2"><strong>Kemungkinan penyebab:</strong></p>
+          <ul class="text-orange-600 text-base space-y-1 mb-3">
+           <li>• Switch/hub pusat mati atau rusak</li>
+           <li>• Kabel uplink ke router terputus</li>
+           <li>• Power supply switch bermasalah</li>
+          </ul>
+          <p class="text-orange-600 text-base mb-2"><strong>Langkah troubleshooting:</strong></p>
+          <ol class="text-orange-600 text-base space-y-1">
+           <li>1. Cek lampu indikator switch</li>
+           <li>2. Test ping ke gateway</li>
+           <li>3. Periksa kabel uplink</li>
+           <li>4. Restart switch jika perlu</li>
+          </ol>
+         </div>
+        </div>
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <div class="flex items-center mb-3"><span class="text-2xl mr-3">⚠️</span>
+          <h4 class="font-bold text-orange-700 text-base">Masalah: Satu PC tidak terkoneksi</h4>
+         </div>
+         <div class="ml-11">
+          <p class="text-orange-600 text-sm mb-2"><strong>Kemungkinan penyebab:</strong></p>
+          <ul class="text-orange-600 text-base space-y-1 mb-3">
+           <li>• Kabel UTP dari PC ke switch rusak</li>
+           <li>• Port switch bermasalah</li>
+           <li>• Network card PC bermasalah</li>
+          </ul>
+          <p class="text-orange-600 text-base mb-2"><strong>Langkah troubleshooting:</strong></p>
+          <ol class="text-orange-600 text-base space-y-1">
+           <li>1. Cek lampu link di port switch</li>
+           <li>2. Ganti kabel UTP dengan yang baru</li>
+           <li>3. Coba port switch yang lain</li>
+           <li>4. Update driver network card</li>
+          </ol>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="text-center"><button onclick="nextSection()" class="bg-violet-500 hover:bg-violet-600 text-white font-bold py-3 px-6 rounded-lg text-base lg:text-lg transition-colors"> Lanjut ke Topologi Ring 💍 </button>
+      </div>
+     </div>
+    </div><!-- Topologi Ring Section -->
+    <div id="topologi-ring" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-5xl mb-4 bounce">
+        💍
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-pink-800 mb-4">Topologi Ring</h2>
+       <p class="text-lg lg:text-xl text-pink-600">Topologi melingkar teratur</p>
+      </div>
+      <div class="bg-gradient-to-br from-blue-100 to-indigo-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-blue-800 mb-4">Pengertian Topologi Ring</h3>
+       <p class="text-blue-700 mb-4 text-base lg:text-lg">Topologi Ring adalah topologi jaringan dimana setiap perangkat terhubung dengan dua perangkat lainnya, membentuk jalur melingkar. Data bergerak dalam satu arah mengelilingi ring.</p>
+       <div class="demo-box">
+        <h4 class="font-bold text-blue-800 mb-4 text-center">💍 Simulasi Topologi Ring</h4>
+        <div class="bg-white p-6 rounded-lg">
+         <div class="relative w-80 h-80 mx-auto"><!-- Ring Circle -->
+          <div class="absolute inset-0 border-4 border-green-400 rounded-full"></div><!-- Devices positioned around the circle -->
+          <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-8">
+           <div class="text-center">
+            <div class="network-node bg-blue-500 topology-animation">
+             💻
+            </div>
+            <p class="text-xs mt-2 text-blue-600">PC 1</p>
+           </div>
+          </div>
+          <div class="absolute top-1/4 right-0 transform translate-x-8 -translate-y-1/2">
+           <div class="text-center">
+            <div class="network-node bg-green-500 topology-animation">
+             💻
+            </div>
+            <p class="text-xs mt-2 text-green-600">PC 2</p>
+           </div>
+          </div>
+          <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-8">
+           <div class="text-center">
+            <div class="network-node bg-orange-500 topology-animation">
+             💻
+            </div>
+            <p class="text-xs mt-2 text-orange-600">PC 3</p>
+           </div>
+          </div>
+          <div class="absolute top-1/4 left-0 transform -translate-x-8 -translate-y-1/2">
+           <div class="text-center">
+            <div class="network-node bg-pink-500 topology-animation">
+             🖨️
+            </div>
+            <p class="text-xs mt-2 text-pink-600">Printer</p>
+           </div>
+          </div><!-- Data flow indicator -->
+          <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+           <div class="text-2xl data-flow">
+            📦
+           </div>
+          </div>
+         </div>
+         <div class="mt-6 text-center">
+          <p class="text-blue-700 text-sm">Data bergerak searah jarum jam mengelilingi ring</p>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-green-100 to-emerald-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-emerald-800 mb-4">Karakteristik Topologi Ring</h3>
+       <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-emerald-700 mb-3 text-base">✅ Kelebihan</h4>
+         <ul class="text-emerald-600 text-base space-y-2">
+          <li>• <strong>Tidak ada collision:</strong> Data bergerak satu arah dengan token passing</li>
+          <li>• <strong>Performa konsisten:</strong> Setiap node mendapat giliran yang adil</li>
+          <li>• <strong>Bandwidth terjamin:</strong> Tidak ada kontention seperti di Bus</li>
+          <li>• <strong>Hemat kabel:</strong> Setiap node hanya butuh 2 koneksi</li>
+          <li>• <strong>Mudah monitoring:</strong> Data flow dapat dipantau dengan mudah</li>
+         </ul>
+        </div>
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-emerald-700 mb-3 text-base">❌ Kekurangan</h4>
+         <ul class="text-emerald-600 text-base space-y-2">
+          <li>• <strong>Single point of failure:</strong> Satu node/kabel rusak, seluruh ring terputus</li>
+          <li>• <strong>Sulit troubleshooting:</strong> Susah isolasi masalah tanpa memutus ring</li>
+          <li>• <strong>Delay tinggi:</strong> Data harus melewati semua node sebelum sampai tujuan</li>
+          <li>• <strong>Sulit rekonfigurasi:</strong> Menambah/hapus node harus memutus ring</li>
+          <li>• <strong>Token loss:</strong> Jika token hilang, seluruh jaringan berhenti</li>
+         </ul>
+        </div>
+       </div>
+       <div class="bg-white bg-opacity-70 p-4 rounded-xl mt-4">
+        <h4 class="font-bold text-emerald-700 mb-3 text-base">🔄 Cara Kerja Token Ring</h4>
+        <div class="grid md:grid-cols-3 gap-3">
+         <div class="text-center bg-emerald-50 p-3 rounded-lg">
+          <div class="text-2xl mb-2">
+           🎫
+          </div>
+          <h5 class="font-bold text-emerald-700 text-sm">Token Passing</h5>
+          <p class="text-emerald-600 text-xs">Token beredar mengelilingi ring</p>
+         </div>
+         <div class="text-center bg-emerald-50 p-3 rounded-lg">
+          <div class="text-2xl mb-2">
+           📤
+          </div>
+          <h5 class="font-bold text-emerald-700 text-sm">Data Transmission</h5>
+          <p class="text-emerald-600 text-xs">Node menangkap token untuk kirim data</p>
+         </div>
+         <div class="text-center bg-emerald-50 p-3 rounded-lg">
+          <div class="text-2xl mb-2">
+           🔄
+          </div>
+          <h5 class="font-bold text-emerald-700 text-sm">Token Release</h5>
+          <p class="text-emerald-600 text-xs">Token dilepas setelah data terkirim</p>
+         </div>
+        </div>
+       </div>
+       <div class="bg-white bg-opacity-70 p-4 rounded-xl mt-4">
+        <h4 class="font-bold text-emerald-700 mb-3 text-base">🏢 Implementasi Real-World</h4>
+        <div class="space-y-2">
+         <div class="flex items-center bg-emerald-50 p-2 rounded-lg"><span class="text-lg mr-3">🏭</span>
+          <div>
+           <h5 class="font-bold text-emerald-700 text-sm">IBM Token Ring (Era 1980-1990)</h5>
+           <p class="text-emerald-600 text-sm">Standar IEEE 802.5, kecepatan 4-16 Mbps, populer di lingkungan IBM</p>
+          </div>
+         </div>
+         <div class="flex items-center bg-emerald-50 p-2 rounded-lg"><span class="text-lg mr-3">🌐</span>
+          <div>
+           <h5 class="font-bold text-emerald-700 text-sm">FDDI (Fiber Distributed Data Interface)</h5>
+           <p class="text-emerald-600 text-sm">Ring ganda dengan fiber optic, kecepatan 100 Mbps, untuk backbone</p>
+          </div>
+         </div>
+         <div class="mt-3 p-2 bg-yellow-100 rounded-lg">
+          <p class="text-yellow-700 text-sm"><strong>Status Saat Ini:</strong> Topologi Ring sudah jarang digunakan, digantikan oleh Switched Ethernet</p>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="text-center"><button onclick="nextSection()" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg text-base lg:text-lg transition-colors"> Lanjut ke Topologi Mesh 🕸️ </button>
+      </div>
+     </div>
+    </div><!-- Topologi Mesh Section -->
+    <div id="topologi-mesh" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-5xl mb-4 bounce">
+        🕸️
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-pink-800 mb-4">Topologi Mesh</h2>
+       <p class="text-lg lg:text-xl text-pink-600">Topologi saling terhubung</p>
+      </div>
+      <div class="bg-gradient-to-br from-blue-100 to-indigo-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-blue-800 mb-4">Pengertian Topologi Mesh</h3>
+       <p class="text-blue-700 mb-4 text-base lg:text-lg">Topologi Mesh adalah topologi jaringan dimana setiap perangkat terhubung langsung dengan semua perangkat lainnya. Ini memberikan redundancy dan fault tolerance yang sangat tinggi.</p>
+       <div class="demo-box">
+        <h4 class="font-bold text-blue-800 mb-4 text-center">🕸️ Simulasi Topologi Mesh</h4>
+        <div class="bg-white p-6 rounded-lg">
+         <div class="relative w-80 h-80 mx-auto"><!-- Devices positioned in pentagon -->
+          <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-4">
+           <div class="text-center">
+            <div class="network-node bg-blue-500 topology-animation">
+             💻
+            </div>
+            <p class="text-xs mt-2 text-blue-600">PC 1</p>
+           </div>
+          </div>
+          <div class="absolute top-1/4 right-0 transform translate-x-4">
+           <div class="text-center">
+            <div class="network-node bg-green-500 topology-animation">
+             💻
+            </div>
+            <p class="text-xs mt-2 text-green-600">PC 2</p>
+           </div>
+          </div>
+          <div class="absolute bottom-1/4 right-0 transform translate-x-4">
+           <div class="text-center">
+            <div class="network-node bg-purple-500 topology-animation">
+             🖥️
+            </div>
+            <p class="text-xs mt-2 text-purple-600">Server</p>
+           </div>
+          </div>
+          <div class="absolute bottom-1/4 left-0 transform -translate-x-4">
+           <div class="text-center">
+            <div class="network-node bg-orange-500 topology-animation">
+             💻
+            </div>
+            <p class="text-xs mt-2 text-orange-600">PC 3</p>
+           </div>
+          </div>
+          <div class="absolute top-1/4 left-0 transform -translate-x-4">
+           <div class="text-center">
+            <div class="network-node bg-pink-500 topology-animation">
+             🖨️
+            </div>
+            <p class="text-xs mt-2 text-pink-600">Printer</p>
+           </div>
+          </div><!-- Connection lines (simplified) -->
+          <svg class="absolute inset-0 w-full h-full" style="z-index: 1;"><line x1="50%" y1="10%" x2="85%" y2="30%" stroke="#4ade80" stroke-width="2" /> <line x1="50%" y1="10%" x2="85%" y2="70%" stroke="#4ade80" stroke-width="2" /> <line x1="50%" y1="10%" x2="15%" y2="70%" stroke="#4ade80" stroke-width="2" /> <line x1="50%" y1="10%" x2="15%" y2="30%" stroke="#4ade80" stroke-width="2" /> <line x1="85%" y1="30%" x2="85%" y2="70%" stroke="#4ade80" stroke-width="2" /> <line x1="85%" y1="30%" x2="15%" y2="70%" stroke="#4ade80" stroke-width="2" /> <line x1="85%" y1="30%" x2="15%" y2="30%" stroke="#4ade80" stroke-width="2" /> <line x1="85%" y1="70%" x2="15%" y2="70%" stroke="#4ade80" stroke-width="2" /> <line x1="85%" y1="70%" x2="15%" y2="30%" stroke="#4ade80" stroke-width="2" /> <line x1="15%" y1="70%" x2="15%" y2="30%" stroke="#4ade80" stroke-width="2" />
+          </svg>
+         </div>
+         <div class="mt-6 text-center">
+          <p class="text-blue-700 text-sm">Setiap perangkat terhubung langsung dengan semua perangkat lainnya</p>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-green-100 to-emerald-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-emerald-800 mb-4">Karakteristik Topologi Mesh</h3>
+       <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-emerald-700 mb-3 text-base">✅ Kelebihan</h4>
+         <ul class="text-emerald-600 text-base space-y-2">
+          <li>• <strong>Fault tolerance tinggi:</strong> Banyak jalur alternatif</li>
+          <li>• <strong>Tidak ada bottleneck:</strong> Multiple paths</li>
+          <li>• <strong>Keamanan tinggi:</strong> Data bisa lewat jalur berbeda</li>
+          <li>• <strong>Bandwidth dedicated:</strong> Setiap link eksklusif</li>
+         </ul>
+        </div>
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-emerald-700 mb-3 text-base">❌ Kekurangan</h4>
+         <ul class="text-emerald-600 text-base space-y-2">
+          <li>• <strong>Biaya sangat tinggi:</strong> Banyak kabel dan port</li>
+          <li>• <strong>Kompleksitas tinggi:</strong> Sulit konfigurasi</li>
+          <li>• <strong>Maintenance sulit:</strong> Banyak koneksi</li>
+          <li>• <strong>Routing complex:</strong> Banyak path choices</li>
+         </ul>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-teal-100 to-cyan-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-teal-800 mb-4">Topologi Hybrid: Kombinasi Mesh</h3>
+       <div class="bg-white bg-opacity-70 p-4 rounded-xl mb-4">
+        <h4 class="font-bold text-teal-700 mb-3 text-base">🌐 Partial Mesh vs Full Mesh</h4>
+        <div class="grid md:grid-cols-2 gap-4">
+         <div class="bg-teal-50 p-3 rounded-lg">
+          <h5 class="font-bold text-teal-700 text-sm mb-2">🔗 Partial Mesh</h5>
+          <ul class="text-teal-600 text-base space-y-1">
+           <li>• Tidak semua node terhubung langsung</li>
+           <li>• Hanya node penting yang fully connected</li>
+           <li>• Lebih ekonomis dari full mesh</li>
+           <li>• Cocok untuk WAN dan internet backbone</li>
+          </ul>
+         </div>
+         <div class="bg-teal-50 p-3 rounded-lg">
+          <h5 class="font-bold text-teal-700 text-sm mb-2">🕸️ Full Mesh</h5>
+          <ul class="text-teal-600 text-base space-y-1">
+           <li>• Setiap node terhubung ke semua node lain</li>
+           <li>• Redundancy maksimal</li>
+           <li>• Biaya sangat tinggi</li>
+           <li>• Hanya untuk aplikasi mission-critical</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+       <div class="bg-white bg-opacity-70 p-4 rounded-xl mb-4">
+        <h4 class="font-bold text-teal-700 mb-3 text-base">🧮 Rumus Perhitungan Koneksi Mesh</h4>
+        <div class="bg-teal-50 p-4 rounded-lg">
+         <div class="text-center mb-3">
+          <div class="text-lg font-bold text-teal-800">
+           Jumlah Koneksi = n × (n-1) ÷ 2
+          </div>
+          <p class="text-teal-600 text-sm">dimana n = jumlah node</p>
+         </div>
+         <div class="grid md:grid-cols-3 gap-3">
+          <div class="text-center bg-white p-2 rounded">
+           <div class="font-bold text-teal-700">
+            3 Node
+           </div>
+           <div class="text-teal-600 text-sm">
+            3×2÷2 = 3 koneksi
+           </div>
+          </div>
+          <div class="text-center bg-white p-2 rounded">
+           <div class="font-bold text-teal-700">
+            5 Node
+           </div>
+           <div class="text-teal-600 text-sm">
+            5×4÷2 = 10 koneksi
+           </div>
+          </div>
+          <div class="text-center bg-white p-2 rounded">
+           <div class="font-bold text-teal-700">
+            10 Node
+           </div>
+           <div class="text-teal-600 text-sm">
+            10×9÷2 = 45 koneksi
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+        <h4 class="font-bold text-teal-700 mb-3 text-base">💼 Implementasi Real-World</h4>
+        <div class="space-y-3">
+         <div class="flex items-center bg-teal-50 p-3 rounded-lg"><span class="text-xl mr-3">🏦</span>
+          <div>
+           <h5 class="font-bold text-teal-700 text-base">Banking Network</h5>
+           <p class="text-teal-600 text-base">ATM dan cabang bank menggunakan partial mesh untuk keamanan dan redundancy</p>
+          </div>
+         </div>
+         <div class="flex items-center bg-teal-50 p-3 rounded-lg"><span class="text-xl mr-3">🌐</span>
+          <div>
+           <h5 class="font-bold text-teal-700 text-base">Internet Backbone</h5>
+           <p class="text-teal-600 text-base">ISP menggunakan mesh untuk routing alternatif jika ada jalur yang down</p>
+          </div>
+         </div>
+         <div class="flex items-center bg-teal-50 p-3 rounded-lg"><span class="text-xl mr-3">🏥</span>
+          <div>
+           <h5 class="font-bold text-teal-700 text-base">Hospital Network</h5>
+           <p class="text-teal-600 text-base">Sistem kritikal rumah sakit butuh full mesh untuk zero downtime</p>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="text-center"><button onclick="nextSection()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg text-base lg:text-lg transition-colors"> Lanjut ke Perbandingan ⚖️ </button>
+      </div>
+     </div>
+    </div><!-- Perbandingan Section -->
+    <div id="perbandingan" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-5xl mb-4 bounce">
+        ⚖️
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-pink-800 mb-4">Perbandingan Topologi</h2>
+       <p class="text-lg lg:text-xl text-pink-600">Membandingkan semua jenis topologi</p>
+      </div>
+      <div class="bg-gradient-to-br from-blue-100 to-indigo-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-blue-800 mb-4">Tabel Perbandingan</h3>
+       <div class="overflow-x-auto">
+        <table class="w-full bg-white rounded-lg shadow-lg">
+         <thead class="bg-gradient-to-r from-pink-200 to-purple-200">
+          <tr>
+           <th class="p-3 text-left font-bold text-pink-800">Aspek</th>
+           <th class="p-3 text-center font-bold text-pink-800">Bus</th>
+           <th class="p-3 text-center font-bold text-pink-800">Star</th>
+           <th class="p-3 text-center font-bold text-pink-800">Ring</th>
+           <th class="p-3 text-center font-bold text-pink-800">Mesh</th>
+          </tr>
+         </thead>
+         <tbody class="text-base">
+          <tr class="border-b">
+           <td class="p-3 font-semibold text-gray-700 text-base">Biaya Implementasi</td>
+           <td class="p-3 text-center text-green-600 text-base">Rendah</td>
+           <td class="p-3 text-center text-yellow-600 text-base">Sedang</td>
+           <td class="p-3 text-center text-yellow-600 text-base">Sedang</td>
+           <td class="p-3 text-center text-red-600 text-base">Sangat Tinggi</td>
+          </tr>
+          <tr class="border-b bg-gray-50">
+           <td class="p-3 font-semibold text-gray-700 text-base">Kemudahan Instalasi</td>
+           <td class="p-3 text-center text-green-600 text-base">Mudah</td>
+           <td class="p-3 text-center text-green-600 text-base">Mudah</td>
+           <td class="p-3 text-center text-yellow-600 text-base">Sedang</td>
+           <td class="p-3 text-center text-red-600 text-base">Sangat Sulit</td>
+          </tr>
+          <tr class="border-b">
+           <td class="p-3 font-semibold text-gray-700 text-base">Fault Tolerance</td>
+           <td class="p-3 text-center text-red-600 text-base">Sangat Rendah</td>
+           <td class="p-3 text-center text-yellow-600 text-base">Sedang</td>
+           <td class="p-3 text-center text-red-600 text-base">Rendah</td>
+           <td class="p-3 text-center text-green-600 text-base">Sangat Tinggi</td>
+          </tr>
+          <tr class="border-b bg-gray-50">
+           <td class="p-3 font-semibold text-gray-700 text-base">Performa/Kecepatan</td>
+           <td class="p-3 text-center text-red-600 text-base">Menurun dengan traffic</td>
+           <td class="p-3 text-center text-green-600 text-base">Konsisten &amp; Cepat</td>
+           <td class="p-3 text-center text-yellow-600 text-base">Konsisten tapi delay</td>
+           <td class="p-3 text-center text-green-600 text-base">Sangat Cepat</td>
+          </tr>
+          <tr class="border-b">
+           <td class="p-3 font-semibold text-gray-700 text-base">Troubleshooting</td>
+           <td class="p-3 text-center text-red-600 text-base">Sangat Sulit</td>
+           <td class="p-3 text-center text-green-600 text-base">Mudah</td>
+           <td class="p-3 text-center text-red-600 text-base">Sulit</td>
+           <td class="p-3 text-center text-yellow-600 text-base">Kompleks</td>
+          </tr>
+          <tr class="border-b bg-gray-50">
+           <td class="p-3 font-semibold text-gray-700 text-base">Skalabilitas</td>
+           <td class="p-3 text-center text-red-600 text-base">Terbatas</td>
+           <td class="p-3 text-center text-green-600 text-base">Sangat Baik</td>
+           <td class="p-3 text-center text-yellow-600 text-base">Sedang</td>
+           <td class="p-3 text-center text-red-600 text-base">Sulit Scale</td>
+          </tr>
+          <tr class="border-b">
+           <td class="p-3 font-semibold text-gray-700 text-base">Penggunaan Saat Ini</td>
+           <td class="p-3 text-center text-red-600 text-base">Jarang/Legacy</td>
+           <td class="p-3 text-center text-green-600 text-base">Sangat Populer</td>
+           <td class="p-3 text-center text-red-600 text-base">Jarang/Legacy</td>
+           <td class="p-3 text-center text-yellow-600 text-base">Khusus/Backbone</td>
+          </tr>
+         </tbody>
+        </table>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-green-100 to-emerald-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-emerald-800 mb-4">Rekomendasi Penggunaan</h3>
+       <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-emerald-700 mb-3 text-base">🏠 Jaringan Kecil (5-10 PC)</h4>
+         <div class="space-y-2">
+          <div class="flex items-center space-x-2"><span class="text-2xl">🥇</span> <span class="text-emerald-600 text-base"><strong>Star:</strong> Paling direkomendasikan</span>
+          </div>
+          <div class="flex items-center space-x-2"><span class="text-2xl">🥈</span> <span class="text-emerald-600 text-base"><strong>Bus:</strong> Alternatif murah</span>
+          </div>
+         </div>
+        </div>
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-emerald-700 mb-3 text-base">🏢 Jaringan Besar (50+ PC)</h4>
+         <div class="space-y-2">
+          <div class="flex items-center space-x-2"><span class="text-2xl">🥇</span> <span class="text-emerald-600 text-base"><strong>Star:</strong> Dengan multiple switches</span>
+          </div>
+          <div class="flex items-center space-x-2"><span class="text-2xl">🥈</span> <span class="text-emerald-600 text-base"><strong>Mesh:</strong> Untuk mission critical</span>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-purple-100 to-pink-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-purple-800 mb-4">🧮 Kalkulator Biaya Topologi</h3>
+       <div class="bg-white bg-opacity-70 p-4 rounded-xl mb-4">
+        <h4 class="font-bold text-purple-700 mb-3 text-base">Hitung Estimasi Biaya Jaringan Anda</h4>
+        <div class="grid md:grid-cols-2 gap-4">
+         <div><label class="block text-purple-600 text-base font-bold mb-2">Jumlah PC:</label> <input type="number" id="pcCount" class="w-full p-2 border rounded text-base" value="10" min="2" max="100">
+         </div>
+         <div><label class="block text-purple-600 text-base font-bold mb-2">Topologi:</label> <select id="topologyType" class="w-full p-2 border rounded text-base"> <option value="bus">Bus</option> <option value="star" selected>Star</option> <option value="ring">Ring</option> <option value="mesh">Mesh</option> </select>
+         </div>
+        </div><button onclick="calculateCost()" class="mt-4 bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded text-base transition-colors"> Hitung Biaya 💰 </button>
+       </div>
+       <div id="costResult" class="bg-white bg-opacity-70 p-4 rounded-xl hidden">
+        <h4 class="font-bold text-purple-700 mb-3 text-base">📊 Hasil Estimasi</h4>
+        <div class="grid md:grid-cols-3 gap-3">
+         <div class="text-center bg-purple-50 p-3 rounded-lg">
+          <div class="text-lg font-bold text-purple-700" id="cableLength">
+           -
+          </div>
+          <p class="text-purple-600 text-base">Panjang Kabel (m)</p>
+         </div>
+         <div class="text-center bg-purple-50 p-3 rounded-lg">
+          <div class="text-lg font-bold text-purple-700" id="deviceCount">
+           -
+          </div>
+          <p class="text-purple-600 text-base">Perangkat Tambahan</p>
+         </div>
+         <div class="text-center bg-purple-50 p-3 rounded-lg">
+          <div class="text-lg font-bold text-purple-700" id="totalCost">
+           -
+          </div>
+          <p class="text-purple-600 text-base">Total Biaya (Rp)</p>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-cyan-100 to-blue-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-blue-800 mb-4">🎮 Simulator Pemilihan Topologi</h3>
+       <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+        <h4 class="font-bold text-blue-700 mb-3 text-base">Skenario: Anda adalah Network Administrator</h4>
+        <div id="scenarioContent" class="mb-4">
+         <p class="text-blue-600 text-base mb-3">Sebuah startup teknologi dengan 25 karyawan membutuhkan jaringan baru. Budget terbatas tapi butuh reliability tinggi untuk development dan testing.</p>
+         <div class="space-y-2"><button onclick="selectTopology('bus')" class="w-full text-left bg-blue-50 hover:bg-blue-100 p-3 rounded-lg transition-colors">
+           <div class="flex items-center"><span class="text-xl mr-3">🚌</span>
+            <div>
+             <h5 class="font-bold text-blue-700 text-base">Pilih Topologi Bus</h5>
+             <p class="text-blue-600 text-sm">Murah tapi risiko tinggi</p>
+            </div>
+           </div></button> <button onclick="selectTopology('star')" class="w-full text-left bg-blue-50 hover:bg-blue-100 p-3 rounded-lg transition-colors">
+           <div class="flex items-center"><span class="text-xl mr-3">⭐</span>
+            <div>
+             <h5 class="font-bold text-blue-700 text-base">Pilih Topologi Star</h5>
+             <p class="text-blue-600 text-sm">Seimbang antara biaya dan reliability</p>
+            </div>
+           </div></button> <button onclick="selectTopology('mesh')" class="w-full text-left bg-blue-50 hover:bg-blue-100 p-3 rounded-lg transition-colors">
+           <div class="flex items-center"><span class="text-xl mr-3">🕸️</span>
+            <div>
+             <h5 class="font-bold text-blue-700 text-base">Pilih Topologi Mesh</h5>
+             <p class="text-blue-600 text-sm">Sangat reliable tapi mahal</p>
+            </div>
+           </div></button>
+         </div>
+        </div>
+        <div id="simulationResult" class="hidden">
+         <div class="bg-blue-50 p-4 rounded-lg">
+          <h5 class="font-bold text-blue-700 text-base mb-2">📋 Hasil Simulasi</h5>
+          <div id="resultContent" class="text-blue-600 text-base"></div><button onclick="resetSimulation()" class="mt-3 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded text-base transition-colors"> Coba Lagi 🔄 </button>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="text-center"><button onclick="nextSection()" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-lg text-base lg:text-lg transition-colors"> Lanjut ke Tugas 📝 </button>
+      </div>
+     </div>
+    </div><!-- Tugas Section -->
+    <div id="tugas" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-5xl mb-4 bounce">
+        📝
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-pink-800 mb-4">Tugas</h2>
+       <p class="text-lg lg:text-xl text-pink-600">Latihan soal untuk pemahaman</p>
+      </div>
+      <div class="bg-gradient-to-br from-blue-100 to-indigo-200 p-6 rounded-2xl shadow-lg mb-6 card-hover">
+       <h3 class="text-xl lg:text-2xl font-bold text-blue-800 mb-4">Soal Essay</h3>
+       <div class="space-y-6">
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-blue-700 mb-3 text-base">1. Analisis Kasus</h4>
+         <p class="text-blue-600 text-base mb-3">Sebuah warnet memiliki 15 komputer dan 1 server. Pemilik ingin jaringan yang mudah dikelola dan tidak terlalu mahal. Topologi apa yang paling cocok? Jelaskan alasannya!</p><textarea class="w-full p-3 border rounded-lg text-base" rows="4" placeholder="Tulis jawaban Anda di sini..."></textarea>
+        </div>
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-blue-700 mb-3 text-base">2. Perbandingan</h4>
+         <p class="text-blue-600 text-base mb-3">Bandingkan topologi Bus dan Star dari segi biaya, kecepatan, dan fault tolerance. Berikan contoh situasi dimana masing-masing topologi lebih cocok digunakan!</p><textarea class="w-full p-3 border rounded-lg text-base" rows="4" placeholder="Tulis jawaban Anda di sini..."></textarea>
+        </div>
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-blue-700 mb-3 text-base">3. Desain Jaringan</h4>
+         <p class="text-blue-600 text-base mb-3">Anda diminta merancang jaringan untuk sekolah dengan 3 lab komputer (masing-masing 20 PC), 1 ruang guru (10 PC), dan 1 ruang server. Topologi apa yang akan Anda gunakan dan mengapa?</p><textarea class="w-full p-3 border rounded-lg text-base" rows="4" placeholder="Tulis jawaban Anda di sini..."></textarea>
+        </div>
+       </div>
+      </div>
+      <div class="text-center"><button onclick="nextSection()" class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg text-base lg:text-lg transition-colors"> Lanjut ke Kuis 🎯 </button>
+      </div>
+     </div>
+    </div><!-- Kuis Section -->
+    <div id="kuis" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-5xl mb-4 bounce">
+        🎯
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-pink-800 mb-4">Kuis Interaktif</h2>
+       <p class="text-lg lg:text-xl text-pink-600">Uji pemahaman Anda!</p>
+      </div><!-- Quiz Start Screen -->
+      <div id="quizStart" class="bg-gradient-to-br from-green-100 to-emerald-200 p-6 rounded-2xl shadow-lg card-hover">
+       <div class="text-center">
+        <div class="text-4xl mb-4">
+         🎮
+        </div>
+        <h3 class="text-xl lg:text-2xl font-bold text-emerald-800 mb-4">Siap untuk Kuis?</h3>
+        <p class="text-emerald-700 mb-6 text-lg">10 soal pilihan ganda tentang topologi jaringan</p>
+        <div class="mb-6"><label for="studentName" class="block text-emerald-700 font-bold mb-2 text-base">Nama Anda:</label> <input type="text" id="studentName" class="w-full max-w-md mx-auto p-3 border rounded-lg text-center text-base" placeholder="Masukkan nama Anda">
+        </div><button onclick="startQuiz()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors"> Mulai Kuis! 🚀 </button>
+       </div>
+      </div><!-- Quiz Questions -->
+      <div id="quizQuestions" class="hidden">
+       <div class="bg-gradient-to-br from-blue-100 to-indigo-200 p-6 rounded-2xl shadow-lg mb-6">
+        <div class="flex justify-between items-center mb-4">
+         <h3 class="text-lg font-bold text-blue-800">Soal <span id="currentQuestion">1</span> dari 10</h3>
+         <div class="text-blue-600">
+          Skor: <span id="currentScore">0</span>
+         </div>
+        </div>
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl mb-6">
+         <h4 id="questionText" class="font-bold text-blue-700 mb-4 text-base"></h4>
+         <div id="optionsContainer" class="space-y-3"></div>
+        </div>
+        <div class="text-center"><button id="nextButton" onclick="nextQuestion()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition-colors hidden"> Soal Berikutnya </button>
+        </div>
+       </div>
+      </div><!-- Quiz Results -->
+      <div id="quizResults" class="hidden">
+       <div class="bg-gradient-to-br from-purple-100 to-violet-200 p-6 rounded-2xl shadow-lg text-center card-hover">
+        <div class="text-5xl mb-4">
+         🎉
+        </div>
+        <h3 class="text-2xl font-bold text-violet-800 mb-4">Kuis Selesai!</h3>
+        <div class="bg-white bg-opacity-70 p-6 rounded-xl mb-6">
+         <p class="text-xl text-violet-700 mb-2">Nama: <span id="finalName" class="font-bold"></span></p>
+         <p class="text-3xl text-violet-800 font-bold">Skor Akhir: <span id="finalScore"></span>/10</p>
+         <p id="gradeMessage" class="text-xl text-violet-600 mt-2"></p>
+        </div><button onclick="restartQuiz()" class="bg-violet-500 hover:bg-violet-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors mr-4"> Ulangi Kuis </button> <button onclick="nextSection()" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors"> Lanjut ke Penutup </button>
+       </div>
+      </div>
+     </div>
+    </div><!-- Penutup Section -->
+    <div id="penutup" class="section hidden">
+     <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+       <div class="text-5xl mb-4 bounce">
+        🎉
+       </div>
+       <h2 class="text-3xl lg:text-4xl font-bold text-pink-800 mb-4">Penutup</h2>
+       <p class="text-lg lg:text-xl text-pink-600">Refleksi dan kesimpulan pembelajaran</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+       <div class="bg-gradient-to-br from-green-100 to-emerald-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="text-4xl mb-4 pulse">
+         🤔
+        </div>
+        <h3 class="text-xl lg:text-2xl font-bold text-emerald-800 mb-4">Refleksi</h3>
+        <ul class="text-emerald-700 space-y-2 text-lg">
+         <li>• Apa yang paling menarik dari pembelajaran ini?</li>
+         <li>• Topologi mana yang paling mudah dipahami?</li>
+         <li>• Bagaimana Anda akan menerapkan pengetahuan ini?</li>
+         <li>• Apa tantangan terbesar dalam memahami materi?</li>
+        </ul>
+       </div>
+       <div class="bg-gradient-to-br from-blue-100 to-cyan-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="text-4xl mb-4 pulse">
+         📋
+        </div>
+        <h3 class="text-xl lg:text-2xl font-bold text-cyan-800 mb-4">Kesimpulan</h3>
+        <ul class="text-cyan-700 space-y-2 text-lg">
+         <li>• Topologi jaringan menentukan cara perangkat terhubung</li>
+         <li>• Setiap topologi memiliki kelebihan dan kekurangan</li>
+         <li>• Pemilihan topologi tergantung kebutuhan dan budget</li>
+         <li>• Star adalah topologi paling populer saat ini</li>
+        </ul>
+       </div>
+      </div>
+      <div class="bg-gradient-to-br from-purple-100 to-violet-200 p-6 rounded-2xl shadow-lg mb-8 card-hover">
+       <div class="text-4xl mb-4 pulse">
+        🚀
+       </div>
+       <h3 class="text-xl lg:text-2xl font-bold text-violet-800 mb-4">Tindak Lanjut</h3>
+       <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-violet-700 mb-3 text-base">📚 Pelajari Lebih Lanjut</h4>
+         <ul class="text-violet-600 text-sm space-y-2">
+          <li>• Protokol jaringan (TCP/IP, OSI Model)</li>
+          <li>• Perangkat jaringan (Router, Switch, Hub)</li>
+          <li>• Keamanan jaringan</li>
+          <li>• Wireless networking</li>
+         </ul>
+        </div>
+        <div class="bg-white bg-opacity-70 p-4 rounded-xl">
+         <h4 class="font-bold text-violet-700 mb-3 text-base">🛠️ Praktik Langsung</h4>
+         <ul class="text-violet-600 text-sm space-y-2">
+          <li>• Simulasi dengan Packet Tracer</li>
+          <li>• Membangun jaringan sederhana</li>
+          <li>• Konfigurasi perangkat jaringan</li>
+          <li>• Troubleshooting masalah jaringan</li>
+         </ul>
+        </div>
+       </div>
+      </div>
+      <div class="text-center">
+       <div class="bg-gradient-to-br from-pink-100 to-rose-200 p-6 rounded-2xl shadow-lg card-hover">
+        <div class="text-4xl mb-4">
+         🌟
+        </div>
+        <h3 class="text-2xl font-bold text-pink-800 mb-4">Selamat!</h3>
+        <p class="text-pink-700 text-xl mb-4">Anda telah menyelesaikan pembelajaran tentang Topologi Jaringan!</p>
+        <p class="text-pink-600 text-lg">Terus semangat belajar dan jangan lupa praktik langsung! 💪</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </main>
+  </div><!-- Back to Top Button --> <button id="backToTop" class="fixed bottom-6 right-6 bg-pink-500 hover:bg-pink-600 text-white p-3 rounded-full shadow-lg transition-all duration-300 opacity-0 pointer-events-none z-50">
+   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+   </svg></button>
+  <script>
+        // Configuration object
+        const defaultConfig = {
+            main_title: "Topologi Jaringan",
+            subtitle: "Implementasi & Penerapan",
+            welcome_title: "Selamat Datang!",
+            welcome_message: "Mari belajar Topologi Jaringan bersama!"
+        };
+
+        // Quiz data
+        const quizData = [
+            {
+                question: "Apa yang dimaksud dengan topologi jaringan?",
+                options: [
+                    "Cara mengatur perangkat keras komputer",
+                    "Pola pengaturan hubungan antar perangkat dalam jaringan",
+                    "Jenis kabel yang digunakan dalam jaringan",
+                    "Protokol komunikasi antar komputer"
+                ],
+                correct: 1
+            },
+            {
+                question: "Topologi yang menggunakan satu kabel utama sebagai backbone adalah:",
+                options: ["Star", "Ring", "Bus", "Mesh"],
+                correct: 2
+            },
+            {
+                question: "Kelebihan utama topologi Star adalah:",
+                options: [
+                    "Biaya paling murah",
+                    "Mudah dikelola dan troubleshooting",
+                    "Tidak membutuhkan perangkat pusat",
+                    "Kecepatan paling tinggi"
+                ],
+                correct: 1
+            },
+            {
+                question: "Dalam topologi Ring, data bergerak:",
+                options: [
+                    "Ke semua arah secara bersamaan",
+                    "Hanya ke perangkat terdekat",
+                    "Dalam satu arah mengelilingi ring",
+                    "Langsung ke tujuan"
+                ],
+                correct: 2
+            },
+            {
+                question: "Topologi yang memberikan fault tolerance tertinggi adalah:",
+                options: ["Bus", "Star", "Ring", "Mesh"],
+                correct: 3
+            },
+            {
+                question: "Kelemahan utama topologi Bus adalah:",
+                options: [
+                    "Biaya terlalu mahal",
+                    "Sulit dipasang",
+                    "Single point of failure pada kabel utama",
+                    "Kecepatan terlalu lambat"
+                ],
+                correct: 2
+            },
+            {
+                question: "Perangkat pusat dalam topologi Star disebut:",
+                options: ["Router", "Hub/Switch", "Server", "Gateway"],
+                correct: 1
+            },
+            {
+                question: "Untuk jaringan kecil (5-10 PC) dengan budget sangat terbatas, topologi yang paling ekonomis adalah:",
+                options: ["Mesh", "Star", "Bus", "Ring"],
+                correct: 2
+            },
+            {
+                question: "Dalam topologi Mesh penuh, jumlah koneksi untuk 5 node adalah:",
+                options: ["5", "10", "15", "20"],
+                correct: 1
+            },
+            {
+                question: "Topologi yang paling populer digunakan saat ini adalah:",
+                options: ["Bus", "Star", "Ring", "Mesh"],
+                correct: 1
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let studentName = "";
+        let selectedAnswer = null;
+
+        // Navigation functions
+        const sections = ['intro', 'pengenalan', 'topologi-bus', 'topologi-star', 'topologi-ring', 'topologi-mesh', 'perbandingan', 'tugas', 'kuis', 'penutup'];
+        let currentSectionIndex = 0;
+
+        function showSection(sectionId) {
+            // Scroll to top immediately first
+            window.scrollTo({ top: 0, behavior: 'instant' });
+            
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.getElementById(sectionId).classList.add('fade-in');
+            
+            // Update active nav item - find by onclick attribute
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Find and activate the correct nav item
+            const targetNavItem = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (targetNavItem) {
+                targetNavItem.classList.add('active');
+            }
+            
+            // Update current section index
+            currentSectionIndex = sections.indexOf(sectionId);
+            
+            // Close mobile menu
+            closeMobileMenu();
+            
+            // Ensure we're at the top after a small delay
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'instant' });
+            }, 50);
+        }
+
+        function nextSection() {
+            if (currentSectionIndex < sections.length - 1) {
+                // Scroll to top immediately first
+                window.scrollTo({ top: 0, behavior: 'instant' });
+                
+                currentSectionIndex++;
+                const nextSectionId = sections[currentSectionIndex];
+                
+                // Hide all sections
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                
+                // Show next section
+                document.getElementById(nextSectionId).classList.remove('hidden');
+                document.getElementById(nextSectionId).classList.add('fade-in');
+                
+                // Update active nav item
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                const nextNavItem = document.querySelector(`[onclick="showSection('${nextSectionId}')"]`);
+                if (nextNavItem) {
+                    nextNavItem.classList.add('active');
+                }
+                
+                // Close mobile menu
+                closeMobileMenu();
+                
+                // Ensure we're at the top after a small delay
+                setTimeout(() => {
+                    window.scrollTo({ top: 0, behavior: 'instant' });
+                }, 50);
+            }
+        }
+
+        // Mobile menu functions
+        function openMobileMenu() {
+            document.getElementById('sidebar').classList.remove('-translate-x-full');
+            document.getElementById('overlay').classList.remove('hidden');
+        }
+
+        function closeMobileMenu() {
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            document.getElementById('overlay').classList.add('hidden');
+        }
+
+        // Cost Calculator functions
+        function calculateCost() {
+            const pcCount = parseInt(document.getElementById('pcCount').value);
+            const topology = document.getElementById('topologyType').value;
+            
+            let cableLength, deviceCount, totalCost;
+            
+            // Harga dasar (dalam ribuan rupiah)
+            const cablePrice = 15; // per meter
+            const switchPrice = 2500; // 24-port switch
+            const hubPrice = 800; // 8-port hub
+            const terminatorPrice = 50; // per unit
+            
+            switch(topology) {
+                case 'bus':
+                    cableLength = pcCount * 5; // 5m per PC
+                    deviceCount = 2; // 2 terminator
+                    totalCost = (cableLength * cablePrice) + (deviceCount * terminatorPrice);
+                    break;
+                case 'star':
+                    cableLength = pcCount * 10; // 10m per PC ke switch
+                    deviceCount = Math.ceil(pcCount / 24); // switches needed
+                    totalCost = (cableLength * cablePrice) + (deviceCount * switchPrice);
+                    break;
+                case 'ring':
+                    cableLength = pcCount * 8; // 8m per connection
+                    deviceCount = 0; // no additional devices
+                    totalCost = cableLength * cablePrice;
+                    break;
+                case 'mesh':
+                    const connections = (pcCount * (pcCount - 1)) / 2;
+                    cableLength = connections * 15; // 15m per connection
+                    deviceCount = pcCount; // network cards with multiple ports
+                    totalCost = (cableLength * cablePrice) + (deviceCount * 500);
+                    break;
+            }
+            
+            // Display results
+            document.getElementById('cableLength').textContent = cableLength;
+            document.getElementById('deviceCount').textContent = deviceCount;
+            document.getElementById('totalCost').textContent = (totalCost * 1000).toLocaleString('id-ID');
+            document.getElementById('costResult').classList.remove('hidden');
+        }
+
+        // Topology Simulator functions
+        function selectTopology(topology) {
+            let result = '';
+            
+            switch(topology) {
+                case 'bus':
+                    result = `
+                        <strong>❌ Pilihan Kurang Tepat</strong><br>
+                        Topologi Bus tidak cocok untuk startup dengan 25 karyawan karena:
+                        <ul class="mt-2 ml-4 text-sm">
+                            <li>• Jika kabel utama rusak, semua karyawan tidak bisa bekerja</li>
+                            <li>• Kinerja menurun drastis dengan banyak pengguna</li>
+                            <li>• Sulit troubleshooting saat ada masalah</li>
+                        </ul>
+                        <strong>Dampak:</strong> Produktivitas turun 60%, downtime tinggi
+                    `;
+                    break;
+                case 'star':
+                    result = `
+                        <strong>✅ Pilihan Sangat Tepat!</strong><br>
+                        Topologi Star adalah solusi ideal untuk startup ini karena:
+                        <ul class="mt-2 ml-4 text-sm">
+                            <li>• Biaya terjangkau untuk 25 PC (sekitar Rp 15 juta)</li>
+                            <li>• Reliability tinggi - jika 1 PC bermasalah, yang lain tetap jalan</li>
+                            <li>• Mudah troubleshooting dan maintenance</li>
+                            <li>• Bisa upgrade kapasitas dengan mudah</li>
+                        </ul>
+                        <strong>Dampak:</strong> Produktivitas optimal, downtime minimal
+                    `;
+                    break;
+                case 'mesh':
+                    result = `
+                        <strong>⚠️ Pilihan Berlebihan</strong><br>
+                        Topologi Mesh terlalu mahal untuk startup ini:
+                        <ul class="mt-2 ml-4 text-sm">
+                            <li>• Biaya sangat tinggi (sekitar Rp 150 juta)</li>
+                            <li>• Kompleksitas tinggi untuk maintenance</li>
+                            <li>• Overkill untuk kebutuhan startup</li>
+                            <li>• ROI tidak sebanding dengan investasi</li>
+                        </ul>
+                        <strong>Dampak:</strong> Budget habis, kompleksitas tinggi
+                    `;
+                    break;
+            }
+            
+            document.getElementById('resultContent').innerHTML = result;
+            document.getElementById('scenarioContent').classList.add('hidden');
+            document.getElementById('simulationResult').classList.remove('hidden');
+        }
+
+        function resetSimulation() {
+            document.getElementById('scenarioContent').classList.remove('hidden');
+            document.getElementById('simulationResult').classList.add('hidden');
+        }
+
+        // Quiz functions
+        function startQuiz() {
+            studentName = document.getElementById('studentName').value.trim();
+            if (!studentName) {
+                // Create inline message instead of alert
+                const nameInput = document.getElementById('studentName');
+                nameInput.style.borderColor = '#ef4444';
+                nameInput.placeholder = 'Nama wajib diisi!';
+                return;
+            }
+            
+            document.getElementById('quizStart').classList.add('hidden');
+            document.getElementById('quizQuestions').classList.remove('hidden');
+            
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizData[currentQuestionIndex];
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('currentScore').textContent = score;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'quiz-option bg-white border-2 border-gray-300 p-3 rounded-lg cursor-pointer';
+                optionDiv.innerHTML = `<span class="font-medium">${String.fromCharCode(65 + index)}.</span> ${option}`;
+                optionDiv.onclick = () => selectAnswer(index, optionDiv);
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            document.getElementById('nextButton').classList.add('hidden');
+            selectedAnswer = null;
+        }
+
+        function selectAnswer(answerIndex, optionElement) {
+            // Remove previous selections
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('selected', 'correct', 'incorrect');
+            });
+            
+            selectedAnswer = answerIndex;
+            optionElement.classList.add('selected');
+            
+            // Show correct answer
+            const question = quizData[currentQuestionIndex];
+            const correctOption = document.querySelectorAll('.quiz-option')[question.correct];
+            const selectedOption = document.querySelectorAll('.quiz-option')[answerIndex];
+            
+            if (answerIndex === question.correct) {
+                selectedOption.classList.add('correct');
+                score++;
+            } else {
+                selectedOption.classList.add('incorrect');
+                correctOption.classList.add('correct');
+            }
+            
+            // Disable all options
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+            
+            document.getElementById('nextButton').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < quizData.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizQuestions').classList.add('hidden');
+            document.getElementById('quizResults').classList.remove('hidden');
+            
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = score;
+            
+            let gradeMessage = "";
+            if (score >= 9) gradeMessage = "Excellent! 🌟";
+            else if (score >= 7) gradeMessage = "Good Job! 👍";
+            else if (score >= 5) gradeMessage = "Not Bad! 👌";
+            else gradeMessage = "Keep Learning! 📚";
+            
+            document.getElementById('gradeMessage').textContent = gradeMessage;
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizResults').classList.add('hidden');
+            document.getElementById('quizStart').classList.remove('hidden');
+            
+            // Reset form
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentName').style.borderColor = '';
+            document.getElementById('studentName').placeholder = 'Masukkan nama Anda';
+        }
+
+        // Back to top functionality
+        function updateBackToTopButton() {
+            const backToTopBtn = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.remove('opacity-0', 'pointer-events-none');
+                backToTopBtn.classList.add('opacity-100');
+            } else {
+                backToTopBtn.classList.add('opacity-0', 'pointer-events-none');
+                backToTopBtn.classList.remove('opacity-100');
+            }
+        }
+
+        // Element SDK implementation
+        async function render(config) {
+            // Update title and subtitle
+            const mainTitle = document.getElementById('mainTitle');
+            const subtitle = document.getElementById('subtitle');
+            const welcomeTitle = document.getElementById('welcomeTitle');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            
+            if (mainTitle) mainTitle.textContent = config.main_title || defaultConfig.main_title;
+            if (subtitle) subtitle.textContent = config.subtitle || defaultConfig.subtitle;
+            if (welcomeTitle) welcomeTitle.textContent = config.welcome_title || defaultConfig.welcome_title;
+            if (welcomeMessage) welcomeMessage.textContent = config.welcome_message || defaultConfig.welcome_message;
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu events
+            document.getElementById('mobileMenuBtn').addEventListener('click', openMobileMenu);
+            document.getElementById('closeSidebar').addEventListener('click', closeMobileMenu);
+            document.getElementById('overlay').addEventListener('click', closeMobileMenu);
+            
+            // Back to top button
+            document.getElementById('backToTop').addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            
+            // Scroll event for back to top button
+            window.addEventListener('scroll', updateBackToTopButton);
+            
+            // Responsive sidebar
+            function handleResize() {
+                if (window.innerWidth >= 1024) {
+                    closeMobileMenu();
+                }
+            }
+            
+            window.addEventListener('resize', handleResize);
+            
+            // Initialize Element SDK
+            if (window.elementSdk) {
+                window.elementSdk.init({
+                    defaultConfig: defaultConfig,
+                    render: render,
+                    mapToCapabilities: (config) => ({
+                        recolorables: [],
+                        borderables: [],
+                        fontEditable: undefined,
+                        fontSizeable: undefined
+                    }),
+                    mapToEditPanelValues: (config) => new Map([
+                        ["main_title", config.main_title || defaultConfig.main_title],
+                        ["subtitle", config.subtitle || defaultConfig.subtitle],
+                        ["welcome_title", config.welcome_title || defaultConfig.welcome_title],
+                        ["welcome_message", config.welcome_message || defaultConfig.welcome_message]
+                    ])
+                });
+            }
+        });
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'990c6528a576b59f',t:'MTc2MDgzNjIyMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
