@@ -1,0 +1,2141 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teknik Debugging Python - Pembelajaran Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .pastel-bg {
+            background: linear-gradient(135deg, #fef3e2 0%, #f0f9ff 25%, #f0fdf4 50%, #fdf2f8 75%, #f3e8ff 100%);
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .code-demo {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border-radius: 12px;
+            padding: 40px 20px 20px 20px;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            position: relative;
+            overflow-x: auto;
+            overflow-y: hidden;
+            white-space: nowrap;
+        }
+        
+        .code-demo pre {
+            white-space: pre;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .code-demo::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .code-demo::-webkit-scrollbar-track {
+            background: rgba(71, 85, 105, 0.3);
+            border-radius: 4px;
+        }
+        
+        .code-demo::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.6);
+            border-radius: 4px;
+        }
+        
+        .code-demo::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.8);
+        }
+        
+        .code-demo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: #475569;
+            border-radius: 12px 12px 0 0;
+        }
+        
+        .code-demo::after {
+            content: '● ● ●';
+            position: absolute;
+            top: 8px;
+            left: 15px;
+            color: #64748b;
+            font-size: 12px;
+        }
+        
+        .error-box {
+            background: linear-gradient(135deg, #fef2f2, #fecaca);
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 16px;
+            color: #dc2626;
+        }
+        
+        .success-box {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 2px solid #22c55e;
+            border-radius: 12px;
+            padding: 16px;
+            color: #16a34a;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 16px;
+            color: #d97706;
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            transform: translateX(5px);
+        }
+        
+        .correct {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0) !important;
+            border-color: #22c55e !important;
+        }
+        
+        .incorrect {
+            background: linear-gradient(135deg, #fef2f2, #fecaca) !important;
+            border-color: #ef4444 !important;
+        }
+        
+        .python-keyword {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+        
+        .python-string {
+            color: #10b981;
+        }
+        
+        .python-comment {
+            color: #64748b;
+            font-style: italic;
+        }
+        
+        .python-number {
+            color: #8b5cf6;
+        }
+        
+        .python-error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(135deg, #a855f7, #ec4899) !important;
+            color: white !important;
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+        }
+        
+        .nav-item.active:hover {
+            background: linear-gradient(135deg, #9333ea, #db2777) !important;
+        }
+        
+        .debug-animation {
+            animation: debugPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes debugPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .bug-wiggle {
+            animation: wiggle 1s ease-in-out infinite;
+        }
+        
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+        
+        .interactive-code {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            border: 2px dashed #64748b;
+            border-radius: 12px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            position: relative;
+        }
+        
+        .debug-step {
+            background: linear-gradient(135deg, #e0f2fe, #b3e5fc);
+            border-left: 4px solid #0284c7;
+            padding: 16px;
+            margin: 8px 0;
+            border-radius: 0 12px 12px 0;
+        }
+        
+        .error-highlight {
+            background-color: rgba(239, 68, 68, 0.2);
+            padding: 2px 4px;
+            border-radius: 4px;
+            border: 1px solid #ef4444;
+        }
+    </style>
+</head>
+<body class="pastel-bg min-h-full">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-pink-200 hover:bg-pink-300 p-3 rounded-full shadow-lg transition-colors">
+        <svg class="w-6 h-6 text-pink-800" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-gradient-to-b from-purple-100 to-pink-100 shadow-xl z-40 sidebar-transition transform -translate-x-full lg:translate-x-0">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-8">
+                <h1 class="text-xl font-bold text-purple-800 flex items-center">
+                    <span class="text-3xl mr-2 debug-animation">🐛</span>
+                    Debugging Python
+                </h1>
+                <button id="closeSidebar" class="lg:hidden text-purple-800 hover:text-purple-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" onclick="showSection('intro')" data-section="intro" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-200 transition-colors text-purple-800">
+                    <span class="text-xl mr-3">🚀</span>
+                    <span class="font-medium">Intro</span>
+                </a>
+                <a href="#" onclick="showSection('pengenalan')" data-section="pengenalan" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-200 transition-colors text-purple-800">
+                    <span class="text-xl mr-3">📚</span>
+                    <span class="font-medium">Pengenalan Debugging</span>
+                </a>
+                <a href="#" onclick="showSection('jenis-error')" data-section="jenis-error" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-200 transition-colors text-purple-800">
+                    <span class="text-xl mr-3">⚠️</span>
+                    <span class="font-medium">Jenis-Jenis Error</span>
+                </a>
+                <a href="#" onclick="showSection('teknik-debugging')" data-section="teknik-debugging" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-200 transition-colors text-purple-800">
+                    <span class="text-xl mr-3">🔧</span>
+                    <span class="font-medium">Teknik Debugging</span>
+                </a>
+                <a href="#" onclick="showSection('praktik')" data-section="praktik" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-200 transition-colors text-purple-800">
+                    <span class="text-xl mr-3">💻</span>
+                    <span class="font-medium">Praktik Debugging</span>
+                </a>
+                <a href="#" onclick="showSection('tugas')" data-section="tugas" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-200 transition-colors text-purple-800">
+                    <span class="text-xl mr-3">📝</span>
+                    <span class="font-medium">Tugas</span>
+                </a>
+                <a href="#" onclick="showSection('kuis')" data-section="kuis" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-200 transition-colors text-purple-800">
+                    <span class="text-xl mr-3">🧠</span>
+                    <span class="font-medium">Kuis</span>
+                </a>
+                <a href="#" onclick="showSection('penutup')" data-section="penutup" class="nav-item flex items-center p-3 rounded-lg hover:bg-purple-200 transition-colors text-purple-800">
+                    <span class="text-xl mr-3">🎉</span>
+                    <span class="font-medium">Penutup</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white p-3 rounded-full shadow-lg transition-all transform hover:scale-110 z-30 hidden">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+        </svg>
+    </button>
+
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-full">
+        <main class="max-w-4xl mx-auto p-6 lg:p-8">
+            <!-- Intro Section -->
+            <section id="intro" class="content-section fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <h2 class="text-4xl font-bold text-purple-800 mb-4 flex items-center justify-center">
+                            <span class="bounce text-5xl mr-4 bug-wiggle">🐛</span>
+                            Teknik Debugging Python!
+                        </h2>
+                        <p class="text-xl text-gray-700">Mari belajar cara mencari dan memperbaiki kesalahan dalam program Python dengan mudah dan efektif!</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="bg-gradient-to-br from-yellow-100 to-orange-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-orange-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">💭</span>
+                                Pertanyaan Pemantik
+                            </h3>
+                            <p class="text-gray-700 text-lg leading-relaxed">
+                                Pernahkah kamu menulis program Python tapi tidak berjalan sesuai harapan? 
+                                Atau muncul pesan error yang membingungkan? Bagaimana cara mencari dan memperbaiki kesalahan tersebut? 🤔
+                            </p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎯</span>
+                                Apa yang Dipelajari?
+                            </h3>
+                            <ul class="text-gray-700 text-lg space-y-2">
+                                <li class="flex items-center"><span class="text-green-600 mr-2">✓</span> Jenis-jenis error Python</li>
+                                <li class="flex items-center"><span class="text-green-600 mr-2">✓</span> Teknik debugging sederhana</li>
+                                <li class="flex items-center"><span class="text-green-600 mr-2">✓</span> Tools debugging praktis</li>
+                                <li class="flex items-center"><span class="text-green-600 mr-2">✓</span> Strategi pemecahan masalah</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 bg-gradient-to-br from-blue-100 to-cyan-100 p-6 rounded-2xl">
+                        <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                            <span class="text-3xl mr-3">🏆</span>
+                            Tujuan Pembelajaran
+                        </h3>
+                        <p class="text-gray-700 text-lg leading-relaxed">
+                            Setelah mempelajari materi ini, kamu akan mampu mengidentifikasi, menganalisis, dan memperbaiki 
+                            berbagai jenis kesalahan dalam program Python dengan teknik debugging yang efektif.
+                        </p>
+                    </div>
+
+                    <div class="mt-8 bg-gradient-to-br from-indigo-100 to-purple-100 p-6 rounded-2xl">
+                        <h3 class="text-2xl font-bold text-indigo-800 mb-4 flex items-center">
+                            <span class="text-3xl mr-3">🧠</span>
+                            Pemahaman Bermakna
+                        </h3>
+                        <p class="text-gray-700 text-lg leading-relaxed">
+                            Debugging adalah skill fundamental programmer! Seperti dokter yang mendiagnosis penyakit, 
+                            programmer harus bisa mendiagnosis dan menyembuhkan "penyakit" dalam kode. 🩺💻
+                        </p>
+                    </div>
+
+                    <div class="mt-8 bg-gradient-to-br from-pink-100 to-rose-100 p-6 rounded-2xl">
+                        <h3 class="text-2xl font-bold text-pink-800 mb-4 flex items-center">
+                            <span class="text-3xl mr-3">🔥</span>
+                            Motivasi
+                        </h3>
+                        <p class="text-gray-700 text-lg leading-relaxed">
+                            Jangan takut dengan error! Setiap programmer, bahkan yang sudah expert, pasti mengalami error. 
+                            Yang membedakan adalah kemampuan debugging mereka. Mari kuasai skill ini dan jadilah problem solver handal! 🚀
+                        </p>
+                    </div>
+                </div>
+
+                <button onclick="goToNextSection()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-2xl text-xl transition-all transform hover:scale-105 shadow-lg">
+                    Mulai Belajar Debugging! 🐛
+                </button>
+            </section>
+
+            <!-- Pengenalan Section -->
+            <section id="pengenalan" class="content-section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h2 class="text-4xl font-bold text-purple-800 mb-6 flex items-center">
+                        <span class="text-5xl mr-4">📚</span>
+                        Pengenalan Debugging
+                    </h2>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-br from-indigo-100 to-purple-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-indigo-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🔍</span>
+                                Apa itu Debugging?
+                            </h3>
+                            <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                                Debugging adalah proses mencari, mengidentifikasi, dan memperbaiki kesalahan (bug) dalam program. 
+                                Istilah "bug" pertama kali digunakan oleh Grace Hopper ketika menemukan kupu-kupu yang menyebabkan komputer error! 🦋
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-xl mb-4">
+                                <h4 class="font-bold text-indigo-700 mb-3">📖 Sejarah Debugging</h4>
+                                <div class="text-base text-gray-600 space-y-2">
+                                    <p><strong>1947:</strong> Grace Hopper menemukan kupu-kupu di komputer Harvard Mark II</p>
+                                    <p><strong>1950an:</strong> Istilah "debugging" mulai populer di kalangan programmer</p>
+                                    <p><strong>Sekarang:</strong> Debugging menjadi skill fundamental setiap programmer</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-xl mb-4">
+                                <p class="text-center text-2xl mb-2">🐛 ➡️ 🔍 ➡️ 🔧 ➡️ ✅</p>
+                                <p class="text-center text-gray-600">Bug → Deteksi → Analisis → Perbaikan → Solved!</p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl">
+                                <h4 class="font-bold text-indigo-700 mb-2">💡 Fun Fact</h4>
+                                <p class="text-base text-gray-600">
+                                    Rata-rata programmer menghabiskan 50% waktu untuk debugging! 
+                                    Jadi skill ini sangat penting untuk dikuasai.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-green-100 to-teal-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎭</span>
+                                Mengapa Debugging Penting?
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-2">🎯 Untuk Programmer</h4>
+                                    <ul class="text-gray-600 space-y-1">
+                                        <li>• Menghemat waktu development</li>
+                                        <li>• Meningkatkan kualitas kode</li>
+                                        <li>• Memahami program lebih dalam</li>
+                                        <li>• Skill problem solving</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-2">🏢 Untuk Industri</h4>
+                                    <ul class="text-gray-600 space-y-1">
+                                        <li>• Mengurangi biaya maintenance</li>
+                                        <li>• Meningkatkan user experience</li>
+                                        <li>• Mencegah sistem crash</li>
+                                        <li>• Reputasi perusahaan</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-yellow-100 to-amber-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-yellow-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🛠️</span>
+                                Proses Debugging Sistematis
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="debug-step">
+                                    <h4 class="font-bold text-blue-700 flex items-center">
+                                        <span class="text-2xl mr-2">1️⃣</span>
+                                        Reproduksi Bug
+                                    </h4>
+                                    <p class="text-gray-600 text-base mt-1">Pastikan kamu bisa membuat error muncul lagi secara konsisten</p>
+                                </div>
+                                <div class="debug-step">
+                                    <h4 class="font-bold text-blue-700 flex items-center">
+                                        <span class="text-2xl mr-2">2️⃣</span>
+                                        Isolasi Masalah
+                                    </h4>
+                                    <p class="text-gray-600 text-base mt-1">Temukan bagian kode mana yang menyebabkan error</p>
+                                </div>
+                                <div class="debug-step">
+                                    <h4 class="font-bold text-blue-700 flex items-center">
+                                        <span class="text-2xl mr-2">3️⃣</span>
+                                        Analisis Penyebab
+                                    </h4>
+                                    <p class="text-gray-600 text-base mt-1">Pahami mengapa error tersebut terjadi</p>
+                                </div>
+                                <div class="debug-step">
+                                    <h4 class="font-bold text-blue-700 flex items-center">
+                                        <span class="text-2xl mr-2">4️⃣</span>
+                                        Implementasi Solusi
+                                    </h4>
+                                    <p class="text-gray-600 text-base mt-1">Perbaiki kode dan test hasilnya</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="goToNextSection()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-2xl text-xl transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Jenis-Jenis Error! ⚠️
+                </button>
+            </section>
+
+            <!-- Jenis Error Section -->
+            <section id="jenis-error" class="content-section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h2 class="text-4xl font-bold text-purple-800 mb-6 flex items-center">
+                        <span class="text-5xl mr-4">⚠️</span>
+                        Jenis-Jenis Error dalam Python
+                    </h2>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-br from-red-100 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-red-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🔤</span>
+                                1. Syntax Error (Error Sintaks)
+                            </h3>
+                            <p class="text-gray-700 text-lg mb-4">
+                                Error yang terjadi karena penulisan kode tidak sesuai aturan Python. Seperti salah ketik atau lupa tanda kurung.
+                            </p>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-red-700 mb-2">❌ Contoh Syntax Error</h4>
+                                    <div class="code-demo text-sm">
+                                        <pre class="mt-6">
+<span class="python-comment"># Lupa titik dua</span>
+<span class="python-keyword">if</span> x > <span class="python-number">5</span>  <span class="error-highlight">← Error!</span>
+    <span class="python-keyword">print</span>(<span class="python-string">"Besar"</span>)
+
+<span class="python-comment"># Lupa kurung tutup</span>
+<span class="python-keyword">print</span>(<span class="python-string">"Hello"</span>  <span class="error-highlight">← Error!</span>
+
+<span class="python-comment"># Indentasi salah</span>
+<span class="python-keyword">if</span> x > <span class="python-number">5</span>:
+<span class="python-keyword">print</span>(<span class="python-string">"Besar"</span>)  <span class="error-highlight">← Error!</span>
+                                        </pre>
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-red-700 mb-2">✅ Perbaikan</h4>
+                                    <div class="code-demo text-sm">
+                                        <pre class="mt-6">
+<span class="python-comment"># Tambah titik dua</span>
+<span class="python-keyword">if</span> x > <span class="python-number">5</span>:
+    <span class="python-keyword">print</span>(<span class="python-string">"Besar"</span>)
+
+<span class="python-comment"># Tambah kurung tutup</span>
+<span class="python-keyword">print</span>(<span class="python-string">"Hello"</span>)
+
+<span class="python-comment"># Indentasi benar</span>
+<span class="python-keyword">if</span> x > <span class="python-number">5</span>:
+    <span class="python-keyword">print</span>(<span class="python-string">"Besar"</span>)
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-orange-100 to-yellow-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-orange-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">⚡</span>
+                                2. Runtime Error (Error Saat Berjalan)
+                            </h3>
+                            <p class="text-gray-700 text-lg mb-4">
+                                Error yang terjadi saat program berjalan. Sintaks benar, tapi ada masalah dalam eksekusi.
+                            </p>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-orange-700 mb-2">🔢 ZeroDivisionError</h4>
+                                    <div class="grid md:grid-cols-2 gap-3">
+                                        <div class="code-demo text-sm">
+                                            <pre class="mt-4">
+<span class="python-comment"># Pembagian dengan nol</span>
+hasil = <span class="python-number">10</span> / <span class="python-number">0</span>  <span class="error-highlight">← Error!</span>
+
+<span class="python-comment"># Contoh dalam fungsi</span>
+<span class="python-keyword">def</span> bagi(a, b):
+    <span class="python-keyword">return</span> a / b  <span class="error-highlight">← Berbahaya!</span>
+
+<span class="python-keyword">print</span>(bagi(<span class="python-number">10</span>, <span class="python-number">0</span>))
+                                            </pre>
+                                        </div>
+                                        <div class="error-box text-sm">
+                                            ZeroDivisionError: division by zero
+                                            <br><br>
+                                            <strong>Solusi:</strong><br>
+                                            if b != 0:<br>
+                                            &nbsp;&nbsp;&nbsp;&nbsp;return a / b<br>
+                                            else:<br>
+                                            &nbsp;&nbsp;&nbsp;&nbsp;return "Error: Tidak bisa bagi nol"
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-orange-700 mb-2">📝 NameError</h4>
+                                    <div class="grid md:grid-cols-2 gap-3">
+                                        <div class="code-demo text-sm">
+                                            <pre class="mt-4">
+<span class="python-comment"># Variabel tidak didefinisikan</span>
+<span class="python-keyword">print</span>(nama)  <span class="error-highlight">← Error!</span>
+
+<span class="python-comment"># Typo dalam nama variabel</span>
+username = <span class="python-string">"admin"</span>
+<span class="python-keyword">print</span>(usernme)  <span class="error-highlight">← Typo!</span>
+
+<span class="python-comment"># Variabel di luar scope</span>
+<span class="python-keyword">def</span> fungsi():
+    x = <span class="python-number">10</span>
+<span class="python-keyword">print</span>(x)  <span class="error-highlight">← x tidak ada di sini!</span>
+                                            </pre>
+                                        </div>
+                                        <div class="error-box text-sm">
+                                            NameError: name 'nama' is not defined
+                                            <br><br>
+                                            <strong>Penyebab Umum:</strong><br>
+                                            • Lupa mendefinisikan variabel<br>
+                                            • Typo dalam nama variabel<br>
+                                            • Masalah scope variabel<br>
+                                            • Case sensitivity (Nama ≠ nama)
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-orange-700 mb-2">🔤 TypeError</h4>
+                                    <div class="grid md:grid-cols-2 gap-3">
+                                        <div class="code-demo text-sm">
+                                            <pre class="mt-4">
+<span class="python-comment"># Operasi tipe data salah</span>
+hasil = <span class="python-string">"5"</span> + <span class="python-number">3</span>  <span class="error-highlight">← Error!</span>
+
+<span class="python-comment"># Fungsi dengan argumen salah</span>
+<span class="python-keyword">len</span>(<span class="python-number">123</span>)  <span class="error-highlight">← int tidak punya len!</span>
+
+<span class="python-comment"># Indexing tipe data salah</span>
+angka = <span class="python-number">123</span>
+<span class="python-keyword">print</span>(angka[<span class="python-number">0</span>])  <span class="error-highlight">← int tidak bisa diindex!</span>
+                                            </pre>
+                                        </div>
+                                        <div class="error-box text-sm">
+                                            TypeError: can only concatenate str to str
+                                            <br><br>
+                                            <strong>Solusi:</strong><br>
+                                            • Konversi tipe: str(3) atau int("5")<br>
+                                            • Cek tipe: isinstance(x, int)<br>
+                                            • Gunakan f-string: f"Nilai: {angka}"
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-orange-700 mb-2">📋 IndexError & KeyError</h4>
+                                    <div class="grid md:grid-cols-2 gap-3">
+                                        <div class="code-demo text-sm">
+                                            <pre class="mt-4">
+<span class="python-comment"># IndexError - list</span>
+data = [<span class="python-number">1</span>, <span class="python-number">2</span>, <span class="python-number">3</span>]
+<span class="python-keyword">print</span>(data[<span class="python-number">5</span>])  <span class="error-highlight">← Index tidak ada!</span>
+
+<span class="python-comment"># KeyError - dictionary</span>
+siswa = {<span class="python-string">"nama"</span>: <span class="python-string">"Ali"</span>}
+<span class="python-keyword">print</span>(siswa[<span class="python-string">"umur"</span>])  <span class="error-highlight">← Key tidak ada!</span>
+
+<span class="python-comment"># AttributeError</span>
+teks = <span class="python-string">"hello"</span>
+teks.append(<span class="python-string">"world"</span>)  <span class="error-highlight">← str tidak punya append!</span>
+                                            </pre>
+                                        </div>
+                                        <div class="error-box text-sm">
+                                            IndexError: list index out of range
+                                            KeyError: 'umur'
+                                            AttributeError: 'str' has no attribute 'append'
+                                            <br><br>
+                                            <strong>Pencegahan:</strong><br>
+                                            • Cek panjang: if i < len(data)<br>
+                                            • Gunakan get(): dict.get("key", default)<br>
+                                            • Cek attribute: hasattr(obj, "method")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-blue-100 to-indigo-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🧠</span>
+                                3. Logic Error (Error Logika)
+                            </h3>
+                            <p class="text-gray-700 text-lg mb-4">
+                                Program berjalan tanpa error, tapi hasilnya salah karena logika yang keliru.
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-xl">
+                                <h4 class="font-bold text-blue-700 mb-2">🎯 Contoh Logic Error</h4>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm font-semibold mb-2">❌ Logika Salah:</p>
+                                        <div class="code-demo text-sm">
+                                            <pre class="mt-4">
+<span class="python-comment"># Menghitung rata-rata</span>
+nilai1 = <span class="python-number">80</span>
+nilai2 = <span class="python-number">90</span>
+nilai3 = <span class="python-number">70</span>
+rata_rata = (nilai1 + nilai2 + nilai3) / <span class="python-number">2</span>  <span class="error-highlight">← Salah!</span>
+<span class="python-keyword">print</span>(rata_rata)  <span class="python-comment"># Output: 120</span>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-semibold mb-2">✅ Logika Benar:</p>
+                                        <div class="code-demo text-sm">
+                                            <pre class="mt-4">
+<span class="python-comment"># Menghitung rata-rata</span>
+nilai1 = <span class="python-number">80</span>
+nilai2 = <span class="python-number">90</span>
+nilai3 = <span class="python-number">70</span>
+rata_rata = (nilai1 + nilai2 + nilai3) / <span class="python-number">3</span>  <span class="python-comment">← Benar!</span>
+<span class="python-keyword">print</span>(rata_rata)  <span class="python-comment"># Output: 80.0</span>
+                                            </pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-purple-100 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎮</span>
+                                Demo Interaktif: Identifikasi Error
+                            </h3>
+                            <p class="text-gray-700 mb-4">Coba identifikasi jenis error pada kode berikut!</p>
+                            
+                            <div class="bg-white p-6 rounded-xl">
+                                <div class="mb-4">
+                                    <label for="errorCode" class="block text-sm font-medium text-gray-700 mb-2">Pilih kode untuk dianalisis:</label>
+                                    <select id="errorCode" class="w-full p-3 border-2 border-purple-300 rounded-lg focus:border-purple-500 focus:outline-none">
+                                        <option value="syntax1">Kode 1: if x > 5 print("besar")</option>
+                                        <option value="runtime1">Kode 2: print(variabel_tidak_ada)</option>
+                                        <option value="logic1">Kode 3: luas = panjang * panjang (untuk persegi panjang)</option>
+                                    </select>
+                                </div>
+                                <button onclick="analyzeError()" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                                    Analisis Error! 🔍
+                                </button>
+                                <div id="errorAnalysis" class="mt-4 hidden"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="goToNextSection()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-2xl text-xl transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Teknik Debugging! 🔧
+                </button>
+            </section>
+
+            <!-- Teknik Debugging Section -->
+            <section id="teknik-debugging" class="content-section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h2 class="text-4xl font-bold text-purple-800 mb-6 flex items-center">
+                        <span class="text-5xl mr-4">🔧</span>
+                        Teknik Debugging Sederhana
+                    </h2>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-br from-cyan-100 to-blue-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-cyan-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">👀</span>
+                                1. Read Error Messages (Baca Pesan Error)
+                            </h3>
+                            <p class="text-gray-700 text-lg mb-4">
+                                Pesan error Python sangat informatif! Jangan panik, baca dengan teliti untuk memahami masalahnya.
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-xl">
+                                <h4 class="font-bold text-cyan-700 mb-2">🔍 Cara Membaca Error Message</h4>
+                                <div class="error-box mb-3">
+                                    <pre class="text-sm">
+Traceback (most recent call last):
+  File "program.py", line 3, in &lt;module&gt;
+    print(nama)
+NameError: name 'nama' is not defined
+                                    </pre>
+                                </div>
+                                <div class="grid md:grid-cols-2 gap-3">
+                                    <div class="bg-gray-50 p-3 rounded">
+                                        <p class="font-semibold text-sm text-cyan-700">📍 Informasi Lokasi:</p>
+                                        <ul class="text-xs text-gray-600 mt-1">
+                                            <li>• File: program.py</li>
+                                            <li>• Baris: 3</li>
+                                            <li>• Kode: print(nama)</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded">
+                                        <p class="font-semibold text-sm text-cyan-700">⚠️ Jenis & Penjelasan:</p>
+                                        <ul class="text-xs text-gray-600 mt-1">
+                                            <li>• Jenis: NameError</li>
+                                            <li>• Masalah: variabel 'nama' tidak didefinisikan</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🖨️</span>
+                                2. Print Debugging
+                            </h3>
+                            <p class="text-gray-700 text-lg mb-4">
+                                Teknik paling sederhana: tambahkan print() untuk melihat nilai variabel dan alur program.
+                            </p>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-2">❌ Kode Bermasalah</h4>
+                                    <div class="code-demo text-sm">
+                                        <pre class="mt-6">
+<span class="python-comment"># Program hitung faktorial</span>
+<span class="python-keyword">def</span> faktorial(n):
+    hasil = <span class="python-number">1</span>
+    <span class="python-keyword">for</span> i <span class="python-keyword">in</span> <span class="python-keyword">range</span>(<span class="python-number">1</span>, n):
+        hasil *= i
+    <span class="python-keyword">return</span> hasil
+
+<span class="python-keyword">print</span>(faktorial(<span class="python-number">5</span>))  <span class="python-comment"># Output: 24 (salah!)</span>
+                                        </pre>
+                                    </div>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-2">🔍 Dengan Print Debug</h4>
+                                    <div class="code-demo text-sm">
+                                        <pre class="mt-6">
+<span class="python-comment"># Program hitung faktorial + debug</span>
+<span class="python-keyword">def</span> faktorial(n):
+    <span class="python-keyword">print</span>(<span class="python-string">f"Input n: {n}"</span>)  <span class="python-comment"># Debug</span>
+    hasil = <span class="python-number">1</span>
+    <span class="python-keyword">for</span> i <span class="python-keyword">in</span> <span class="python-keyword">range</span>(<span class="python-number">1</span>, n):
+        <span class="python-keyword">print</span>(<span class="python-string">f"i: {i}, hasil: {hasil}"</span>)  <span class="python-comment"># Debug</span>
+        hasil *= i
+    <span class="python-keyword">return</span> hasil
+
+<span class="python-keyword">print</span>(faktorial(<span class="python-number">5</span>))
+<span class="python-comment"># Terlihat: range(1,5) = [1,2,3,4]</span>
+<span class="python-comment"># Seharusnya: range(1,6) = [1,2,3,4,5]</span>
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-yellow-100 to-orange-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-yellow-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🧪</span>
+                                3. Rubber Duck Debugging
+                            </h3>
+                            <p class="text-gray-700 text-lg mb-4">
+                                Jelaskan kode kamu baris per baris kepada "bebek karet" (atau teman). Sering kali kamu akan menemukan masalahnya sendiri!
+                            </p>
+                            
+                            <div class="bg-white p-4 rounded-xl">
+                                <div class="flex items-center justify-center mb-4">
+                                    <span class="text-6xl">🦆</span>
+                                </div>
+                                <div class="bg-yellow-50 p-4 rounded-lg">
+                                    <h4 class="font-bold text-yellow-700 mb-2">💬 Contoh Rubber Duck Session:</h4>
+                                    <div class="space-y-2 text-sm">
+                                        <p><strong>Kamu:</strong> "Hai bebek, aku punya program yang harusnya menghitung rata-rata..."</p>
+                                        <p><strong>Kamu:</strong> "Di baris 1, aku input 3 angka: 80, 90, 70..."</p>
+                                        <p><strong>Kamu:</strong> "Di baris 2, aku jumlahkan: 80+90+70 = 240..."</p>
+                                        <p><strong>Kamu:</strong> "Di baris 3, aku bagi dengan... tunggu! Aku bagi dengan 2, padahal ada 3 angka!"</p>
+                                        <p><strong>Bebek:</strong> "🦆" (dalam hati: "Akhirnya dia sadar juga...")</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-purple-100 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎯</span>
+                                4. Divide and Conquer
+                            </h3>
+                            <p class="text-gray-700 text-lg mb-4">
+                                Bagi program menjadi bagian-bagian kecil dan test satu per satu untuk menemukan sumber masalah.
+                            </p>
+                            
+                            <div class="space-y-4">
+                                <div class="debug-step">
+                                    <h4 class="font-bold text-blue-700">🔍 Step 1: Isolasi Fungsi</h4>
+                                    <p class="text-gray-600 text-base">Test setiap fungsi secara terpisah dengan input yang diketahui</p>
+                                </div>
+                                <div class="debug-step">
+                                    <h4 class="font-bold text-blue-700">🔍 Step 2: Test Input/Output</h4>
+                                    <p class="text-gray-600 text-base">Pastikan input dan output sesuai ekspektasi</p>
+                                </div>
+                                <div class="debug-step">
+                                    <h4 class="font-bold text-blue-700">🔍 Step 3: Cek Kondisi Edge Case</h4>
+                                    <p class="text-gray-600 text-base">Test dengan nilai ekstrem: 0, negatif, string kosong, dll</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-teal-100 to-cyan-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-teal-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🔬</span>
+                                5. Teknik Debugging Lanjutan
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-teal-700 mb-2">🎯 Binary Search Debugging</h4>
+                                    <p class="text-gray-600 text-base mb-2">Untuk program besar, gunakan teknik "bagi dua" untuk menemukan bug:</p>
+                                    <div class="code-demo text-base">
+                                        <pre class="mt-4">
+<span class="python-comment"># Tambahkan print di tengah program</span>
+<span class="python-keyword">def</span> program_besar():
+    bagian1()
+    <span class="python-keyword">print</span>(<span class="python-string">"Checkpoint 1: OK"</span>)  <span class="python-comment"># Debug point</span>
+    bagian2()
+    <span class="python-keyword">print</span>(<span class="python-string">"Checkpoint 2: OK"</span>)  <span class="python-comment"># Debug point</span>
+    bagian3()
+                                        </pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-teal-700 mb-2">🧪 Assert Debugging</h4>
+                                    <p class="text-gray-600 text-base mb-2">Gunakan assert untuk memastikan kondisi tertentu:</p>
+                                    <div class="code-demo text-base">
+                                        <pre class="mt-4">
+<span class="python-keyword">def</span> hitung_rata_rata(nilai_list):
+    <span class="python-keyword">assert</span> <span class="python-keyword">len</span>(nilai_list) > <span class="python-number">0</span>, <span class="python-string">"List tidak boleh kosong!"</span>
+    <span class="python-keyword">assert</span> <span class="python-keyword">all</span>(<span class="python-keyword">isinstance</span>(x, (int, float)) <span class="python-keyword">for</span> x <span class="python-keyword">in</span> nilai_list), <span class="python-string">"Semua nilai harus angka!"</span>
+    
+    total = <span class="python-keyword">sum</span>(nilai_list)
+    rata = total / <span class="python-keyword">len</span>(nilai_list)
+    
+    <span class="python-keyword">assert</span> <span class="python-number">0</span> <= rata <= <span class="python-number">100</span>, <span class="python-string">f"Rata-rata aneh: {rata}"</span>
+    <span class="python-keyword">return</span> rata
+                                        </pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-teal-700 mb-2">📊 Logging untuk Debugging</h4>
+                                    <p class="text-gray-600 text-base mb-2">Lebih profesional dari print debugging:</p>
+                                    <div class="code-demo text-base">
+                                        <pre class="mt-4">
+<span class="python-keyword">import</span> logging
+
+<span class="python-comment"># Setup logging</span>
+logging.basicConfig(level=logging.DEBUG, 
+                   format=<span class="python-string">'%(levelname)s: %(message)s'</span>)
+
+<span class="python-keyword">def</span> proses_data(data):
+    logging.debug(<span class="python-string">f"Input data: {data}"</span>)
+    
+    <span class="python-keyword">if</span> <span class="python-keyword">not</span> data:
+        logging.warning(<span class="python-string">"Data kosong diterima!"</span>)
+        <span class="python-keyword">return</span> []
+    
+    hasil = [x * <span class="python-number">2</span> <span class="python-keyword">for</span> x <span class="python-keyword">in</span> data]
+    logging.info(<span class="python-string">f"Berhasil memproses {len(data)} item"</span>)
+    
+    <span class="python-keyword">return</span> hasil
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-rose-100 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-rose-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🛡️</span>
+                                6. Defensive Programming
+                            </h3>
+                            <p class="text-gray-700 text-lg mb-4">
+                                Tulis kode yang "tahan banting" untuk mencegah bug sejak awal!
+                            </p>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-rose-700 mb-2">✅ Input Validation</h4>
+                                    <div class="code-demo text-base">
+                                        <pre class="mt-4">
+<span class="python-keyword">def</span> bagi_aman(a, b):
+    <span class="python-comment"># Validasi input</span>
+    <span class="python-keyword">if</span> <span class="python-keyword">not</span> <span class="python-keyword">isinstance</span>(a, (int, float)):
+        <span class="python-keyword">raise</span> TypeError(<span class="python-string">"a harus berupa angka"</span>)
+    <span class="python-keyword">if</span> <span class="python-keyword">not</span> <span class="python-keyword">isinstance</span>(b, (int, float)):
+        <span class="python-keyword">raise</span> TypeError(<span class="python-string">"b harus berupa angka"</span>)
+    <span class="python-keyword">if</span> b == <span class="python-number">0</span>:
+        <span class="python-keyword">raise</span> ValueError(<span class="python-string">"Tidak bisa membagi dengan nol"</span>)
+    
+    <span class="python-keyword">return</span> a / b
+                                        </pre>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-rose-700 mb-2">🔒 Try-Except yang Baik</h4>
+                                    <div class="code-demo text-base">
+                                        <pre class="mt-4">
+<span class="python-keyword">def</span> baca_file_aman(nama_file):
+    <span class="python-comment"># Validasi input terlebih dahulu</span>
+    <span class="python-keyword">if</span> <span class="python-keyword">not</span> nama_file <span class="python-keyword">or</span> <span class="python-keyword">not</span> <span class="python-keyword">isinstance</span>(nama_file, str):
+        <span class="python-keyword">print</span>(<span class="python-string">"Nama file harus berupa string yang valid"</span>)
+        <span class="python-keyword">return</span> <span class="python-keyword">None</span>
+    
+    <span class="python-keyword">try</span>:
+        <span class="python-keyword">with</span> <span class="python-keyword">open</span>(nama_file, <span class="python-string">'r'</span>, encoding=<span class="python-string">'utf-8'</span>) <span class="python-keyword">as</span> file:
+            konten = file.read()
+        <span class="python-keyword">return</span> konten
+    <span class="python-keyword">except</span> FileNotFoundError:
+        <span class="python-keyword">print</span>(<span class="python-string">f"File '{nama_file}' tidak ditemukan"</span>)
+        <span class="python-keyword">return</span> <span class="python-keyword">None</span>
+    <span class="python-keyword">except</span> PermissionError:
+        <span class="python-keyword">print</span>(<span class="python-string">f"Tidak ada izin membaca '{nama_file}'"</span>)
+        <span class="python-keyword">return</span> <span class="python-keyword">None</span>
+    <span class="python-keyword">except</span> UnicodeDecodeError:
+        <span class="python-keyword">print</span>(<span class="python-string">f"File '{nama_file}' tidak bisa dibaca (encoding error)"</span>)
+        <span class="python-keyword">return</span> <span class="python-keyword">None</span>
+    <span class="python-keyword">except</span> Exception <span class="python-keyword">as</span> e:
+        <span class="python-keyword">print</span>(<span class="python-string">f"Error tidak terduga: {e}"</span>)
+        <span class="python-keyword">return</span> <span class="python-keyword">None</span>
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="goToNextSection()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-2xl text-xl transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Praktik! 💻
+                </button>
+            </section>
+
+            <!-- Praktik Section -->
+            <section id="praktik" class="content-section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h2 class="text-4xl font-bold text-purple-800 mb-6 flex items-center">
+                        <span class="text-5xl mr-4">💻</span>
+                        Praktik Debugging
+                    </h2>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-br from-orange-100 to-red-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-orange-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎯</span>
+                                Kasus 1: Program Kalkulator Bermasalah
+                            </h3>
+                            <div class="bg-white p-4 rounded-xl mb-4">
+                                <h4 class="font-bold text-orange-700 mb-2">🐛 Kode Bermasalah:</h4>
+                                <div class="code-demo text-base">
+                                    <pre class="mt-6">
+<span class="python-keyword">def</span> kalkulator():
+    <span class="python-keyword">print</span>(<span class="python-string">"=== KALKULATOR SEDERHANA ==="</span>)
+    
+    angka1 = <span class="python-keyword">input</span>(<span class="python-string">"Masukkan angka pertama: "</span>)
+    operator = <span class="python-keyword">input</span>(<span class="python-string">"Masukkan operator (+, -, *, /): "</span>)
+    angka2 = <span class="python-keyword">input</span>(<span class="python-string">"Masukkan angka kedua: "</span>)
+    
+    <span class="python-keyword">if</span> operator == <span class="python-string">"+"</span>:
+        hasil = angka1 + angka2
+    <span class="python-keyword">elif</span> operator == <span class="python-string">"-"</span>:
+        hasil = angka1 - angka2
+    <span class="python-keyword">elif</span> operator == <span class="python-string">"*"</span>:
+        hasil = angka1 * angka2
+    <span class="python-keyword">elif</span> operator == <span class="python-string">"/"</span>:
+        hasil = angka1 / angka2
+    <span class="python-keyword">else</span>:
+        <span class="python-keyword">print</span>(<span class="python-string">"Operator tidak valid!"</span>)
+        <span class="python-keyword">return</span>
+    
+    <span class="python-keyword">print</span>(<span class="python-string">f"Hasil: {angka1} {operator} {angka2} = {hasil}"</span>)
+
+kalkulator()
+                                    </pre>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-xl">
+                                <h4 class="font-bold text-orange-700 mb-2">🔍 Simulasi Debugging:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Input Angka 1:</label>
+                                        <input type="text" id="calc1" class="w-full p-2 border rounded" placeholder="10" value="10">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Operator:</label>
+                                        <select id="calcOp" class="w-full p-2 border rounded">
+                                            <option value="+">+ (Tambah)</option>
+                                            <option value="-">- (Kurang)</option>
+                                            <option value="*">* (Kali)</option>
+                                            <option value="/">/ (Bagi)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-1">Input Angka 2:</label>
+                                        <input type="text" id="calc2" class="w-full p-2 border rounded" placeholder="5" value="5">
+                                    </div>
+                                    <button onclick="runBuggyCalculator()" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600">
+                                        Jalankan Kalkulator Bermasalah 🐛
+                                    </button>
+                                    <div id="calcResult" class="mt-3 p-3 bg-gray-100 rounded hidden"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-blue-100 to-indigo-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🔧</span>
+                                Langkah-Langkah Debugging
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="debug-step">
+                                    <h4 class="font-bold text-blue-700">1️⃣ Identifikasi Masalah</h4>
+                                    <p class="text-gray-600 text-sm">Hasil perhitungan salah. Contoh: 10 + 5 = 105 (seharusnya 15)</p>
+                                </div>
+                                <div class="debug-step">
+                                    <h4 class="font-bold text-blue-700">2️⃣ Hipotesis Penyebab</h4>
+                                    <p class="text-gray-600 text-sm">Kemungkinan: input() menghasilkan string, bukan angka</p>
+                                </div>
+                                <div class="debug-step">
+                                    <h4 class="font-bold text-blue-700">3️⃣ Tambah Print Debug</h4>
+                                    <div class="code-demo text-xs mt-2">
+                                        <pre class="mt-4">
+<span class="python-keyword">print</span>(<span class="python-string">f"Debug - angka1: {angka1}, tipe: {type(angka1)}"</span>)
+<span class="python-keyword">print</span>(<span class="python-string">f"Debug - angka2: {angka2}, tipe: {type(angka2)}"</span>)
+                                        </pre>
+                                    </div>
+                                </div>
+                                <div class="debug-step">
+                                    <h4 class="font-bold text-blue-700">4️⃣ Perbaiki Kode</h4>
+                                    <div class="code-demo text-xs mt-2">
+                                        <pre class="mt-4">
+angka1 = <span class="python-keyword">float</span>(<span class="python-keyword">input</span>(<span class="python-string">"Masukkan angka pertama: "</span>))
+angka2 = <span class="python-keyword">float</span>(<span class="python-keyword">input</span>(<span class="python-string">"Masukkan angka kedua: "</span>))
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">✅</span>
+                                Kalkulator yang Sudah Diperbaiki
+                            </h3>
+                            <div class="bg-white p-4 rounded-xl">
+                                <div class="code-demo text-base">
+                                    <pre class="mt-6">
+<span class="python-keyword">def</span> kalkulator_fixed():
+    <span class="python-keyword">print</span>(<span class="python-string">"=== KALKULATOR SEDERHANA (FIXED) ==="</span>)
+    
+    <span class="python-keyword">try</span>:
+        <span class="python-comment"># Konversi ke float untuk mendukung desimal</span>
+        angka1 = <span class="python-keyword">float</span>(<span class="python-keyword">input</span>(<span class="python-string">"Masukkan angka pertama: "</span>))
+        operator = <span class="python-keyword">input</span>(<span class="python-string">"Masukkan operator (+, -, *, /): "</span>).strip()
+        angka2 = <span class="python-keyword">float</span>(<span class="python-keyword">input</span>(<span class="python-string">"Masukkan angka kedua: "</span>))
+        
+        <span class="python-comment"># Validasi operator</span>
+        <span class="python-keyword">if</span> operator <span class="python-keyword">not</span> <span class="python-keyword">in</span> [<span class="python-string">"+"</span>, <span class="python-string">"-"</span>, <span class="python-string">"*"</span>, <span class="python-string">"/"</span>]:
+            <span class="python-keyword">print</span>(<span class="python-string">f"Error: Operator '{operator}' tidak valid!"</span>)
+            <span class="python-keyword">return</span>
+        
+        <span class="python-keyword">if</span> operator == <span class="python-string">"+"</span>:
+            hasil = angka1 + angka2
+        <span class="python-keyword">elif</span> operator == <span class="python-string">"-"</span>:
+            hasil = angka1 - angka2
+        <span class="python-keyword">elif</span> operator == <span class="python-string">"*"</span>:
+            hasil = angka1 * angka2
+        <span class="python-keyword">elif</span> operator == <span class="python-string">"/"</span>:
+            <span class="python-keyword">if</span> angka2 == <span class="python-number">0</span>:
+                <span class="python-keyword">print</span>(<span class="python-string">"Error: Tidak bisa membagi dengan nol!"</span>)
+                <span class="python-keyword">return</span>
+            hasil = angka1 / angka2
+        
+        <span class="python-comment"># Format hasil untuk tampilan yang lebih baik</span>
+        <span class="python-keyword">if</span> hasil == <span class="python-keyword">int</span>(hasil):
+            hasil = <span class="python-keyword">int</span>(hasil)
+        
+        <span class="python-keyword">print</span>(<span class="python-string">f"Hasil: {angka1} {operator} {angka2} = {hasil}"</span>)
+        
+    <span class="python-keyword">except</span> ValueError <span class="python-keyword">as</span> e:
+        <span class="python-keyword">print</span>(<span class="python-string">f"Error: Input harus berupa angka! Detail: {e}"</span>)
+    <span class="python-keyword">except</span> Exception <span class="python-keyword">as</span> e:
+        <span class="python-keyword">print</span>(<span class="python-string">f"Error tidak terduga: {e}"</span>)
+                                    </pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-amber-100 to-yellow-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-amber-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎮</span>
+                                Kasus 2: Debug Program Pencarian
+                            </h3>
+                            <div class="bg-white p-4 rounded-xl mb-4">
+                                <h4 class="font-bold text-amber-700 mb-2">🐛 Program Bermasalah:</h4>
+                                <div class="code-demo text-base">
+                                    <pre class="mt-6">
+<span class="python-keyword">def</span> cari_nama(daftar_siswa, nama_dicari):
+    <span class="python-keyword">for</span> i <span class="python-keyword">in</span> <span class="python-keyword">range</span>(<span class="python-keyword">len</span>(daftar_siswa)):
+        <span class="python-keyword">if</span> daftar_siswa[i] == nama_dicari:
+            <span class="python-keyword">return</span> i
+    <span class="python-keyword">return</span> -<span class="python-number">1</span>
+
+<span class="python-comment"># Test</span>
+siswa = [<span class="python-string">"Ali"</span>, <span class="python-string">"Budi"</span>, <span class="python-string">"Citra"</span>, <span class="python-string">"Dina"</span>]
+<span class="python-keyword">print</span>(cari_nama(siswa, <span class="python-string">"ali"</span>))  <span class="python-comment"># Output: -1 (tidak ditemukan)</span>
+<span class="python-keyword">print</span>(cari_nama(siswa, <span class="python-string">"Ali "</span>))  <span class="python-comment"># Output: -1 (tidak ditemukan)</span>
+                                    </pre>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-xl">
+                                <h4 class="font-bold text-amber-700 mb-2">✅ Versi yang Diperbaiki:</h4>
+                                <div class="code-demo text-base">
+                                    <pre class="mt-6">
+<span class="python-keyword">def</span> cari_nama_fixed(daftar_siswa, nama_dicari):
+    <span class="python-comment"># Validasi input</span>
+    <span class="python-keyword">if</span> <span class="python-keyword">not</span> daftar_siswa:
+        <span class="python-keyword">print</span>(<span class="python-string">"Daftar siswa kosong!"</span>)
+        <span class="python-keyword">return</span> -<span class="python-number">1</span>
+    
+    <span class="python-keyword">if</span> <span class="python-keyword">not</span> nama_dicari:
+        <span class="python-keyword">print</span>(<span class="python-string">"Nama yang dicari tidak boleh kosong!"</span>)
+        <span class="python-keyword">return</span> -<span class="python-number">1</span>
+    
+    <span class="python-comment"># Normalisasi: lowercase dan strip whitespace</span>
+    nama_dicari = nama_dicari.lower().strip()
+    
+    <span class="python-keyword">for</span> i, nama <span class="python-keyword">in</span> <span class="python-keyword">enumerate</span>(daftar_siswa):
+        <span class="python-keyword">if</span> nama.lower().strip() == nama_dicari:
+            <span class="python-keyword">print</span>(<span class="python-string">f"Ditemukan '{nama}' di posisi {i}"</span>)
+            <span class="python-keyword">return</span> i
+    
+    <span class="python-keyword">print</span>(<span class="python-string">f"'{nama_dicari}' tidak ditemukan dalam daftar"</span>)
+    <span class="python-keyword">return</span> -<span class="python-number">1</span>
+
+<span class="python-comment"># Test yang lebih robust</span>
+siswa = [<span class="python-string">"Ali"</span>, <span class="python-string">"Budi"</span>, <span class="python-string">"Citra"</span>, <span class="python-string">"Dina"</span>]
+<span class="python-keyword">print</span>(cari_nama_fixed(siswa, <span class="python-string">"ali"</span>))     <span class="python-comment"># Sekarang ditemukan!</span>
+<span class="python-keyword">print</span>(cari_nama_fixed(siswa, <span class="python-string">"Ali "</span>))    <span class="python-comment"># Sekarang ditemukan!</span>
+<span class="python-keyword">print</span>(cari_nama_fixed(siswa, <span class="python-string">"Eko"</span>))     <span class="python-comment"># Tidak ditemukan</span>
+                                    </pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-indigo-100 to-purple-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-indigo-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🧪</span>
+                                Kasus 3: Debug Program Sorting
+                            </h3>
+                            <div class="bg-white p-4 rounded-xl mb-4">
+                                <h4 class="font-bold text-indigo-700 mb-2">🐛 Bubble Sort Bermasalah:</h4>
+                                <div class="code-demo text-base">
+                                    <pre class="mt-6">
+<span class="python-keyword">def</span> bubble_sort_buggy(arr):
+    n = <span class="python-keyword">len</span>(arr)
+    <span class="python-keyword">for</span> i <span class="python-keyword">in</span> <span class="python-keyword">range</span>(n):
+        <span class="python-keyword">for</span> j <span class="python-keyword">in</span> <span class="python-keyword">range</span>(<span class="python-number">0</span>, n-i):  <span class="error-highlight">← Bug: IndexError!</span>
+            <span class="python-keyword">if</span> arr[j] > arr[j+<span class="python-number">1</span>]:  <span class="error-highlight">← j+1 bisa melebihi index!</span>
+                arr[j], arr[j+<span class="python-number">1</span>] = arr[j+<span class="python-number">1</span>], arr[j]
+    <span class="python-keyword">return</span> arr
+
+<span class="python-comment"># Test</span>
+data = [<span class="python-number">64</span>, <span class="python-number">34</span>, <span class="python-number">25</span>, <span class="python-number">12</span>, <span class="python-number">22</span>]
+<span class="python-keyword">print</span>(bubble_sort_buggy(data))  <span class="python-comment"># IndexError!</span>
+                                    </pre>
+                                </div>
+                                <p class="text-gray-600 text-sm mt-2">
+                                    <strong>Masalah:</strong> Ketika i=0, range(0, n-i) = range(0, 5), sehingga j bisa sampai 4. 
+                                    Ketika j=4, maka arr[j+1] = arr[5] yang tidak ada (IndexError)!
+                                </p>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-xl">
+                                <h4 class="font-bold text-indigo-700 mb-2">✅ Bubble Sort dengan Debug:</h4>
+                                <div class="code-demo text-base">
+                                    <pre class="mt-6">
+<span class="python-keyword">def</span> bubble_sort_debug(arr, debug=<span class="python-keyword">False</span>):
+    <span class="python-keyword">if</span> <span class="python-keyword">not</span> arr:
+        <span class="python-keyword">return</span> []
+    
+    arr = arr.copy()  <span class="python-comment"># Jangan ubah array asli</span>
+    n = <span class="python-keyword">len</span>(arr)
+    
+    <span class="python-keyword">if</span> debug:
+        <span class="python-keyword">print</span>(<span class="python-string">f"Array awal: {arr}"</span>)
+    
+    <span class="python-keyword">for</span> i <span class="python-keyword">in</span> <span class="python-keyword">range</span>(n):
+        swapped = <span class="python-keyword">False</span>
+        <span class="python-comment"># Perbaikan: range(0, n-i-1) untuk menghindari IndexError</span>
+        <span class="python-keyword">for</span> j <span class="python-keyword">in</span> <span class="python-keyword">range</span>(<span class="python-number">0</span>, n-i-<span class="python-number">1</span>):
+            <span class="python-keyword">if</span> debug:
+                <span class="python-keyword">print</span>(<span class="python-string">f"  Bandingkan arr[{j}]={arr[j]} dengan arr[{j+1}]={arr[j+1]}"</span>)
+            
+            <span class="python-keyword">if</span> arr[j] > arr[j+<span class="python-number">1</span>]:
+                arr[j], arr[j+<span class="python-number">1</span>] = arr[j+<span class="python-number">1</span>], arr[j]
+                swapped = <span class="python-keyword">True</span>
+                <span class="python-keyword">if</span> debug:
+                    <span class="python-keyword">print</span>(<span class="python-string">f"    Tukar! Sekarang: {arr}"</span>)
+        
+        <span class="python-keyword">if</span> debug:
+            <span class="python-keyword">print</span>(<span class="python-string">f"Iterasi {i+1}: {arr}"</span>)
+        
+        <span class="python-comment"># Optimasi: jika tidak ada pertukaran, array sudah terurut</span>
+        <span class="python-keyword">if</span> <span class="python-keyword">not</span> swapped:
+            <span class="python-keyword">if</span> debug:
+                <span class="python-keyword">print</span>(<span class="python-string">"Array sudah terurut, berhenti lebih awal!"</span>)
+            <span class="python-keyword">break</span>
+    
+    <span class="python-keyword">return</span> arr
+
+<span class="python-comment"># Test dengan debug</span>
+data = [<span class="python-number">64</span>, <span class="python-number">34</span>, <span class="python-number">25</span>, <span class="python-number">12</span>, <span class="python-number">22</span>]
+hasil = bubble_sort_debug(data, debug=<span class="python-keyword">True</span>)
+<span class="python-keyword">print</span>(<span class="python-string">f"Hasil akhir: {hasil}"</span>)
+                                    </pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="goToNextSection()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-2xl text-xl transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Tugas! 📝
+                </button>
+            </section>
+
+            <!-- Tugas Section -->
+            <section id="tugas" class="content-section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h2 class="text-4xl font-bold text-purple-800 mb-6 flex items-center">
+                        <span class="text-5xl mr-4">📝</span>
+                        Tugas Praktik Debugging
+                    </h2>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-br from-red-100 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-red-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎯</span>
+                                Soal 1: Debug Program Login
+                            </h3>
+                            <div class="bg-white p-4 rounded-xl mb-4">
+                                <p class="text-gray-700 mb-4">
+                                    Program login berikut memiliki beberapa bug. Identifikasi dan perbaiki semua masalahnya:
+                                </p>
+                                <div class="code-demo text-base mb-4">
+                                    <pre class="mt-6">
+<span class="python-keyword">def</span> login_system():
+    username_benar = <span class="python-string">"admin"</span>
+    password_benar = <span class="python-string">"12345"</span>
+    
+    <span class="python-keyword">print</span>(<span class="python-string">"=== SISTEM LOGIN ==="</span>)
+    username = <span class="python-keyword">input</span>(<span class="python-string">"Username: "</span>)
+    password = <span class="python-keyword">input</span>(<span class="python-string">"Password: "</span>)
+    
+    <span class="python-keyword">if</span> username = username_benar <span class="python-keyword">and</span> password = password_benar:  <span class="error-highlight">← Error!</span>
+        <span class="python-keyword">print</span>(<span class="python-string">"Login berhasil!"</span>)
+        <span class="python-keyword">return</span> <span class="python-keyword">True</span>
+    <span class="python-keyword">else</span>  <span class="error-highlight">← Error!</span>
+        <span class="python-keyword">print</span>(<span class="python-string">"Login gagal!"</span>)
+        <span class="python-keyword">return</span> <span class="python-keyword">False</span>
+
+<span class="python-comment"># Test</span>
+hasil = login_system()
+<span class="python-keyword">print</span>(<span class="python-string">f"Status login: {hasil}"</span>)
+                                    </pre>
+                                </div>
+                                <p class="text-gray-700 mb-4">
+                                    <strong>Tugas:</strong> Temukan dan perbaiki semua syntax error dalam kode di atas!<br>
+                                    <strong>Hint:</strong> Ada 3 kesalahan sintaks yang perlu diperbaiki.
+                                </p>
+                            </div>
+                            <textarea id="answer1" class="w-full h-32 p-4 border-2 border-red-300 rounded-lg focus:border-red-500 focus:outline-none font-mono" placeholder="# Tulis kode yang sudah diperbaiki di sini...
+# Jelaskan juga error apa saja yang kamu temukan:
+# 1. ...
+# 2. ..."></textarea>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-blue-100 to-indigo-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🎮</span>
+                                Soal 2: Debug Program Nilai Siswa
+                            </h3>
+                            <div class="bg-white p-4 rounded-xl mb-4">
+                                <p class="text-gray-700 mb-4">
+                                    Program berikut mengalami error saat menghitung rata-rata nilai:
+                                </p>
+                                <div class="code-demo text-base mb-4">
+                                    <pre class="mt-6">
+<span class="python-keyword">def</span> hitung_rata_rata(nilai_list):
+    total = <span class="python-number">0</span>
+    <span class="python-keyword">for</span> nilai <span class="python-keyword">in</span> nilai_list:
+        total += nilai
+    rata_rata = total / <span class="python-keyword">len</span>(nilai_list)
+    <span class="python-keyword">return</span> rata_rata
+
+<span class="python-keyword">def</span> tentukan_grade(rata_rata):
+    <span class="python-keyword">if</span> rata_rata >= <span class="python-number">90</span>:
+        <span class="python-keyword">return</span> <span class="python-string">"A"</span>
+    <span class="python-keyword">elif</span> rata_rata >= <span class="python-number">80</span>:
+        <span class="python-keyword">return</span> <span class="python-string">"B"</span>
+    <span class="python-keyword">elif</span> rata_rata >= <span class="python-number">70</span>:
+        <span class="python-keyword">return</span> <span class="python-string">"C"</span>
+    <span class="python-keyword">elif</span> rata_rata >= <span class="python-number">60</span>:
+        <span class="python-keyword">return</span> <span class="python-string">"D"</span>
+    <span class="python-keyword">else</span>:
+        <span class="python-keyword">return</span> <span class="python-string">"F"</span>
+
+<span class="python-comment"># Test dengan data siswa</span>
+nilai_siswa = [<span class="python-string">"85"</span>, <span class="python-string">"90"</span>, <span class="python-string">"78"</span>, <span class="python-string">"92"</span>, <span class="python-string">"88"</span>]
+rata = hitung_rata_rata(nilai_siswa)
+grade = tentukan_grade(rata)
+<span class="python-keyword">print</span>(<span class="python-string">f"Rata-rata: {rata}, Grade: {grade}"</span>)
+<span class="python-comment"># Error! Mengapa?</span>
+                                    </pre>
+                                </div>
+                                <p class="text-gray-700 mb-4">
+                                    <strong>Masalah:</strong> Program mengalami TypeError. Analisis dan perbaiki!
+                                </p>
+                            </div>
+                            <textarea id="answer2" class="w-full h-32 p-4 border-2 border-blue-300 rounded-lg focus:border-blue-500 focus:outline-none font-mono" placeholder="# Analisis masalah:
+# 1. Apa penyebab TypeError?
+# 2. Bagaimana cara memperbaikinya?
+
+# Kode yang sudah diperbaiki:"></textarea>
+                        </div>
+
+                        <div class="text-center">
+                            <button onclick="saveAnswers()" class="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-4 px-8 rounded-2xl text-xl transition-all transform hover:scale-105 shadow-lg">
+                                Simpan Jawaban! 💾
+                            </button>
+                            <div id="saveMessage" class="mt-4 p-4 rounded-lg hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="goToNextSection()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-2xl text-xl transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Kuis! 🧠
+                </button>
+            </section>
+
+            <!-- Kuis Section -->
+            <section id="kuis" class="content-section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h2 class="text-4xl font-bold text-purple-800 mb-6 flex items-center">
+                        <span class="text-5xl mr-4">🧠</span>
+                        Kuis Debugging Python
+                    </h2>
+
+                    <!-- Quiz Start -->
+                    <div id="quizStart" class="text-center">
+                        <div class="bg-gradient-to-br from-yellow-100 to-orange-100 p-8 rounded-2xl mb-8">
+                            <h3 class="text-3xl font-bold text-orange-800 mb-4">Siap untuk Tantangan Debugging? 🐛</h3>
+                            <p class="text-gray-700 text-lg mb-6">
+                                Kuis ini terdiri dari 15 soal tentang debugging Python. 
+                                Tunjukkan kemampuan debugging kamu!
+                            </p>
+                            <div class="mb-6">
+                                <label for="studentName" class="block text-sm font-medium text-gray-700 mb-2">Nama kamu:</label>
+                                <input type="text" id="studentName" class="w-full max-w-md mx-auto p-3 border-2 border-orange-300 rounded-lg focus:border-orange-500 focus:outline-none" placeholder="Masukkan nama kamu">
+                            </div>
+                            <button onclick="startQuiz()" class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-4 px-8 rounded-2xl text-xl transition-all transform hover:scale-105 shadow-lg">
+                                Mulai Kuis Debugging! 🚀
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Questions -->
+                    <div id="quizQuestions" class="hidden">
+                        <div class="mb-6 bg-gradient-to-r from-blue-100 to-purple-100 p-4 rounded-xl">
+                            <div class="flex justify-between items-center">
+                                <span class="text-lg font-bold text-purple-800">Soal <span id="currentQuestion">1</span> dari 15</span>
+                                <span class="text-lg font-bold text-blue-800">Skor: <span id="currentScore">0</span></span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3 mt-2">
+                                <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300" style="width: 6.67%"></div>
+                            </div>
+                        </div>
+
+                        <div id="questionContainer" class="bg-gradient-to-br from-indigo-100 to-purple-100 p-6 rounded-2xl mb-6">
+                            <!-- Questions will be inserted here -->
+                        </div>
+
+                        <div class="text-center">
+                            <button id="nextButton" onclick="nextQuestion()" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-3 px-8 rounded-xl text-lg transition-all transform hover:scale-105 shadow-lg hidden">
+                                Soal Berikutnya ➡️
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Results -->
+                    <div id="quizResults" class="hidden text-center">
+                        <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-8 rounded-2xl">
+                            <h3 class="text-4xl font-bold text-green-800 mb-4">🎉 Selamat!</h3>
+                            <div id="finalResults" class="text-xl text-gray-700 mb-6">
+                                <!-- Results will be inserted here -->
+                            </div>
+                            <button onclick="restartQuiz()" class="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-4 px-8 rounded-2xl text-xl transition-all transform hover:scale-105 shadow-lg">
+                                Ulangi Kuis 🔄
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="goToNextSection()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-2xl text-xl transition-all transform hover:scale-105 shadow-lg">
+                    Lanjut ke Penutup! 🎉
+                </button>
+            </section>
+
+            <!-- Penutup Section -->
+            <section id="penutup" class="content-section hidden fade-in">
+                <div class="bg-white rounded-3xl shadow-xl p-8 mb-8">
+                    <h2 class="text-4xl font-bold text-purple-800 mb-6 flex items-center">
+                        <span class="text-5xl mr-4">🎉</span>
+                        Penutup
+                    </h2>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-br from-pink-100 to-rose-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-pink-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🤔</span>
+                                Refleksi Pembelajaran
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-pink-700 mb-2 text-lg">Teknik debugging mana yang paling mudah dipahami?</h4>
+                                    <textarea class="w-full h-24 p-3 border-2 border-pink-300 rounded-lg focus:border-pink-500 focus:outline-none text-base" placeholder="Ceritakan pengalaman belajar debugging kamu..."></textarea>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-pink-700 mb-2 text-lg">Apa tantangan terbesar dalam debugging?</h4>
+                                    <textarea class="w-full h-24 p-3 border-2 border-pink-300 rounded-lg focus:border-pink-500 focus:outline-none text-base" placeholder="Bagian mana yang masih perlu diperdalam..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-blue-100 to-cyan-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">📚</span>
+                                Kesimpulan Pembelajaran
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-blue-700 mb-3 flex items-center">
+                                        <span class="text-2xl mr-2">✅</span>
+                                        Yang Sudah Dipelajari
+                                    </h4>
+                                    <ul class="text-gray-600 space-y-2 text-base">
+                                        <li>• Jenis-jenis error Python</li>
+                                        <li>• Teknik debugging sederhana</li>
+                                        <li>• Print debugging efektif</li>
+                                        <li>• Strategi pemecahan masalah</li>
+                                        <li>• Membaca error messages</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-blue-700 mb-3 flex items-center">
+                                        <span class="text-2xl mr-2">🎯</span>
+                                        Skill yang Dikuasai
+                                    </h4>
+                                    <ul class="text-gray-600 space-y-2 text-base">
+                                        <li>• Identifikasi bug sistematis</li>
+                                        <li>• Isolasi dan analisis masalah</li>
+                                        <li>• Problem solving mindset</li>
+                                        <li>• Code quality awareness</li>
+                                        <li>• Debugging confidence</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-2xl">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                                <span class="text-3xl mr-3">🚀</span>
+                                Tindak Lanjut Belajar
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-2">📖 Materi Lanjutan</h4>
+                                    <ul class="text-gray-600 space-y-1 text-base">
+                                        <li>• Advanced debugging dengan IDE</li>
+                                        <li>• Unit testing dan test-driven development</li>
+                                        <li>• Profiling dan performance debugging</li>
+                                        <li>• Error handling dan exception management</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl">
+                                    <h4 class="font-bold text-green-700 mb-2">💡 Tips Pengembangan</h4>
+                                    <ul class="text-gray-600 space-y-1 text-base">
+                                        <li>• Praktik debugging setiap hari</li>
+                                        <li>• Belajar menggunakan debugger IDE</li>
+                                        <li>• Bergabung dengan komunitas programmer</li>
+                                        <li>• Kembangkan mindset "bug adalah teman"</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-yellow-100 to-orange-100 p-6 rounded-2xl text-center">
+                            <h3 class="text-3xl font-bold text-orange-800 mb-4">🐛 Selamat!</h3>
+                            <p class="text-xl text-gray-700 mb-4">
+                                Kamu telah menyelesaikan pembelajaran tentang Teknik Debugging Python! 
+                                Sekarang kamu punya skill untuk menjadi "bug hunter" yang handal.
+                            </p>
+                            <div class="text-6xl mb-4">🎊🐛🎉🔧🎊</div>
+                            <p class="text-lg text-gray-600">
+                                Remember: <em>"Debugging is like being the detective in a crime movie where you are also the murderer!"</em> 
+                                Keep debugging and happy coding! 💪
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="showSection('intro')" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-bold py-4 px-8 rounded-2xl text-xl transition-all transform hover:scale-105 shadow-lg">
+                    Kembali ke Awal! 🔄
+                </button>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSectionIndex = 0;
+        let currentQuizQuestion = 0;
+        let quizScore = 0;
+        let studentName = '';
+        let selectedAnswer = null;
+
+        const sections = ['intro', 'pengenalan', 'jenis-error', 'teknik-debugging', 'praktik', 'tugas', 'kuis', 'penutup'];
+
+        const quizQuestions = [
+            {
+                question: "Apa yang dimaksud dengan debugging?",
+                options: [
+                    "Menulis kode program baru",
+                    "Mencari dan memperbaiki kesalahan dalam program",
+                    "Mengoptimalkan performa program",
+                    "Membuat dokumentasi program"
+                ],
+                correct: 1,
+                explanation: "Debugging adalah proses mencari, mengidentifikasi, dan memperbaiki kesalahan (bug) dalam program."
+            },
+            {
+                question: "Manakah yang termasuk Syntax Error?",
+                options: [
+                    "print('Hello'",
+                    "print(nama) # nama tidak didefinisikan",
+                    "10 / 0",
+                    "Program berjalan tapi hasil salah"
+                ],
+                correct: 0,
+                explanation: "Syntax Error terjadi karena penulisan kode tidak sesuai aturan Python, seperti lupa kurung tutup."
+            },
+            {
+                question: "Error apa yang terjadi pada kode: print(variabel_tidak_ada)",
+                options: [
+                    "SyntaxError",
+                    "TypeError",
+                    "NameError",
+                    "ValueError"
+                ],
+                correct: 2,
+                explanation: "NameError terjadi ketika mencoba menggunakan variabel yang belum didefinisikan."
+            },
+            {
+                question: "Teknik debugging paling sederhana adalah:",
+                options: [
+                    "Menggunakan debugger IDE",
+                    "Print debugging",
+                    "Unit testing",
+                    "Code review"
+                ],
+                correct: 1,
+                explanation: "Print debugging adalah teknik paling sederhana dengan menambahkan print() untuk melihat nilai variabel."
+            },
+            {
+                question: "Apa yang salah dengan kode: hasil = '5' + 3",
+                options: [
+                    "Tidak ada yang salah",
+                    "TypeError - tidak bisa menggabungkan string dan integer",
+                    "SyntaxError - tanda kutip salah",
+                    "NameError - variabel tidak didefinisikan"
+                ],
+                correct: 1,
+                explanation: "TypeError terjadi karena mencoba menggabungkan string ('5') dengan integer (3)."
+            },
+            {
+                question: "Rubber Duck Debugging adalah:",
+                options: [
+                    "Debugging menggunakan bebek sungguhan",
+                    "Menjelaskan kode baris per baris untuk menemukan masalah",
+                    "Teknik debugging khusus untuk web",
+                    "Tools debugging otomatis"
+                ],
+                correct: 1,
+                explanation: "Rubber Duck Debugging adalah teknik menjelaskan kode kepada 'bebek karet' untuk menemukan masalah sendiri."
+            },
+            {
+                question: "Logic Error adalah:",
+                options: [
+                    "Error yang menyebabkan program crash",
+                    "Error sintaks Python",
+                    "Program berjalan tapi hasil salah karena logika keliru",
+                    "Error yang tidak bisa diperbaiki"
+                ],
+                correct: 2,
+                explanation: "Logic Error terjadi ketika program berjalan tanpa error tapi hasilnya salah karena logika yang keliru."
+            },
+            {
+                question: "Apa yang terjadi pada kode: data[5] jika data = [1,2,3]?",
+                options: [
+                    "ValueError",
+                    "IndexError",
+                    "KeyError",
+                    "TypeError"
+                ],
+                correct: 1,
+                explanation: "IndexError terjadi ketika mencoba mengakses index yang tidak ada dalam list."
+            },
+            {
+                question: "Manakah cara terbaik untuk mencegah ZeroDivisionError?",
+                options: [
+                    "Menggunakan try-except",
+                    "Mengecek pembagi != 0 sebelum operasi",
+                    "Menggunakan assert",
+                    "Semua jawaban benar"
+                ],
+                correct: 3,
+                explanation: "Semua teknik tersebut bisa digunakan untuk mencegah ZeroDivisionError, tergantung konteks program."
+            },
+            {
+                question: "Apa kegunaan assert dalam debugging?",
+                options: [
+                    "Menangkap semua error",
+                    "Memastikan kondisi tertentu terpenuhi",
+                    "Mengganti print debugging",
+                    "Mengoptimalkan performa"
+                ],
+                correct: 1,
+                explanation: "Assert digunakan untuk memastikan kondisi tertentu terpenuhi, dan akan raise AssertionError jika tidak."
+            },
+            {
+                question: "Strategi 'Divide and Conquer' dalam debugging berarti:",
+                options: [
+                    "Membagi tim untuk debugging",
+                    "Membagi program menjadi bagian kecil dan test satu per satu",
+                    "Menggunakan multiple debugger",
+                    "Debugging di waktu yang berbeda"
+                ],
+                correct: 1,
+                explanation: "Divide and Conquer berarti membagi program menjadi bagian-bagian kecil dan test satu per satu untuk menemukan sumber masalah."
+            },
+            {
+                question: "Apa perbedaan utama antara print debugging dan logging?",
+                options: [
+                    "Tidak ada perbedaan",
+                    "Logging lebih profesional dan bisa dikontrol levelnya",
+                    "Print lebih cepat",
+                    "Logging hanya untuk error"
+                ],
+                correct: 1,
+                explanation: "Logging lebih profesional karena bisa mengatur level (DEBUG, INFO, WARNING, ERROR) dan output destination."
+            },
+            {
+                question: "Pesan error Python biasanya memberikan informasi:",
+                options: [
+                    "Hanya jenis error",
+                    "Lokasi file, baris, dan penjelasan error",
+                    "Hanya nomor baris",
+                    "Hanya kode yang bermasalah"
+                ],
+                correct: 1,
+                explanation: "Pesan error Python sangat informatif, memberikan lokasi file, nomor baris, kode bermasalah, dan penjelasan error."
+            },
+            {
+                question: "Manakah yang BUKAN termasuk Runtime Error?",
+                options: [
+                    "ZeroDivisionError",
+                    "NameError",
+                    "TypeError",
+                    "Missing colon after if statement"
+                ],
+                correct: 3,
+                explanation: "Missing colon after if statement adalah Syntax Error, bukan Runtime Error. Runtime Error terjadi saat program berjalan."
+            },
+            {
+                question: "Defensive programming adalah:",
+                options: [
+                    "Menulis kode yang sulit dibaca",
+                    "Menulis kode yang tahan terhadap input tidak valid",
+                    "Menggunakan banyak try-except",
+                    "Menghindari penggunaan fungsi"
+                ],
+                correct: 1,
+                explanation: "Defensive programming adalah praktik menulis kode yang robust dan tahan terhadap input tidak valid atau kondisi tak terduga."
+            }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('intro');
+            setupEventListeners();
+            setupBackToTop();
+        });
+
+        function setupEventListeners() {
+            // Mobile menu
+            document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.remove('-translate-x-full');
+            });
+
+            document.getElementById('closeSidebar').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(e) {
+                const sidebar = document.getElementById('sidebar');
+                const mobileBtn = document.getElementById('mobileMenuBtn');
+                
+                if (window.innerWidth < 1024 && 
+                    !sidebar.contains(e.target) && 
+                    !mobileBtn.contains(e.target) && 
+                    !sidebar.classList.contains('-translate-x-full')) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+        }
+
+        function setupBackToTop() {
+            const backToTopBtn = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('hidden');
+                } else {
+                    backToTopBtn.classList.add('hidden');
+                }
+            });
+
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+            
+            // Close mobile sidebar
+            if (window.innerWidth < 1024) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+            }
+            
+            // Force immediate scroll to top
+            document.body.scrollTop = 0; // For Safari
+            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+            
+            // Also use smooth scroll as backup
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 50);
+            
+            // Update current section index
+            currentSectionIndex = sections.indexOf(sectionId);
+        }
+
+        function goToNextSection() {
+            if (currentSectionIndex < sections.length - 1) {
+                currentSectionIndex++;
+                showSection(sections[currentSectionIndex]);
+                // Force scroll to top with a small delay to ensure section is loaded
+                setTimeout(() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 100);
+            }
+        }
+
+        // Error Analysis Demo
+        function analyzeError() {
+            const selectedCode = document.getElementById('errorCode').value;
+            const analysisDiv = document.getElementById('errorAnalysis');
+            
+            let analysis = '';
+            
+            switch(selectedCode) {
+                case 'syntax1':
+                    analysis = `
+                        <div class="error-box">
+                            <h4 class="font-bold mb-2">🔍 Analisis: Syntax Error</h4>
+                            <p><strong>Masalah:</strong> Lupa titik dua (:) setelah if statement</p>
+                            <p><strong>Perbaikan:</strong> <code>if x > 5:</code></p>
+                            <p><strong>Jenis:</strong> Syntax Error - kode tidak sesuai aturan Python</p>
+                        </div>
+                    `;
+                    break;
+                case 'runtime1':
+                    analysis = `
+                        <div class="error-box">
+                            <h4 class="font-bold mb-2">🔍 Analisis: Runtime Error</h4>
+                            <p><strong>Masalah:</strong> Variabel 'variabel_tidak_ada' belum didefinisikan</p>
+                            <p><strong>Perbaikan:</strong> Definisikan variabel terlebih dahulu</p>
+                            <p><strong>Jenis:</strong> NameError - runtime error</p>
+                        </div>
+                    `;
+                    break;
+                case 'logic1':
+                    analysis = `
+                        <div class="warning-box">
+                            <h4 class="font-bold mb-2">🔍 Analisis: Logic Error</h4>
+                            <p><strong>Masalah:</strong> Rumus salah untuk persegi panjang</p>
+                            <p><strong>Perbaikan:</strong> <code>luas = panjang * lebar</code></p>
+                            <p><strong>Jenis:</strong> Logic Error - program berjalan tapi hasil salah</p>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            analysisDiv.innerHTML = analysis;
+            analysisDiv.classList.remove('hidden');
+        }
+
+        // Calculator Demo
+        function runBuggyCalculator() {
+            const angka1 = document.getElementById('calc1').value;
+            const operator = document.getElementById('calcOp').value;
+            const angka2 = document.getElementById('calc2').value;
+            const resultDiv = document.getElementById('calcResult');
+            
+            let hasil;
+            let debugInfo = `
+                <div class="mb-3">
+                    <h4 class="font-bold text-orange-700">🐛 Debug Info:</h4>
+                    <p>angka1: "${angka1}" (tipe: ${typeof angka1})</p>
+                    <p>angka2: "${angka2}" (tipe: ${typeof angka2})</p>
+                </div>
+            `;
+            
+            // Simulate buggy calculator (string concatenation instead of math)
+            if (operator === '+') {
+                hasil = angka1 + angka2; // String concatenation!
+            } else if (operator === '-') {
+                hasil = angka1 - angka2; // NaN
+            } else if (operator === '*') {
+                hasil = angka1 * angka2; // NaN
+            } else if (operator === '/') {
+                hasil = angka1 / angka2; // NaN
+            }
+            
+            resultDiv.innerHTML = debugInfo + `
+                <div class="error-box">
+                    <h4 class="font-bold">❌ Hasil Bermasalah:</h4>
+                    <p>${angka1} ${operator} ${angka2} = ${hasil}</p>
+                    <p class="mt-2"><strong>Masalah:</strong> input() menghasilkan string, bukan angka!</p>
+                    <p><strong>Solusi:</strong> Gunakan float() atau int() untuk konversi</p>
+                </div>
+            `;
+            resultDiv.classList.remove('hidden');
+        }
+
+        // Save Answers
+        function saveAnswers() {
+            const answer1 = document.getElementById('answer1').value;
+            const answer2 = document.getElementById('answer2').value;
+            const messageDiv = document.getElementById('saveMessage');
+            
+            if (answer1.trim() === '' || answer2.trim() === '') {
+                messageDiv.innerHTML = `
+                    <div class="error-box">
+                        <p>⚠️ Mohon lengkapi semua jawaban sebelum menyimpan!</p>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="success-box">
+                        <p>✅ Jawaban berhasil disimpan! Lanjutkan ke kuis untuk menguji pemahaman kamu.</p>
+                    </div>
+                `;
+            }
+            messageDiv.classList.remove('hidden');
+        }
+
+        // Quiz Functions
+        function startQuiz() {
+            studentName = document.getElementById('studentName').value.trim();
+            if (studentName === '') {
+                alert('Mohon masukkan nama kamu terlebih dahulu!');
+                return;
+            }
+            
+            document.getElementById('quizStart').classList.add('hidden');
+            document.getElementById('quizQuestions').classList.remove('hidden');
+            
+            currentQuizQuestion = 0;
+            quizScore = 0;
+            selectedAnswer = null;
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizQuestions[currentQuizQuestion];
+            const container = document.getElementById('questionContainer');
+            
+            document.getElementById('currentQuestion').textContent = currentQuizQuestion + 1;
+            document.getElementById('currentScore').textContent = quizScore;
+            document.getElementById('progressBar').style.width = ((currentQuizQuestion + 1) / quizQuestions.length * 100) + '%';
+            
+            let optionsHtml = '';
+            question.options.forEach((option, index) => {
+                optionsHtml += `
+                    <div class="quiz-option bg-white p-4 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-purple-400 transition-all mb-3" onclick="selectAnswer(${index})">
+                        <div class="flex items-center">
+                            <div class="w-6 h-6 rounded-full border-2 border-gray-300 mr-3 flex items-center justify-center">
+                                <div class="w-3 h-3 rounded-full bg-purple-500 hidden answer-dot"></div>
+                            </div>
+                            <span class="text-gray-700">${option}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = `
+                <h3 class="text-2xl font-bold text-indigo-800 mb-6">${question.question}</h3>
+                <div class="space-y-3">
+                    ${optionsHtml}
+                </div>
+                <button onclick="submitAnswer()" class="mt-6 bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50" disabled>
+                    Jawab Soal 📝
+                </button>
+                <div id="answerFeedback" class="mt-4 hidden"></div>
+            `;
+        }
+
+        function selectAnswer(index) {
+            selectedAnswer = index;
+            
+            // Reset all options
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('border-purple-500', 'bg-purple-50');
+                option.querySelector('.answer-dot').classList.add('hidden');
+            });
+            
+            // Highlight selected option
+            const selectedOption = document.querySelectorAll('.quiz-option')[index];
+            selectedOption.classList.add('border-purple-500', 'bg-purple-50');
+            selectedOption.querySelector('.answer-dot').classList.remove('hidden');
+            
+            // Enable submit button
+            document.querySelector('button[onclick="submitAnswer()"]').disabled = false;
+        }
+
+        function submitAnswer() {
+            const question = quizQuestions[currentQuizQuestion];
+            const isCorrect = selectedAnswer === question.correct;
+            const feedbackDiv = document.getElementById('answerFeedback');
+            
+            if (isCorrect) {
+                quizScore += 10;
+                feedbackDiv.innerHTML = `
+                    <div class="success-box">
+                        <h4 class="font-bold flex items-center"><span class="text-2xl mr-2">✅</span> Benar!</h4>
+                        <p>${question.explanation}</p>
+                    </div>
+                `;
+            } else {
+                feedbackDiv.innerHTML = `
+                    <div class="error-box">
+                        <h4 class="font-bold flex items-center"><span class="text-2xl mr-2">❌</span> Salah!</h4>
+                        <p><strong>Jawaban yang benar:</strong> ${question.options[question.correct]}</p>
+                        <p>${question.explanation}</p>
+                    </div>
+                `;
+            }
+            
+            // Show correct/incorrect styling
+            document.querySelectorAll('.quiz-option').forEach((option, index) => {
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedAnswer && !isCorrect) {
+                    option.classList.add('incorrect');
+                }
+            });
+            
+            feedbackDiv.classList.remove('hidden');
+            document.getElementById('nextButton').classList.remove('hidden');
+            
+            // Disable further selection
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+        }
+
+        function nextQuestion() {
+            currentQuizQuestion++;
+            
+            if (currentQuizQuestion < quizQuestions.length) {
+                selectedAnswer = null;
+                document.getElementById('nextButton').classList.add('hidden');
+                showQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function showQuizResults() {
+            document.getElementById('quizQuestions').classList.add('hidden');
+            document.getElementById('quizResults').classList.remove('hidden');
+            
+            const percentage = (quizScore / (quizQuestions.length * 10)) * 100;
+            let grade, message, emoji;
+            
+            if (percentage >= 90) {
+                grade = 'A';
+                message = 'Luar biasa! Kamu menguasai debugging dengan sangat baik!';
+                emoji = '🏆';
+            } else if (percentage >= 80) {
+                grade = 'B';
+                message = 'Bagus sekali! Pemahaman debugging kamu sudah baik!';
+                emoji = '🎉';
+            } else if (percentage >= 70) {
+                grade = 'C';
+                message = 'Cukup baik! Terus berlatih debugging ya!';
+                emoji = '👍';
+            } else if (percentage >= 60) {
+                grade = 'D';
+                message = 'Perlu belajar lebih giat lagi. Jangan menyerah!';
+                emoji = '💪';
+            } else {
+                grade = 'E';
+                message = 'Ayo semangat belajar lagi! Debugging butuh latihan terus-menerus!';
+                emoji = '📚';
+            }
+            
+            document.getElementById('finalResults').innerHTML = `
+                <div class="text-6xl mb-4">${emoji}</div>
+                <p class="text-2xl font-bold text-green-800 mb-2">Halo ${studentName}!</p>
+                <p class="text-xl mb-4">Skor kamu: <span class="font-bold text-blue-600">${quizScore}/${quizQuestions.length * 10}</span> (${percentage.toFixed(1)}%)</p>
+                <p class="text-xl mb-4">Grade: <span class="font-bold text-purple-600">${grade}</span></p>
+                <p class="text-lg text-gray-700">${message}</p>
+            `;
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizResults').classList.add('hidden');
+            document.getElementById('quizStart').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'991093c530e43541',t:'MTc2MDg4MDA3Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
