@@ -1,0 +1,2029 @@
+<!doctype html>
+<html lang="id">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modularitas &amp; Keterbacaan Kode</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #fef7ff 0%, #f0f9ff 25%, #f0fdf4 50%, #fef3c7 75%, #fce7f3 100%);
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .content-transition {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .demo-box {
+            background: linear-gradient(45deg, #fef7ff, #f0f9ff);
+            border: 2px dashed #c084fc;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .bounce-animation {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        .code-demo {
+            background: #1e293b;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+        }
+        
+        .highlight-keyword {
+            color: #60a5fa;
+        }
+        
+        .highlight-string {
+            color: #34d399;
+        }
+        
+        .highlight-comment {
+            color: #94a3b8;
+        }
+        
+        .highlight-function {
+            color: #fbbf24;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="gradient-bg min-h-full font-sans"><!-- Mobile Menu Button --> <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-pink-200 hover:bg-pink-300 p-3 rounded-full shadow-lg transition-all">
+   <svg class="w-6 h-6 text-pink-700" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+   </svg></button> <!-- Sidebar -->
+  <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white/90 backdrop-blur-sm shadow-xl z-40 transform -translate-x-full lg:translate-x-0 sidebar-transition overflow-y-auto">
+   <div class="p-6">
+    <div class="text-center mb-8">
+     <div class="text-4xl mb-2 bounce-animation">
+      🧩
+     </div>
+     <h1 id="mainTitle" class="text-2xl font-bold text-purple-800 mb-2">Modularitas &amp; Keterbacaan Kode</h1>
+     <p id="subtitle" class="text-base text-purple-600">Belajar Menulis Kode yang Rapi dan Mudah Dipahami!</p>
+    </div>
+    <nav class="space-y-2"><button onclick="showSection('intro')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-pink-100 transition-all flex items-center space-x-3 bg-pink-200"> <span class="text-2xl">🚀</span> <span class="font-medium text-purple-700">Intro</span> </button> <button onclick="showSection('pengenalan')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-blue-100 transition-all flex items-center space-x-3"> <span class="text-2xl">👋</span> <span class="font-medium text-blue-700">Pengenalan</span> </button> <button onclick="showSection('modularitas')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-green-100 transition-all flex items-center space-x-3"> <span class="text-2xl">🧩</span> <span class="font-medium text-green-700">Konsep Modularitas</span> </button> <button onclick="showSection('keterbacaan')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-yellow-100 transition-all flex items-center space-x-3"> <span class="text-2xl">👁️</span> <span class="font-medium text-yellow-700">Keterbacaan Kode</span> </button> <button onclick="showSection('implementasi')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-indigo-100 transition-all flex items-center space-x-3"> <span class="text-2xl">⚙️</span> <span class="font-medium text-indigo-700">Implementasi</span> </button> <button onclick="showSection('best-practices')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-purple-100 transition-all flex items-center space-x-3"> <span class="text-2xl">⭐</span> <span class="font-medium text-purple-700">Best Practices</span> </button> <button onclick="showSection('demo')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-orange-100 transition-all flex items-center space-x-3"> <span class="text-2xl">💡</span> <span class="font-medium text-orange-700">Demo &amp; Simulasi</span> </button> <button onclick="showSection('penutup')" class="nav-btn w-full text-left p-3 rounded-lg hover:bg-cyan-100 transition-all flex items-center space-x-3"> <span class="text-2xl">🎉</span> <span class="font-medium text-cyan-700">Penutup</span> </button>
+    </nav>
+   </div>
+  </div><!-- Main Content -->
+  <div class="lg:ml-80 min-h-full">
+   <div class="p-4 lg:p-8"><!-- Intro Section -->
+    <div id="intro" class="content-section">
+     <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl">
+      <div class="text-center mb-8">
+       <div class="text-6xl mb-4 bounce-animation">
+        🤔
+       </div>
+       <h2 class="text-3xl font-bold text-purple-800 mb-4">Selamat Datang di Dunia Kode yang Rapi!</h2>
+       <p id="welcomeMessage" class="text-purple-600 text-lg">Mari belajar menulis kode yang mudah dipahami dan dipelihara</p>
+      </div>
+      <div class="space-y-6">
+       <div class="bg-pink-50 p-6 rounded-2xl border-l-4 border-pink-400 card-hover">
+        <h3 class="text-xl font-bold text-pink-700 mb-3 flex items-center"><span class="text-2xl mr-2">💭</span> Pertanyaan Pemantik</h3>
+        <div class="space-y-3">
+         <p class="text-pink-600 text-lg">Pernahkah kalian melihat kode program yang berantakan seperti kamar yang tidak pernah dibereskan? 🏠</p>
+         <div class="bg-white p-4 rounded-xl">
+          <h4 class="font-bold text-pink-700 mb-2">Bayangkan situasi ini:</h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-base">
+           <div class="bg-red-100 p-3 rounded-lg">
+            <h5 class="font-bold text-red-700">😵 Kode Berantakan</h5>
+            <ul class="text-red-600 text-sm space-y-1">
+             <li>• Sulit dipahami</li>
+             <li>• Susah diperbaiki</li>
+             <li>• Banyak bug</li>
+             <li>• Tim bingung</li>
+            </ul>
+           </div>
+           <div class="bg-green-100 p-3 rounded-lg">
+            <h5 class="font-bold text-green-700">😊 Kode Rapi</h5>
+            <ul class="text-green-600 text-sm space-y-1">
+             <li>• Mudah dipahami</li>
+             <li>• Cepat diperbaiki</li>
+             <li>• Minim bug</li>
+             <li>• Tim senang</li>
+            </ul>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-blue-50 p-6 rounded-2xl border-l-4 border-blue-400 card-hover">
+        <h3 class="text-xl font-bold text-blue-700 mb-3 flex items-center"><span class="text-2xl mr-2">📚</span> Apa yang Akan Dipelajari?</h3>
+        <div class="grid md:grid-cols-2 gap-4">
+         <div class="space-y-2">
+          <div class="flex items-center p-3 bg-white rounded-lg"><span class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm mr-3">1</span> <span class="text-blue-600 text-base">Konsep Modularitas dalam Programming</span>
+          </div>
+          <div class="flex items-center p-3 bg-white rounded-lg"><span class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm mr-3">2</span> <span class="text-blue-600 text-base">Prinsip Keterbacaan Kode</span>
+          </div>
+          <div class="flex items-center p-3 bg-white rounded-lg"><span class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm mr-3">3</span> <span class="text-blue-600 text-base">Teknik Penamaan yang Baik</span>
+          </div>
+         </div>
+         <div class="space-y-2">
+          <div class="flex items-center p-3 bg-white rounded-lg"><span class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm mr-3">4</span> <span class="text-blue-600 text-base">Dokumentasi dan Komentar</span>
+          </div>
+          <div class="flex items-center p-3 bg-white rounded-lg"><span class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm mr-3">5</span> <span class="text-blue-600 text-base">Best Practices Industri</span>
+          </div>
+          <div class="flex items-center p-3 bg-white rounded-lg"><span class="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm mr-3">6</span> <span class="text-blue-600 text-base">Implementasi Praktis</span>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-green-50 p-6 rounded-2xl border-l-4 border-green-400 card-hover">
+        <h3 class="text-xl font-bold text-green-700 mb-3 flex items-center"><span class="text-2xl mr-2">🎯</span> Tujuan Pembelajaran</h3>
+        <div class="grid md:grid-cols-2 gap-4">
+         <div class="bg-white p-4 rounded-xl">
+          <h4 class="font-bold text-green-700 mb-2 flex items-center"><span class="text-lg mr-2">🧠</span>Pengetahuan</h4>
+          <ul class="text-green-600 space-y-1 text-base">
+           <li>• Memahami konsep modularitas</li>
+           <li>• Mengenal prinsip keterbacaan kode</li>
+           <li>• Memahami pentingnya dokumentasi</li>
+           <li>• Mengetahui standar industri</li>
+          </ul>
+         </div>
+         <div class="bg-white p-4 rounded-xl">
+          <h4 class="font-bold text-green-700 mb-2 flex items-center"><span class="text-lg mr-2">💪</span>Keterampilan</h4>
+          <ul class="text-green-600 space-y-1 text-base">
+           <li>• Menulis kode yang modular</li>
+           <li>• Membuat kode yang mudah dibaca</li>
+           <li>• Memberikan nama yang bermakna</li>
+           <li>• Menulis dokumentasi yang baik</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+       <div class="bg-yellow-50 p-6 rounded-2xl border-l-4 border-yellow-400 card-hover">
+        <h3 class="text-xl font-bold text-yellow-700 mb-3 flex items-center"><span class="text-2xl mr-2">💡</span> Pemahaman Bermakna</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <div class="text-center mb-4">
+          <div class="text-4xl mb-2">
+           🏗️
+          </div>
+          <h4 class="text-xl font-bold text-yellow-700">Analogi: Membangun Rumah</h4>
+         </div>
+         <div class="grid md:grid-cols-3 gap-4">
+          <div class="text-center p-3 bg-yellow-100 rounded-lg">
+           <div class="text-2xl mb-2">
+            🧱
+           </div>
+           <h5 class="font-bold text-yellow-700">Modularitas</h5>
+           <p class="text-yellow-600 text-sm">Seperti ruang-ruang terpisah dalam rumah</p>
+          </div>
+          <div class="text-center p-3 bg-yellow-100 rounded-lg">
+           <div class="text-2xl mb-2">
+            🗺️
+           </div>
+           <h5 class="font-bold text-yellow-700">Keterbacaan</h5>
+           <p class="text-yellow-600 text-sm">Seperti denah rumah yang jelas</p>
+          </div>
+          <div class="text-center p-3 bg-yellow-100 rounded-lg">
+           <div class="text-2xl mb-2">
+            📋
+           </div>
+           <h5 class="font-bold text-yellow-700">Dokumentasi</h5>
+           <p class="text-yellow-600 text-sm">Seperti manual penggunaan rumah</p>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-purple-50 p-6 rounded-2xl border-l-4 border-purple-400 card-hover">
+        <h3 class="text-xl font-bold text-purple-700 mb-3 flex items-center"><span class="text-2xl mr-2">🔥</span> Motivasi &amp; Inspirasi</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <div class="text-center mb-4">
+          <p class="text-purple-600 text-lg italic">"Kode yang baik adalah kode yang dapat dibaca oleh manusia, bukan hanya oleh komputer."</p>
+          <p class="text-purple-500 text-base mt-2">- Martin Fowler</p>
+         </div>
+         <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-purple-100 p-3 rounded-lg">
+           <h5 class="font-bold text-purple-700 mb-2">💰 Manfaat Karir</h5>
+           <ul class="text-purple-600 text-sm space-y-1">
+            <li>• Programmer senior lebih dihargai</li>
+            <li>• Mudah bekerja dalam tim</li>
+            <li>• Proyek lebih sukses</li>
+            <li>• Karir berkembang pesat</li>
+           </ul>
+          </div>
+          <div class="bg-purple-100 p-3 rounded-lg">
+           <h5 class="font-bold text-purple-700 mb-2">🌟 Manfaat Pribadi</h5>
+           <ul class="text-purple-600 text-sm space-y-1">
+            <li>• Lebih percaya diri</li>
+            <li>• Kode lebih berkualitas</li>
+            <li>• Debugging lebih mudah</li>
+            <li>• Stress berkurang</li>
+           </ul>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="text-center mt-8"><button onclick="nextSection('pengenalan')" class="bg-gradient-to-r from-pink-400 to-purple-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:from-pink-500 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg"> Mulai Belajar! 🚀 </button>
+      </div>
+     </div>
+    </div><!-- Pengenalan Section -->
+    <div id="pengenalan" class="content-section hidden">
+     <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl">
+      <div class="text-center mb-8">
+       <div class="text-6xl mb-4 pulse-animation">
+        👋
+       </div>
+       <h2 class="text-3xl font-bold text-blue-800 mb-4">Pengenalan Modularitas &amp; Keterbacaan</h2>
+      </div>
+      <div class="space-y-6">
+       <div class="bg-blue-50 p-6 rounded-2xl card-hover">
+        <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center"><span class="text-2xl mr-2">🤖</span> Mengapa Kode Perlu Rapi?</h3>
+        <div class="bg-white p-4 rounded-xl mb-4">
+         <p class="text-blue-600 text-lg mb-4">Bayangkan kalian sedang membaca buku tanpa paragraf, tanpa spasi, dan tanpa tanda baca. Pasti sulit dipahami, kan? Begitu juga dengan kode program!</p>
+         <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-red-100 p-4 rounded-lg">
+           <h4 class="font-bold text-red-700 mb-2 flex items-center"><span class="text-lg mr-2">😵</span>Kode Buruk</h4>
+           <div class="code-demo p-3 rounded text-sm">
+            <div>
+             function a(x,y){if(x&gt;y)return x*2+y;else return y*2+x;}
+            </div>
+            <div>
+             var b=a(5,3);var c=a(10,7);console.log(b+c);
+            </div>
+           </div>
+           <p class="text-red-600 text-sm mt-2">Sulit dipahami, tidak ada penjelasan!</p>
+          </div>
+          <div class="bg-green-100 p-4 rounded-lg">
+           <h4 class="font-bold text-green-700 mb-2 flex items-center"><span class="text-lg mr-2">😊</span>Kode Baik</h4>
+           <div class="code-demo p-3 rounded text-sm">
+            <div>
+             <span class="highlight-comment">// Menghitung nilai berdasarkan yang terbesar</span>
+            </div>
+            <div>
+             <span class="highlight-keyword">function</span> <span class="highlight-function">hitungNilai</span>(angka1, angka2) {
+            </div>
+            <div>
+             &nbsp;&nbsp;<span class="highlight-keyword">if</span> (angka1 &gt; angka2) {
+            </div>
+            <div>
+             &nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight-keyword">return</span> angka1 * 2 + angka2;
+            </div>
+            <div>
+             &nbsp;&nbsp;} <span class="highlight-keyword">else</span> {
+            </div>
+            <div>
+             &nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight-keyword">return</span> angka2 * 2 + angka1;
+            </div>
+            <div>
+             &nbsp;&nbsp;}
+            </div>
+            <div>
+             }
+            </div>
+           </div>
+           <p class="text-green-600 text-sm mt-2">Jelas, mudah dipahami!</p>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-purple-50 p-6 rounded-2xl card-hover">
+        <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center"><span class="text-2xl mr-2">🏛️</span> Sejarah &amp; Evolusi Kode</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <div class="grid md:grid-cols-4 gap-3 mb-4">
+          <div class="text-center p-3 bg-purple-100 rounded-lg">
+           <div class="text-2xl mb-1">
+            🕰️
+           </div>
+           <h4 class="font-bold text-purple-700 text-sm">1940s</h4>
+           <p class="text-purple-600 text-md">Assembly Language</p>
+          </div>
+          <div class="text-center p-3 bg-purple-100 rounded-lg">
+           <div class="text-2xl mb-1">
+            📝
+           </div>
+           <h4 class="font-bold text-purple-700 text-sm">1950s</h4>
+           <p class="text-purple-600 text-md">FORTRAN &amp; COBOL</p>
+          </div>
+          <div class="text-center p-3 bg-purple-100 rounded-lg">
+           <div class="text-2xl mb-1">
+            🔧
+           </div>
+           <h4 class="font-bold text-purple-700 text-sm">1970s</h4>
+           <p class="text-purple-600 text-md">Structured Programming</p>
+          </div>
+          <div class="text-center p-3 bg-purple-100 rounded-lg">
+           <div class="text-2xl mb-1">
+            🎯
+           </div>
+           <h4 class="font-bold text-purple-700 text-sm">2000s</h4>
+           <p class="text-purple-600 text-md">Clean Code Movement</p>
+          </div>
+         </div>
+         <p class="text-purple-600 text-base">Dari kode yang hanya berfungsi, berkembang menjadi kode yang mudah dipahami dan dipelihara!</p>
+        </div>
+       </div>
+       <div class="bg-green-50 p-6 rounded-2xl card-hover">
+        <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center"><span class="text-2xl mr-2">📊</span> Statistik &amp; Fakta Industri</h3>
+        <div class="grid md:grid-cols-3 gap-4 mb-4">
+         <div class="bg-white p-4 rounded-xl text-center">
+          <div class="text-3xl mb-2">
+           80%
+          </div>
+          <h4 class="font-bold text-green-700">Waktu Development</h4>
+          <p class="text-green-600 text-sm">Dihabiskan untuk membaca kode, bukan menulis</p>
+         </div>
+         <div class="bg-white p-4 rounded-xl text-center">
+          <div class="text-3xl mb-2">
+           70%
+          </div>
+          <h4 class="font-bold text-green-700">Bug Software</h4>
+          <p class="text-green-600 text-sm">Disebabkan oleh kode yang sulit dipahami</p>
+         </div>
+         <div class="bg-white p-4 rounded-xl text-center">
+          <div class="text-3xl mb-2">
+           50%
+          </div>
+          <h4 class="font-bold text-green-700">Biaya Maintenance</h4>
+          <p class="text-green-600 text-sm">Bisa dikurangi dengan kode yang rapi</p>
+         </div>
+        </div>
+        <div class="bg-white p-4 rounded-xl">
+         <h4 class="font-bold text-green-700 mb-3">💰 Dampak Ekonomi Kode Buruk:</h4>
+         <div class="grid md:grid-cols-2 gap-4">
+          <div>
+           <ul class="text-green-600 space-y-2 text-sm">
+            <li>• <strong>$85 Miliar/tahun</strong> - Kerugian akibat technical debt di AS</li>
+            <li>• <strong>3-10x</strong> lebih mahal memperbaiki bug di production</li>
+            <li>• <strong>40%</strong> waktu developer hilang karena kode legacy</li>
+           </ul>
+          </div>
+          <div>
+           <ul class="text-green-600 space-y-2 text-sm">
+            <li>• <strong>25%</strong> peningkatan produktivitas dengan clean code</li>
+            <li>• <strong>60%</strong> lebih cepat onboarding developer baru</li>
+            <li>• <strong>90%</strong> pengurangan waktu debugging</li>
+           </ul>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-yellow-50 p-6 rounded-2xl card-hover">
+        <h3 class="text-xl font-bold text-yellow-700 mb-4 flex items-center"><span class="text-2xl mr-2">🧠</span> Psikologi Membaca Kode</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <p class="text-yellow-600 text-base mb-4">Penelitian menunjukkan bahwa otak manusia memproses kode seperti membaca bahasa natural:</p>
+         <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-yellow-100 p-3 rounded-lg">
+           <h4 class="font-bold text-yellow-700 mb-2">🔍 Cognitive Load Theory</h4>
+           <ul class="text-yellow-600 text-sm space-y-1">
+            <li>• Otak punya keterbasan memori kerja</li>
+            <li>• Kode kompleks overload cognitive capacity</li>
+            <li>• Modularitas mengurangi beban mental</li>
+            <li>• Pattern recognition mempercepat pemahaman</li>
+           </ul>
+          </div>
+          <div class="bg-yellow-100 p-3 rounded-lg">
+           <h4 class="font-bold text-yellow-700 mb-2">⚡ Reading Patterns</h4>
+           <ul class="text-yellow-600 text-sm space-y-1">
+            <li>• Programmer scan kode seperti membaca</li>
+            <li>• Eye tracking: fokus pada nama &amp; struktur</li>
+            <li>• Indentasi membantu visual parsing</li>
+            <li>• Konsistensi mengurangi mental effort</li>
+           </ul>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="demo-box p-6 rounded-2xl">
+        <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center"><span class="text-2xl mr-2">🎮</span> Demo Interaktif: Perbandingan Kode</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <div class="grid md:grid-cols-2 gap-4 mb-4">
+          <div>
+           <h4 class="font-bold text-red-700 mb-3">❌ Kode Sulit Dibaca</h4>
+           <div class="code-demo p-3 rounded text-sm">
+            <div>
+             var a=prompt("n");var b=1;for(var i=1;i&lt;=a;i++){b*=i;}alert(b);
+            </div>
+           </div><button onclick="explainBadCode()" class="mt-2 bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"> Apa yang dilakukan kode ini? 🤔 </button>
+           <div id="badCodeExplanation" class="mt-2 p-2 bg-red-100 rounded text-sm text-red-700 hidden">
+            Kode ini menghitung faktorial, tapi sulit dipahami karena nama variabel tidak jelas!
+           </div>
+          </div>
+          <div>
+           <h4 class="font-bold text-green-700 mb-3">✅ Kode Mudah Dibaca</h4>
+           <div class="code-demo p-3 rounded text-sm">
+            <div>
+             <span class="highlight-comment">// Program menghitung faktorial</span>
+            </div>
+            <div>
+             <span class="highlight-keyword">function</span> <span class="highlight-function">hitungFaktorial</span>(angka) {
+            </div>
+            <div>
+             &nbsp;&nbsp;<span class="highlight-keyword">let</span> hasil = 1;
+            </div>
+            <div>
+             &nbsp;&nbsp;<span class="highlight-keyword">for</span> (<span class="highlight-keyword">let</span> i = 1; i &lt;= angka; i++) {
+            </div>
+            <div>
+             &nbsp;&nbsp;&nbsp;&nbsp;hasil *= i;
+            </div>
+            <div>
+             &nbsp;&nbsp;}
+            </div>
+            <div>
+             &nbsp;&nbsp;<span class="highlight-keyword">return</span> hasil;
+            </div>
+            <div>
+             }
+            </div>
+           </div><button onclick="explainGoodCode()" class="mt-2 bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"> Lihat keunggulannya! ✨ </button>
+           <div id="goodCodeExplanation" class="mt-2 p-2 bg-green-100 rounded text-sm text-green-700 hidden">
+            Jelas! Ada komentar, nama fungsi dan variabel bermakna, struktur rapi!
+           </div>
+          </div>
+         </div>
+         <div class="bg-blue-100 p-4 rounded-lg">
+          <h4 class="font-bold text-blue-700 mb-3">🎯 Interactive Challenge: Code Detective</h4>
+          <p class="text-blue-600 text-sm mb-3">Temukan masalah dalam kode dan berikan solusinya!</p>
+          <div class="space-y-3">
+           <div class="bg-white p-3 rounded">
+            <h5 class="font-medium text-blue-700 mb-2">Kode Bermasalah:</h5>
+            <div class="code-demo p-2 rounded text-sm">
+             <div>
+              function f(x,y,z){if(z==1)return x+y;if(z==2)return x-y;if(z==3)return x*y;return x/y;}
+             </div>
+            </div>
+           </div>
+           <div class="grid md:grid-cols-2 gap-3"><button onclick="showCodeProblems()" class="bg-red-500 text-white p-2 rounded hover:bg-red-600 text-sm"> 🔍 Temukan Masalah </button> <button onclick="showCodeSolution()" class="bg-green-500 text-white p-2 rounded hover:bg-green-600 text-sm"> ✨ Lihat Solusi </button>
+           </div>
+           <div id="codeAnalysisResult" class="bg-white p-3 rounded hidden">
+            <p class="text-blue-700">Hasil analisis akan muncul di sini...</p>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-indigo-50 p-6 rounded-2xl card-hover">
+        <h3 class="text-xl font-bold text-indigo-700 mb-4 flex items-center"><span class="text-2xl mr-2">🌍</span> Perspektif Global: Clean Code Movement</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <div class="grid md:grid-cols-3 gap-4 mb-4">
+          <div class="text-center p-3 bg-indigo-100 rounded-lg">
+           <div class="text-2xl mb-2">
+            🇺🇸
+           </div>
+           <h4 class="font-bold text-indigo-700">Silicon Valley</h4>
+           <p class="text-indigo-600 text-sm">Google, Facebook, Apple menerapkan strict coding standards</p>
+          </div>
+          <div class="text-center p-3 bg-indigo-100 rounded-lg">
+           <div class="text-2xl mb-2">
+            🇯🇵
+           </div>
+           <h4 class="font-bold text-indigo-700">Jepang</h4>
+           <p class="text-indigo-600 text-sm">Toyota Production System mempengaruhi Lean Software Development</p>
+          </div>
+          <div class="text-center p-3 bg-indigo-100 rounded-lg">
+           <div class="text-2xl mb-2">
+            🇪🇺
+           </div>
+           <h4 class="font-bold text-indigo-700">Eropa</h4>
+           <p class="text-indigo-600 text-sm">GDPR mendorong code quality untuk data security</p>
+          </div>
+         </div>
+         <div class="bg-indigo-100 p-3 rounded-lg">
+          <h4 class="font-bold text-indigo-700 mb-2">🏆 Industry Leaders &amp; Their Practices:</h4>
+          <ul class="text-indigo-600 text-base space-y-2">
+           <li>• <strong>Google:</strong> Code review mandatory, style guides untuk 10+ bahasa</li>
+           <li>• <strong>Microsoft:</strong> "Shift-left" testing, code quality metrics</li>
+           <li>• <strong>Netflix:</strong> Chaos engineering, resilient code architecture</li>
+           <li>• <strong>Spotify:</strong> Squad model, autonomous teams dengan shared standards</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="text-center mt-8"><button onclick="nextSection('modularitas')" class="bg-gradient-to-r from-blue-400 to-green-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:from-blue-500 hover:to-green-600 transition-all transform hover:scale-105 shadow-lg"> Pelajari Modularitas 🧩 </button>
+      </div>
+     </div>
+    </div><!-- Modularitas Section -->
+    <div id="modularitas" class="content-section hidden">
+     <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl">
+      <div class="text-center mb-8">
+       <div class="text-6xl mb-4">
+        🧩
+       </div>
+       <h2 class="text-3xl font-bold text-green-800 mb-4">Konsep Modularitas</h2>
+      </div>
+      <div class="space-y-6">
+       <div class="bg-green-50 p-6 rounded-2xl border-l-4 border-green-400 card-hover">
+        <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center"><span class="text-2xl mr-2">📝</span> Apa itu Modularitas?</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <p class="text-green-600 text-lg mb-4">Modularitas adalah prinsip memecah program besar menjadi bagian-bagian kecil (modul) yang memiliki fungsi spesifik dan dapat bekerja secara independen.</p>
+         <div class="bg-green-100 p-4 rounded-lg">
+          <h4 class="font-bold text-green-700 mb-2 flex items-center"><span class="text-lg mr-2">🏠</span>Analogi Rumah</h4>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+           <div class="bg-white p-2 rounded text-center">
+            <div class="text-lg">
+             🛏️
+            </div><span class="text-green-600">Kamar Tidur</span>
+           </div>
+           <div class="bg-white p-2 rounded text-center">
+            <div class="text-lg">
+             🍳
+            </div><span class="text-green-600">Dapur</span>
+           </div>
+           <div class="bg-white p-2 rounded text-center">
+            <div class="text-lg">
+             🛁
+            </div><span class="text-green-600">Kamar Mandi</span>
+           </div>
+           <div class="bg-white p-2 rounded text-center">
+            <div class="text-lg">
+             📺
+            </div><span class="text-green-600">Ruang Tamu</span>
+           </div>
+          </div>
+          <p class="text-green-600 text-sm mt-2">Setiap ruang punya fungsi khusus, tapi tetap terhubung!</p>
+         </div>
+        </div>
+       </div>
+       <div class="bg-blue-50 p-6 rounded-2xl card-hover">
+        <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center"><span class="text-2xl mr-2">🔬</span> Prinsip-Prinsip Modularitas</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <div class="grid md:grid-cols-2 gap-4">
+          <div class="space-y-3">
+           <div class="bg-blue-100 p-3 rounded-lg">
+            <h4 class="font-bold text-blue-700 mb-2 flex items-center"><span class="text-lg mr-2">🎯</span>Single Responsibility</h4>
+            <p class="text-blue-600 text-base">Setiap modul hanya bertanggung jawab untuk satu hal spesifik</p>
+            <div class="mt-2 text-sm text-blue-500">
+             Contoh: Fungsi validasiEmail() hanya untuk validasi email
+            </div>
+           </div>
+           <div class="bg-blue-100 p-3 rounded-lg">
+            <h4 class="font-bold text-blue-700 mb-2 flex items-center"><span class="text-lg mr-2">🔒</span>Encapsulation</h4>
+            <p class="text-blue-600 text-base">Menyembunyikan detail internal, hanya expose yang perlu</p>
+            <div class="mt-2 text-sm text-blue-500">
+             Contoh: User tidak perlu tahu cara hash password
+            </div>
+           </div>
+          </div>
+          <div class="space-y-3">
+           <div class="bg-blue-100 p-3 rounded-lg">
+            <h4 class="font-bold text-blue-700 mb-2 flex items-center"><span class="text-lg mr-2">🔄</span>Reusability</h4>
+            <p class="text-blue-600 text-base">Modul dapat digunakan ulang di berbagai tempat</p>
+            <div class="mt-2 text-sm text-blue-500">
+             Contoh: Fungsi formatTanggal() bisa dipakai di mana saja
+            </div>
+           </div>
+           <div class="bg-blue-100 p-3 rounded-lg">
+            <h4 class="font-bold text-blue-700 mb-2 flex items-center"><span class="text-lg mr-2">🔌</span>Loose Coupling</h4>
+            <p class="text-blue-600 text-base">Modul tidak terlalu bergantung satu sama lain</p>
+            <div class="mt-2 text-sm text-blue-500">
+             Contoh: UI tidak langsung akses database
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-yellow-50 p-6 rounded-2xl card-hover">
+        <h3 class="text-xl font-bold text-yellow-700 mb-4 flex items-center"><span class="text-2xl mr-2">🏗️</span> Arsitektur Modular dalam Praktik</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <div class="grid md:grid-cols-3 gap-4 mb-4">
+          <div class="text-center p-3 bg-yellow-100 rounded-lg">
+           <div class="text-2xl mb-2">
+            📱
+           </div>
+           <h4 class="font-bold text-yellow-700">MVC Pattern</h4>
+           <p class="text-yellow-600 text-base">Model-View-Controller memisahkan logika, tampilan, dan kontrol</p>
+          </div>
+          <div class="text-center p-3 bg-yellow-100 rounded-lg">
+           <div class="text-2xl mb-2">
+            🧱
+           </div>
+           <h4 class="font-bold text-yellow-700">Microservices</h4>
+           <p class="text-yellow-600 text-base">Aplikasi dipecah jadi service-service kecil yang independen</p>
+          </div>
+          <div class="text-center p-3 bg-yellow-100 rounded-lg">
+           <div class="text-2xl mb-2">
+            📦
+           </div>
+           <h4 class="font-bold text-yellow-700">Component-Based</h4>
+           <p class="text-yellow-600 text-base">UI dibuat dari komponen-komponen yang dapat digunakan ulang</p>
+          </div>
+         </div>
+         <div class="bg-yellow-100 p-4 rounded-lg">
+          <h4 class="font-bold text-yellow-700 mb-3">🌟 Contoh Arsitektur E-Commerce:</h4>
+          <div class="grid md:grid-cols-2 gap-4">
+           <div>
+            <h5 class="font-medium text-yellow-700 mb-2">Frontend Modules:</h5>
+            <ul class="text-yellow-600 text-base space-y-1">
+             <li>• 🛒 Shopping Cart Component</li>
+             <li>• 📦 Product Catalog Component</li>
+             <li>• 👤 User Profile Component</li>
+             <li>• 💳 Payment Form Component</li>
+            </ul>
+           </div>
+           <div>
+            <h5 class="font-medium text-yellow-700 mb-2">Backend Services:</h5>
+            <ul class="text-yellow-600 text-base space-y-1">
+             <li>• 🔐 Authentication Service</li>
+             <li>• 📊 Inventory Management</li>
+             <li>• 💰 Payment Processing</li>
+             <li>• 📧 Notification Service</li>
+            </ul>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-purple-50 p-6 rounded-2xl card-hover">
+        <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center"><span class="text-2xl mr-2">⚖️</span> Keuntungan vs Tantangan Modularitas</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-green-100 p-4 rounded-lg">
+           <h4 class="font-bold text-green-700 mb-3 flex items-center"><span class="text-lg mr-2">✅</span>Keuntungan</h4>
+           <ul class="text-green-600 space-y-2 text-base">
+            <li>• <strong>Maintainability:</strong> Mudah dipelihara dan diupdate</li>
+            <li>• <strong>Testability:</strong> Setiap modul bisa ditest terpisah</li>
+            <li>• <strong>Scalability:</strong> Mudah menambah fitur baru</li>
+            <li>• <strong>Team Work:</strong> Tim bisa kerja parallel</li>
+            <li>• <strong>Reusability:</strong> Kode bisa dipakai ulang</li>
+            <li>• <strong>Debugging:</strong> Lebih mudah mencari bug</li>
+           </ul>
+          </div>
+          <div class="bg-red-100 p-4 rounded-lg">
+           <h4 class="font-bold text-red-700 mb-3 flex items-center"><span class="text-lg mr-2">⚠️</span>Tantangan</h4>
+           <ul class="text-red-600 space-y-2 text-base">
+            <li>• <strong>Complexity:</strong> Arsitektur jadi lebih kompleks</li>
+            <li>• <strong>Over-engineering:</strong> Bisa terlalu berlebihan</li>
+            <li>• <strong>Performance:</strong> Overhead komunikasi antar modul</li>
+            <li>• <strong>Integration:</strong> Tantangan menggabungkan modul</li>
+            <li>• <strong>Learning Curve:</strong> Butuh waktu untuk memahami</li>
+            <li>• <strong>Documentation:</strong> Perlu dokumentasi yang baik</li>
+           </ul>
+          </div>
+         </div>
+         <div class="mt-4 bg-purple-100 p-3 rounded-lg">
+          <h4 class="font-bold text-purple-700 mb-2">💡 Tips Mengatasi Tantangan:</h4>
+          <ul class="text-purple-600 text-base space-y-1">
+           <li>• Mulai sederhana, tambah kompleksitas secara bertahap</li>
+           <li>• Gunakan design patterns yang sudah terbukti</li>
+           <li>• Buat dokumentasi dan contoh penggunaan yang jelas</li>
+           <li>• Lakukan code review untuk memastikan konsistensi</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+       <div class="demo-box p-6 rounded-2xl">
+        <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center"><span class="text-2xl mr-2">💡</span> Contoh Implementasi Modularitas</h3>
+        <div class="grid md:grid-cols-2 gap-4 mb-4">
+         <div class="bg-white p-4 rounded-xl">
+          <h4 class="font-bold text-red-700 mb-2">❌ Tanpa Modularitas</h4>
+          <div class="code-demo p-3 rounded text-sm">
+           <div>
+            <span class="highlight-comment">// Semua dalam satu fungsi besar</span>
+           </div>
+           <div>
+            <span class="highlight-keyword">function</span> <span class="highlight-function">prosesData</span>() {
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-comment">// Input data</span>
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-keyword">let</span> nama = <span class="highlight-string">"John"</span>;
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-keyword">let</span> nilai = 85;
+           </div>
+           <div>
+            &nbsp;&nbsp;
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-comment">// Validasi</span>
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-keyword">if</span> (nilai &lt; 0 || nilai &gt; 100) {
+           </div>
+           <div>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight-keyword">return</span> <span class="highlight-string">"Nilai tidak valid!"</span>;
+           </div>
+           <div>
+            &nbsp;&nbsp;}
+           </div>
+           <div>
+            &nbsp;&nbsp;
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-comment">// Hitung grade</span>
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-keyword">let</span> grade;
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-keyword">if</span> (nilai &gt;= 90) grade = <span class="highlight-string">"A"</span>;
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-keyword">else if</span> (nilai &gt;= 80) grade = <span class="highlight-string">"B"</span>;
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-keyword">else</span> grade = <span class="highlight-string">"C"</span>;
+           </div>
+           <div>
+            &nbsp;&nbsp;
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-comment">// Tampilkan hasil</span>
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-keyword">return</span> <span class="highlight-string">`${nama}: ${grade}`</span>;
+           </div>
+           <div>
+            }
+           </div>
+          </div>
+          <p class="text-red-600 text-sm mt-2">Sulit dipelihara dan ditest!</p>
+         </div>
+         <div class="bg-white p-4 rounded-xl">
+          <h4 class="font-bold text-green-700 mb-2">✅ Dengan Modularitas</h4>
+          <div class="code-demo p-3 rounded text-sm">
+           <div>
+            <span class="highlight-comment">// Modul validasi</span>
+           </div>
+           <div>
+            <span class="highlight-keyword">function</span> <span class="highlight-function">validasiNilai</span>(nilai) {
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-keyword">return</span> nilai &gt;= 0 &amp;&amp; nilai &lt;= 100;
+           </div>
+           <div>
+            }
+           </div>
+           <div>
+            &nbsp;
+           </div>
+           <div>
+            <span class="highlight-comment">// Modul hitung grade</span>
+           </div>
+           <div>
+            <span class="highlight-keyword">function</span> <span class="highlight-function">hitungGrade</span>(nilai) {
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-keyword">if</span> (nilai &gt;= 90) <span class="highlight-keyword">return</span> <span class="highlight-string">"A"</span>;
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-keyword">if</span> (nilai &gt;= 80) <span class="highlight-keyword">return</span> <span class="highlight-string">"B"</span>;
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-keyword">return</span> <span class="highlight-string">"C"</span>;
+           </div>
+           <div>
+            }
+           </div>
+           <div>
+            &nbsp;
+           </div>
+           <div>
+            <span class="highlight-comment">// Modul format hasil</span>
+           </div>
+           <div>
+            <span class="highlight-keyword">function</span> <span class="highlight-function">formatHasil</span>(nama, grade) {
+           </div>
+           <div>
+            &nbsp;&nbsp;<span class="highlight-keyword">return</span> <span class="highlight-string">`${nama}: ${grade}`</span>;
+           </div>
+           <div>
+            }
+           </div>
+          </div>
+          <p class="text-green-600 text-sm mt-2">Rapi, mudah dipelihara dan ditest!</p>
+         </div>
+        </div>
+        <div class="bg-white p-4 rounded-xl">
+         <h4 class="font-bold text-purple-700 mb-3">🎮 Demo Interaktif: Modular Calculator</h4>
+         <div class="grid md:grid-cols-2 gap-4">
+          <div>
+           <h5 class="font-medium text-purple-700 mb-2">Input:</h5>
+           <div class="space-y-2"><input type="number" id="modNum1" placeholder="Angka 1" class="w-full p-2 border-2 border-purple-300 rounded-lg"> <input type="number" id="modNum2" placeholder="Angka 2" class="w-full p-2 border-purple-300 rounded-lg"> <select id="modOperation" class="w-full p-2 border-2 border-purple-300 rounded-lg"> <option value="add">Tambah (+)</option> <option value="subtract">Kurang (-)</option> <option value="multiply">Kali (×)</option> <option value="divide">Bagi (÷)</option> </select> <button onclick="calculateModular()" class="w-full bg-purple-500 text-white p-2 rounded-lg hover:bg-purple-600"> Hitung Modular </button>
+           </div>
+          </div>
+          <div>
+           <h5 class="font-medium text-purple-700 mb-2">Hasil &amp; Proses:</h5>
+           <div id="modularResult" class="bg-purple-100 p-3 rounded-lg min-h-32">
+            <p class="text-purple-700">Hasil akan muncul di sini...</p>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="text-center mt-8"><button onclick="nextSection('keterbacaan')" class="bg-gradient-to-r from-green-400 to-blue-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:from-green-500 hover:to-blue-600 transition-all transform hover:scale-105 shadow-lg"> Pelajari Keterbacaan 👁️ </button>
+      </div>
+     </div>
+    </div><!-- Keterbacaan Section -->
+    <div id="keterbacaan" class="content-section hidden">
+     <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl">
+      <div class="text-center mb-8">
+       <div class="text-6xl mb-4">
+        👁️
+       </div>
+       <h2 class="text-3xl font-bold text-yellow-800 mb-4">Keterbacaan Kode</h2>
+      </div>
+      <div class="space-y-6">
+       <div class="bg-yellow-50 p-6 rounded-2xl border-l-4 border-yellow-400 card-hover">
+        <h3 class="text-xl font-bold text-yellow-700 mb-4 flex items-center"><span class="text-2xl mr-2">📖</span> Apa itu Keterbacaan Kode?</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <p class="text-yellow-600 text-lg mb-4">Keterbacaan kode adalah seberapa mudah kode program dipahami oleh manusia. Kode yang readable seperti buku yang ditulis dengan baik - mudah diikuti alurnya!</p>
+         <div class="bg-yellow-100 p-4 rounded-lg">
+          <h4 class="font-bold text-yellow-700 mb-2">🎯 Tujuan Keterbacaan:</h4>
+          <ul class="text-yellow-600 space-y-1 text-base">
+           <li>• Programmer lain bisa memahami kode dengan cepat</li>
+           <li>• Maintenance dan debugging lebih mudah</li>
+           <li>• Mengurangi kesalahan dalam development</li>
+           <li>• Meningkatkan produktivitas tim</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+       <div class="bg-blue-50 p-6 rounded-2xl card-hover">
+        <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center"><span class="text-2xl mr-2">🏷️</span> Penamaan yang Bermakna</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <h4 class="font-bold text-blue-700 mb-3">Contoh Penamaan:</h4>
+         <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-red-100 p-3 rounded-lg">
+           <h5 class="font-bold text-red-700 mb-2">❌ Buruk</h5>
+           <div class="code-demo p-2 rounded text-sm">
+            <div>
+             <span class="highlight-keyword">let</span> a = 25;
+            </div>
+            <div>
+             <span class="highlight-keyword">let</span> b = 12;
+            </div>
+            <div>
+             <span class="highlight-keyword">let</span> c = a * b;
+            </div>
+            <div>
+             <span class="highlight-keyword">function</span> <span class="highlight-function">calc</span>(x, y) {
+            </div>
+            <div>
+             &nbsp;&nbsp;<span class="highlight-keyword">return</span> x + y;
+            </div>
+            <div>
+             }
+            </div>
+           </div>
+          </div>
+          <div class="bg-green-100 p-3 rounded-lg">
+           <h5 class="font-bold text-green-700 mb-2">✅ Baik</h5>
+           <div class="code-demo p-2 rounded text-sm">
+            <div>
+             <span class="highlight-keyword">let</span> panjangRuangan = 25;
+            </div>
+            <div>
+             <span class="highlight-keyword">let</span> lebarRuangan = 12;
+            </div>
+            <div>
+             <span class="highlight-keyword">let</span> luasRuangan = panjangRuangan * lebarRuangan;
+            </div>
+            <div>
+             <span class="highlight-keyword">function</span> <span class="highlight-function">hitungTotalHarga</span>(hargaBarang, jumlahBarang) {
+            </div>
+            <div>
+             &nbsp;&nbsp;<span class="highlight-keyword">return</span> hargaBarang * jumlahBarang;
+            </div>
+            <div>
+             }
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="demo-box p-6 rounded-2xl">
+        <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center"><span class="text-2xl mr-2">🎮</span> Demo: Code Readability Checker</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <div class="grid md:grid-cols-2 gap-4">
+          <div>
+           <h4 class="font-bold text-purple-700 mb-2">Masukkan Kode untuk Dianalisis:</h4><textarea id="codeInput" class="w-full p-3 border-2 border-purple-300 rounded-lg h-32 font-mono text-sm" placeholder="Contoh:
+function calc(a,b){
+return a+b;
+}"></textarea> <button onclick="analyzeReadability()" class="mt-2 w-full bg-purple-500 text-white p-2 rounded-lg hover:bg-purple-600"> Analisis Keterbacaan </button>
+          </div>
+          <div>
+           <h4 class="font-bold text-purple-700 mb-2">Hasil Analisis:</h4>
+           <div id="readabilityResult" class="bg-purple-100 p-3 rounded-lg h-32 overflow-y-auto">
+            <p class="text-purple-700 text-sm">Hasil analisis akan muncul di sini...</p>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="text-center mt-8"><button onclick="nextSection('implementasi')" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:from-yellow-500 hover:to-orange-600 transition-all transform hover:scale-105 shadow-lg"> Lihat Implementasi ⚙️ </button>
+      </div>
+     </div>
+    </div><!-- Implementasi Section -->
+    <div id="implementasi" class="content-section hidden">
+     <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl">
+      <div class="text-center mb-8">
+       <div class="text-6xl mb-4">
+        ⚙️
+       </div>
+       <h2 class="text-3xl font-bold text-indigo-800 mb-4">Implementasi Praktis</h2>
+      </div>
+      <div class="space-y-6">
+       <div class="bg-indigo-50 p-6 rounded-2xl border-l-4 border-indigo-400 card-hover">
+        <h3 class="text-xl font-bold text-indigo-700 mb-4 flex items-center"><span class="text-2xl mr-2">🏗️</span> Langkah-langkah Implementasi</h3>
+        <div class="space-y-4">
+         <div class="bg-white p-4 rounded-xl">
+          <div class="flex items-center mb-3"><span class="bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm mr-3">1</span>
+           <h4 class="font-bold text-indigo-700">Perencanaan Struktur</h4>
+          </div>
+          <p class="text-indigo-600 text-base mb-2">Buat rencana modular sebelum coding</p>
+          <ul class="text-indigo-600 text-base space-y-1 ml-4">
+           <li>• Identifikasi fungsi-fungsi utama</li>
+           <li>• Tentukan input dan output setiap modul</li>
+           <li>• Buat diagram alur sederhana</li>
+          </ul>
+         </div>
+         <div class="bg-white p-4 rounded-xl">
+          <div class="flex items-center mb-3"><span class="bg-indigo-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm mr-3">2</span>
+           <h4 class="font-bold text-indigo-700">Implementasi Bertahap</h4>
+          </div>
+          <p class="text-indigo-600 text-base mb-2">Kembangkan satu modul dalam satu waktu</p>
+          <ul class="text-indigo-600 text-base space-y-1 ml-4">
+           <li>• Mulai dari modul paling sederhana</li>
+           <li>• Test setiap modul secara terpisah</li>
+           <li>• Integrasikan secara bertahap</li>
+          </ul>
+         </div>
+        </div>
+       </div>
+       <div class="demo-box p-6 rounded-2xl">
+        <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center"><span class="text-2xl mr-2">🎮</span> Demo Interaktif: Sistem Perpustakaan Mini</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <div class="grid md:grid-cols-2 gap-4 mb-4">
+          <div>
+           <h4 class="font-bold text-purple-700 mb-3">📚 Tambah Buku Baru</h4>
+           <div class="space-y-2"><input type="text" id="bookISBN" placeholder="ISBN" class="w-full p-2 border-2 border-purple-300 rounded-lg text-sm"> <input type="text" id="bookTitle" placeholder="Judul Buku" class="w-full p-2 border-2 border-purple-300 rounded-lg text-sm"> <input type="text" id="bookAuthor" placeholder="Pengarang" class="w-full p-2 border-2 border-purple-300 rounded-lg text-sm"> <input type="number" id="bookYear" placeholder="Tahun Terbit" class="w-full p-2 border-2 border-purple-300 rounded-lg text-sm"> <button onclick="addBook()" class="w-full bg-purple-500 text-white p-2 rounded-lg hover:bg-purple-600 text-sm"> Tambah Buku </button>
+           </div>
+          </div>
+          <div>
+           <h4 class="font-bold text-purple-700 mb-3">👥 Daftar Anggota Baru</h4>
+           <div class="space-y-2"><input type="text" id="memberID" placeholder="Nomor Anggota" class="w-full p-2 border-2 border-purple-300 rounded-lg text-sm"> <input type="text" id="memberName" placeholder="Nama Lengkap" class="w-full p-2 border-2 border-purple-300 rounded-lg text-sm"> <input type="text" id="memberAddress" placeholder="Alamat" class="w-full p-2 border-2 border-purple-300 rounded-lg text-sm"> <input type="text" id="memberPhone" placeholder="Telepon" class="w-full p-2 border-2 border-purple-300 rounded-lg text-sm"> <button onclick="addMember()" class="w-full bg-purple-500 text-white p-2 rounded-lg hover:bg-purple-600 text-sm"> Daftar Anggota </button>
+           </div>
+          </div>
+         </div>
+         <div class="grid md:grid-cols-2 gap-4">
+          <div>
+           <h4 class="font-bold text-purple-700 mb-2">📚 Daftar Buku</h4>
+           <div id="bookList" class="bg-purple-100 p-3 rounded-lg h-32 overflow-y-auto text-sm">
+            <p class="text-purple-700">Belum ada buku yang terdaftar...</p>
+           </div>
+          </div>
+          <div>
+           <h4 class="font-bold text-purple-700 mb-2">👥 Daftar Anggota</h4>
+           <div id="memberList" class="bg-purple-100 p-3 rounded-lg h-32 overflow-y-auto text-sm">
+            <p class="text-purple-700">Belum ada anggota yang terdaftar...</p>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="text-center mt-8"><button onclick="nextSection('best-practices')" class="bg-gradient-to-r from-indigo-400 to-purple-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:from-indigo-500 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg"> Lihat Best Practices ⭐ </button>
+      </div>
+     </div>
+    </div><!-- Best Practices Section -->
+    <div id="best-practices" class="content-section hidden">
+     <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl">
+      <div class="text-center mb-8">
+       <div class="text-6xl mb-4">
+        ⭐
+       </div>
+       <h2 class="text-3xl font-bold text-purple-800 mb-4">Best Practices</h2>
+      </div>
+      <div class="space-y-6">
+       <div class="bg-purple-50 p-6 rounded-2xl border-l-4 border-purple-400 card-hover">
+        <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center"><span class="text-2xl mr-2">🏆</span> Prinsip SOLID untuk Modularitas</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <div class="grid md:grid-cols-5 gap-3">
+          <div class="text-center p-3 bg-purple-100 rounded-lg">
+           <div class="text-2xl mb-1">
+            🎯
+           </div>
+           <h4 class="font-bold text-purple-700 text-sm">S - Single</h4>
+           <p class="text-purple-600 text-md">Satu tanggung jawab</p>
+          </div>
+          <div class="text-center p-3 bg-purple-100 rounded-lg">
+           <div class="text-2xl mb-1">
+            🔓
+           </div>
+           <h4 class="font-bold text-purple-700 text-sm">O - Open</h4>
+           <p class="text-purple-600 text-md">Terbuka untuk ekstensi</p>
+          </div>
+          <div class="text-center p-3 bg-purple-100 rounded-lg">
+           <div class="text-2xl mb-1">
+            🔄
+           </div>
+           <h4 class="font-bold text-purple-700 text-sm">L - Liskov</h4>
+           <p class="text-purple-600 text-md">Substitusi yang benar</p>
+          </div>
+          <div class="text-center p-3 bg-purple-100 rounded-lg">
+           <div class="text-2xl mb-1">
+            🔌
+           </div>
+           <h4 class="font-bold text-purple-700 text-sm">I - Interface</h4>
+           <p class="text-purple-600 text-md">Interface yang spesifik</p>
+          </div>
+          <div class="text-center p-3 bg-purple-100 rounded-lg">
+           <div class="text-2xl mb-1">
+            ⬇️
+           </div>
+           <h4 class="font-bold text-purple-700 text-sm">D - Dependency</h4>
+           <p class="text-purple-600 text-md">Inversi ketergantungan</p>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-blue-50 p-6 rounded-2xl card-hover">
+        <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center"><span class="text-2xl mr-2">📝</span> Checklist Kode Berkualitas</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <div class="grid md:grid-cols-2 gap-4">
+          <div>
+           <h4 class="font-bold text-blue-700 mb-3">🧩 Modularitas</h4>
+           <div class="space-y-2"><label class="flex items-center"> <input type="checkbox" class="mr-2 text-blue-500"> <span class="text-blue-600 text-base">Setiap fungsi punya satu tugas</span> </label> <label class="flex items-center"> <input type="checkbox" class="mr-2 text-blue-500"> <span class="text-blue-600 text-base">Fungsi tidak terlalu panjang (&lt; 20 baris)</span> </label> <label class="flex items-center"> <input type="checkbox" class="mr-2 text-blue-500"> <span class="text-blue-600 text-base">Parameter tidak terlalu banyak (&lt; 5)</span> </label> <label class="flex items-center"> <input type="checkbox" class="mr-2 text-blue-500"> <span class="text-blue-600 text-base">Kode dapat digunakan ulang</span> </label>
+           </div>
+          </div>
+          <div>
+           <h4 class="font-bold text-blue-700 mb-3">👁️ Keterbacaan</h4>
+           <div class="space-y-2"><label class="flex items-center"> <input type="checkbox" class="mr-2 text-blue-500"> <span class="text-blue-600 text-base">Nama variabel/fungsi bermakna</span> </label> <label class="flex items-center"> <input type="checkbox" class="mr-2 text-blue-500"> <span class="text-blue-600 text-base">Indentasi konsisten</span> </label> <label class="flex items-center"> <input type="checkbox" class="mr-2 text-blue-500"> <span class="text-blue-600 text-base">Komentar pada bagian kompleks</span> </label> <label class="flex items-center"> <input type="checkbox" class="mr-2 text-blue-500"> <span class="text-blue-600 text-base">Struktur kode logis</span> </label>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="text-center mt-8"><button onclick="nextSection('demo')" class="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:from-purple-500 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg"> Lihat Demo &amp; Simulasi 💡 </button>
+      </div>
+     </div>
+    </div><!-- Demo Section -->
+    <div id="demo" class="content-section hidden">
+     <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl">
+      <div class="text-center mb-8">
+       <div class="text-6xl mb-4">
+        💡
+       </div>
+       <h2 class="text-3xl font-bold text-orange-800 mb-4">Demo &amp; Simulasi</h2>
+      </div>
+      <div class="space-y-6">
+       <div class="bg-orange-50 p-6 rounded-2xl border-l-4 border-orange-400 card-hover">
+        <h3 class="text-xl font-bold text-orange-700 mb-4 flex items-center"><span class="text-2xl mr-2">🎮</span> Demo 1: Code Refactoring Simulator</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <p class="text-orange-600 text-base mb-4">Mari kita praktik mengubah kode buruk menjadi kode yang baik!</p>
+         <div class="grid md:grid-cols-2 gap-4">
+          <div>
+           <h4 class="font-bold text-red-700 mb-2">❌ Kode Sebelum Refactor</h4>
+           <div class="code-demo p-3 rounded text-sm">
+            <div>
+             <span class="highlight-keyword">function</span> <span class="highlight-function">calc</span>(a,b,c){
+            </div>
+            <div>
+             if(c==1){return a+b;}else if(c==2){return a-b;}else if(c==3){return a*b;}else if(c==4){return a/b;}else{return 0;}}
+            </div>
+           </div><button onclick="startRefactoring()" class="mt-2 w-full bg-red-500 text-white p-2 rounded-lg hover:bg-red-600"> Mulai Refactoring! </button>
+          </div>
+          <div>
+           <h4 class="font-bold text-green-700 mb-2">✅ Kode Setelah Refactor</h4>
+           <div id="refactoredCode" class="code-demo p-3 rounded text-sm min-h-24">
+            <p class="text-gray-400">Klik "Mulai Refactoring" untuk melihat hasilnya...</p>
+           </div>
+          </div>
+         </div>
+         <div id="refactorSteps" class="mt-4 hidden">
+          <h4 class="font-bold text-orange-700 mb-2">Langkah-langkah Refactoring:</h4>
+          <div id="stepsList" class="space-y-2"></div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-blue-50 p-6 rounded-2xl card-hover">
+        <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center"><span class="text-2xl mr-2">🏗️</span> Demo 2: Modular Design Workshop</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <p class="text-blue-600 text-base mb-4">Rancang sistem modular untuk aplikasi e-commerce sederhana:</p>
+         <div class="grid md:grid-cols-3 gap-4 mb-4">
+          <div class="text-center">
+           <h4 class="font-bold text-blue-700 mb-2">Pilih Modul:</h4>
+           <div class="space-y-2"><button onclick="addModule('user')" class="w-full bg-blue-100 hover:bg-blue-200 p-2 rounded text-sm"> 👤 User Management </button> <button onclick="addModule('product')" class="w-full bg-blue-100 hover:bg-blue-200 p-2 rounded text-sm"> 📦 Product Catalog </button> <button onclick="addModule('cart')" class="w-full bg-blue-100 hover:bg-blue-200 p-2 rounded text-sm"> 🛒 Shopping Cart </button> <button onclick="addModule('payment')" class="w-full bg-blue-100 hover:bg-blue-200 p-2 rounded text-sm"> 💳 Payment System </button> <button onclick="addModule('order')" class="w-full bg-blue-100 hover:bg-blue-200 p-2 rounded text-sm"> 📋 Order Management </button>
+           </div>
+          </div>
+          <div>
+           <h4 class="font-bold text-blue-700 mb-2">Arsitektur Sistem:</h4>
+           <div id="systemArchitecture" class="bg-blue-100 p-3 rounded-lg min-h-32">
+            <p class="text-blue-600 text-sm">Pilih modul untuk membangun arsitektur...</p>
+           </div>
+          </div>
+          <div>
+           <h4 class="font-bold text-blue-700 mb-2">Dependency Graph:</h4>
+           <div id="dependencyGraph" class="bg-blue-100 p-3 rounded-lg min-h-32">
+            <p class="text-blue-600 text-sm">Grafik ketergantungan akan muncul di sini...</p>
+           </div>
+          </div>
+         </div><button onclick="clearModules()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm"> Reset Arsitektur </button>
+        </div>
+       </div>
+      </div>
+      <div class="text-center mt-8"><button onclick="nextSection('penutup')" class="bg-gradient-to-r from-orange-400 to-red-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:from-orange-500 hover:to-red-600 transition-all transform hover:scale-105 shadow-lg"> Ke Penutup 🎉 </button>
+      </div>
+     </div>
+    </div><!-- Penutup Section -->
+    <div id="penutup" class="content-section hidden">
+     <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl">
+      <div class="text-center mb-8">
+       <div class="text-6xl mb-4">
+        🎉
+       </div>
+       <h2 class="text-3xl font-bold text-cyan-800 mb-4">Penutup Pembelajaran</h2>
+      </div>
+      <div class="space-y-6">
+       <div class="bg-cyan-50 p-6 rounded-2xl border-l-4 border-cyan-400 card-hover">
+        <h3 class="text-xl font-bold text-cyan-700 mb-4 flex items-center"><span class="text-2xl mr-2">🤔</span> Refleksi Pembelajaran</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <p class="text-cyan-600 text-lg mb-4">Mari kita renungkan apa yang telah dipelajari hari ini:</p>
+         <div class="space-y-4">
+          <div class="bg-cyan-100 p-4 rounded-lg">
+           <h4 class="font-bold text-cyan-700 mb-2">Pertanyaan Refleksi:</h4>
+           <div class="space-y-3">
+            <div>
+             <p class="text-cyan-600 font-medium">1. Apa hal paling menarik yang Anda pelajari hari ini?</p><textarea class="w-full p-2 border border-cyan-300 rounded mt-1 text-sm" rows="2" placeholder="Tulis refleksi Anda..."></textarea>
+            </div>
+            <div>
+             <p class="text-cyan-600 font-medium">2. Bagaimana Anda akan menerapkan prinsip modularitas dalam project Anda?</p><textarea class="w-full p-2 border border-cyan-300 rounded mt-1 text-sm" rows="2" placeholder="Tulis rencana penerapan..."></textarea>
+            </div>
+            <div>
+             <p class="text-cyan-600 font-medium">3. Apa tantangan terbesar dalam menulis kode yang readable?</p><textarea class="w-full p-2 border border-cyan-300 rounded mt-1 text-sm" rows="2" placeholder="Tulis tantangan yang Anda hadapi..."></textarea>
+            </div>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-green-50 p-6 rounded-2xl border-l-4 border-green-400 card-hover">
+        <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center"><span class="text-2xl mr-2">📝</span> Kesimpulan Pembelajaran</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <div class="grid md:grid-cols-2 gap-6">
+          <div>
+           <h4 class="font-bold text-green-700 mb-3 flex items-center"><span class="text-lg mr-2">🧩</span>Modularitas</h4>
+           <div class="space-y-2">
+            <div class="bg-green-100 p-3 rounded-lg">
+             <h5 class="font-medium text-green-700">Konsep Utama:</h5>
+             <p class="text-green-600 text-sm">Memecah program besar menjadi modul-modul kecil yang independen</p>
+            </div>
+            <div class="bg-green-100 p-3 rounded-lg">
+             <h5 class="font-medium text-green-700">Manfaat:</h5>
+             <ul class="text-green-600 text-sm space-y-1">
+              <li>• Mudah dipelihara</li>
+              <li>• Dapat digunakan ulang</li>
+              <li>• Kerja tim efektif</li>
+              <li>• Testing lebih mudah</li>
+             </ul>
+            </div>
+           </div>
+          </div>
+          <div>
+           <h4 class="font-bold text-green-700 mb-3 flex items-center"><span class="text-lg mr-2">👁️</span>Keterbacaan</h4>
+           <div class="space-y-2">
+            <div class="bg-green-100 p-3 rounded-lg">
+             <h5 class="font-medium text-green-700">Konsep Utama:</h5>
+             <p class="text-green-600 text-sm">Membuat kode yang mudah dipahami oleh manusia</p>
+            </div>
+            <div class="bg-green-100 p-3 rounded-lg">
+             <h5 class="font-medium text-green-700">Teknik:</h5>
+             <ul class="text-green-600 text-sm space-y-1">
+              <li>• Penamaan bermakna</li>
+              <li>• Komentar yang tepat</li>
+              <li>• Format konsisten</li>
+              <li>• Struktur logis</li>
+             </ul>
+            </div>
+           </div>
+          </div>
+         </div>
+         <div class="mt-6 bg-gradient-to-r from-green-100 to-blue-100 p-4 rounded-lg">
+          <h4 class="font-bold text-green-700 text-center mb-2">💡 Pesan Utama</h4>
+          <p class="text-green-600 text-center text-lg italic">"Kode yang baik bukan hanya berfungsi dengan benar, tetapi juga mudah dipahami, dipelihara, dan dikembangkan oleh programmer lain."</p>
+         </div>
+        </div>
+       </div>
+       <div class="bg-blue-50 p-6 rounded-2xl border-l-4 border-blue-400 card-hover">
+        <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center"><span class="text-2xl mr-2">🚀</span> Tindak Lanjut</h3>
+        <div class="bg-white p-4 rounded-xl">
+         <div class="grid md:grid-cols-3 gap-4">
+          <div class="text-center">
+           <div class="bg-blue-100 p-4 rounded-lg mb-3">
+            <div class="text-3xl mb-2">
+             📚
+            </div>
+            <h4 class="font-bold text-blue-700">Belajar Lebih Lanjut</h4>
+           </div>
+           <ul class="text-blue-600 text-base space-y-1">
+            <li>• Design Patterns</li>
+            <li>• Clean Architecture</li>
+            <li>• SOLID Principles</li>
+            <li>• Code Review Practices</li>
+           </ul>
+          </div>
+          <div class="text-center">
+           <div class="bg-blue-100 p-4 rounded-lg mb-3">
+            <div class="text-3xl mb-2">
+             💻
+            </div>
+            <h4 class="font-bold text-blue-700">Praktik Langsung</h4>
+           </div>
+           <ul class="text-blue-600 text-base space-y-1">
+            <li>• Refactor kode lama</li>
+            <li>• Buat project modular</li>
+            <li>• Code review dengan teman</li>
+            <li>• Ikuti coding standards</li>
+           </ul>
+          </div>
+          <div class="text-center">
+           <div class="bg-blue-100 p-4 rounded-lg mb-3">
+            <div class="text-3xl mb-2">
+             🌐
+            </div>
+            <h4 class="font-bold text-blue-700">Sumber Belajar</h4>
+           </div>
+           <ul class="text-blue-600 text-base space-y-1">
+            <li>• Clean Code (Robert Martin)</li>
+            <li>• Refactoring (Martin Fowler)</li>
+            <li>• GitHub best practices</li>
+            <li>• Stack Overflow</li>
+           </ul>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="bg-purple-50 p-6 rounded-2xl border-l-4 border-purple-400 card-hover">
+        <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center"><span class="text-2xl mr-2">🏆</span> Selamat!</h3>
+        <div class="bg-white p-4 rounded-xl text-center">
+         <div class="text-6xl mb-4">
+          🎓
+         </div>
+         <h4 class="text-2xl font-bold text-purple-700 mb-4">Anda Telah Menyelesaikan Pembelajaran!</h4>
+         <p class="text-purple-600 text-lg mb-6">Sekarang Anda memiliki pemahaman yang solid tentang pentingnya modularitas dan keterbacaan kode dalam pemrograman terstruktur.</p>
+         <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-lg mb-6">
+          <h5 class="font-bold text-purple-700 mb-2">Pencapaian Anda:</h5>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+           <div class="bg-white p-2 rounded text-center">
+            <div class="text-lg">
+             ✅
+            </div><span class="text-purple-600 text-sm">Konsep Dipahami</span>
+           </div>
+           <div class="bg-white p-2 rounded text-center">
+            <div class="text-lg">
+             🧩
+            </div><span class="text-purple-600 text-sm">Modularitas</span>
+           </div>
+           <div class="bg-white p-2 rounded text-center">
+            <div class="text-lg">
+             👁️
+            </div><span class="text-purple-600 text-sm">Keterbacaan</span>
+           </div>
+           <div class="bg-white p-2 rounded text-center">
+            <div class="text-lg">
+             ⭐
+            </div><span class="text-purple-600 text-sm">Best Practices</span>
+           </div>
+          </div>
+         </div>
+         <p class="text-purple-600 text-base italic">"Perjalanan menjadi programmer yang baik dimulai dari menulis kode yang baik. Terus berlatih dan terapkan ilmu yang telah dipelajari!"</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </div><!-- Floating Back to Top Button --> <button id="backToTop" class="floating-btn bg-gradient-to-r from-purple-500 to-pink-500 text-white p-3 rounded-full shadow-lg hover:shadow-xl hidden">
+   <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+   </svg></button>
+  <script>
+        // Global variables
+        let currentSection = 'intro';
+        let libraryBooks = [];
+        let libraryMembers = [];
+        let selectedModules = [];
+
+        // Default configuration
+        const defaultConfig = {
+            main_title: "Modularitas & Keterbacaan Kode",
+            subtitle: "Belajar Menulis Kode yang Rapi dan Mudah Dipahami!",
+            welcome_message: "Mari belajar menulis kode yang mudah dipahami dan dipelihara"
+        };
+
+        // Initialize Element SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig: defaultConfig,
+                render: async (config) => {
+                    const mainTitle = document.getElementById('mainTitle');
+                    const subtitle = document.getElementById('subtitle');
+                    const welcomeMessage = document.getElementById('welcomeMessage');
+                    
+                    if (mainTitle) mainTitle.textContent = config.main_title || defaultConfig.main_title;
+                    if (subtitle) subtitle.textContent = config.subtitle || defaultConfig.subtitle;
+                    if (welcomeMessage) welcomeMessage.textContent = config.welcome_message || defaultConfig.welcome_message;
+                },
+                mapToCapabilities: (config) => ({
+                    recolorables: [],
+                    borderables: [],
+                    fontEditable: undefined,
+                    fontSizeable: undefined
+                }),
+                mapToEditPanelValues: (config) => new Map([
+                    ["main_title", config.main_title || defaultConfig.main_title],
+                    ["subtitle", config.subtitle || defaultConfig.subtitle],
+                    ["welcome_message", config.welcome_message || defaultConfig.welcome_message]
+                ])
+            });
+        }
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Show selected section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                currentSection = sectionId;
+                
+                // Update nav buttons
+                updateNavButtons();
+                
+                // Close mobile menu
+                closeMobileMenu();
+                
+                // Force scroll to absolute top
+                setTimeout(() => {
+                    window.scrollTo({ 
+                        top: 0, 
+                        left: 0,
+                        behavior: 'smooth' 
+                    });
+                    
+                    // Also ensure document body is at top
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                }, 100);
+            }
+        }
+
+        function nextSection(nextSectionId) {
+            // Hide all sections first
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Show selected section
+            const targetSection = document.getElementById(nextSectionId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                currentSection = nextSectionId;
+                
+                // Update nav buttons
+                updateNavButtons();
+                
+                // Close mobile menu
+                closeMobileMenu();
+                
+                // Force scroll to absolute top with multiple methods
+                setTimeout(() => {
+                    // Method 1: Window scroll
+                    window.scrollTo({ 
+                        top: 0, 
+                        left: 0,
+                        behavior: 'smooth' 
+                    });
+                    
+                    // Method 2: Document scroll
+                    document.body.scrollTop = 0;
+                    document.documentElement.scrollTop = 0;
+                    
+                    // Method 3: Main container scroll
+                    const mainContainer = document.querySelector('.lg\\:ml-80');
+                    if (mainContainer) {
+                        mainContainer.scrollTop = 0;
+                    }
+                    
+                    // Method 4: All scrollable elements
+                    const scrollableElements = document.querySelectorAll('*');
+                    scrollableElements.forEach(el => {
+                        if (el.scrollTop > 0) {
+                            el.scrollTop = 0;
+                        }
+                    });
+                }, 100);
+            }
+        }
+
+        function updateNavButtons() {
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => {
+                btn.classList.remove('bg-pink-200', 'bg-blue-200', 'bg-green-200', 'bg-yellow-200', 'bg-indigo-200', 'bg-purple-200', 'bg-orange-200', 'bg-cyan-200');
+            });
+            
+            // Add active class to current section
+            const activeBtn = document.querySelector(`[onclick="showSection('${currentSection}')"]`);
+            if (activeBtn) {
+                const colors = {
+                    'intro': 'bg-pink-200',
+                    'pengenalan': 'bg-blue-200',
+                    'modularitas': 'bg-green-200',
+                    'keterbacaan': 'bg-yellow-200',
+                    'implementasi': 'bg-indigo-200',
+                    'best-practices': 'bg-purple-200',
+                    'demo': 'bg-orange-200',
+                    'penutup': 'bg-cyan-200'
+                };
+                activeBtn.classList.add(colors[currentSection] || 'bg-pink-200');
+            }
+        }
+
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.add('-translate-x-full');
+        }
+
+        // Demo functions
+        function explainBadCode() {
+            const explanation = document.getElementById('badCodeExplanation');
+            explanation.classList.toggle('hidden');
+        }
+
+        function explainGoodCode() {
+            const explanation = document.getElementById('goodCodeExplanation');
+            explanation.classList.toggle('hidden');
+        }
+        
+        function showCodeProblems() {
+            const resultDiv = document.getElementById('codeAnalysisResult');
+            resultDiv.classList.remove('hidden');
+            
+            resultDiv.innerHTML = `
+                <div>
+                    <h5 class="font-bold text-red-700 mb-3">🔍 Masalah yang Ditemukan:</h5>
+                    <div class="space-y-2">
+                        <div class="bg-red-100 p-2 rounded">
+                            <span class="font-medium text-red-700">❌ Nama fungsi tidak bermakna:</span>
+                            <span class="text-red-600 text-sm"> 'f' tidak menjelaskan fungsi apa</span>
+                        </div>
+                        <div class="bg-red-100 p-2 rounded">
+                            <span class="font-medium text-red-700">❌ Parameter tidak jelas:</span>
+                            <span class="text-red-600 text-sm"> 'x', 'y', 'z' tidak bermakna</span>
+                        </div>
+                        <div class="bg-red-100 p-2 rounded">
+                            <span class="font-medium text-red-700">❌ Tidak ada validasi:</span>
+                            <span class="text-red-600 text-sm"> Pembagian dengan nol tidak dicek</span>
+                        </div>
+                        <div class="bg-red-100 p-2 rounded">
+                            <span class="font-medium text-red-700">❌ Format tidak rapi:</span>
+                            <span class="text-red-600 text-sm"> Semua dalam satu baris, sulit dibaca</span>
+                        </div>
+                        <div class="bg-red-100 p-2 rounded">
+                            <span class="font-medium text-red-700">❌ Tidak ada komentar:</span>
+                            <span class="text-red-600 text-sm"> Tidak ada penjelasan fungsi</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showCodeSolution() {
+            const resultDiv = document.getElementById('codeAnalysisResult');
+            resultDiv.classList.remove('hidden');
+            
+            resultDiv.innerHTML = `
+                <div>
+                    <h5 class="font-bold text-green-700 mb-3">✨ Solusi Perbaikan:</h5>
+                    <div class="code-demo p-3 rounded text-sm mb-3">
+                        <div><span class="highlight-comment">// Kalkulator sederhana untuk operasi matematika dasar</span></div>
+                        <div><span class="highlight-keyword">function</span> <span class="highlight-function">kalkulator</span>(angka1, angka2, operasi) {</div>
+                        <div>&nbsp;&nbsp;<span class="highlight-comment">// Validasi input</span></div>
+                        <div>&nbsp;&nbsp;<span class="highlight-keyword">if</span> (operasi === 4 && angka2 === 0) {</div>
+                        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight-keyword">return</span> <span class="highlight-string">"Error: Tidak bisa dibagi nol"</span>;</div>
+                        <div>&nbsp;&nbsp;}</div>
+                        <div>&nbsp;&nbsp;</div>
+                        <div>&nbsp;&nbsp;<span class="highlight-comment">// Operasi matematika</span></div>
+                        <div>&nbsp;&nbsp;<span class="highlight-keyword">switch</span>(operasi) {</div>
+                        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight-keyword">case</span> 1: <span class="highlight-keyword">return</span> angka1 + angka2; <span class="highlight-comment">// Penjumlahan</span></div>
+                        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight-keyword">case</span> 2: <span class="highlight-keyword">return</span> angka1 - angka2; <span class="highlight-comment">// Pengurangan</span></div>
+                        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight-keyword">case</span> 3: <span class="highlight-keyword">return</span> angka1 * angka2; <span class="highlight-comment">// Perkalian</span></div>
+                        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight-keyword">case</span> 4: <span class="highlight-keyword">return</span> angka1 / angka2; <span class="highlight-comment">// Pembagian</span></div>
+                        <div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight-keyword">default</span>: <span class="highlight-keyword">return</span> <span class="highlight-string">"Operasi tidak valid"</span>;</div>
+                        <div>&nbsp;&nbsp;}</div>
+                        <div>}</div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="bg-green-100 p-2 rounded">
+                            <span class="font-medium text-green-700">✅ Nama bermakna:</span>
+                            <span class="text-green-600 text-sm"> 'kalkulator', 'angka1', 'angka2', 'operasi'</span>
+                        </div>
+                        <div class="bg-green-100 p-2 rounded">
+                            <span class="font-medium text-green-700">✅ Ada validasi:</span>
+                            <span class="text-green-600 text-sm"> Cek pembagian dengan nol</span>
+                        </div>
+                        <div class="bg-green-100 p-2 rounded">
+                            <span class="font-medium text-green-700">✅ Format rapi:</span>
+                            <span class="text-green-600 text-sm"> Indentasi konsisten, mudah dibaca</span>
+                        </div>
+                        <div class="bg-green-100 p-2 rounded">
+                            <span class="font-medium text-green-700">✅ Ada komentar:</span>
+                            <span class="text-green-600 text-sm"> Penjelasan fungsi dan setiap operasi</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function calculateModular() {
+            const num1 = parseFloat(document.getElementById('modNum1').value) || 0;
+            const num2 = parseFloat(document.getElementById('modNum2').value) || 0;
+            const operation = document.getElementById('modOperation').value;
+            const resultDiv = document.getElementById('modularResult');
+            
+            // Modular functions
+            function validateInput(n) {
+                return !isNaN(n) && isFinite(n);
+            }
+            
+            function add(a, b) {
+                return a + b;
+            }
+            
+            function subtract(a, b) {
+                return a - b;
+            }
+            
+            function multiply(a, b) {
+                return a * b;
+            }
+            
+            function divide(a, b) {
+                if (b === 0) return "Error: Tidak bisa dibagi nol";
+                return a / b;
+            }
+            
+            function formatResult(result, op, n1, n2) {
+                const operations = {
+                    'add': '+',
+                    'subtract': '-',
+                    'multiply': '×',
+                    'divide': '÷'
+                };
+                return `${n1} ${operations[op]} ${n2} = ${result}`;
+            }
+            
+            if (!validateInput(num1) || !validateInput(num2)) {
+                resultDiv.innerHTML = '<p class="text-red-700">Input tidak valid!</p>';
+                return;
+            }
+            
+            let result;
+            switch(operation) {
+                case 'add':
+                    result = add(num1, num2);
+                    break;
+                case 'subtract':
+                    result = subtract(num1, num2);
+                    break;
+                case 'multiply':
+                    result = multiply(num1, num2);
+                    break;
+                case 'divide':
+                    result = divide(num1, num2);
+                    break;
+                default:
+                    result = "Operasi tidak dikenal";
+            }
+            
+            resultDiv.innerHTML = `
+                <div class="text-purple-700">
+                    <h6 class="font-bold mb-2">Proses Modular:</h6>
+                    <div class="text-sm space-y-1">
+                        <p>1. ✅ Validasi input berhasil</p>
+                        <p>2. 🔢 Operasi ${operation} dipanggil</p>
+                        <p>3. 📊 Hasil: ${formatResult(result, operation, num1, num2)}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function analyzeReadability() {
+            const code = document.getElementById('codeInput').value;
+            const resultDiv = document.getElementById('readabilityResult');
+            
+            if (!code.trim()) {
+                resultDiv.innerHTML = '<p class="text-red-700 text-sm">Masukkan kode untuk dianalisis!</p>';
+                return;
+            }
+            
+            let score = 100;
+            let issues = [];
+            let suggestions = [];
+            
+            // Check for meaningful names (single letter variables)
+            if (/\b[a-z]\b/.test(code) && !/\b(i|j|k|x|y|z)\b/.test(code)) {
+                score -= 20;
+                issues.push("Nama variabel satu huruf (selain iterator)");
+                suggestions.push("Gunakan nama yang bermakna seperti 'jumlah', 'nama', 'hasil'");
+            }
+            
+            // Check for comments
+            if (!code.includes('//') && !code.includes('/*') && code.length > 50) {
+                score -= 15;
+                issues.push("Tidak ada komentar untuk kode yang kompleks");
+                suggestions.push("Tambahkan komentar untuk menjelaskan logika");
+            }
+            
+            // Check for proper spacing around operators
+            if (!/\s[+\-*/=]\s/.test(code) && /[+\-*/=]/.test(code)) {
+                score -= 20;
+                issues.push("Tidak ada spasi di sekitar operator");
+                suggestions.push("Tambahkan spasi: 'a + b' bukan 'a+b'");
+            }
+            
+            // Check for proper indentation in functions
+            if (/function.*{/.test(code) && !(/\n\s+/.test(code))) {
+                score -= 20;
+                issues.push("Tidak ada indentasi dalam fungsi");
+                suggestions.push("Gunakan 2 atau 4 spasi untuk indentasi");
+            }
+            
+            // Check for descriptive function names
+            if (/function\s+[a-z]{1,3}[^a-zA-Z]/.test(code)) {
+                score -= 15;
+                issues.push("Nama fungsi terlalu singkat");
+                suggestions.push("Gunakan nama seperti 'hitungTotal', 'validasiInput'");
+            }
+            
+            // Check for consistent naming convention
+            if (/[A-Z]/.test(code) && /[a-z]/.test(code) && !/camelCase|PascalCase/.test(code)) {
+                score -= 10;
+                issues.push("Konvensi penamaan tidak konsisten");
+                suggestions.push("Gunakan camelCase: 'namaVariabel' atau snake_case: 'nama_variabel'");
+            }
+            
+            let category = "Sangat Baik";
+            let color = "text-green-700";
+            if (score < 90) { category = "Baik"; color = "text-blue-700"; }
+            if (score < 70) { category = "Cukup"; color = "text-yellow-700"; }
+            if (score < 50) { category = "Perlu Perbaikan"; color = "text-red-700"; }
+            
+            resultDiv.innerHTML = `
+                <div class="space-y-2">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold ${color}">${score}/100</div>
+                        <div class="text-sm ${color}">${category}</div>
+                    </div>
+                    ${issues.length > 0 ? `
+                        <div>
+                            <h6 class="font-bold text-red-700 text-sm">Masalah:</h6>
+                            <ul class="text-red-600 text-md space-y-1">
+                                ${issues.map(issue => `<li>• ${issue}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                    ${suggestions.length > 0 ? `
+                        <div>
+                            <h6 class="font-bold text-green-700 text-sm">Saran:</h6>
+                            <ul class="text-green-600 text-md space-y-1">
+                                ${suggestions.map(suggestion => `<li>• ${suggestion}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Library system functions
+        function addBook() {
+            const isbn = document.getElementById('bookISBN').value;
+            const title = document.getElementById('bookTitle').value;
+            const author = document.getElementById('bookAuthor').value;
+            const year = document.getElementById('bookYear').value;
+            
+            if (!isbn || !title || !author || !year) {
+                showToast('Semua field harus diisi!', 'error');
+                return;
+            }
+            
+            const book = { isbn, title, author, year };
+            libraryBooks.push(book);
+            
+            // Clear inputs
+            document.getElementById('bookISBN').value = '';
+            document.getElementById('bookTitle').value = '';
+            document.getElementById('bookAuthor').value = '';
+            document.getElementById('bookYear').value = '';
+            
+            updateBookList();
+            showToast('Buku berhasil ditambahkan!', 'success');
+        }
+
+        function addMember() {
+            const id = document.getElementById('memberID').value;
+            const name = document.getElementById('memberName').value;
+            const address = document.getElementById('memberAddress').value;
+            const phone = document.getElementById('memberPhone').value;
+            
+            if (!id || !name || !address || !phone) {
+                showToast('Semua field harus diisi!', 'error');
+                return;
+            }
+            
+            const member = { id, name, address, phone };
+            libraryMembers.push(member);
+            
+            // Clear inputs
+            document.getElementById('memberID').value = '';
+            document.getElementById('memberName').value = '';
+            document.getElementById('memberAddress').value = '';
+            document.getElementById('memberPhone').value = '';
+            
+            updateMemberList();
+            showToast('Anggota berhasil didaftarkan!', 'success');
+        }
+
+        function updateBookList() {
+            const listDiv = document.getElementById('bookList');
+            if (libraryBooks.length === 0) {
+                listDiv.innerHTML = '<p class="text-purple-700">Belum ada buku yang terdaftar...</p>';
+                return;
+            }
+            
+            listDiv.innerHTML = libraryBooks.map((book, index) => `
+                <div class="bg-white p-2 rounded mb-2">
+                    <div class="font-bold text-purple-700">${book.title}</div>
+                    <div class="text-purple-600 text-md">
+                        ${book.author} (${book.year}) - ISBN: ${book.isbn}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateMemberList() {
+            const listDiv = document.getElementById('memberList');
+            if (libraryMembers.length === 0) {
+                listDiv.innerHTML = '<p class="text-purple-700">Belum ada anggota yang terdaftar...</p>';
+                return;
+            }
+            
+            listDiv.innerHTML = libraryMembers.map((member, index) => `
+                <div class="bg-white p-2 rounded mb-2">
+                    <div class="font-bold text-purple-700">${member.name}</div>
+                    <div class="text-purple-600 text-md">
+                        ID: ${member.id} | ${member.phone}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Refactoring demo
+        function startRefactoring() {
+            const refactoredDiv = document.getElementById('refactoredCode');
+            const stepsDiv = document.getElementById('refactorSteps');
+            const stepsList = document.getElementById('stepsList');
+            
+            const refactoredCode = `
+<div><span class="highlight-comment">// Kalkulator modular dengan nama yang bermakna</span></div>
+<div><span class="highlight-keyword">function</span> <span class="highlight-function">tambah</span>(angka1, angka2) {</div>
+<div>&nbsp;&nbsp;<span class="highlight-keyword">return</span> angka1 + angka2;</div>
+<div>}</div>
+<div>&nbsp;</div>
+<div><span class="highlight-keyword">function</span> <span class="highlight-function">kurang</span>(angka1, angka2) {</div>
+<div>&nbsp;&nbsp;<span class="highlight-keyword">return</span> angka1 - angka2;</div>
+<div>}</div>
+<div>&nbsp;</div>
+<div><span class="highlight-keyword">function</span> <span class="highlight-function">kali</span>(angka1, angka2) {</div>
+<div>&nbsp;&nbsp;<span class="highlight-keyword">return</span> angka1 * angka2;</div>
+<div>}</div>
+<div>&nbsp;</div>
+<div><span class="highlight-keyword">function</span> <span class="highlight-function">bagi</span>(angka1, angka2) {</div>
+<div>&nbsp;&nbsp;<span class="highlight-keyword">if</span> (angka2 === 0) {</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight-keyword">return</span> <span class="highlight-string">"Error: Tidak bisa dibagi nol"</span>;</div>
+<div>&nbsp;&nbsp;}</div>
+<div>&nbsp;&nbsp;<span class="highlight-keyword">return</span> angka1 / angka2;</div>
+<div>}</div>
+<div>&nbsp;</div>
+<div><span class="highlight-comment">// Fungsi utama yang menggunakan modul-modul di atas</span></div>
+<div><span class="highlight-keyword">function</span> <span class="highlight-function">kalkulator</span>(angka1, angka2, operasi) {</div>
+<div>&nbsp;&nbsp;<span class="highlight-keyword">switch</span>(operasi) {</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight-keyword">case</span> 1: <span class="highlight-keyword">return</span> <span class="highlight-function">tambah</span>(angka1, angka2);</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight-keyword">case</span> 2: <span class="highlight-keyword">return</span> <span class="highlight-function">kurang</span>(angka1, angka2);</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight-keyword">case</span> 3: <span class="highlight-keyword">return</span> <span class="highlight-function">kali</span>(angka1, angka2);</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight-keyword">case</span> 4: <span class="highlight-keyword">return</span> <span class="highlight-function">bagi</span>(angka1, angka2);</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight-keyword">default</span>: <span class="highlight-keyword">return</span> <span class="highlight-string">"Operasi tidak valid"</span>;</div>
+<div>&nbsp;&nbsp;}</div>
+<div>}</div>
+            `;
+            
+            refactoredDiv.innerHTML = refactoredCode;
+            
+            const steps = [
+                "1. ✅ Memecah fungsi besar menjadi fungsi-fungsi kecil",
+                "2. ✅ Memberikan nama yang bermakna (tambah, kurang, kali, bagi)",
+                "3. ✅ Menambahkan parameter dengan nama yang jelas",
+                "4. ✅ Menambahkan validasi untuk pembagian dengan nol",
+                "5. ✅ Menambahkan komentar penjelasan",
+                "6. ✅ Menggunakan indentasi yang konsisten"
+            ];
+            
+            stepsList.innerHTML = steps.map(step => `
+                <div class="bg-green-100 p-2 rounded text-sm text-green-700">${step}</div>
+            `).join('');
+            
+            stepsDiv.classList.remove('hidden');
+        }
+
+        // Module design functions
+        function addModule(moduleType) {
+            if (selectedModules.includes(moduleType)) {
+                showToast('Modul sudah dipilih!', 'warning');
+                return;
+            }
+            
+            selectedModules.push(moduleType);
+            updateSystemArchitecture();
+            updateDependencyGraph();
+        }
+
+        function clearModules() {
+            selectedModules = [];
+            updateSystemArchitecture();
+            updateDependencyGraph();
+        }
+
+        function updateSystemArchitecture() {
+            const archDiv = document.getElementById('systemArchitecture');
+            
+            if (selectedModules.length === 0) {
+                archDiv.innerHTML = '<p class="text-blue-600 text-sm">Pilih modul untuk membangun arsitektur...</p>';
+                return;
+            }
+            
+            const moduleIcons = {
+                'user': '👤',
+                'product': '📦',
+                'cart': '🛒',
+                'payment': '💳',
+                'order': '📋'
+            };
+            
+            const moduleNames = {
+                'user': 'User Management',
+                'product': 'Product Catalog',
+                'cart': 'Shopping Cart',
+                'payment': 'Payment System',
+                'order': 'Order Management'
+            };
+            
+            archDiv.innerHTML = `
+                <div class="space-y-2">
+                    ${selectedModules.map(module => `
+                        <div class="bg-white p-2 rounded flex items-center">
+                            <span class="text-lg mr-2">${moduleIcons[module]}</span>
+                            <span class="text-blue-700 text-sm">${moduleNames[module]}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function updateDependencyGraph() {
+            const depDiv = document.getElementById('dependencyGraph');
+            
+            if (selectedModules.length === 0) {
+                depDiv.innerHTML = '<p class="text-blue-600 text-sm">Grafik ketergantungan akan muncul di sini...</p>';
+                return;
+            }
+            
+            const dependencies = {
+                'cart': ['user', 'product'],
+                'order': ['user', 'cart', 'payment', 'product'],
+                'payment': ['user'],
+                'product': []
+            };
+            
+            let depText = '<div class="text-blue-700 text-sm space-y-1">';
+            selectedModules.forEach(module => {
+                if (dependencies[module]) {
+                    const deps = dependencies[module].filter(dep => selectedModules.includes(dep));
+                    if (deps.length > 0) {
+                        depText += `<div>${module} → ${deps.join(', ')}</div>`;
+                    }
+                }
+            });
+            depText += '</div>';
+            
+            depDiv.innerHTML = depText;
+        }
+
+        // Utility functions
+        function showToast(message, type = 'info') {
+            // Simple toast notification
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 
+                type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+            }`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleMobileMenu);
+            
+            // Back to top button
+            const backToTopBtn = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('hidden');
+                } else {
+                    backToTopBtn.classList.add('hidden');
+                }
+            });
+            
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+            
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(e) {
+                const sidebar = document.getElementById('sidebar');
+                const mobileBtn = document.getElementById('mobileMenuBtn');
+                
+                if (!sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                    closeMobileMenu();
+                }
+            });
+            
+            // Initialize
+            updateNavButtons();
+        });
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'990cb8bd21ada396',t:'MTc2MDgzOTY0NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
