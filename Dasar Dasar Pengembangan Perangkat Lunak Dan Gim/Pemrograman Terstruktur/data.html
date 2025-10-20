@@ -1,0 +1,2205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Statis vs Dinamis - Python Learning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #ffeef8 0%, #f0f9ff 50%, #f0fdf4 100%);
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .content-fade {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .code-demo {
+            background: linear-gradient(135deg, #0d1117, #161b22);
+            border-radius: 12px;
+            padding: 0;
+            color: #e6edf3;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #30363d;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .code-demo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: linear-gradient(135deg, #21262d, #30363d);
+            border-radius: 12px 12px 0 0;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .code-header {
+            position: relative;
+            z-index: 2;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            background: transparent;
+        }
+        
+        .code-dots {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .code-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .code-dot.red { background: #ff5f56; }
+        .code-dot.yellow { background: #ffbd2e; }
+        .code-dot.green { background: #27ca3f; }
+        
+        .code-title {
+            margin-left: 12px;
+            font-size: 12px;
+            color: #8b949e;
+            font-weight: 500;
+        }
+        
+        .code-content {
+            padding: 20px;
+            margin-top: 0;
+            overflow-x: auto;
+            font-size: 16px;
+            line-height: 1.6;
+            background: transparent;
+        }
+        
+        .code-line {
+            display: flex;
+            min-height: 20px;
+            margin-bottom: 2px;
+        }
+        
+        .line-number {
+            color: #6e7681;
+            font-size: 14px;
+            min-width: 30px;
+            text-align: right;
+            margin-right: 16px;
+            user-select: none;
+            flex-shrink: 0;
+        }
+        
+        .line-content {
+            flex: 1;
+            white-space: pre;
+            min-width: 0;
+        }
+        
+        /* Syntax highlighting colors */
+        .token-comment { color: #8b949e; font-style: italic; }
+        .token-string { color: #a5d6ff; }
+        .token-number { color: #79c0ff; }
+        .token-keyword { color: #ff7b72; font-weight: 600; }
+        .token-function { color: #d2a8ff; }
+        .token-variable { color: #ffa657; }
+        .token-operator { color: #ff7b72; }
+        .token-bracket { color: #e6edf3; }
+        .token-method { color: #79c0ff; }
+        .token-boolean { color: #79c0ff; }
+        
+        /* Responsive scrolling */
+        .code-content::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .code-content::-webkit-scrollbar-track {
+            background: #21262d;
+            border-radius: 4px;
+        }
+        
+        .code-content::-webkit-scrollbar-thumb {
+            background: #6e7681;
+            border-radius: 4px;
+        }
+        
+        .code-content::-webkit-scrollbar-thumb:hover {
+            background: #8b949e;
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-btn:hover {
+            transform: translateY(-3px);
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            transform: translateX(5px);
+        }
+        
+        .cute-icon {
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.1));
+        }
+        
+        .nav-item.active {
+            background: linear-gradient(135deg, #f3e8ff, #e0e7ff);
+            border-left: 4px solid #8b5cf6;
+            font-weight: 600;
+            transform: translateX(4px);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-full">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-pink-200 hover:bg-pink-300 p-3 rounded-full shadow-lg transition-all duration-300">
+        <i class="fas fa-bars text-pink-700"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white/90 backdrop-blur-sm shadow-xl z-40 transform -translate-x-full lg:translate-x-0 sidebar-transition overflow-y-auto">
+        <div class="p-6 border-b border-pink-100">
+            <div class="flex items-center space-x-3">
+                <div class="text-4xl cute-icon">🐍</div>
+                <div>
+                    <h1 class="text-xl font-bold text-purple-700">Python Learning</h1>
+                    <p class="text-sm text-purple-500">Data Statis vs Dinamis</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="p-4 space-y-2">
+            <a href="#" onclick="showSection('intro')" id="nav-intro" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-pink-100 transition-colors">
+                <span class="text-2xl">🚀</span>
+                <span class="text-purple-700 font-medium">Intro</span>
+            </a>
+            <a href="#" onclick="showSection('pengenalan')" id="nav-pengenalan" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-100 transition-colors">
+                <span class="text-2xl">📚</span>
+                <span class="text-blue-700 font-medium">Pengenalan</span>
+            </a>
+            <a href="#" onclick="showSection('data-statis')" id="nav-data-statis" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-green-100 transition-colors">
+                <span class="text-2xl">🔒</span>
+                <span class="text-green-700 font-medium">Data Statis</span>
+            </a>
+            <a href="#" onclick="showSection('data-dinamis')" id="nav-data-dinamis" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-yellow-100 transition-colors">
+                <span class="text-2xl">⚡</span>
+                <span class="text-yellow-700 font-medium">Data Dinamis</span>
+            </a>
+            <a href="#" onclick="showSection('perbandingan')" id="nav-perbandingan" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-100 transition-colors">
+                <span class="text-2xl">⚖️</span>
+                <span class="text-purple-700 font-medium">Perbandingan</span>
+            </a>
+            <a href="#" onclick="showSection('praktik')" id="nav-praktik" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-indigo-100 transition-colors">
+                <span class="text-2xl">💻</span>
+                <span class="text-indigo-700 font-medium">Praktik</span>
+            </a>
+            <a href="#" onclick="showSection('tugas')" id="nav-tugas" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-orange-100 transition-colors">
+                <span class="text-2xl">📝</span>
+                <span class="text-orange-700 font-medium">Tugas</span>
+            </a>
+            <a href="#" onclick="showSection('kuis')" id="nav-kuis" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-red-100 transition-colors">
+                <span class="text-2xl">🎯</span>
+                <span class="text-red-700 font-medium">Kuis</span>
+            </a>
+            <a href="#" onclick="showSection('penutup')" id="nav-penutup" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-teal-100 transition-colors">
+                <span class="text-2xl">🎉</span>
+                <span class="text-teal-700 font-medium">Penutup</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-full">
+        <div class="max-w-4xl mx-auto p-6 lg:p-8">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="content-section content-fade">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🤔</div>
+                        <h2 class="text-3xl font-bold text-purple-700 mb-4">Pertanyaan Pemantik</h2>
+                        <div class="bg-gradient-to-r from-pink-100 to-purple-100 p-6 rounded-xl">
+                            <p class="text-lg text-gray-700 italic">"Mengapa ada data yang bisa berubah dan ada yang tidak bisa berubah dalam program Python?"</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-blue-50 p-6 rounded-xl">
+                            <div class="text-3xl mb-3">📖</div>
+                            <h3 class="text-xl font-bold text-blue-700 mb-3">Apa yang Dipelajari?</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li>• Konsep data statis dan dinamis</li>
+                                <li>• Perbedaan karakteristik keduanya</li>
+                                <li>• Implementasi dalam Python</li>
+                                <li>• Kapan menggunakan masing-masing</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-green-50 p-6 rounded-xl">
+                            <div class="text-3xl mb-3">🎯</div>
+                            <h3 class="text-xl font-bold text-green-700 mb-3">Tujuan Pembelajaran</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li>• Memahami konsep data statis vs dinamis</li>
+                                <li>• Dapat membedakan keduanya</li>
+                                <li>• Mampu mengimplementasikan dalam kode</li>
+                                <li>• Memilih jenis data yang tepat</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-xl mb-6">
+                        <div class="text-3xl mb-3">💡</div>
+                        <h3 class="text-xl font-bold text-orange-700 mb-3">Pemahaman Bermakna</h3>
+                        <p class="text-gray-700">Memahami perbedaan data statis dan dinamis akan membantu kamu menulis program yang lebih efisien dan aman. Seperti memilih wadah yang tepat untuk menyimpan barang-barang berbeda!</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-xl">
+                        <div class="text-3xl mb-3">🌟</div>
+                        <h3 class="text-xl font-bold text-purple-700 mb-3">Motivasi</h3>
+                        <p class="text-gray-700">Dengan menguasai konsep ini, kamu akan menjadi programmer Python yang lebih handal dan dapat membuat aplikasi yang lebih robust dan efisien!</p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="navigateToNext('pengenalan')" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Mulai Belajar! 🚀
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="content-section content-fade hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📚</div>
+                        <h2 class="text-3xl font-bold text-blue-700 mb-4">Pengenalan Materi</h2>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🔍</span>
+                                Apa itu Data dalam Pemrograman?
+                            </h3>
+                            <p class="text-gray-700 mb-4">Data adalah informasi yang disimpan dan diproses oleh program. Dalam Python, data dapat berupa angka, teks, daftar, atau struktur yang lebih kompleks. Bayangkan data seperti berbagai jenis wadah untuk menyimpan informasi!</p>
+                            
+                            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-blue-600 mb-2">🏠 Analogi Rumah:</h4>
+                                    <p class="text-sm text-gray-600 mb-3">Data seperti barang-barang di rumah:</p>
+                                    <ul class="text-base text-gray-700 space-y-1">
+                                        <li>• <strong>Alamat rumah</strong> → Data statis (tidak berubah)</li>
+                                        <li>• <strong>Daftar belanja</strong> → Data dinamis (sering berubah)</li>
+                                        <li>• <strong>Tanggal lahir</strong> → Data statis (tetap selamanya)</li>
+                                        <li>• <strong>Isi lemari</strong> → Data dinamis (bisa ditambah/dikurangi)</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-blue-600 mb-2">💾 Memory dalam Komputer:</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-4 h-4 bg-green-400 rounded"></div>
+                                            <span class="text-base">Data Statis - Lokasi tetap</span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-4 h-4 bg-yellow-400 rounded"></div>
+                                            <span class="text-base">Data Dinamis - Lokasi fleksibel</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <h4 class="font-semibold text-blue-600 mb-2">Contoh Data dalam Kehidupan Sehari-hari:</h4>
+                                <div class="code-demo mt-4">
+                                    <div class="code-header">
+                                        <div class="code-dots">
+                                            <div class="code-dot red"></div>
+                                            <div class="code-dot yellow"></div>
+                                            <div class="code-dot green"></div>
+                                        </div>
+                                        <div class="code-title">profil_siswa.py</div>
+                                    </div>
+                                    <div class="code-content">
+                                        <div class="code-line">
+                                            <div class="line-number">1</div>
+                                            <div class="line-content"><span class="token-comment"># Data Profil Siswa SMK</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">2</div>
+                                            <div class="line-content"><span class="token-variable">nama_lengkap</span> <span class="token-operator">=</span> <span class="token-string">"Budi Santoso"</span>  <span class="token-comment"># Statis - tidak berubah</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">3</div>
+                                            <div class="line-content"><span class="token-variable">nis</span> <span class="token-operator">=</span> <span class="token-number">2024001</span>  <span class="token-comment"># Statis - nomor tetap</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">4</div>
+                                            <div class="line-content"><span class="token-variable">kelas</span> <span class="token-operator">=</span> <span class="token-string">"XI RPL 1"</span>  <span class="token-comment"># Bisa berubah tiap tahun</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">5</div>
+                                            <div class="line-content"><span class="token-variable">nilai_harian</span> <span class="token-operator">=</span> <span class="token-bracket">[</span><span class="token-number">85</span><span class="token-operator">,</span> <span class="token-number">90</span><span class="token-operator">,</span> <span class="token-number">78</span><span class="token-bracket">]</span>  <span class="token-comment"># Dinamis - terus bertambah</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">6</div>
+                                            <div class="line-content"><span class="token-variable">ekstrakurikuler</span> <span class="token-operator">=</span> <span class="token-bracket">[</span><span class="token-string">"Robotika"</span><span class="token-operator">,</span> <span class="token-string">"Basket"</span><span class="token-bracket">]</span>  <span class="token-comment"># Dinamis - bisa berubah</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-br from-pink-50 to-rose-50 p-6 rounded-xl">
+                                <div class="text-3xl mb-3">🔒</div>
+                                <h3 class="text-xl font-bold text-pink-700 mb-3">Data Statis</h3>
+                                <p class="text-gray-700">Data yang tidak dapat diubah setelah dibuat. Seperti nama yang tertulis di batu - permanen!</p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl">
+                                <div class="text-3xl mb-3">⚡</div>
+                                <h3 class="text-xl font-bold text-green-700 mb-3">Data Dinamis</h3>
+                                <p class="text-gray-700">Data yang dapat diubah, ditambah, atau dikurangi. Seperti daftar belanja yang bisa dicoret-coret!</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-yellow-50 to-amber-50 p-6 rounded-xl">
+                            <div class="text-3xl mb-3">🤝</div>
+                            <h3 class="text-xl font-bold text-yellow-700 mb-3">Mengapa Penting?</h3>
+                            <p class="text-gray-700">Memahami perbedaan ini membantu kita:</p>
+                            <ul class="mt-3 space-y-2 text-gray-700">
+                                <li>• Memilih struktur data yang tepat</li>
+                                <li>• Menulis kode yang lebih efisien</li>
+                                <li>• Menghindari error yang tidak perlu</li>
+                                <li>• Membuat program yang lebih aman</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="navigateToNext('data-statis')" class="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Lanjut ke Data Statis 🔒
+                    </button>
+                </div>
+            </div>
+
+            <!-- Data Statis Section -->
+            <div id="data-statis" class="content-section content-fade hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🔒</div>
+                        <h2 class="text-3xl font-bold text-green-700 mb-4">Data Statis (Immutable)</h2>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">📖</span>
+                                Definisi Data Statis
+                            </h3>
+                            <p class="text-gray-700 mb-4">Data statis (immutable) adalah data yang tidak dapat diubah setelah dibuat. Jika kita ingin "mengubah" data ini, Python sebenarnya membuat data baru.</p>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <h4 class="font-semibold text-green-600 mb-2">Analogi Sederhana:</h4>
+                                <p class="text-gray-700">Seperti menulis dengan pulpen di kertas - sekali ditulis, tidak bisa dihapus. Jika mau mengubah, harus pakai kertas baru!</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">📋</span>
+                                Jenis-jenis Data Statis di Python
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-600 mb-2">1. String (str)</h4>
+                                    <p class="text-base text-gray-600">Teks yang tidak bisa diubah</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-600 mb-2">2. Integer (int)</h4>
+                                    <p class="text-base text-gray-600">Bilangan bulat</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-600 mb-2">3. Float</h4>
+                                    <p class="text-base text-gray-600">Bilangan desimal</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-600 mb-2">4. Tuple</h4>
+                                    <p class="text-base text-gray-600">Kumpulan data terurut</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">💻</span>
+                                Demo Interaktif: Data Statis
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-4 mb-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-600 mb-3">🔬 Eksperimen String:</h4>
+                                    <div class="code-demo">
+                                        <div class="code-header">
+                                            <div class="code-dots">
+                                                <div class="code-dot red"></div>
+                                                <div class="code-dot yellow"></div>
+                                                <div class="code-dot green"></div>
+                                            </div>
+                                            <div class="code-title">string_experiment.py</div>
+                                        </div>
+                                        <div class="code-content">
+                                            <div class="code-line">
+                                                <div class="line-number">1</div>
+                                                <div class="line-content"><span class="token-comment"># String tidak bisa diubah langsung</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">2</div>
+                                                <div class="line-content"><span class="token-variable">pesan</span> <span class="token-operator">=</span> <span class="token-string">"Halo Dunia"</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">3</div>
+                                                <div class="line-content"><span class="token-comment"># pesan[0] = "h"  # ERROR!</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">4</div>
+                                                <div class="line-content"><span class="token-comment"># Harus buat string baru</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">5</div>
+                                                <div class="line-content"><span class="token-variable">pesan_baru</span> <span class="token-operator">=</span> <span class="token-string">"h"</span> <span class="token-operator">+</span> <span class="token-variable">pesan</span><span class="token-bracket">[</span><span class="token-number">1</span><span class="token-operator">:</span><span class="token-bracket">]</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-600 mb-3">🔢 Eksperimen Tuple:</h4>
+                                    <div class="code-demo">
+                                        <div class="code-header">
+                                            <div class="code-dots">
+                                                <div class="code-dot red"></div>
+                                                <div class="code-dot yellow"></div>
+                                                <div class="code-dot green"></div>
+                                            </div>
+                                            <div class="code-title">tuple_experiment.py</div>
+                                        </div>
+                                        <div class="code-content">
+                                            <div class="code-line">
+                                                <div class="line-number">1</div>
+                                                <div class="line-content"><span class="token-comment"># Tuple juga tidak bisa diubah</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">2</div>
+                                                <div class="line-content"><span class="token-variable">koordinat</span> <span class="token-operator">=</span> <span class="token-bracket">(</span><span class="token-number">10</span><span class="token-operator">,</span> <span class="token-number">20</span><span class="token-bracket">)</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">3</div>
+                                                <div class="line-content"><span class="token-comment"># koordinat[0] = 15  # TypeError: 'tuple' object does not support item assignment</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">4</div>
+                                                <div class="line-content"><span class="token-comment"># Harus buat tuple baru jika ingin "mengubah"</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">5</div>
+                                                <div class="line-content"><span class="token-variable">koordinat_baru</span> <span class="token-operator">=</span> <span class="token-bracket">(</span><span class="token-number">15</span><span class="token-operator">,</span> <span class="token-number">20</span><span class="token-bracket">)</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="code-demo mb-4">
+                                <div class="code-header">
+                                    <div class="code-dots">
+                                        <div class="code-dot red"></div>
+                                        <div class="code-dot yellow"></div>
+                                        <div class="code-dot green"></div>
+                                    </div>
+                                    <div class="code-title">string_immutable_demo.py</div>
+                                </div>
+                                <div class="code-content">
+                                    <div class="code-line">
+                                        <div class="line-number">1</div>
+                                        <div class="line-content"><span class="token-comment"># Demo Lengkap: Mengapa String Statis?</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">2</div>
+                                        <div class="line-content"><span class="token-variable">nama_siswa</span> <span class="token-operator">=</span> <span class="token-string">"Budi Santoso"</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">3</div>
+                                        <div class="line-content"><span class="token-function">print</span><span class="token-bracket">(</span><span class="token-string">f"Nama asli: {</span><span class="token-variable">nama_siswa</span><span class="token-string">}"</span><span class="token-bracket">)</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">4</div>
+                                        <div class="line-content"></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">5</div>
+                                        <div class="line-content"><span class="token-comment"># Method string TIDAK mengubah string asli</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">6</div>
+                                        <div class="line-content"><span class="token-variable">nama_upper</span> <span class="token-operator">=</span> <span class="token-variable">nama_siswa</span><span class="token-operator">.</span><span class="token-method">upper</span><span class="token-bracket">()</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">7</div>
+                                        <div class="line-content"><span class="token-variable">nama_replace</span> <span class="token-operator">=</span> <span class="token-variable">nama_siswa</span><span class="token-operator">.</span><span class="token-method">replace</span><span class="token-bracket">(</span><span class="token-string">"Budi"</span><span class="token-operator">,</span> <span class="token-string">"Sari"</span><span class="token-bracket">)</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">8</div>
+                                        <div class="line-content"></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">9</div>
+                                        <div class="line-content"><span class="token-function">print</span><span class="token-bracket">(</span><span class="token-string">f"Nama asli tetap: {</span><span class="token-variable">nama_siswa</span><span class="token-string">}"</span><span class="token-bracket">)</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">10</div>
+                                        <div class="line-content"><span class="token-function">print</span><span class="token-bracket">(</span><span class="token-string">f"Nama upper: {</span><span class="token-variable">nama_upper</span><span class="token-string">}"</span><span class="token-bracket">)</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">11</div>
+                                        <div class="line-content"><span class="token-function">print</span><span class="token-bracket">(</span><span class="token-string">f"Nama replace: {</span><span class="token-variable">nama_replace</span><span class="token-string">}"</span><span class="token-bracket">)</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <button onclick="runStaticDemo()" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                    🚀 Jalankan Demo
+                                </button>
+                                <div id="staticDemoResult" class="mt-4 p-3 bg-gray-100 rounded-lg hidden">
+                                    <h5 class="font-semibold text-gray-700 mb-2">Hasil:</h5>
+                                    <div class="font-mono text-base text-gray-600"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-yellow-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">⭐</span>
+                                Karakteristik Data Statis
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-green-500 text-xl">✅</span>
+                                        <span class="text-gray-700">Tidak dapat diubah</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-green-500 text-xl">✅</span>
+                                        <span class="text-gray-700">Lebih aman dari error</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-green-500 text-xl">✅</span>
+                                        <span class="text-gray-700">Dapat dijadikan key dictionary</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-green-500 text-xl">✅</span>
+                                        <span class="text-gray-700">Lebih efisien memori</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-green-500 text-xl">✅</span>
+                                        <span class="text-gray-700">Dapat di-hash</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-green-500 text-xl">✅</span>
+                                        <span class="text-gray-700">Thread-safe</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="navigateToNext('data-dinamis')" class="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Lanjut ke Data Dinamis ⚡
+                    </button>
+                </div>
+            </div>
+
+            <!-- Data Dinamis Section -->
+            <div id="data-dinamis" class="content-section content-fade hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">⚡</div>
+                        <h2 class="text-3xl font-bold text-yellow-700 mb-4">Data Dinamis (Mutable)</h2>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-yellow-50 to-amber-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-yellow-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">📖</span>
+                                Definisi Data Dinamis
+                            </h3>
+                            <p class="text-gray-700 mb-4">Data dinamis (mutable) adalah data yang dapat diubah, ditambah, atau dikurangi setelah dibuat. Kita bisa memodifikasi isinya tanpa membuat objek baru.</p>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <h4 class="font-semibold text-yellow-600 mb-2">Analogi Sederhana:</h4>
+                                <p class="text-gray-700">Seperti menulis dengan pensil di kertas - bisa dihapus, ditambah, atau diubah kapan saja!</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-orange-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">📋</span>
+                                Jenis-jenis Data Dinamis di Python
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-red-600 mb-2">1. List</h4>
+                                    <p class="text-base text-gray-600">Daftar yang bisa diubah</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-red-600 mb-2">2. Dictionary (dict)</h4>
+                                    <p class="text-base text-gray-600">Pasangan key-value</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-red-600 mb-2">3. Set</h4>
+                                    <p class="text-base text-gray-600">Kumpulan unik</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-red-600 mb-2">4. Bytearray</h4>
+                                    <p class="text-base text-gray-600">Array byte yang bisa diubah</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-indigo-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">💻</span>
+                                Demo Interaktif: Data Dinamis
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-3 gap-4 mb-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-indigo-600 mb-3">📝 List Operations:</h4>
+                                    <div class="code-demo">
+                                        <div class="code-header">
+                                            <div class="code-dots">
+                                                <div class="code-dot red"></div>
+                                                <div class="code-dot yellow"></div>
+                                                <div class="code-dot green"></div>
+                                            </div>
+                                            <div class="code-title">list_ops.py</div>
+                                        </div>
+                                        <div class="code-content">
+                                            <div class="code-line">
+                                                <div class="line-number">1</div>
+                                                <div class="line-content"><span class="token-variable">nilai</span> <span class="token-operator">=</span> <span class="token-bracket">[</span><span class="token-number">85</span><span class="token-operator">,</span> <span class="token-number">90</span><span class="token-bracket">]</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">2</div>
+                                                <div class="line-content"><span class="token-variable">nilai</span><span class="token-operator">.</span><span class="token-method">append</span><span class="token-bracket">(</span><span class="token-number">95</span><span class="token-bracket">)</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">3</div>
+                                                <div class="line-content"><span class="token-variable">nilai</span><span class="token-bracket">[</span><span class="token-number">0</span><span class="token-bracket">]</span> <span class="token-operator">=</span> <span class="token-number">88</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">4</div>
+                                                <div class="line-content"><span class="token-comment"># [88, 90, 95]</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-indigo-600 mb-3">📚 Dict Operations:</h4>
+                                    <div class="code-demo">
+                                        <div class="code-header">
+                                            <div class="code-dots">
+                                                <div class="code-dot red"></div>
+                                                <div class="code-dot yellow"></div>
+                                                <div class="code-dot green"></div>
+                                            </div>
+                                            <div class="code-title">dict_ops.py</div>
+                                        </div>
+                                        <div class="code-content">
+                                            <div class="code-line">
+                                                <div class="line-number">1</div>
+                                                <div class="line-content"><span class="token-variable">siswa</span> <span class="token-operator">=</span> <span class="token-bracket">{</span><span class="token-string">"nama"</span><span class="token-operator">:</span> <span class="token-string">"Ani"</span><span class="token-bracket">}</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">2</div>
+                                                <div class="line-content"><span class="token-variable">siswa</span><span class="token-bracket">[</span><span class="token-string">"kelas"</span><span class="token-bracket">]</span> <span class="token-operator">=</span> <span class="token-string">"XI"</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">3</div>
+                                                <div class="line-content"><span class="token-variable">siswa</span><span class="token-bracket">[</span><span class="token-string">"nama"</span><span class="token-bracket">]</span> <span class="token-operator">=</span> <span class="token-string">"Sari"</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">4</div>
+                                                <div class="line-content"><span class="token-comment"># Bisa diubah!</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-indigo-600 mb-3">🎯 Set Operations:</h4>
+                                    <div class="code-demo">
+                                        <div class="code-header">
+                                            <div class="code-dots">
+                                                <div class="code-dot red"></div>
+                                                <div class="code-dot yellow"></div>
+                                                <div class="code-dot green"></div>
+                                            </div>
+                                            <div class="code-title">set_ops.py</div>
+                                        </div>
+                                        <div class="code-content">
+                                            <div class="code-line">
+                                                <div class="line-number">1</div>
+                                                <div class="line-content"><span class="token-variable">hobi</span> <span class="token-operator">=</span> <span class="token-bracket">{</span><span class="token-string">"coding"</span><span class="token-bracket">}</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">2</div>
+                                                <div class="line-content"><span class="token-variable">hobi</span><span class="token-operator">.</span><span class="token-method">add</span><span class="token-bracket">(</span><span class="token-string">"gaming"</span><span class="token-bracket">)</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">3</div>
+                                                <div class="line-content"><span class="token-variable">hobi</span><span class="token-operator">.</span><span class="token-method">remove</span><span class="token-bracket">(</span><span class="token-string">"coding"</span><span class="token-bracket">)</span></div>
+                                            </div>
+                                            <div class="code-line">
+                                                <div class="line-number">4</div>
+                                                <div class="line-content"><span class="token-comment"># Dinamis!</span></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="code-demo mb-4">
+                                <div class="code-header">
+                                    <div class="code-dots">
+                                        <div class="code-dot red"></div>
+                                        <div class="code-dot yellow"></div>
+                                        <div class="code-dot green"></div>
+                                    </div>
+                                    <div class="code-title">dynamic_data_demo.py</div>
+                                </div>
+                                <div class="code-content">
+                                    <div class="code-line">
+                                        <div class="line-number">1</div>
+                                        <div class="line-content"><span class="token-comment"># Demo Lengkap: Fleksibilitas Data Dinamis</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">2</div>
+                                        <div class="line-content"><span class="token-variable">daftar_tugas</span> <span class="token-operator">=</span> <span class="token-bracket">[</span><span class="token-string">"Matematika"</span><span class="token-operator">,</span> <span class="token-string">"Fisika"</span><span class="token-bracket">]</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">3</div>
+                                        <div class="line-content"><span class="token-function">print</span><span class="token-bracket">(</span><span class="token-string">f"Tugas awal: {</span><span class="token-variable">daftar_tugas</span><span class="token-string">}"</span><span class="token-bracket">)</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">4</div>
+                                        <div class="line-content"></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">5</div>
+                                        <div class="line-content"><span class="token-comment"># Berbagai operasi pada list</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">6</div>
+                                        <div class="line-content"><span class="token-variable">daftar_tugas</span><span class="token-operator">.</span><span class="token-method">append</span><span class="token-bracket">(</span><span class="token-string">"Kimia"</span><span class="token-bracket">)</span>  <span class="token-comment"># Tambah di akhir</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">7</div>
+                                        <div class="line-content"><span class="token-variable">daftar_tugas</span><span class="token-operator">.</span><span class="token-method">insert</span><span class="token-bracket">(</span><span class="token-number">1</span><span class="token-operator">,</span> <span class="token-string">"Biologi"</span><span class="token-bracket">)</span>  <span class="token-comment"># Sisip di tengah</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">8</div>
+                                        <div class="line-content"><span class="token-variable">daftar_tugas</span><span class="token-bracket">[</span><span class="token-number">0</span><span class="token-bracket">]</span> <span class="token-operator">=</span> <span class="token-string">"Aljabar"</span>  <span class="token-comment"># Ubah elemen</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">9</div>
+                                        <div class="line-content"></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">10</div>
+                                        <div class="line-content"><span class="token-function">print</span><span class="token-bracket">(</span><span class="token-string">f"Tugas setelah diubah: {</span><span class="token-variable">daftar_tugas</span><span class="token-string">}"</span><span class="token-bracket">)</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">11</div>
+                                        <div class="line-content"></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">12</div>
+                                        <div class="line-content"><span class="token-comment"># Dictionary untuk data siswa</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">13</div>
+                                        <div class="line-content"><span class="token-variable">profil_siswa</span> <span class="token-operator">=</span> <span class="token-bracket">{</span><span class="token-string">"nama"</span><span class="token-operator">:</span> <span class="token-string">"Budi"</span><span class="token-operator">,</span> <span class="token-string">"nilai"</span><span class="token-operator">:</span> <span class="token-bracket">[]}</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">14</div>
+                                        <div class="line-content"><span class="token-variable">profil_siswa</span><span class="token-bracket">[</span><span class="token-string">"kelas"</span><span class="token-bracket">]</span> <span class="token-operator">=</span> <span class="token-string">"XI RPL"</span>  <span class="token-comment"># Tambah key baru</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">15</div>
+                                        <div class="line-content"><span class="token-variable">profil_siswa</span><span class="token-bracket">[</span><span class="token-string">"nilai"</span><span class="token-bracket">]</span><span class="token-operator">.</span><span class="token-method">extend</span><span class="token-bracket">([</span><span class="token-number">85</span><span class="token-operator">,</span> <span class="token-number">90</span><span class="token-operator">,</span> <span class="token-number">88</span><span class="token-bracket">])</span></div>
+                                    </div>
+                                    <div class="code-line">
+                                        <div class="line-number">16</div>
+                                        <div class="line-content"><span class="token-function">print</span><span class="token-bracket">(</span><span class="token-string">f"Profil lengkap: {</span><span class="token-variable">profil_siswa</span><span class="token-string">}"</span><span class="token-bracket">)</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <button onclick="runDynamicDemo()" class="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                    🚀 Jalankan Demo
+                                </button>
+                                <div id="dynamicDemoResult" class="mt-4 p-3 bg-gray-100 rounded-lg hidden">
+                                    <h5 class="font-semibold text-gray-700 mb-2">Hasil:</h5>
+                                    <div class="font-mono text-base text-gray-600"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-teal-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🎮</span>
+                                Playground: Coba Sendiri!
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <h4 class="font-semibold text-teal-600 mb-3">Manipulasi List Interaktif:</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label for="newItem" class="block text-sm font-medium text-gray-700 mb-1">Tambah item baru:</label>
+                                        <div class="flex space-x-2">
+                                            <input type="text" id="newItem" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" placeholder="Masukkan item...">
+                                            <button onclick="addItem()" class="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg transition-colors">Tambah</button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-medium text-gray-700 mb-2">Daftar saat ini:</h5>
+                                        <div id="itemList" class="bg-gray-50 p-3 rounded-lg min-h-[50px] flex flex-wrap gap-2">
+                                            <span class="bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm">coding</span>
+                                            <span class="bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm">gaming</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-pink-50 to-rose-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-pink-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">⭐</span>
+                                Karakteristik Data Dinamis
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-blue-500 text-xl">🔄</span>
+                                        <span class="text-gray-700">Dapat diubah</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-blue-500 text-xl">➕</span>
+                                        <span class="text-gray-700">Dapat ditambah</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-blue-500 text-xl">➖</span>
+                                        <span class="text-gray-700">Dapat dikurangi</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-blue-500 text-xl">🔧</span>
+                                        <span class="text-gray-700">Fleksibel</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-blue-500 text-xl">⚠️</span>
+                                        <span class="text-gray-700">Perlu hati-hati</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <span class="text-blue-500 text-xl">💾</span>
+                                        <span class="text-gray-700">Lebih banyak memori</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="navigateToNext('perbandingan')" class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Lihat Perbandingan ⚖️
+                    </button>
+                </div>
+            </div>
+
+            <!-- Perbandingan Section -->
+            <div id="perbandingan" class="content-section content-fade hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">⚖️</div>
+                        <h2 class="text-3xl font-bold text-purple-700 mb-4">Perbandingan Data Statis vs Dinamis</h2>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="overflow-x-auto">
+                            <table class="w-full bg-white rounded-xl shadow-lg overflow-hidden">
+                                <thead class="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                                    <tr>
+                                        <th class="px-6 py-4 text-left font-semibold">Aspek</th>
+                                        <th class="px-6 py-4 text-left font-semibold">Data Statis 🔒</th>
+                                        <th class="px-6 py-4 text-left font-semibold">Data Dinamis ⚡</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-200">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 font-medium text-gray-900">Dapat Diubah</td>
+                                        <td class="px-6 py-4 text-red-600">❌ Tidak</td>
+                                        <td class="px-6 py-4 text-green-600">✅ Ya</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 font-medium text-gray-900">Contoh Tipe</td>
+                                        <td class="px-6 py-4 text-gray-700">str, int, tuple</td>
+                                        <td class="px-6 py-4 text-gray-700">list, dict, set</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 font-medium text-gray-900">Keamanan</td>
+                                        <td class="px-6 py-4 text-green-600">✅ Lebih aman</td>
+                                        <td class="px-6 py-4 text-yellow-600">⚠️ Perlu hati-hati</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 font-medium text-gray-900">Penggunaan Memori</td>
+                                        <td class="px-6 py-4 text-green-600">✅ Efisien</td>
+                                        <td class="px-6 py-4 text-yellow-600">⚠️ Lebih banyak</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 font-medium text-gray-900">Fleksibilitas</td>
+                                        <td class="px-6 py-4 text-yellow-600">⚠️ Terbatas</td>
+                                        <td class="px-6 py-4 text-green-600">✅ Sangat fleksibel</td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 font-medium text-gray-900">Dapat jadi Key Dict</td>
+                                        <td class="px-6 py-4 text-green-600">✅ Ya</td>
+                                        <td class="px-6 py-4 text-red-600">❌ Tidak</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl">
+                                <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center">
+                                    <span class="text-2xl mr-3">🔒</span>
+                                    Kapan Gunakan Data Statis?
+                                </h3>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500 mt-1">•</span>
+                                        <span>Data yang tidak perlu diubah (nama, ID)</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500 mt-1">•</span>
+                                        <span>Sebagai key dalam dictionary</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500 mt-1">•</span>
+                                        <span>Koordinat atau posisi tetap</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-green-500 mt-1">•</span>
+                                        <span>Konfigurasi yang tidak berubah</span>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl">
+                                <h3 class="text-xl font-bold text-yellow-700 mb-4 flex items-center">
+                                    <span class="text-2xl mr-3">⚡</span>
+                                    Kapan Gunakan Data Dinamis?
+                                </h3>
+                                <ul class="space-y-2 text-gray-700">
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-yellow-500 mt-1">•</span>
+                                        <span>Daftar yang sering berubah (keranjang belanja)</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-yellow-500 mt-1">•</span>
+                                        <span>Data yang perlu diupdate (skor game)</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-yellow-500 mt-1">•</span>
+                                        <span>Koleksi yang dinamis (playlist musik)</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <span class="text-yellow-500 mt-1">•</span>
+                                        <span>Buffer atau cache data</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-indigo-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">💡</span>
+                                Tips Memilih yang Tepat
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-indigo-600 mb-3">🤔 Pertanyaan Panduan:</h4>
+                                    <ul class="space-y-2 text-base text-gray-700">
+                                        <li>• Apakah data ini akan berubah selama program berjalan?</li>
+                                        <li>• Apakah perlu menambah/mengurangi item secara dinamis?</li>
+                                        <li>• Apakah akan digunakan sebagai key dictionary?</li>
+                                        <li>• Seberapa penting keamanan dan integritas data?</li>
+                                        <li>• Apakah performa memori menjadi prioritas?</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-indigo-600 mb-3">⚡ Aturan Praktis:</h4>
+                                    <ul class="space-y-2 text-base text-gray-700">
+                                        <li>• <strong>Default:</strong> Mulai dengan data statis</li>
+                                        <li>• <strong>Fleksibilitas:</strong> Ubah ke dinamis jika perlu</li>
+                                        <li>• <strong>Performa:</strong> Statis lebih cepat dan hemat memori</li>
+                                        <li>• <strong>Keamanan:</strong> Statis lebih aman dari perubahan tak terduga</li>
+                                        <li>• <strong>Debugging:</strong> Statis lebih mudah di-debug</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <h4 class="font-semibold text-indigo-600 mb-3">🎯 Studi Kasus Nyata:</h4>
+                                <div class="grid md:grid-cols-3 gap-4">
+                                    <div class="bg-green-50 p-3 rounded">
+                                        <h5 class="font-medium text-green-700 mb-2">🏫 Sistem Sekolah</h5>
+                                        <div class="text-sm text-gray-600">
+                                            <p><strong>Statis:</strong> NIS, Nama Sekolah, Kurikulum</p>
+                                            <p><strong>Dinamis:</strong> Daftar Siswa, Jadwal, Nilai</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-blue-50 p-3 rounded">
+                                        <h5 class="font-medium text-blue-700 mb-2">🛒 E-Commerce</h5>
+                                        <div class="text-sm text-gray-600">
+                                            <p><strong>Statis:</strong> ID Produk, Kategori Utama</p>
+                                            <p><strong>Dinamis:</strong> Keranjang, Stok, Review</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-purple-50 p-3 rounded">
+                                        <h5 class="font-medium text-purple-700 mb-2">🎮 Game</h5>
+                                        <div class="text-sm text-gray-600">
+                                            <p><strong>Statis:</strong> Level Map, Rules</p>
+                                            <p><strong>Dinamis:</strong> Skor, Inventory, Progress</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="navigateToNext('praktik')" class="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Coba Praktik 💻
+                    </button>
+                </div>
+            </div>
+
+            <!-- Praktik Section -->
+            <div id="praktik" class="content-section content-fade hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">💻</div>
+                        <h2 class="text-3xl font-bold text-indigo-700 mb-4">Praktik Langsung</h2>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-indigo-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🎯</span>
+                                Latihan 1: Identifikasi Tipe Data
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <p class="text-gray-700 mb-4">Tentukan apakah data berikut statis atau dinamis:</p>
+                                
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <code class="text-purple-600">nama = "Budi"</code>
+                                        <button onclick="checkAnswer(1, 'statis')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-base transition-colors">Statis</button>
+                                        <button onclick="checkAnswer(1, 'dinamis')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-base transition-colors">Dinamis</button>
+                                    </div>
+                                    <div id="answer1" class="hidden p-2 rounded text-base"></div>
+                                    
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <code class="text-purple-600">hobi = ["coding", "gaming"]</code>
+                                        <button onclick="checkAnswer(2, 'statis')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-base transition-colors">Statis</button>
+                                        <button onclick="checkAnswer(2, 'dinamis')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-base transition-colors">Dinamis</button>
+                                    </div>
+                                    <div id="answer2" class="hidden p-2 rounded text-base"></div>
+                                    
+                                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                        <code class="text-purple-600">koordinat = (10, 20)</code>
+                                        <button onclick="checkAnswer(3, 'statis')" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-base transition-colors">Statis</button>
+                                        <button onclick="checkAnswer(3, 'dinamis')" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded text-base transition-colors">Dinamis</button>
+                                    </div>
+                                    <div id="answer3" class="hidden p-2 rounded text-base"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🛠️</span>
+                                Latihan 2: Simulasi Toko Online
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-gray-700 mb-4">Mari buat simulasi keranjang belanja sederhana!</p>
+                                
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h4 class="font-semibold text-green-600 mb-3">Produk Tersedia (Data Statis):</h4>
+                                        <div class="space-y-2">
+                                            <div class="flex justify-between items-center p-2 bg-green-50 rounded">
+                                                <span>Laptop</span>
+                                                <span class="font-semibold">Rp 5.000.000</span>
+                                            </div>
+                                            <div class="flex justify-between items-center p-2 bg-green-50 rounded">
+                                                <span>Mouse</span>
+                                                <span class="font-semibold">Rp 150.000</span>
+                                            </div>
+                                            <div class="flex justify-between items-center p-2 bg-green-50 rounded">
+                                                <span>Keyboard</span>
+                                                <span class="font-semibold">Rp 300.000</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <h4 class="font-semibold text-green-600 mb-3">Keranjang Belanja (Data Dinamis):</h4>
+                                        <div class="space-y-2 mb-3">
+                                            <button onclick="addToCart('Laptop')" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded transition-colors">+ Laptop</button>
+                                            <button onclick="addToCart('Mouse')" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded transition-colors">+ Mouse</button>
+                                            <button onclick="addToCart('Keyboard')" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded transition-colors">+ Keyboard</button>
+                                        </div>
+                                        
+                                        <div class="bg-gray-50 p-3 rounded-lg">
+                                            <h5 class="font-medium mb-2">Keranjang Anda:</h5>
+                                            <div id="cart" class="text-base text-gray-600 min-h-[50px]">
+                                                Keranjang kosong
+                                            </div>
+                                            <div class="mt-2 pt-2 border-t border-gray-200">
+                                                <div class="flex justify-between font-semibold">
+                                                    <span>Total:</span>
+                                                    <span id="total">Rp 0</span>
+                                                </div>
+                                            </div>
+                                            <button onclick="clearCart()" class="w-full mt-2 bg-red-500 hover:bg-red-600 text-white py-1 rounded text-base transition-colors">Kosongkan Keranjang</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🎨</span>
+                                Latihan 3: Playground Kode
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-gray-700 mb-4">Coba eksperimen dengan kode Python di bawah ini:</p>
+                                
+                                <div class="code-demo mb-4">
+                                    <div class="code-header">
+                                        <div class="code-dots">
+                                            <div class="code-dot red"></div>
+                                            <div class="code-dot yellow"></div>
+                                            <div class="code-dot green"></div>
+                                        </div>
+                                        <div class="code-title">playground_experiment.py</div>
+                                    </div>
+                                    <div class="code-content">
+                                        <div class="code-line">
+                                            <div class="line-number">1</div>
+                                            <div class="line-content"><span class="token-comment"># Eksperimen dengan data statis dan dinamis</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">2</div>
+                                            <div class="line-content"><span class="token-variable">nama</span> <span class="token-operator">=</span> <span class="token-string">"Siswa SMK"</span>  <span class="token-comment"># Statis</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">3</div>
+                                            <div class="line-content"><span class="token-variable">nilai</span> <span class="token-operator">=</span> <span class="token-bracket">[</span><span class="token-number">85</span><span class="token-operator">,</span> <span class="token-number">90</span><span class="token-operator">,</span> <span class="token-number">78</span><span class="token-bracket">]</span>  <span class="token-comment"># Dinamis</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">4</div>
+                                            <div class="line-content"></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">5</div>
+                                            <div class="line-content"><span class="token-comment"># Coba ubah nama (tidak bisa langsung)</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">6</div>
+                                            <div class="line-content"><span class="token-comment"># nama[0] = "s"  # Error!</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">7</div>
+                                            <div class="line-content"></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">8</div>
+                                            <div class="line-content"><span class="token-comment"># Tapi bisa ubah nilai (dinamis)</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">9</div>
+                                            <div class="line-content"><span class="token-variable">nilai</span><span class="token-bracket">[</span><span class="token-number">0</span><span class="token-bracket">]</span> <span class="token-operator">=</span> <span class="token-number">95</span>  <span class="token-comment"># Berhasil!</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">10</div>
+                                            <div class="line-content"><span class="token-variable">nilai</span><span class="token-operator">.</span><span class="token-method">append</span><span class="token-bracket">(</span><span class="token-number">88</span><span class="token-bracket">)</span>  <span class="token-comment"># Tambah nilai baru</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <button onclick="runPlaygroundDemo()" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                    🚀 Jalankan Kode
+                                </button>
+                                <div id="playgroundResult" class="mt-4 p-3 bg-gray-100 rounded-lg hidden">
+                                    <h5 class="font-semibold text-gray-700 mb-2">Output:</h5>
+                                    <div class="font-mono text-base text-gray-600"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="navigateToNext('tugas')" class="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Lanjut ke Tugas 📝
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tugas Section -->
+            <div id="tugas" class="content-section content-fade hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📝</div>
+                        <h2 class="text-3xl font-bold text-orange-700 mb-4">Tugas Praktik</h2>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-orange-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">📋</span>
+                                Tugas 1: Analisis Kode
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <p class="text-gray-700 mb-4">Perhatikan kode berikut dan jawab pertanyaan di bawahnya:</p>
+                                
+                                <div class="code-demo mb-4">
+                                    <div class="code-header">
+                                        <div class="code-dots">
+                                            <div class="code-dot red"></div>
+                                            <div class="code-dot yellow"></div>
+                                            <div class="code-dot green"></div>
+                                        </div>
+                                        <div class="code-title">analisis_kode.py</div>
+                                    </div>
+                                    <div class="code-content">
+                                        <div class="code-line">
+                                            <div class="line-number">1</div>
+                                            <div class="line-content"><span class="token-comment"># Kode untuk dianalisis</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">2</div>
+                                            <div class="line-content"><span class="token-variable">biodata</span> <span class="token-operator">=</span> <span class="token-bracket">{</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">3</div>
+                                            <div class="line-content">    <span class="token-string">"nama"</span><span class="token-operator">:</span> <span class="token-string">"Andi"</span><span class="token-operator">,</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">4</div>
+                                            <div class="line-content">    <span class="token-string">"umur"</span><span class="token-operator">:</span> <span class="token-number">17</span><span class="token-operator">,</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">5</div>
+                                            <div class="line-content">    <span class="token-string">"hobi"</span><span class="token-operator">:</span> <span class="token-bracket">[</span><span class="token-string">"coding"</span><span class="token-operator">,</span> <span class="token-string">"gaming"</span><span class="token-bracket">]</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">6</div>
+                                            <div class="line-content"><span class="token-bracket">}</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">7</div>
+                                            <div class="line-content"></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">8</div>
+                                            <div class="line-content"><span class="token-variable">sekolah</span> <span class="token-operator">=</span> <span class="token-string">"SMK Teknologi"</span></div>
+                                        </div>
+                                        <div class="code-line">
+                                            <div class="line-number">9</div>
+                                            <div class="line-content"><span class="token-variable">koordinat_sekolah</span> <span class="token-operator">=</span> <span class="token-bracket">(</span><span class="token-number">-6.2</span><span class="token-operator">,</span> <span class="token-number">106.8</span><span class="token-bracket">)</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <label for="jawaban1" class="block font-medium text-gray-700 mb-2">1. Sebutkan 3 data statis dari kode di atas:</label>
+                                        <textarea id="jawaban1" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Tuliskan jawaban Anda..."></textarea>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <label for="jawaban2" class="block font-medium text-gray-700 mb-2">2. Sebutkan 2 data dinamis dari kode di atas:</label>
+                                        <textarea id="jawaban2" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Tuliskan jawaban Anda..."></textarea>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <label for="jawaban3" class="block font-medium text-gray-700 mb-2">3. Mengapa koordinat_sekolah menggunakan tuple bukan list?</label>
+                                        <textarea id="jawaban3" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Tuliskan jawaban Anda..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">💻</span>
+                                Tugas 2: Buat Program Sederhana
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-gray-700 mb-4">Buat program Python untuk mengelola data siswa dengan ketentuan:</p>
+                                
+                                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                                    <div class="bg-green-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-green-700 mb-2">Data Statis yang diperlukan:</h4>
+                                        <ul class="text-base text-gray-700 space-y-1">
+                                            <li>• Nama sekolah</li>
+                                            <li>• Alamat sekolah</li>
+                                            <li>• Tahun berdiri</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="bg-yellow-50 p-4 rounded-lg">
+                                        <h4 class="font-semibold text-yellow-700 mb-2">Data Dinamis yang diperlukan:</h4>
+                                        <ul class="text-base text-gray-700 space-y-1">
+                                            <li>• Daftar nama siswa</li>
+                                            <li>• Daftar nilai siswa</li>
+                                            <li>• Daftar ekstrakurikuler</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <label for="kode-program" class="block font-medium text-gray-700 mb-2">Tulis kode program Anda di sini:</label>
+                                    <textarea id="kode-program" rows="10" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-base" placeholder="# Tulis kode Python Anda di sini
+# Contoh:
+# nama_sekolah = 'SMK Teknologi'  # Data statis
+# daftar_siswa = []  # Data dinamis"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🎯</span>
+                                Tugas 3: Studi Kasus
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-gray-700 mb-4">Anda diminta membuat aplikasi perpustakaan digital. Tentukan mana yang harus menggunakan data statis dan mana yang dinamis:</p>
+                                
+                                <div class="space-y-4">
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <label for="studi-kasus" class="block font-medium text-gray-700 mb-2">Analisis dan berikan alasan untuk setiap pilihan:</label>
+                                        <div class="space-y-3">
+                                            <div>
+                                                <p class="text-base text-gray-600 mb-1">a) ISBN buku</p>
+                                                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-base" placeholder="Statis/Dinamis dan alasannya...">
+                                            </div>
+                                            <div>
+                                                <p class="text-base text-gray-600 mb-1">b) Daftar buku yang dipinjam siswa</p>
+                                                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-base" placeholder="Statis/Dinamis dan alasannya...">
+                                            </div>
+                                            <div>
+                                                <p class="text-base text-gray-600 mb-1">c) Judul buku</p>
+                                                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-base" placeholder="Statis/Dinamis dan alasannya...">
+                                            </div>
+                                            <div>
+                                                <p class="text-base text-gray-600 mb-1">d) Stok buku tersedia</p>
+                                                <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded text-base" placeholder="Statis/Dinamis dan alasannya...">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-xl">
+                            <div class="text-center">
+                                <div class="text-3xl mb-3">💡</div>
+                                <h3 class="text-xl font-bold text-teal-700 mb-3">Tips Mengerjakan Tugas</h3>
+                                <div class="grid md:grid-cols-2 gap-4 text-left">
+                                    <ul class="space-y-2 text-base text-gray-700">
+                                        <li>• Baca soal dengan teliti</li>
+                                        <li>• Pikirkan apakah data akan berubah</li>
+                                        <li>• Pertimbangkan keamanan data</li>
+                                    </ul>
+                                    <ul class="space-y-2 text-base text-gray-700">
+                                        <li>• Test kode yang Anda buat</li>
+                                        <li>• Berikan komentar pada kode</li>
+                                        <li>• Jangan ragu bertanya jika bingung</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="navigateToNext('kuis')" class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Lanjut ke Kuis 🎯
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="content-section content-fade hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎯</div>
+                        <h2 class="text-3xl font-bold text-red-700 mb-4">Kuis Interaktif</h2>
+                    </div>
+                    
+                    <!-- Quiz Start Form -->
+                    <div id="quiz-start" class="text-center">
+                        <div class="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-xl mb-6">
+                            <h3 class="text-xl font-bold text-red-700 mb-4">Siap untuk menguji pemahaman Anda?</h3>
+                            <p class="text-gray-700 mb-4">Kuis ini terdiri dari 10 soal pilihan ganda tentang data statis dan dinamis dalam Python.</p>
+                            
+                            <div class="max-w-md mx-auto">
+                                <label for="student-name" class="block font-medium text-gray-700 mb-2">Masukkan nama Anda:</label>
+                                <input type="text" id="student-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 mb-4" placeholder="Nama lengkap...">
+                                <button onclick="startQuiz()" class="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                                    Mulai Kuis! 🚀
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quiz Questions -->
+                    <div id="quiz-questions" class="hidden">
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold text-red-700">Soal <span id="current-question">1</span> dari 10</h3>
+                                <div class="bg-red-100 px-3 py-1 rounded-full">
+                                    <span class="text-red-700 font-semibold">Skor: <span id="current-score">0</span></span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-xl shadow-lg">
+                                <h4 id="question-text" class="text-lg font-semibold text-gray-800 mb-4"></h4>
+                                <div id="question-options" class="space-y-3"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button id="next-question" onclick="nextQuestion()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors hidden">
+                                Soal Berikutnya
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quiz Results -->
+                    <div id="quiz-results" class="hidden text-center">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-xl">
+                            <div class="text-6xl mb-4">🎉</div>
+                            <h3 class="text-2xl font-bold text-green-700 mb-4">Selamat!</h3>
+                            <div class="text-lg text-gray-700 mb-6">
+                                <p><strong id="final-name"></strong></p>
+                                <p>Skor Anda: <span id="final-score" class="text-2xl font-bold text-green-600"></span>/100</p>
+                                <p id="grade-message" class="mt-2 font-semibold"></p>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-3 gap-4 mb-6">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <div class="text-2xl mb-2">✅</div>
+                                    <div class="font-semibold text-green-600">Benar</div>
+                                    <div id="correct-answers" class="text-xl font-bold">0</div>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <div class="text-2xl mb-2">❌</div>
+                                    <div class="font-semibold text-red-600">Salah</div>
+                                    <div id="wrong-answers" class="text-xl font-bold">0</div>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <div class="text-2xl mb-2">📊</div>
+                                    <div class="font-semibold text-blue-600">Persentase</div>
+                                    <div id="percentage" class="text-xl font-bold">0%</div>
+                                </div>
+                            </div>
+                            
+                            <button onclick="restartQuiz()" class="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                                Ulangi Kuis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="navigateToNext('penutup')" class="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Ke Penutup 🎉
+                    </button>
+                </div>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="content-section content-fade hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎉</div>
+                        <h2 class="text-3xl font-bold text-teal-700 mb-4">Penutup Pembelajaran</h2>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-teal-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🤔</span>
+                                Refleksi Pembelajaran
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-teal-600 mb-3">Renungkan pertanyaan berikut:</h4>
+                                    <div class="space-y-3">
+                                        <div class="bg-gray-50 p-3 rounded">
+                                            <p class="text-gray-700 font-medium mb-2">1. Apa hal paling menarik yang Anda pelajari hari ini?</p>
+                                            <textarea class="w-full px-3 py-2 border border-gray-300 rounded text-base" rows="2" placeholder="Tuliskan refleksi Anda..."></textarea>
+                                        </div>
+                                        
+                                        <div class="bg-gray-50 p-3 rounded">
+                                            <p class="text-gray-700 font-medium mb-2">2. Bagian mana yang masih perlu diperdalam?</p>
+                                            <textarea class="w-full px-3 py-2 border border-gray-300 rounded text-base" rows="2" placeholder="Tuliskan refleksi Anda..."></textarea>
+                                        </div>
+                                        
+                                        <div class="bg-gray-50 p-3 rounded">
+                                            <p class="text-gray-700 font-medium mb-2">3. Bagaimana Anda akan menerapkan pengetahuan ini?</p>
+                                            <textarea class="w-full px-3 py-2 border border-gray-300 rounded text-base" rows="2" placeholder="Tuliskan refleksi Anda..."></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">📚</span>
+                                Kesimpulan Pembelajaran
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-green-600 mb-3 flex items-center">
+                                        <span class="text-xl mr-2">🔒</span>
+                                        Data Statis (Immutable)
+                                    </h4>
+                                    <ul class="text-base text-gray-700 space-y-1">
+                                        <li>• Tidak dapat diubah setelah dibuat</li>
+                                        <li>• Contoh: string, int, tuple</li>
+                                        <li>• Lebih aman dan efisien</li>
+                                        <li>• Cocok untuk data tetap</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-green-600 mb-3 flex items-center">
+                                        <span class="text-xl mr-2">⚡</span>
+                                        Data Dinamis (Mutable)
+                                    </h4>
+                                    <ul class="text-base text-gray-700 space-y-1">
+                                        <li>• Dapat diubah, ditambah, dikurangi</li>
+                                        <li>• Contoh: list, dict, set</li>
+                                        <li>• Fleksibel tapi perlu hati-hati</li>
+                                        <li>• Cocok untuk data yang berubah</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 bg-white p-4 rounded-lg">
+                                <h4 class="font-semibold text-green-600 mb-3">🎯 Poin Penting:</h4>
+                                <ul class="text-gray-700 space-y-2">
+                                    <li>• Pilih tipe data sesuai kebutuhan program</li>
+                                    <li>• Data statis untuk informasi yang tidak berubah</li>
+                                    <li>• Data dinamis untuk informasi yang sering diupdate</li>
+                                    <li>• Pertimbangkan keamanan dan performa</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center">
+                                <span class="text-2xl mr-3">🚀</span>
+                                Tindak Lanjut
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-600 mb-3">📖 Materi Lanjutan:</h4>
+                                    <ul class="text-base text-gray-700 space-y-1">
+                                        <li>• Struktur data lanjutan (Stack, Queue)</li>
+                                        <li>• Object-Oriented Programming</li>
+                                        <li>• Database dan penyimpanan data</li>
+                                        <li>• Algoritma sorting dan searching</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-semibold text-purple-600 mb-3">💻 Proyek Praktik:</h4>
+                                    <ul class="text-base text-gray-700 space-y-1">
+                                        <li>• Buat aplikasi to-do list</li>
+                                        <li>• Sistem manajemen kontak</li>
+                                        <li>• Game sederhana dengan skor</li>
+                                        <li>• Kalkulator dengan history</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 bg-white p-4 rounded-lg text-center">
+                                <h4 class="font-semibold text-purple-600 mb-3">🌟 Motivasi Penutup</h4>
+                                <p class="text-gray-700 italic">"Setiap programmer hebat dimulai dari memahami konsep dasar. Anda sudah mengambil langkah penting hari ini. Terus berlatih dan jangan takut untuk bereksperimen!"</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl text-center">
+                            <div class="text-4xl mb-4">🎊</div>
+                            <h3 class="text-2xl font-bold text-orange-700 mb-4">Selamat!</h3>
+                            <p class="text-lg text-gray-700 mb-4">Anda telah menyelesaikan pembelajaran tentang "Perbedaan Data Statis & Dinamis pada Python"</p>
+                            <div class="flex justify-center space-x-4">
+                                <div class="bg-white px-4 py-2 rounded-lg">
+                                    <div class="text-2xl">📚</div>
+                                    <div class="text-sm font-semibold text-gray-700">Materi Selesai</div>
+                                </div>
+                                <div class="bg-white px-4 py-2 rounded-lg">
+                                    <div class="text-2xl">🎯</div>
+                                    <div class="text-sm font-semibold text-gray-700">Kuis Selesai</div>
+                                </div>
+                                <div class="bg-white px-4 py-2 rounded-lg">
+                                    <div class="text-2xl">💻</div>
+                                    <div class="text-sm font-semibold text-gray-700">Praktik Selesai</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="navigateToNext('intro')" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Kembali ke Awal 🔄
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="backToTop" class="floating-btn bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white p-3 rounded-full shadow-lg hidden">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // Global variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let studentName = '';
+        let selectedAnswer = null;
+        let cartItems = [];
+        let currentItems = ['coding', 'gaming'];
+        
+        // Quiz questions
+        const quizQuestions = [
+            {
+                question: "Manakah dari berikut ini yang merupakan data statis (immutable) di Python?",
+                options: ["List", "String", "Dictionary", "Set"],
+                correct: 1,
+                explanation: "String adalah data statis karena tidak dapat diubah setelah dibuat. Setiap operasi pada string menghasilkan string baru."
+            },
+            {
+                question: "Apa yang terjadi ketika kita menjalankan kode: nama = 'Budi'; nama.replace('B', 'S')?",
+                options: ["nama berubah menjadi 'Sudi'", "Python membuat string baru 'Sudi'", "Terjadi error", "nama tetap 'Budi' dan tidak ada yang terjadi"],
+                correct: 3,
+                explanation: "Method replace() membuat string baru, tapi karena tidak disimpan ke variabel, nama tetap 'Budi'. Untuk mengubah, perlu: nama = nama.replace('B', 'S')"
+            },
+            {
+                question: "Dalam konteks aplikasi e-commerce, manakah yang sebaiknya menggunakan data statis?",
+                options: ["Keranjang belanja user", "Stok produk", "ID produk unik", "Daftar review produk"],
+                correct: 2,
+                explanation: "ID produk unik sebaiknya statis karena tidak boleh berubah untuk menjaga konsistensi database dan referensi."
+            },
+            {
+                question: "Mengapa tuple (10, 20) lebih cocok untuk koordinat daripada list [10, 20]?",
+                options: ["Tuple lebih cepat diakses", "Koordinat tidak seharusnya berubah", "Tuple menggunakan memori lebih sedikit", "Semua jawaban benar"],
+                correct: 3,
+                explanation: "Semua benar! Koordinat bersifat tetap (tidak berubah), tuple lebih efisien memori, dan akses lebih cepat karena struktur yang sederhana."
+            },
+            {
+                question: "Kode manakah yang akan menyebabkan error?",
+                options: ["my_list = [1, 2]; my_list[0] = 5", "my_tuple = (1, 2); print(my_tuple[0])", "my_string = 'hello'; my_string[0] = 'H'", "my_dict = {'a': 1}; my_dict['b'] = 2"],
+                correct: 2,
+                explanation: "String bersifat immutable, jadi tidak bisa mengubah karakter individual dengan assignment. Akan muncul TypeError."
+            },
+            {
+                question: "Dalam sistem manajemen siswa, data mana yang paling tepat menggunakan dictionary?",
+                options: ["Nama sekolah", "Nomor Induk Siswa (NIS)", "Profil lengkap siswa", "Tahun ajaran"],
+                correct: 2,
+                explanation: "Profil siswa cocok menggunakan dictionary karena berisi berbagai informasi (nama, kelas, nilai, dll) yang bisa berubah dan mudah diakses dengan key."
+            },
+            {
+                question: "Apa keuntungan utama menggunakan frozenset dibanding set biasa?",
+                options: ["Lebih cepat", "Bisa dijadikan key dictionary", "Menggunakan memori lebih sedikit", "Bisa menyimpan lebih banyak data"],
+                correct: 1,
+                explanation: "Frozenset bersifat immutable, sehingga bisa dijadikan key dictionary. Set biasa tidak bisa karena mutable."
+            },
+            {
+                question: "Dalam game RPG, manakah yang sebaiknya menggunakan data dinamis?",
+                options: ["Nama karakter", "Level maksimum game", "Inventory pemain", "Aturan permainan"],
+                correct: 2,
+                explanation: "Inventory pemain harus dinamis karena terus berubah (item ditambah/digunakan/dijual) selama permainan berlangsung."
+            },
+            {
+                question: "Mengapa string 'Hello' + 'World' tidak melanggar prinsip immutable?",
+                options: ["String bisa diubah", "Operasi + membuat string baru", "Python mengizinkan pengecualian", "Ini sebenarnya melanggar prinsip"],
+                correct: 1,
+                explanation: "Operasi + pada string membuat objek string baru 'HelloWorld', bukan mengubah string yang sudah ada. String asli tetap tidak berubah."
+            },
+            {
+                question: "Dalam aplikasi chat, struktur data mana yang paling tepat untuk menyimpan riwayat pesan?",
+                options: ["Tuple berisi semua pesan", "List berisi dictionary setiap pesan", "String panjang semua pesan", "Set berisi pesan unik"],
+                correct: 1,
+                explanation: "List of dictionary ideal karena: list memungkinkan penambahan pesan baru, dictionary menyimpan detail pesan (pengirim, waktu, isi, dll)."
+            }
+        ];
+
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            
+            if (window.innerWidth < 1024 && 
+                !sidebar.contains(event.target) && 
+                !mobileBtn.contains(event.target)) {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+
+        // Show section function
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update active navigation
+            updateActiveNav(sectionId);
+            
+            // Close mobile menu
+            if (window.innerWidth < 1024) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+            }
+            
+            // Scroll to top immediately
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        }
+        
+        // Update active navigation
+        function updateActiveNav(activeSection) {
+            // Remove active class from all nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to current section
+            const activeNav = document.getElementById(`nav-${activeSection}`);
+            if (activeNav) {
+                activeNav.classList.add('active');
+            }
+        }
+        
+        // Navigate to next section with proper scrolling
+        function navigateToNext(sectionId) {
+            // First scroll to top immediately
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            
+            // Small delay to ensure scroll completes, then show section
+            setTimeout(() => {
+                showSection(sectionId);
+            }, 50);
+        }
+
+        // Demo functions
+        function runStaticDemo() {
+            const result = document.getElementById('staticDemoResult');
+            const resultDiv = result.querySelector('div');
+            
+            resultDiv.innerHTML = `
+                <strong>Output Demo:</strong><br>
+                Nama asli: Budi Santoso<br>
+                Nama asli tetap: Budi Santoso<br>
+                Nama upper: BUDI SANTOSO<br>
+                Nama replace: Sari Santoso<br><br>
+                
+                <div class="bg-green-50 p-2 rounded mt-2">
+                    <span class="text-green-600">✅ <strong>Kesimpulan:</strong></span><br>
+                    • String asli "Budi Santoso" tidak pernah berubah<br>
+                    • Method .upper() dan .replace() membuat string BARU<br>
+                    • Ini membuktikan sifat immutable dari string
+                </div>
+                
+                <div class="bg-blue-50 p-2 rounded mt-2">
+                    <span class="text-blue-600">💡 <strong>Mengapa begini?</strong></span><br>
+                    • Python menjaga integritas data asli<br>
+                    • Mencegah perubahan yang tidak diinginkan<br>
+                    • Lebih aman untuk data yang seharusnya tetap
+                </div>
+            `;
+            
+            result.classList.remove('hidden');
+        }
+
+        function runDynamicDemo() {
+            const result = document.getElementById('dynamicDemoResult');
+            const resultDiv = result.querySelector('div');
+            
+            resultDiv.innerHTML = `
+                <strong>Output Demo:</strong><br>
+                Tugas awal: ['Matematika', 'Fisika']<br>
+                Tugas setelah diubah: ['Aljabar', 'Biologi', 'Fisika', 'Kimia']<br>
+                Profil lengkap: {'nama': 'Budi', 'nilai': [85, 90, 88], 'kelas': 'XI RPL'}<br><br>
+                
+                <div class="bg-yellow-50 p-2 rounded mt-2">
+                    <span class="text-yellow-600">⚡ <strong>Yang Terjadi:</strong></span><br>
+                    • List daftar_tugas dimodifikasi langsung (append, insert, ubah elemen)<br>
+                    • Dictionary profil_siswa ditambah key baru dan diubah isinya<br>
+                    • Semua perubahan terjadi pada objek yang sama, bukan objek baru
+                </div>
+                
+                <div class="bg-green-50 p-2 rounded mt-2">
+                    <span class="text-green-600">✅ <strong>Keuntungan Data Dinamis:</strong></span><br>
+                    • Fleksibel - bisa disesuaikan dengan kebutuhan<br>
+                    • Efisien - tidak perlu buat objek baru setiap kali<br>
+                    • Praktis - cocok untuk data yang sering berubah
+                </div>
+                
+                <div class="bg-red-50 p-2 rounded mt-2">
+                    <span class="text-red-600">⚠️ <strong>Hati-hati:</strong></span><br>
+                    • Bisa berubah tanpa sengaja jika tidak hati-hati<br>
+                    • Perlu validasi ekstra untuk menjaga konsistensi data
+                </div>
+            `;
+            
+            result.classList.remove('hidden');
+        }
+
+        // Interactive playground
+        function addItem() {
+            const input = document.getElementById('newItem');
+            const item = input.value.trim();
+            
+            if (item) {
+                currentItems.push(item);
+                updateItemList();
+                input.value = '';
+            }
+        }
+
+        function updateItemList() {
+            const listDiv = document.getElementById('itemList');
+            listDiv.innerHTML = currentItems.map(item => 
+                `<span class="bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-base cursor-pointer hover:bg-teal-200" onclick="removeItem('${item}')">${item} ×</span>`
+            ).join('');
+        }
+
+        function removeItem(item) {
+            const index = currentItems.indexOf(item);
+            if (index > -1) {
+                currentItems.splice(index, 1);
+                updateItemList();
+            }
+        }
+
+        // Practice functions
+        function checkAnswer(questionNum, answer) {
+            const answerDiv = document.getElementById(`answer${questionNum}`);
+            const correctAnswers = {
+                1: 'statis',
+                2: 'dinamis', 
+                3: 'statis'
+            };
+            
+            const explanations = {
+                1: 'String "Budi" adalah data statis karena tidak dapat diubah.',
+                2: 'List hobi adalah data dinamis karena dapat ditambah atau diubah elemennya.',
+                3: 'Tuple koordinat adalah data statis karena posisi tidak berubah.'
+            };
+            
+            if (answer === correctAnswers[questionNum]) {
+                answerDiv.className = 'p-2 rounded text-sm bg-green-100 text-green-700';
+                answerDiv.innerHTML = `✅ Benar! ${explanations[questionNum]}`;
+            } else {
+                answerDiv.className = 'p-2 rounded text-sm bg-red-100 text-red-700';
+                answerDiv.innerHTML = `❌ Salah. ${explanations[questionNum]}`;
+            }
+            
+            answerDiv.classList.remove('hidden');
+        }
+
+        // Shopping cart simulation
+        const products = {
+            'Laptop': 5000000,
+            'Mouse': 150000,
+            'Keyboard': 300000
+        };
+
+        function addToCart(product) {
+            cartItems.push(product);
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartDiv = document.getElementById('cart');
+            const totalDiv = document.getElementById('total');
+            
+            if (cartItems.length === 0) {
+                cartDiv.innerHTML = 'Keranjang kosong';
+                totalDiv.textContent = 'Rp 0';
+                return;
+            }
+            
+            const itemCounts = {};
+            cartItems.forEach(item => {
+                itemCounts[item] = (itemCounts[item] || 0) + 1;
+            });
+            
+            cartDiv.innerHTML = Object.entries(itemCounts)
+                .map(([item, count]) => `${item} (${count}x)`)
+                .join('<br>');
+            
+            const total = cartItems.reduce((sum, item) => sum + products[item], 0);
+            totalDiv.textContent = `Rp ${total.toLocaleString('id-ID')}`;
+        }
+
+        function clearCart() {
+            cartItems = [];
+            updateCart();
+        }
+
+        function runPlaygroundDemo() {
+            const result = document.getElementById('playgroundResult');
+            const resultDiv = result.querySelector('div');
+            
+            resultDiv.innerHTML = `
+                Nama awal: Siswa SMK<br>
+                Nilai awal: [85, 90, 78]<br>
+                Nilai setelah diubah: [95, 90, 78, 88]<br><br>
+                <span class="text-green-600">✅ List nilai berhasil dimodifikasi</span><br>
+                <span class="text-blue-600">ℹ️ Ini menunjukkan sifat mutable dari list</span>
+            `;
+            
+            result.classList.remove('hidden');
+        }
+
+        // Quiz functions
+        function startQuiz() {
+            const name = document.getElementById('student-name').value.trim();
+            if (!name) {
+                alert('Silakan masukkan nama Anda terlebih dahulu!');
+                return;
+            }
+            
+            studentName = name;
+            currentQuestionIndex = 0;
+            score = 0;
+            
+            document.getElementById('quiz-start').classList.add('hidden');
+            document.getElementById('quiz-questions').classList.remove('hidden');
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizQuestions[currentQuestionIndex];
+            
+            document.getElementById('current-question').textContent = currentQuestionIndex + 1;
+            document.getElementById('current-score').textContent = score;
+            document.getElementById('question-text').textContent = question.question;
+            
+            const optionsDiv = document.getElementById('question-options');
+            optionsDiv.innerHTML = question.options.map((option, index) => `
+                <button onclick="selectAnswer(${index})" class="quiz-option w-full text-left p-4 bg-gray-50 hover:bg-blue-50 rounded-lg border border-gray-200 hover:border-blue-300 transition-all">
+                    ${String.fromCharCode(65 + index)}. ${option}
+                </button>
+            `).join('');
+            
+            selectedAnswer = null;
+            document.getElementById('next-question').classList.add('hidden');
+        }
+
+        function selectAnswer(answerIndex) {
+            selectedAnswer = answerIndex;
+            const question = quizQuestions[currentQuestionIndex];
+            const options = document.querySelectorAll('.quiz-option');
+            
+            options.forEach((option, index) => {
+                option.classList.remove('bg-green-100', 'bg-red-100', 'border-green-300', 'border-red-300');
+                
+                if (index === question.correct) {
+                    option.classList.add('bg-green-100', 'border-green-300');
+                } else if (index === answerIndex && index !== question.correct) {
+                    option.classList.add('bg-red-100', 'border-red-300');
+                }
+                
+                option.disabled = true;
+            });
+            
+            if (answerIndex === question.correct) {
+                score += 10;
+                document.getElementById('current-score').textContent = score;
+            }
+            
+            // Show explanation
+            const explanationDiv = document.createElement('div');
+            explanationDiv.className = 'mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200';
+            explanationDiv.innerHTML = `<strong>Penjelasan:</strong> ${question.explanation}`;
+            document.getElementById('question-options').appendChild(explanationDiv);
+            
+            document.getElementById('next-question').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < quizQuestions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-questions').classList.add('hidden');
+            document.getElementById('quiz-results').classList.remove('hidden');
+            
+            const correctAnswers = score / 10;
+            const wrongAnswers = quizQuestions.length - correctAnswers;
+            const percentage = (score / (quizQuestions.length * 10)) * 100;
+            
+            document.getElementById('final-name').textContent = studentName;
+            document.getElementById('final-score').textContent = score;
+            document.getElementById('correct-answers').textContent = correctAnswers;
+            document.getElementById('wrong-answers').textContent = wrongAnswers;
+            document.getElementById('percentage').textContent = Math.round(percentage) + '%';
+            
+            let gradeMessage = '';
+            if (percentage >= 90) {
+                gradeMessage = '🌟 Luar biasa! Anda sangat menguasai materi!';
+            } else if (percentage >= 80) {
+                gradeMessage = '👏 Bagus sekali! Pemahaman Anda sangat baik!';
+            } else if (percentage >= 70) {
+                gradeMessage = '👍 Baik! Terus tingkatkan pemahaman Anda!';
+            } else if (percentage >= 60) {
+                gradeMessage = '📚 Cukup baik, masih perlu belajar lebih giat!';
+            } else {
+                gradeMessage = '💪 Jangan menyerah! Ulangi materi dan coba lagi!';
+            }
+            
+            document.getElementById('grade-message').textContent = gradeMessage;
+        }
+
+        function restartQuiz() {
+            document.getElementById('quiz-results').classList.add('hidden');
+            document.getElementById('quiz-start').classList.remove('hidden');
+            document.getElementById('student-name').value = '';
+        }
+
+        // Back to top functionality
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.remove('hidden');
+            } else {
+                backToTop.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('backToTop').addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('intro');
+            updateActiveNav('intro');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9914a6f6941b5844',t:'MTc2MDkyMjgwMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
