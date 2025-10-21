@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polimorfisme Python - Pembelajaran Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #ffeef8 0%, #f0f9ff 50%, #f0fdf4 100%);
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .code-header {
+            background: linear-gradient(90deg, #f472b6, #a855f7);
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .floating-shapes {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar-hidden {
+                transform: translateX(-100%);
+            }
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .correct {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0) !important;
+            border-color: #22c55e !important;
+        }
+        
+        .incorrect {
+            background: linear-gradient(135deg, #fef2f2, #fecaca) !important;
+            border-color: #ef4444 !important;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-full font-sans">
+    <!-- Floating Shapes -->
+    <div class="floating-shapes">
+        <div class="shape" style="top: 10%; left: 10%;">🐍</div>
+        <div class="shape" style="top: 20%; right: 15%;">💻</div>
+        <div class="shape" style="top: 60%; left: 5%;">🎯</div>
+        <div class="shape" style="bottom: 20%; right: 10%;">⚡</div>
+        <div class="shape" style="top: 40%; left: 80%;">🚀</div>
+    </div>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white shadow-xl z-50 sidebar-transition md:translate-x-0 sidebar-hidden flex flex-col">
+        <div class="p-6 border-b border-pink-100 flex-shrink-0">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-12 h-12 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center text-white text-xl">
+                    🐍
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">Python Learning</h1>
+                    <p class="text-md text-gray-600">Polimorfisme</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="p-4 space-y-2 flex-1 overflow-y-auto pb-20">
+            <a href="#" onclick="showSection('intro')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-pink-50 transition-colors text-gray-700">
+                <i class="fas fa-play-circle text-pink-500"></i>
+                <span>Intro</span>
+            </a>
+            <a href="#" onclick="showSection('pengenalan')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors text-gray-700">
+                <i class="fas fa-book-open text-blue-500"></i>
+                <span>Pengenalan</span>
+            </a>
+            <a href="#" onclick="showSection('konsep-dasar')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-green-50 transition-colors text-gray-700">
+                <i class="fas fa-lightbulb text-green-500"></i>
+                <span>Konsep Dasar</span>
+            </a>
+            <a href="#" onclick="showSection('method-overriding')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-yellow-50 transition-colors text-gray-700">
+                <i class="fas fa-code text-yellow-500"></i>
+                <span>Method Overriding</span>
+            </a>
+            <a href="#" onclick="showSection('duck-typing')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-purple-50 transition-colors text-gray-700">
+                <i class="fas fa-magic text-purple-500"></i>
+                <span>Duck Typing</span>
+            </a>
+            <a href="#" onclick="showSection('contoh-praktis')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-50 transition-colors text-gray-700">
+                <i class="fas fa-laptop-code text-indigo-500"></i>
+                <span>Contoh Praktis</span>
+            </a>
+            <a href="#" onclick="showSection('tugas')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-orange-50 transition-colors text-gray-700">
+                <i class="fas fa-tasks text-orange-500"></i>
+                <span>Tugas</span>
+            </a>
+            <a href="#" onclick="showSection('kuis')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-red-50 transition-colors text-gray-700">
+                <i class="fas fa-question-circle text-red-500"></i>
+                <span>Kuis</span>
+            </a>
+            <a href="#" onclick="showSection('penutup')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-teal-50 transition-colors text-gray-700">
+                <i class="fas fa-flag-checkered text-teal-500"></i>
+                <span>Penutup</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Mobile Header -->
+    <header class="md:hidden bg-white shadow-sm p-4 flex items-center justify-between">
+        <button id="mobileMenuBtn" class="text-gray-600 hover:text-gray-800">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+        <h1 class="text-lg font-bold text-gray-800">Polimorfisme Python</h1>
+        <div class="w-6"></div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="md:ml-80 min-h-full">
+        <div class="max-w-4xl mx-auto p-6 md:p-8">
+            
+            <!-- Intro Section -->
+            <section id="intro" class="content-section">
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center text-white text-3xl mx-auto mb-4">
+                            🎭
+                        </div>
+                        <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Polimorfisme Python</h1>
+                        <p class="text-lg text-gray-600">Satu Bentuk, Banyak Wujud! 🌟</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-pink-50 to-purple-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-question-circle text-pink-500"></i>
+                                Pertanyaan Pemantik
+                            </h3>
+                            <p class="text-gray-700 mb-3">🤔 Pernahkah kamu melihat remote TV yang bisa mengontrol berbagai merk TV yang berbeda?</p>
+                            <p class="text-gray-700">Bagaimana satu remote bisa bekerja dengan banyak TV? Itulah konsep polimorfisme!</p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-blue-50 to-green-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-target text-blue-500"></i>
+                                Tujuan Pembelajaran
+                            </h3>
+                            <ul class="text-gray-700 space-y-2">
+                                <li>✅ Memahami konsep polimorfisme</li>
+                                <li>✅ Menerapkan method overriding</li>
+                                <li>✅ Memahami duck typing</li>
+                                <li>✅ Membuat program dengan polimorfisme</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                            <i class="fas fa-lightbulb text-yellow-500"></i>
+                            Pemahaman Bermakna
+                        </h3>
+                        <p class="text-gray-700">Polimorfisme memungkinkan kita menulis kode yang lebih fleksibel dan mudah dipelihara. Seperti seorang aktor yang bisa memerankan berbagai karakter! 🎭</p>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-xl">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                            <i class="fas fa-rocket text-green-500"></i>
+                            Motivasi
+                        </h3>
+                        <p class="text-gray-700">Dengan menguasai polimorfisme, kamu akan menjadi programmer yang lebih handal dan bisa membuat aplikasi yang lebih canggih! Mari kita mulai petualangan coding yang seru! 🚀</p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('pengenalan')" class="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all transform hover:scale-105">
+                        Mulai Belajar! <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Pengenalan Section -->
+            <section id="pengenalan" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+                            📚
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Pengenalan Polimorfisme</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-3">🎭 Apa itu Polimorfisme?</h3>
+                            <p class="text-gray-700 mb-4">Polimorfisme berasal dari bahasa Yunani yang berarti "banyak bentuk". Dalam pemrograman, polimorfisme adalah kemampuan objek yang berbeda untuk merespons pesan yang sama dengan cara yang berbeda.</p>
+                            
+                            <div class="bg-white p-4 rounded-lg border-l-4 border-blue-400">
+                                <p class="text-gray-700"><strong>Analogi Sederhana:</strong> Bayangkan kamu punya 3 hewan peliharaan: anjing 🐕, kucing 🐱, dan burung 🐦. Ketika kamu bilang "bersuara!", masing-masing akan mengeluarkan suara yang berbeda - anjing menggonggong, kucing mengeong, burung berkicau.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl">
+                                <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-check-circle text-green-500"></i>
+                                    Keuntungan Polimorfisme
+                                </h4>
+                                <ul class="text-gray-700 space-y-2">
+                                    <li>✨ Kode lebih fleksibel</li>
+                                    <li>🔧 Mudah dipelihara</li>
+                                    <li>📈 Dapat diperluas</li>
+                                    <li>🎯 Lebih efisien</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl">
+                                <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-cogs text-purple-500"></i>
+                                    Jenis Polimorfisme
+                                </h4>
+                                <ul class="text-gray-700 space-y-2">
+                                    <li>🔄 Method Overriding</li>
+                                    <li>🦆 Duck Typing</li>
+                                    <li>⚡ Operator Overloading</li>
+                                    <li>🎪 Interface Polymorphism</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl">
+                            <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-lightbulb text-yellow-500"></i>
+                                Contoh Sederhana dalam Kehidupan Sehari-hari
+                            </h4>
+                            <div class="grid md:grid-cols-3 gap-4 mt-4">
+                                <div class="text-center p-4 bg-white rounded-lg">
+                                    <div class="text-3xl mb-2">📱</div>
+                                    <p class="text-gray-700">Smartphone dengan OS berbeda tapi fungsi dasar sama</p>
+                                </div>
+                                <div class="text-center p-4 bg-white rounded-lg">
+                                    <div class="text-3xl mb-2">🚗</div>
+                                    <p class="text-gray-700">Mobil berbeda merk tapi cara mengemudi sama</p>
+                                </div>
+                                <div class="text-center p-4 bg-white rounded-lg">
+                                    <div class="text-3xl mb-2">🎮</div>
+                                    <p class="text-gray-700">Controller game yang bisa untuk berbagai konsol</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('konsep-dasar')" class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all transform hover:scale-105">
+                        Lanjut ke Konsep Dasar <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Konsep Dasar Section -->
+            <section id="konsep-dasar" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+                            💡
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Konsep Dasar Polimorfisme</h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">🏗️ Inheritance sebagai Fondasi</h3>
+                            <p class="text-gray-700 mb-4">Polimorfisme bekerja dengan baik ketika ada hubungan inheritance (pewarisan) antar class. Mari lihat contoh dasar:</p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">hewan.py</span>
+                                </div>
+                                <pre class="p-4 text-green-300 overflow-x-auto"><code># Class induk (parent class)
+class Hewan:
+    def __init__(self, nama):
+        self.nama = nama
+    
+    def bersuara(self):
+        pass  # Method yang akan di-override
+    
+    def info(self):
+        return f"Ini adalah {self.nama}"
+
+# Class anak (child class)
+class Anjing(Hewan):
+    def bersuara(self):
+        return "Guk guk! 🐕"
+
+class Kucing(Hewan):
+    def bersuara(self):
+        return "Meow meow! 🐱"
+
+class Burung(Hewan):
+    def bersuara(self):
+        return "Kicau kicau! 🐦"</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">🎯 Implementasi Polimorfisme</h3>
+                            <p class="text-gray-700 mb-4">Sekarang kita bisa menggunakan polimorfisme untuk memanggil method yang sama pada objek yang berbeda:</p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">main.py</span>
+                                </div>
+                                <pre class="p-4 text-green-300 overflow-x-auto"><code># Membuat objek dari berbagai class
+hewan_list = [
+    Anjing("Buddy"),
+    Kucing("Whiskers"), 
+    Burung("Tweety")
+]
+
+# Polimorfisme dalam aksi!
+print("🎭 Demo Polimorfisme:")
+print("=" * 30)
+
+for hewan in hewan_list:
+    print(f"{hewan.info()}")
+    print(f"Suara: {hewan.bersuara()}")
+    print("-" * 20)</code></pre>
+                            </div>
+
+                            <div id="demo-konsep" class="bg-white p-4 rounded-lg border-2 border-dashed border-blue-300">
+                                <h4 class="font-bold text-gray-800 mb-2">🚀 Demo Interaktif:</h4>
+                                <button onclick="runKonsepDemo()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                                    Jalankan Demo
+                                </button>
+                                <div id="konsep-output" class="mt-4 p-3 bg-gray-100 rounded-lg hidden">
+                                    <pre class="text-gray-800"></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">🔍 Mengapa Ini Polimorfisme?</h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-gray-800 mb-2">✨ Satu Interface</h4>
+                                    <p class="text-gray-700">Semua hewan memiliki method <code>bersuara()</code> yang sama</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-gray-800 mb-2">🎭 Banyak Implementasi</h4>
+                                    <p class="text-gray-700">Setiap hewan mengimplementasikan <code>bersuara()</code> dengan cara berbeda</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('method-overriding')" class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all transform hover:scale-105">
+                        Pelajari Method Overriding <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Method Overriding Section -->
+            <section id="method-overriding" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+                            🔄
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Method Overriding</h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">🎯 Apa itu Method Overriding?</h3>
+                            <p class="text-gray-700 mb-4">Method overriding adalah kemampuan class anak untuk memberikan implementasi spesifik dari method yang sudah didefinisikan di class induk.</p>
+                            
+                            <div class="bg-white p-4 rounded-lg border-l-4 border-yellow-400">
+                                <p class="text-gray-700"><strong>Analogi:</strong> Seperti resep masakan turun temurun. Nenek punya resep rendang, tapi setiap anak dan cucu bisa memodifikasi resep tersebut sesuai selera mereka! 👵➡️👩‍🍳➡️👨‍🍳</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">🚗 Contoh: Kendaraan</h3>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">kendaraan.py</span>
+                                </div>
+                                <pre class="p-4 text-green-300 overflow-x-auto"><code>class Kendaraan:
+    def __init__(self, merk, warna):
+        self.merk = merk
+        self.warna = warna
+    
+    def start_engine(self):
+        return "Engine started! 🔥"
+    
+    def stop_engine(self):
+        return "Engine stopped! ⏹️"
+    
+    def info(self):
+        return f"{self.merk} berwarna {self.warna}"
+
+class Mobil(Kendaraan):
+    def start_engine(self):  # Override method
+        return "Mobil: Vroom vroom! 🚗💨"
+    
+    def klakson(self):  # Method tambahan
+        return "Beep beep! 📯"
+
+class Motor(Kendaraan):
+    def start_engine(self):  # Override method
+        return "Motor: Ngeng ngeng! 🏍️💨"
+    
+    def gas_pol(self):  # Method tambahan
+        return "Ngeeeeng! 🏁"
+
+class Sepeda(Kendaraan):
+    def start_engine(self):  # Override method
+        return "Sepeda: Kayuh kayuh! 🚴‍♂️ (No engine needed!)"
+    
+    def bel(self):  # Method tambahan
+        return "Kring kring! 🔔"</code></pre>
+                            </div>
+
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">contoh_penggunaan.py</span>
+                                </div>
+                                <pre class="p-4 text-green-300 overflow-x-auto"><code># Contoh penggunaan kelas kendaraan
+def test_kendaraan():
+    # Membuat objek dari berbagai kendaraan
+    mobil = Mobil("Toyota", "Merah")
+    motor = Motor("Honda", "Hitam") 
+    sepeda = Sepeda("Polygon", "Biru")
+    
+    # List kendaraan untuk polimorfisme
+    kendaraan_list = [mobil, motor, sepeda]
+    
+    print("🚗 Test Polimorfisme Kendaraan:")
+    print("=" * 40)
+    
+    for kendaraan in kendaraan_list:
+        print(f"\n{kendaraan.info()}")
+        print(f"Start: {kendaraan.start_engine()}")
+        print(f"Stop: {kendaraan.stop_engine()}")
+        
+        # Method khusus masing-masing kendaraan
+        if hasattr(kendaraan, 'klakson'):
+            print(f"Klakson: {kendaraan.klakson()}")
+        elif hasattr(kendaraan, 'gas_pol'):
+            print(f"Gas pol: {kendaraan.gas_pol()}")
+        elif hasattr(kendaraan, 'bel'):
+            print(f"Bel: {kendaraan.bel()}")
+        
+        print("-" * 30)
+
+# Jalankan test
+test_kendaraan()</code></pre>
+                            </div>
+
+                            <div id="demo-override" class="bg-white p-4 rounded-lg border-2 border-dashed border-blue-300">
+                                <h4 class="font-bold text-gray-800 mb-2">🚀 Demo Method Overriding:</h4>
+                                <button onclick="runOverrideDemo()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                                    Test Kendaraan
+                                </button>
+                                <div id="override-output" class="mt-4 p-3 bg-gray-100 rounded-lg hidden">
+                                    <pre class="text-gray-800"></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">📝 Aturan Method Overriding</h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-green-500 text-xl">✅</span>
+                                        <p class="text-gray-700">Nama method harus sama persis</p>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-green-500 text-xl">✅</span>
+                                        <p class="text-gray-700">Parameter bisa sama atau berbeda</p>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-green-500 text-xl">✅</span>
+                                        <p class="text-gray-700">Implementasi boleh berbeda total</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-red-500 text-xl">❌</span>
+                                        <p class="text-gray-700">Jangan ubah tipe return secara drastis</p>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-red-500 text-xl">❌</span>
+                                        <p class="text-gray-700">Hindari mengubah maksud method</p>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-blue-500 text-xl">💡</span>
+                                        <p class="text-gray-700">Gunakan super() jika perlu method parent</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('duck-typing')" class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all transform hover:scale-105">
+                        Pelajari Duck Typing <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Duck Typing Section -->
+            <section id="duck-typing" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+                            🦆
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Duck Typing</h2>
+                        <p class="text-lg text-gray-600">"If it walks like a duck and quacks like a duck, then it's a duck!" 🦆</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">🤔 Apa itu Duck Typing?</h3>
+                            <p class="text-gray-700 mb-4">Duck typing adalah konsep di Python dimana tipe objek tidak sepenting perilaku objek tersebut. Jika objek memiliki method yang dibutuhkan, maka objek tersebut bisa digunakan!</p>
+                            
+                            <div class="bg-white p-4 rounded-lg border-l-4 border-purple-400">
+                                <p class="text-gray-700"><strong>Filosofi:</strong> "Jika sesuatu berjalan seperti bebek dan bersuara seperti bebek, maka itu adalah bebek!" - Tidak peduli apakah itu benar-benar bebek atau bukan. 🦆</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">🎵 Contoh: Pemutar Musik</h3>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">music_player.py</span>
+                                </div>
+                                <pre class="p-4 text-green-300 overflow-x-auto"><code># Tidak ada inheritance, tapi punya method yang sama!
+
+class MP3Player:
+    def __init__(self, brand):
+        self.brand = brand
+    
+    def play(self):
+        return f"{self.brand} MP3: ♪ Playing music... 🎵"
+    
+    def stop(self):
+        return f"{self.brand} MP3: ⏹️ Music stopped"
+
+class Smartphone:
+    def __init__(self, model):
+        self.model = model
+    
+    def play(self):
+        return f"{self.model}: 🎶 Streaming from Spotify... 📱"
+    
+    def stop(self):
+        return f"{self.model}: ⏸️ Paused streaming"
+
+class Radio:
+    def __init__(self, frequency):
+        self.frequency = frequency
+    
+    def play(self):
+        return f"Radio {self.frequency}FM: 📻 On air... 🎙️"
+    
+    def stop(self):
+        return f"Radio {self.frequency}FM: 📴 Signal off"
+
+# Fungsi yang menggunakan duck typing
+def start_music_session(devices):
+    print("🎉 Memulai sesi musik!")
+    print("=" * 30)
+    
+    for device in devices:
+        # Duck typing: tidak peduli tipe objek,
+        # yang penting punya method play() dan stop()
+        print(device.play())
+        print(device.stop())
+        print("-" * 20)
+
+# Contoh penggunaan duck typing
+def demo_music_devices():
+    # Membuat berbagai perangkat musik
+    mp3_player = MP3Player("Sony Walkman")
+    smartphone = Smartphone("iPhone 13")
+    radio = Radio("101.1")
+    
+    # List perangkat untuk duck typing
+    music_devices = [mp3_player, smartphone, radio]
+    
+    print("🎵 Demo Duck Typing - Pemutar Musik:")
+    print("=" * 45)
+    
+    # Duck typing dalam aksi!
+    for device in music_devices:
+        print(f"\n🎧 Testing {device.__class__.__name__}:")
+        print(f"▶️  {device.play()}")
+        print(f"⏹️  {device.stop()}")
+        print("-" * 35)
+    
+    print("\n💡 Semua perangkat bisa digunakan dengan cara yang sama!")
+    print("   Meskipun tidak ada hubungan inheritance antar class!")
+
+# Jalankan demo
+demo_music_devices()</code></pre>
+                            </div>
+
+                            <div id="demo-duck" class="bg-white p-4 rounded-lg border-2 border-dashed border-purple-300">
+                                <h4 class="font-bold text-gray-800 mb-2">🎵 Demo Duck Typing:</h4>
+                                <button onclick="runDuckDemo()" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors">
+                                    Test Music Devices
+                                </button>
+                                <div id="duck-output" class="mt-4 p-3 bg-gray-100 rounded-lg hidden">
+                                    <pre class="text-gray-800"></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">🆚 Duck Typing vs Inheritance</h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-purple-600 mb-3 flex items-center gap-2">
+                                        🦆 Duck Typing
+                                    </h4>
+                                    <ul class="text-gray-700 space-y-2">
+                                        <li>✅ Lebih fleksibel</li>
+                                        <li>✅ Tidak perlu inheritance</li>
+                                        <li>✅ Fokus pada perilaku</li>
+                                        <li>⚠️ Bisa error runtime</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-blue-600 mb-3 flex items-center gap-2">
+                                        🏗️ Inheritance
+                                    </h4>
+                                    <ul class="text-gray-700 space-y-2">
+                                        <li>✅ Lebih terstruktur</li>
+                                        <li>✅ Type safety lebih baik</li>
+                                        <li>✅ Hubungan jelas</li>
+                                        <li>⚠️ Kurang fleksibel</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('contoh-praktis')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all transform hover:scale-105">
+                        Lihat Contoh Praktis <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Contoh Praktis Section -->
+            <section id="contoh-praktis" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+                            💻
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Contoh Praktis</h2>
+                        <p class="text-lg text-gray-600">Aplikasi nyata polimorfisme dalam project! 🚀</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">🏪 Sistem Kasir Toko</h3>
+                            <p class="text-gray-700 mb-4">Mari buat sistem kasir yang bisa menghitung harga berbagai jenis produk dengan cara yang berbeda!</p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">kasir_toko.py</span>
+                                </div>
+                                <pre class="p-4 text-green-300 overflow-x-auto"><code>class Produk:
+    def __init__(self, nama, harga_dasar):
+        self.nama = nama
+        self.harga_dasar = harga_dasar
+    
+    def hitung_harga(self, jumlah):
+        return self.harga_dasar * jumlah
+    
+    def info(self):
+        return f"{self.nama} - Rp {self.harga_dasar:,}"
+
+class ProdukDiskon(Produk):
+    def __init__(self, nama, harga_dasar, diskon_persen):
+        super().__init__(nama, harga_dasar)
+        self.diskon_persen = diskon_persen
+    
+    def hitung_harga(self, jumlah):  # Override
+        harga_normal = super().hitung_harga(jumlah)
+        diskon = harga_normal * (self.diskon_persen / 100)
+        return harga_normal - diskon
+
+class ProdukGrosir(Produk):
+    def __init__(self, nama, harga_dasar, min_grosir, harga_grosir):
+        super().__init__(nama, harga_dasar)
+        self.min_grosir = min_grosir
+        self.harga_grosir = harga_grosir
+    
+    def hitung_harga(self, jumlah):  # Override
+        if jumlah >= self.min_grosir:
+            return self.harga_grosir * jumlah
+        return super().hitung_harga(jumlah)
+
+# Contoh penggunaan sistem kasir
+def demo_kasir_toko():
+    # Membuat berbagai jenis produk
+    beras = Produk("Beras Premium", 15000)
+    minyak = ProdukDiskon("Minyak Goreng", 25000, 20)  # Diskon 20%
+    gula = ProdukGrosir("Gula Pasir", 14000, 10, 12000)  # Min 10 untuk grosir
+    
+    # List produk untuk polimorfisme
+    produk_list = [beras, minyak, gula]
+    
+    print("🏪 Demo Sistem Kasir Toko:")
+    print("=" * 40)
+    
+    # Simulasi pembelian
+    pembelian = [
+        (beras, 2),    # 2 kg beras
+        (minyak, 5),   # 5 botol minyak (dapat diskon)
+        (gula, 15)     # 15 kg gula (dapat harga grosir)
+    ]
+    
+    total_belanja = 0
+    
+    print("\n🧾 STRUK BELANJA")
+    print("=" * 30)
+    
+    for produk, jumlah in pembelian:
+        harga = produk.hitung_harga(jumlah)
+        total_belanja += harga
+        
+        print(f"{jumlah}x {produk.nama}")
+        
+        # Tampilkan info khusus berdasarkan jenis produk
+        if isinstance(produk, ProdukDiskon):
+            print(f"   (Diskon {produk.diskon_persen}%)")
+        elif isinstance(produk, ProdukGrosir) and jumlah >= produk.min_grosir:
+            print(f"   (Harga Grosir)")
+        
+        print(f"   Rp {harga:,}")
+        print("-" * 25)
+    
+    print(f"\nTOTAL: Rp {total_belanja:,}")
+    print("\n💡 Polimorfisme memungkinkan sistem kasir")
+    print("   menghitung harga berbagai jenis produk")
+    print("   dengan cara yang berbeda!")
+
+# Jalankan demo
+demo_kasir_toko()</code></pre>
+                            </div>
+</invoke>
+
+                            <div id="demo-kasir" class="bg-white p-4 rounded-lg border-2 border-dashed border-indigo-300">
+                                <h4 class="font-bold text-gray-800 mb-2">🏪 Demo Sistem Kasir:</h4>
+                                <button onclick="runKasirDemo()" class="bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors">
+                                    Simulasi Belanja
+                                </button>
+                                <div id="kasir-output" class="mt-4 p-3 bg-gray-100 rounded-lg hidden">
+                                    <pre class="text-gray-800"></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-pink-50 to-red-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">🎯 Keuntungan Polimorfisme dalam Project</h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-green-500 text-xl">🔧</span>
+                                        <div>
+                                            <p class="font-semibold text-gray-800">Mudah Dipelihara</p>
+                                            <p class="text-gray-600">Tambah fitur baru tanpa ubah kode lama</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-blue-500 text-xl">📈</span>
+                                        <div>
+                                            <p class="font-semibold text-gray-800">Scalable</p>
+                                            <p class="text-gray-600 text-md">Mudah menambah jenis objek baru</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-purple-500 text-xl">🎨</span>
+                                        <div>
+                                            <p class="font-semibold text-gray-800">Clean Code</p>
+                                            <p class="text-gray-600 text-md">Kode lebih rapi dan terorganisir</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="text-orange-500 text-xl">🚀</span>
+                                        <div>
+                                            <p class="font-semibold text-gray-800">Reusable</p>
+                                            <p class="text-gray-600 text-md">Kode bisa dipakai ulang</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('tugas')" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all transform hover:scale-105">
+                        Kerjakan Tugas <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Tugas Section -->
+            <section id="tugas" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+                            📝
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Tugas Praktik</h2>
+                        <p class="text-lg text-gray-600">Saatnya menguji pemahamanmu! 💪</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-clipboard-list text-orange-500"></i>
+                                Tugas 1: Sistem Transportasi 🚗🚌🚲
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-gray-800 mb-2">📋 Deskripsi Tugas:</h4>
+                                <p class="text-gray-700 mb-3">Buatlah sistem transportasi dengan menggunakan konsep polimorfisme. Sistem ini harus bisa menghitung biaya perjalanan untuk berbagai jenis kendaraan.</p>
+                                
+                                <h4 class="font-bold text-gray-800 mb-2">✅ Requirements:</h4>
+                                <ul class="text-gray-700 space-y-1 ml-4">
+                                    <li>• Buat class induk <code>Kendaraan</code> dengan method <code>hitung_biaya(jarak)</code></li>
+                                    <li>• Buat 3 class anak: <code>Mobil</code>, <code>Bus</code>, <code>Sepeda</code></li>
+                                    <li>• Setiap kendaraan punya cara hitung biaya yang berbeda</li>
+                                    <li>• Mobil: Rp 2000/km</li>
+                                    <li>• Bus: Rp 1000/km (minimum Rp 5000)</li>
+                                    <li>• Sepeda: Gratis! (Rp 0)</li>
+                                    <li>• Buat fungsi untuk membandingkan biaya semua kendaraan</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                                <h4 class="font-bold text-gray-800 mb-2">💡 Contoh Output yang Diharapkan:</h4>
+                                <pre class="text-md text-gray-700">🚗 Perbandingan Biaya Transportasi (10 km):
+Mobil: Rp 20,000
+Bus: Rp 10,000  
+Sepeda: Rp 0 (Gratis!)
+
+Rekomendasi termurah: Sepeda 🚲</pre>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-gamepad text-blue-500"></i>
+                                Tugas 2: Game Karakter 🎮⚔️
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-gray-800 mb-2">📋 Deskripsi Tugas:</h4>
+                                <p class="text-gray-700 mb-3">Buat sistem karakter game RPG dengan berbagai class yang memiliki kemampuan unik menggunakan method overriding.</p>
+                                
+                                <h4 class="font-bold text-gray-800 mb-2">✅ Requirements:</h4>
+                                <ul class="text-gray-700 space-y-1 ml-4">
+                                    <li>• Class induk <code>Hero</code> dengan method <code>attack()</code> dan <code>special_skill()</code></li>
+                                    <li>• Buat 3 hero: <code>Knight</code>, <code>Wizard</code>, <code>Assassin</code></li>
+                                    <li>• Setiap hero punya serangan dan skill khusus yang berbeda</li>
+                                    <li>• Knight: Serangan pedang + Shield Bash</li>
+                                    <li>• Wizard: Serangan sihir + Fireball</li>
+                                    <li>• Assassin: Serangan diam-diam + Stealth Attack</li>
+                                    <li>• Buat simulasi battle antara 2 hero</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-question-circle text-purple-500"></i>
+                                Pertanyaan Refleksi 🤔
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <p class="text-gray-700 font-semibold mb-2">1. Jelaskan perbedaan antara method overriding dan duck typing dengan contoh!</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <p class="text-gray-700 font-semibold mb-2">2. Kapan sebaiknya menggunakan polimorfisme dalam project programming?</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <p class="text-gray-700 font-semibold mb-2">3. Sebutkan 3 keuntungan menggunakan polimorfisme dalam pengembangan aplikasi!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('kuis')" class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all transform hover:scale-105">
+                        Lanjut ke Kuis <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Kuis Section -->
+            <section id="kuis" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-br from-red-400 to-pink-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+                            🧠
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Kuis Polimorfisme</h2>
+                        <p class="text-lg text-gray-600">Uji pemahamanmu dengan 10 soal menarik! 🎯</p>
+                    </div>
+
+                    <!-- Quiz Start Form -->
+                    <div id="quiz-start" class="text-center">
+                        <div class="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-xl mb-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Siap untuk tantangan? 🚀</h3>
+                            <div class="max-w-md mx-auto">
+                                <label for="student-name" class="block text-left font-semibold text-gray-700 mb-2">Masukkan nama kamu:</label>
+                                <input type="text" id="student-name" class="w-full p-3 border-2 border-pink-200 rounded-lg focus:border-pink-400 focus:outline-none" placeholder="Nama lengkap...">
+                            </div>
+                        </div>
+                        <button onclick="startQuiz()" class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all transform hover:scale-105">
+                            Mulai Kuis! <i class="fas fa-play ml-2"></i>
+                        </button>
+                    </div>
+
+                    <!-- Quiz Questions -->
+                    <div id="quiz-questions" class="hidden">
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <span id="question-counter" class="text-md font-semibold text-gray-600">Soal 1 dari 10</span>
+                                <span id="quiz-timer" class="text-md font-semibold text-red-500">⏰ 15:00</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="progress-bar" class="bg-gradient-to-r from-red-400 to-pink-500 h-2 rounded-full transition-all duration-300" style="width: 10%"></div>
+                            </div>
+                        </div>
+
+                        <div id="question-container" class="mb-8">
+                            <!-- Questions will be inserted here -->
+                        </div>
+
+                        <div class="flex justify-between">
+                            <button id="prev-btn" onclick="previousQuestion()" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors disabled:opacity-50" disabled>
+                                <i class="fas fa-arrow-left mr-2"></i> Sebelumnya
+                            </button>
+                            <button id="next-btn" onclick="nextQuestion()" class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-6 py-2 rounded-lg hover:shadow-lg transition-all">
+                                Selanjutnya <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Results -->
+                    <div id="quiz-results" class="hidden text-center">
+                        <div class="mb-8">
+                            <div id="result-icon" class="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center text-3xl">
+                                <!-- Icon will be set by JavaScript -->
+                            </div>
+                            <h3 id="result-title" class="text-2xl font-bold text-gray-800 mb-2"></h3>
+                            <p id="result-message" class="text-lg text-gray-600 mb-4"></p>
+                            <div id="final-score" class="text-4xl font-bold mb-4"></div>
+                        </div>
+
+                        <div id="score-breakdown" class="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-xl mb-6">
+                            <!-- Score breakdown will be inserted here -->
+                        </div>
+
+                        <div class="space-y-3">
+                            <button onclick="retakeQuiz()" class="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all">
+                                <i class="fas fa-redo mr-2"></i> Ulangi Kuis
+                            </button>
+                            <button onclick="showSection('penutup')" class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all ml-3">
+                                Lanjut ke Penutup <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Penutup Section -->
+            <section id="penutup" class="content-section hidden">
+                <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-br from-teal-400 to-green-500 rounded-full flex items-center justify-center text-white text-2xl mx-auto mb-4">
+                            🏁
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Penutup</h2>
+                        <p class="text-lg text-gray-600">Selamat! Kamu telah menyelesaikan pembelajaran polimorfisme! 🎉</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-teal-50 to-green-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-mirror text-teal-500"></i>
+                                Refleksi Pembelajaran 🪞
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-gray-800 mb-2">🤔 Apa yang sudah kamu pelajari hari ini?</h4>
+                                    <ul class="text-gray-700 space-y-1 ml-4">
+                                        <li>• Konsep dasar polimorfisme dan manfaatnya</li>
+                                        <li>• Method overriding untuk mengubah perilaku method</li>
+                                        <li>• Duck typing untuk fleksibilitas tanpa inheritance</li>
+                                        <li>• Implementasi polimorfisme dalam project nyata</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-gray-800 mb-2">💡 Insight baru apa yang kamu dapatkan?</h4>
+                                    <p class="text-gray-700">Polimorfisme membuat kode lebih fleksibel dan mudah dipelihara. Seperti remote universal yang bisa mengontrol berbagai perangkat!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-graduation-cap text-blue-500"></i>
+                                Kesimpulan Pembelajaran 📚
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="bg-white p-4 rounded-lg">
+                                        <h4 class="font-bold text-blue-600 mb-2">🎭 Polimorfisme</h4>
+                                        <p class="text-gray-700 text-md">Satu interface, banyak implementasi. Membuat kode lebih fleksibel dan mudah dipelihara.</p>
+                                    </div>
+                                    
+                                    <div class="bg-white p-4 rounded-lg">
+                                        <h4 class="font-bold text-green-600 mb-2">🔄 Method Overriding</h4>
+                                        <p class="text-gray-700">Class anak dapat mengubah implementasi method dari class induk sesuai kebutuhan.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="bg-white p-4 rounded-lg">
+                                        <h4 class="font-bold text-purple-600 mb-2">🦆 Duck Typing</h4>
+                                        <p class="text-gray-700">Fokus pada perilaku objek, bukan tipe objek. Memberikan fleksibilitas maksimal.</p>
+                                    </div>
+                                    
+                                    <div class="bg-white p-4 rounded-lg">
+                                        <h4 class="font-bold text-orange-600 mb-2">💻 Aplikasi Praktis</h4>
+                                        <p class="text-gray-700">Polimorfisme sangat berguna dalam sistem kasir, game, dan aplikasi real-world lainnya.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-xl text-center">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">🎉 Selamat!</h3>
+                            <p class="text-gray-700 mb-4">
+                                Kamu telah berhasil menyelesaikan pembelajaran Polimorfisme Python! 
+                                Terus semangat belajar dan jangan lupa praktik ya! 💪
+                            </p>
+                            
+                            <div class="flex justify-center gap-4 flex-wrap">
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-md font-semibold">✅ Konsep Dasar</span>
+                                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-md font-semibold">✅ Method Overriding</span>
+                                <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-md font-semibold">✅ Duck Typing</span>
+                                <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-md font-semibold">✅ Praktik</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('intro')" class="bg-gradient-to-r from-teal-500 to-green-500 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-all transform hover:scale-105">
+                        <i class="fas fa-home mr-2"></i> Kembali ke Awal
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-pink-500 to-purple-500 text-white w-12 h-12 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-110 hidden z-40">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // Global variables
+        let currentSection = 'intro';
+        let quizData = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let quizTimer = null;
+        let timeLeft = 900; // 15 minutes in seconds
+        let studentName = '';
+
+        // Quiz questions data
+        const questions = [
+            {
+                question: "Apa yang dimaksud dengan polimorfisme dalam pemrograman?",
+                options: [
+                    "Kemampuan objek untuk memiliki banyak bentuk",
+                    "Proses membuat class baru dari class yang sudah ada", 
+                    "Menyembunyikan detail implementasi dari user",
+                    "Menggabungkan data dan method dalam satu unit"
+                ],
+                correct: 0,
+                explanation: "Polimorfisme berasal dari bahasa Yunani yang berarti 'banyak bentuk'. Ini adalah kemampuan objek yang berbeda untuk merespons pesan yang sama dengan cara yang berbeda."
+            },
+            {
+                question: "Manakah contoh polimorfisme yang benar dalam kehidupan sehari-hari?",
+                options: [
+                    "Satu remote TV hanya bisa untuk satu merk TV",
+                    "Remote universal yang bisa mengontrol berbagai merk TV",
+                    "TV yang hanya bisa menerima satu jenis sinyal",
+                    "Kabel yang hanya cocok untuk satu perangkat"
+                ],
+                correct: 1,
+                explanation: "Remote universal adalah contoh sempurna polimorfisme - satu interface (remote) yang bisa bekerja dengan berbagai implementasi (berbagai merk TV)."
+            },
+            {
+                question: "Apa yang dimaksud dengan method overriding?",
+                options: [
+                    "Membuat method baru yang tidak ada di class induk",
+                    "Menghapus method dari class induk",
+                    "Mengubah implementasi method yang sudah ada di class induk",
+                    "Menyalin method dari class lain"
+                ],
+                correct: 2,
+                explanation: "Method overriding adalah kemampuan class anak untuk memberikan implementasi spesifik dari method yang sudah didefinisikan di class induk."
+            },
+            {
+                question: "Dalam duck typing, yang terpenting adalah:",
+                options: [
+                    "Tipe data objek harus sama",
+                    "Objek harus memiliki inheritance yang sama",
+                    "Objek harus memiliki method yang dibutuhkan",
+                    "Objek harus dibuat dari class yang sama"
+                ],
+                correct: 2,
+                explanation: "Duck typing fokus pada perilaku objek, bukan tipe objek. 'Jika berjalan seperti bebek dan bersuara seperti bebek, maka itu bebek!'"
+            },
+            {
+                question: "Apa keuntungan utama menggunakan polimorfisme?",
+                options: [
+                    "Membuat program berjalan lebih cepat",
+                    "Mengurangi penggunaan memori",
+                    "Membuat kode lebih fleksibel dan mudah dipelihara",
+                    "Mencegah error dalam program"
+                ],
+                correct: 2,
+                explanation: "Polimorfisme membuat kode lebih fleksibel karena kita bisa menambah jenis objek baru tanpa mengubah kode yang sudah ada, sehingga lebih mudah dipelihara."
+            },
+            {
+                question: "Dalam method overriding, aturan yang harus diikuti adalah:",
+                options: [
+                    "Nama method harus berbeda dari class induk",
+                    "Nama method harus sama dengan class induk",
+                    "Parameter harus selalu sama persis",
+                    "Return type harus selalu berbeda"
+                ],
+                correct: 1,
+                explanation: "Dalam method overriding, nama method harus sama persis dengan method di class induk. Parameter bisa sama atau berbeda, tergantung kebutuhan."
+            },
+            {
+                question: "Manakah yang BUKAN contoh penerapan polimorfisme?",
+                options: [
+                    "Sistem pembayaran yang menerima berbagai metode (kartu kredit, e-wallet, transfer)",
+                    "Game dengan berbagai karakter yang memiliki serangan berbeda",
+                    "Variabel yang hanya bisa menyimpan satu tipe data",
+                    "Media player yang bisa memutar berbagai format file"
+                ],
+                correct: 2,
+                explanation: "Variabel yang hanya bisa menyimpan satu tipe data tidak menunjukkan polimorfisme. Polimorfisme justru tentang fleksibilitas dalam menangani berbagai tipe objek."
+            },
+            {
+                question: "Dalam konteks sistem transportasi, jika semua kendaraan memiliki method 'bergerak()' tapi implementasinya berbeda, ini menunjukkan:",
+                options: [
+                    "Inheritance saja",
+                    "Polimorfisme melalui method overriding",
+                    "Encapsulation",
+                    "Composition"
+                ],
+                correct: 1,
+                explanation: "Ini adalah contoh polimorfisme melalui method overriding, dimana setiap jenis kendaraan mengimplementasikan method bergerak() dengan cara yang berbeda."
+            },
+            {
+                question: "Apa perbedaan utama antara duck typing dan inheritance-based polymorphism?",
+                options: [
+                    "Duck typing lebih lambat dalam eksekusi",
+                    "Duck typing tidak memerlukan hubungan inheritance antar class",
+                    "Inheritance-based polymorphism tidak bisa digunakan di Python",
+                    "Duck typing hanya bisa digunakan untuk method tertentu"
+                ],
+                correct: 1,
+                explanation: "Duck typing tidak memerlukan hubungan inheritance antar class. Yang penting adalah objek memiliki method yang dibutuhkan, tidak peduli dari class mana objek tersebut berasal."
+            },
+            {
+                question: "Filosofi duck typing adalah:",
+                options: [
+                    "Jika terlihat seperti bebek, maka itu bebek",
+                    "Jika berjalan seperti bebek dan bersuara seperti bebek, maka itu bebek",
+                    "Bebek harus berenang di air",
+                    "Semua bebek memiliki warna yang sama"
+                ],
+                correct: 1,
+                explanation: "Filosofi duck typing adalah 'If it walks like a duck and quacks like a duck, then it's a duck!' - fokus pada perilaku, bukan identitas objek."
+            }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            setupEventListeners();
+            showSection('intro');
+            setupBackToTop();
+        }
+
+        function setupEventListeners() {
+            // Mobile menu toggle
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const sidebar = document.getElementById('sidebar');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+
+            mobileMenuBtn?.addEventListener('click', toggleMobileMenu);
+            mobileOverlay?.addEventListener('click', closeMobileMenu);
+
+            // Close mobile menu when clicking nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', closeMobileMenu);
+            });
+
+            // Resize handler
+            window.addEventListener('resize', handleResize);
+        }
+
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            sidebar.classList.toggle('sidebar-hidden');
+            overlay.classList.toggle('hidden');
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobileOverlay');
+            
+            sidebar.classList.add('sidebar-hidden');
+            overlay.classList.add('hidden');
+        }
+
+        function handleResize() {
+            if (window.innerWidth >= 768) {
+                closeMobileMenu();
+            }
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Show target section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                currentSection = sectionId;
+                
+                // Close mobile menu first
+                closeMobileMenu();
+                
+                // Update active nav item
+                updateActiveNavItem(sectionId);
+                
+                // Force scroll to top after a small delay to ensure content is rendered
+                setTimeout(() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }, 100);
+            }
+        }
+
+        function updateActiveNavItem(sectionId) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-pink-100', 'text-pink-700');
+            });
+            
+            const activeItem = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (activeItem) {
+                activeItem.classList.add('bg-pink-100', 'text-pink-700');
+            }
+        }
+
+        function setupBackToTop() {
+            const backToTopBtn = document.getElementById('backToTop');
+            
+            window.addEventListener('scroll', () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.remove('hidden');
+                } else {
+                    backToTopBtn.classList.add('hidden');
+                }
+            });
+
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // Demo Functions
+        function runKonsepDemo() {
+            const output = document.getElementById('konsep-output');
+            const pre = output.querySelector('pre');
+            
+            let result = "🎭 Demo Polimorfisme:\n";
+            result += "=" + "=".repeat(29) + "\n\n";
+            
+            const animals = [
+                { name: "Buddy", type: "Anjing", sound: "Guk guk! 🐕" },
+                { name: "Whiskers", type: "Kucing", sound: "Meow meow! 🐱" },
+                { name: "Tweety", type: "Burung", sound: "Kicau kicau! 🐦" }
+            ];
+            
+            animals.forEach(animal => {
+                result += `Ini adalah ${animal.name}\n`;
+                result += `Suara: ${animal.sound}\n`;
+                result += "-".repeat(20) + "\n";
+            });
+            
+            pre.textContent = result;
+            output.classList.remove('hidden');
+        }
+
+        function runOverrideDemo() {
+            const output = document.getElementById('override-output');
+            const pre = output.querySelector('pre');
+            
+            let result = "🚗 Demo Method Overriding:\n";
+            result += "=" + "=".repeat(35) + "\n\n";
+            
+            const vehicles = [
+                { name: "Toyota Avanza", type: "Mobil", start: "Mobil: Vroom vroom! 🚗💨", extra: "Beep beep! 📯" },
+                { name: "Honda Beat", type: "Motor", start: "Motor: Ngeng ngeng! 🏍️💨", extra: "Ngeeeeng! 🏁" },
+                { name: "Polygon", type: "Sepeda", start: "Sepeda: Kayuh kayuh! 🚴‍♂️ (No engine needed!)", extra: "Kring kring! 🔔" }
+            ];
+            
+            vehicles.forEach(vehicle => {
+                result += `${vehicle.name} (${vehicle.type}):\n`;
+                result += `Start: ${vehicle.start}\n`;
+                result += `Extra: ${vehicle.extra}\n`;
+                result += "-".repeat(40) + "\n";
+            });
+            
+            pre.textContent = result;
+            output.classList.remove('hidden');
+        }
+
+        function runDuckDemo() {
+            const output = document.getElementById('duck-output');
+            const pre = output.querySelector('pre');
+            
+            let result = "🎵 Demo Duck Typing:\n";
+            result += "🎉 Memulai sesi musik!\n";
+            result += "=" + "=".repeat(29) + "\n\n";
+            
+            const devices = [
+                { name: "iPod MP3", play: "iPod MP3: ♪ Playing music... 🎵", stop: "iPod MP3: ⏹️ Music stopped" },
+                { name: "iPhone 13", play: "iPhone 13: 🎶 Streaming from Spotify... 📱", stop: "iPhone 13: ⏸️ Paused streaming" },
+                { name: "Radio 101.1FM", play: "Radio 101.1FM: 📻 On air... 🎙️", stop: "Radio 101.1FM: 📴 Signal off" }
+            ];
+            
+            devices.forEach(device => {
+                result += `${device.play}\n`;
+                result += `${device.stop}\n`;
+                result += "-".repeat(20) + "\n";
+            });
+            
+            pre.textContent = result;
+            output.classList.remove('hidden');
+        }
+
+        function runKasirDemo() {
+            const output = document.getElementById('kasir-output');
+            const pre = output.querySelector('pre');
+            
+            let result = "🏪 Demo Sistem Kasir:\n";
+            result += "=" + "=".repeat(25) + "\n\n";
+            
+            result += "✅ Ditambahkan: 2x Beras Premium\n";
+            result += "✅ Ditambahkan: 5x Minyak Goreng (Diskon)\n";
+            result += "✅ Ditambahkan: 50x Gula Pasir (Grosir)\n\n";
+            
+            result += "🧾 STRUK BELANJA\n";
+            result += "=" + "=".repeat(39) + "\n";
+            result += "2x Beras Premium\n";
+            result += "   Rp 30,000\n";
+            result += "-".repeat(30) + "\n";
+            result += "5x Minyak Goreng (Diskon 20%)\n";
+            result += "   Rp 40,000\n";
+            result += "-".repeat(30) + "\n";
+            result += "50x Gula Pasir (Harga Grosir)\n";
+            result += "   Rp 600,000\n";
+            result += "-".repeat(30) + "\n";
+            result += "TOTAL: Rp 670,000";
+            
+            pre.textContent = result;
+            output.classList.remove('hidden');
+        }
+
+        // Quiz Functions
+        function startQuiz() {
+            const nameInput = document.getElementById('student-name');
+            studentName = nameInput.value.trim();
+            
+            if (!studentName) {
+                // Create custom modal instead of alert
+                showCustomModal('Silakan masukkan nama kamu terlebih dahulu! 😊');
+                nameInput.focus();
+                return;
+            }
+            
+            // Initialize quiz
+            quizData = [...questions];
+            currentQuestionIndex = 0;
+            userAnswers = new Array(questions.length).fill(null);
+            timeLeft = 900; // 15 minutes
+            
+            // Show quiz interface
+            document.getElementById('quiz-start').classList.add('hidden');
+            document.getElementById('quiz-questions').classList.remove('hidden');
+            
+            // Start timer
+            startQuizTimer();
+            
+            // Show first question
+            showQuestion();
+        }
+
+        function showCustomModal(message) {
+            // Create modal overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+            
+            // Create modal content
+            const modal = document.createElement('div');
+            modal.className = 'bg-white rounded-xl p-6 max-w-md w-full text-center';
+            modal.innerHTML = `
+                <div class="text-4xl mb-4">😊</div>
+                <p class="text-gray-700 mb-6">${message}</p>
+                <button onclick="this.closest('.fixed').remove()" class="bg-pink-500 text-white px-6 py-2 rounded-lg hover:bg-pink-600 transition-colors">
+                    OK
+                </button>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+        }
+
+        function startQuizTimer() {
+            const timerElement = document.getElementById('quiz-timer');
+            
+            quizTimer = setInterval(() => {
+                timeLeft--;
+                
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerElement.textContent = `⏰ ${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(quizTimer);
+                    finishQuiz();
+                }
+            }, 1000);
+        }
+
+        function showQuestion() {
+            const question = quizData[currentQuestionIndex];
+            const container = document.getElementById('question-container');
+            const counter = document.getElementById('question-counter');
+            const progressBar = document.getElementById('progress-bar');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            
+            // Update counter and progress
+            counter.textContent = `Soal ${currentQuestionIndex + 1} dari ${questions.length}`;
+            counter.className = 'font-semibold text-gray-600';
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // Update navigation buttons
+            prevBtn.disabled = currentQuestionIndex === 0;
+            nextBtn.textContent = currentQuestionIndex === questions.length - 1 ? 'Selesai' : 'Selanjutnya';
+            
+            // Create question HTML
+            let optionsHTML = '';
+            question.options.forEach((option, index) => {
+                const isSelected = userAnswers[currentQuestionIndex] === index;
+                optionsHTML += `
+                    <div class="quiz-option bg-white border-2 ${isSelected ? 'border-pink-400 bg-pink-50' : 'border-gray-200'} rounded-lg p-4 cursor-pointer hover:border-pink-300" onclick="selectAnswer(${index})">
+                        <div class="flex items-center gap-3">
+                            <div class="w-6 h-6 rounded-full border-2 ${isSelected ? 'border-pink-400 bg-pink-400' : 'border-gray-300'} flex items-center justify-center">
+                                ${isSelected ? '<i class="fas fa-check text-white text-md"></i>' : ''}
+                            </div>
+                            <span class="text-gray-700">${option}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = `
+                <div class="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-xl mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">${question.question}</h3>
+                    <div class="space-y-3">
+                        ${optionsHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectAnswer(answerIndex) {
+            userAnswers[currentQuestionIndex] = answerIndex;
+            showQuestion(); // Refresh to show selection
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(quizTimer);
+            
+            // Calculate score
+            let correctAnswers = 0;
+            userAnswers.forEach((answer, index) => {
+                if (answer === questions[index].correct) {
+                    correctAnswers++;
+                }
+            });
+            
+            const score = Math.round((correctAnswers / questions.length) * 100);
+            
+            // Hide quiz questions, show results
+            document.getElementById('quiz-questions').classList.add('hidden');
+            document.getElementById('quiz-results').classList.remove('hidden');
+            
+            // Set result content
+            const resultIcon = document.getElementById('result-icon');
+            const resultTitle = document.getElementById('result-title');
+            const resultMessage = document.getElementById('result-message');
+            const finalScore = document.getElementById('final-score');
+            const scoreBreakdown = document.getElementById('score-breakdown');
+            
+            // Determine result level
+            let icon, title, message, bgClass;
+            if (score >= 90) {
+                icon = '🏆';
+                title = 'Luar Biasa!';
+                message = 'Kamu menguasai polimorfisme dengan sempurna!';
+                bgClass = 'bg-gradient-to-br from-yellow-400 to-orange-500';
+            } else if (score >= 80) {
+                icon = '🎉';
+                title = 'Hebat!';
+                message = 'Pemahaman kamu tentang polimorfisme sangat baik!';
+                bgClass = 'bg-gradient-to-br from-green-400 to-emerald-500';
+            } else if (score >= 70) {
+                icon = '👍';
+                title = 'Bagus!';
+                message = 'Kamu sudah memahami konsep dasar polimorfisme!';
+                bgClass = 'bg-gradient-to-br from-blue-400 to-indigo-500';
+            } else if (score >= 60) {
+                icon = '📚';
+                title = 'Cukup Baik';
+                message = 'Masih perlu belajar lagi untuk menguasai polimorfisme.';
+                bgClass = 'bg-gradient-to-br from-yellow-400 to-amber-500';
+            } else {
+                icon = '💪';
+                title = 'Semangat!';
+                message = 'Jangan menyerah! Ulangi materi dan coba lagi.';
+                bgClass = 'bg-gradient-to-br from-red-400 to-pink-500';
+            }
+            
+            resultIcon.innerHTML = icon;
+            resultIcon.className = `w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center text-3xl text-white ${bgClass}`;
+            resultTitle.textContent = title;
+            resultMessage.textContent = message;
+            finalScore.innerHTML = `<span class="text-pink-600">${studentName}</span><br><span class="text-4xl font-bold text-gray-800">${score}/100</span>`;
+            
+            // Score breakdown
+            scoreBreakdown.innerHTML = `
+                <h4 class="font-bold text-gray-800 mb-4">📊 Detail Hasil:</h4>
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div class="bg-white p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-green-600">${correctAnswers}</div>
+                        <div class="text-md text-gray-600">Jawaban Benar</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <div class="text-2xl font-bold text-red-600">${questions.length - correctAnswers}</div>
+                        <div class="text-md text-gray-600">Jawaban Salah</div>
+                    </div>
+                </div>
+                <div class="mt-4 text-center">
+                    <div class="text-md text-gray-600">Waktu yang digunakan: ${Math.floor((900 - timeLeft) / 60)} menit ${(900 - timeLeft) % 60} detik</div>
+                </div>
+            `;
+        }
+
+        function retakeQuiz() {
+            // Reset quiz state
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            timeLeft = 900;
+            
+            // Show start screen
+            document.getElementById('quiz-results').classList.add('hidden');
+            document.getElementById('quiz-start').classList.remove('hidden');
+            
+            // Clear name input
+            document.getElementById('student-name').value = '';
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9922476b138af46d',t:'MTc2MTA2NTY4OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
