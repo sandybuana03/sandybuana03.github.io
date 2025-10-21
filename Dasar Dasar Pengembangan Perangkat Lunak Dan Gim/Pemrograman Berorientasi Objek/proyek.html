@@ -1,0 +1,2107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar Class & Object Python - Manajemen Data Siswa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #ffeef8 0%, #f0f4ff 50%, #fff0f5 100%);
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, #e8f5e8 0%, #f0f8ff 50%, #fff5ee 100%);
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-hidden {
+            transform: translateX(-100%);
+        }
+        
+        .content-area {
+            transition: margin-left 0.3s ease;
+        }
+        
+        .menu-item {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            margin: 4px 0;
+        }
+        
+        .menu-item:hover {
+            background: linear-gradient(135deg, #ffd1dc, #e6e6fa);
+            transform: translateX(5px);
+        }
+        
+        .menu-item.active {
+            background: linear-gradient(135deg, #ffb6c1, #dda0dd);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #fff0f5, #f0f8ff);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #2d3748, #4a5568);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .code-header {
+            background: linear-gradient(90deg, #ff9a9e, #fecfef);
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-cute {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            color: #2d3748;
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .btn-cute:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #a8e6cf, #88d8c0);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #ffd93d, #6bcf7f);
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .floating-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .demo-area {
+            background: linear-gradient(135deg, #ffeef8, #e8f5e8);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 2px dashed #dda0dd;
+        }
+        
+        .input-cute {
+            background: linear-gradient(135deg, #fff, #f8f9fa);
+            border: 2px solid #e8f5e8;
+            border-radius: 15px;
+            padding: 12px 16px;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 8px 0;
+        }
+        
+        .input-cute:focus {
+            outline: none;
+            border-color: #a8e6cf;
+            box-shadow: 0 0 0 3px rgba(168, 230, 207, 0.2);
+        }
+        
+        .quiz-option {
+            background: linear-gradient(135deg, #fff0f5, #f0f8ff);
+            border: 2px solid #e8f5e8;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 8px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            background: linear-gradient(135deg, #ffd1dc, #e6e6fa);
+            border-color: #dda0dd;
+        }
+        
+        .quiz-option.selected {
+            background: linear-gradient(135deg, #a8e6cf, #88d8c0);
+            border-color: #6bcf7f;
+            color: white;
+        }
+        
+        .floating-icon {
+            position: absolute;
+            font-size: 40px;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        .section {
+            min-height: 80vh;
+            padding: 30px;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 999;
+                width: 280px;
+            }
+            
+            .content-area {
+                margin-left: 0 !important;
+            }
+            
+            .floating-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+            
+            .section {
+                padding: 20px 15px;
+            }
+            
+            /* Pastikan font size tetap sama di mobile */
+            h1, h2, h3, h4, h5, h6 {
+                font-size: inherit !important;
+            }
+            
+            .text-5xl {
+                font-size: 3rem !important;
+            }
+            
+            .text-4xl {
+                font-size: 2.25rem !important;
+            }
+            
+            .text-3xl {
+                font-size: 1.875rem !important;
+            }
+            
+            .text-2xl {
+                font-size: 1.5rem !important;
+            }
+            
+            .text-xl {
+                font-size: 1.25rem !important;
+            }
+            
+            .text-lg {
+                font-size: 1.125rem !important;
+            }
+            
+            .text-base {
+                font-size: 1rem !important;
+            }
+            
+            .text-md {
+                font-size: 0.875rem !important;
+            }
+            
+            /* Font consistency untuk elemen khusus */
+            .menu-item {
+                font-size: 1.25rem !important;
+            }
+            
+            .btn-cute {
+                font-size: 1rem !important;
+            }
+            
+            .input-cute {
+                font-size: 1.25rem !important;
+            }
+            
+            .code-block pre {
+                font-size: 1.125rem !important;
+            }
+            
+            .next-btn {
+                font-size: 1rem !important;
+            }
+        }
+        
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+            display: none;
+        }
+        
+        .next-btn {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 30px auto;
+            display: block;
+            font-size: 16px;
+        }
+        
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(116, 185, 255, 0.4);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-full">
+    <!-- Floating Icons -->
+    <div class="floating-icon" style="top: 10%; left: 5%; animation-delay: 0s;">🎓</div>
+    <div class="floating-icon" style="top: 20%; right: 10%; animation-delay: 1s;">📚</div>
+    <div class="floating-icon" style="top: 60%; left: 8%; animation-delay: 2s;">🐍</div>
+    <div class="floating-icon" style="bottom: 20%; right: 5%; animation-delay: 3s;">💻</div>
+    <div class="floating-icon" style="top: 40%; right: 15%; animation-delay: 4s;">🌟</div>
+
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <div class="sidebar fixed top-0 left-0 h-full w-80 p-6 z-50 overflow-y-auto" id="sidebar">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-800 mb-2">🐍 Python Class & Object</h1>
+            <p class="text-md text-gray-600">Manajemen Data Siswa</p>
+        </div>
+        
+        <nav class="space-y-2">
+            <div class="menu-item p-3 cursor-pointer active text-xl" onclick="showSection('intro')">
+                <i class="fas fa-home mr-3"></i>Intro
+            </div>
+            <div class="menu-item p-3 cursor-pointer text-xl" onclick="showSection('pengenalan')">
+                <i class="fas fa-lightbulb mr-3"></i>Pengenalan
+            </div>
+            <div class="menu-item p-3 cursor-pointer text-xl" onclick="showSection('class-dasar')">
+                <i class="fas fa-cube mr-3"></i>Class Dasar
+            </div>
+            <div class="menu-item p-3 cursor-pointer text-xl" onclick="showSection('class-siswa')">
+                <i class="fas fa-user-graduate mr-3"></i>Class Siswa
+            </div>
+            <div class="menu-item p-3 cursor-pointer text-xl" onclick="showSection('implementasi')">
+                <i class="fas fa-play-circle mr-3"></i>Implementasi
+            </div>
+            <div class="menu-item p-3 cursor-pointer text-xl" onclick="showSection('tugas')">
+                <i class="fas fa-tasks mr-3"></i>Tugas
+            </div>
+            <div class="menu-item p-3 cursor-pointer text-xl" onclick="showSection('kuis')">
+                <i class="fas fa-question-circle mr-3"></i>Kuis
+            </div>
+            <div class="menu-item p-3 cursor-pointer text-xl" onclick="showSection('penutup')">
+                <i class="fas fa-flag-checkered mr-3"></i>Penutup
+            </div>
+        </nav>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button class="md:hidden fixed top-4 left-4 z-50 bg-white p-3 rounded-full shadow-lg" onclick="toggleSidebar()">
+        <i class="fas fa-bars text-gray-800"></i>
+    </button>
+
+    <!-- Main Content -->
+    <div class="content-area ml-80 md:ml-80" id="content">
+        <!-- Intro Section -->
+        <div id="intro" class="section">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h1 class="text-5xl font-bold text-gray-800 mb-4">
+                        🏫 Selamat Datang di Pembelajaran Class & Object Python!
+                    </h1>
+                    <p class="text-xl text-gray-600">
+                        Mari belajar membuat sistem manajemen data siswa yang keren! 🚀
+                    </p>
+                </div>
+
+                <!-- Pertanyaan Pemantik -->
+                <div class="card p-8 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                        🤔 Pertanyaan Pemantik
+                    </h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-gradient-to-br from-yellow-100 to-orange-100 p-6 rounded-2xl">
+                            <div class="text-4xl mb-4 text-center">🏫</div>
+                            <h3 class="text-xl font-bold text-orange-800 mb-3">Pernahkah kamu berpikir...</h3>
+                            <p class="text-orange-700">
+                                Bagaimana sekolahmu menyimpan data ribuan siswa dengan rapi? 
+                                Mengapa tidak ada data yang tertukar atau hilang?
+                            </p>
+                        </div>
+                        <div class="bg-gradient-to-br from-blue-100 to-purple-100 p-6 rounded-2xl">
+                            <div class="text-4xl mb-4 text-center">💻</div>
+                            <h3 class="text-xl font-bold text-purple-800 mb-3">Tahukah kamu...</h3>
+                            <p class="text-purple-700">
+                                Aplikasi seperti Instagram, WhatsApp, dan game favoritmu 
+                                menggunakan konsep Class & Object untuk mengatur data?
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apa yang Dipelajari -->
+                <div class="card p-8 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                        📚 Apa yang Akan Kamu Pelajari?
+                    </h2>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="text-center p-6 bg-gradient-to-br from-green-100 to-teal-100 rounded-2xl">
+                            <div class="text-5xl mb-4">🏗️</div>
+                            <h3 class="text-lg font-bold text-teal-800 mb-2">Membuat Class</h3>
+                            <p class="text-teal-700">Belajar membuat blueprint untuk objek siswa</p>
+                        </div>
+                        <div class="text-center p-6 bg-gradient-to-br from-pink-100 to-rose-100 rounded-2xl">
+                            <div class="text-5xl mb-4">🎯</div>
+                            <h3 class="text-lg font-bold text-rose-800 mb-2">Menggunakan Object</h3>
+                            <p class="text-rose-700">Membuat dan menggunakan objek untuk menyimpan data</p>
+                        </div>
+                        <div class="text-center p-6 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-2xl">
+                            <div class="text-5xl mb-4">🔗</div>
+                            <h3 class="text-lg font-bold text-blue-800 mb-2">Sistem Manajemen</h3>
+                            <p class="text-blue-700">Membuat sistem lengkap untuk mengelola data siswa</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tujuan Pembelajaran -->
+                <div class="card p-8 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                        🎯 Tujuan Pembelajaran
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl">
+                            <div class="text-2xl mr-4">✅</div>
+                            <p class="text-gray-700"><strong>Memahami konsep Class & Object</strong> dalam pemrograman Python</p>
+                        </div>
+                        <div class="flex items-center p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl">
+                            <div class="text-2xl mr-4">✅</div>
+                            <p class="text-gray-700"><strong>Mampu membuat Class Siswa</strong> dengan atribut dan method yang tepat</p>
+                        </div>
+                        <div class="flex items-center p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl">
+                            <div class="text-2xl mr-4">✅</div>
+                            <p class="text-gray-700"><strong>Mampu mengimplementasikan</strong> sistem manajemen data siswa</p>
+                        </div>
+                        <div class="flex items-center p-4 bg-gradient-to-r from-pink-50 to-yellow-50 rounded-xl">
+                            <div class="text-2xl mr-4">✅</div>
+                            <p class="text-gray-700"><strong>Memahami hubungan</strong> antar objek dalam sistem</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Motivasi -->
+                <div class="card p-8 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                        🚀 Motivasi Belajar
+                    </h2>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-gradient-to-br from-purple-100 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-purple-800 mb-4">🌟 Setelah Belajar Ini, Kamu Bisa:</h3>
+                            <ul class="space-y-2 text-purple-700">
+                                <li>• Membuat aplikasi sederhana seperti sistem perpustakaan</li>
+                                <li>• Memahami cara kerja aplikasi besar seperti Facebook</li>
+                                <li>• Melanjutkan ke framework web seperti Django</li>
+                                <li>• Membuat game sederhana dengan karakter dan item</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-100 to-blue-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-blue-800 mb-4">💼 Peluang Karir:</h3>
+                            <ul class="space-y-2 text-blue-700">
+                                <li>• Backend Developer</li>
+                                <li>• Full Stack Developer</li>
+                                <li>• Data Scientist</li>
+                                <li>• Game Developer</li>
+                                <li>• Software Engineer</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="next-btn" onclick="showSection('pengenalan')">
+                    Mulai Belajar! <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Pengenalan Section -->
+        <div id="pengenalan" class="section hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">
+                        🌟 Pengenalan Class & Object Python
+                    </h1>
+                    <p class="text-xl text-gray-600">
+                        Mari kenalan dengan konsep dasar yang akan mengubah cara kamu memprogram! 
+                    </p>
+                </div>
+
+                <!-- Analogi Sederhana -->
+                <div class="card p-8 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                        🏠 Analogi Sederhana: Rumah dan Cetak Biru
+                    </h2>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="text-center">
+                            <div class="text-8xl mb-4">📋</div>
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4">Class = Cetak Biru</h3>
+                            <div class="bg-blue-50 p-6 rounded-2xl">
+                                <p class="text-blue-700 mb-4">
+                                    Class seperti cetak biru rumah yang berisi:
+                                </p>
+                                <ul class="text-left text-blue-600 space-y-2">
+                                    <li>• 📏 Ukuran kamar</li>
+                                    <li>• 🚪 Jumlah pintu</li>
+                                    <li>• 🪟 Jumlah jendela</li>
+                                    <li>• 🔧 Cara membangun</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-8xl mb-4">🏠</div>
+                            <h3 class="text-2xl font-bold text-green-800 mb-4">Object = Rumah Asli</h3>
+                            <div class="bg-green-50 p-6 rounded-2xl">
+                                <p class="text-green-700 mb-4">
+                                    Object adalah rumah yang sudah jadi:
+                                </p>
+                                <ul class="text-left text-green-600 space-y-2">
+                                    <li>• 🏡 Rumah Pak Budi</li>
+                                    <li>• 🏘️ Rumah Bu Sari</li>
+                                    <li>• 🏠 Rumah Andi</li>
+                                    <li>• 🏚️ Setiap rumah unik!</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Konsep Dasar -->
+                <div class="card p-8 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                        🧠 Konsep Dasar Class & Object
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-purple-800 mb-3">
+                                <i class="fas fa-cube mr-2"></i>Apa itu Class?
+                            </h3>
+                            <p class="text-purple-700 mb-3">
+                                Class adalah template atau blueprint (cetak biru) untuk membuat object. 
+                                Seperti cetakan kue yang bisa digunakan untuk membuat banyak kue dengan bentuk sama, 
+                                tapi setiap kue bisa memiliki rasa dan warna yang berbeda.
+                            </p>
+                            <div class="bg-white bg-opacity-50 p-4 rounded-lg">
+                                <strong>Contoh:</strong> Class "Siswa" mendefinisikan bahwa setiap siswa memiliki nama, NIS, dan kelas. 
+                                Dari class ini kita bisa membuat object siswa bernama Andi (NIS: 001), Budi (NIS: 002), Citra (NIS: 003), dll.
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-blue-800 mb-3">
+                                <i class="fas fa-box mr-2"></i>Apa itu Object?
+                            </h3>
+                            <p class="text-blue-700 mb-3">
+                                Object adalah instance (hasil jadi) dari class. Setiap object memiliki data (atribut) dan perilaku (method) yang unik, 
+                                meskipun dibuat dari class yang sama. Object adalah "benda nyata" yang bisa kita gunakan dalam program.
+                            </p>
+                            <div class="bg-white bg-opacity-50 p-4 rounded-lg">
+                                <strong>Contoh:</strong> Dari class "Siswa", kita bisa membuat object siswa1 (Andi, NIS: 001, nilai: 85) 
+                                dan siswa2 (Budi, NIS: 002, nilai: 90). Keduanya adalah object berbeda dengan data berbeda.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="next-btn" onclick="showSection('class-dasar')">
+                    Lanjut ke Class Dasar <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Class Dasar Section -->
+        <div id="class-dasar" class="section hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">
+                        🏗️ Membuat Class Dasar di Python
+                    </h1>
+                    <p class="text-xl text-gray-600">
+                        Yuk belajar syntax dasar untuk membuat class pertamamu!
+                    </p>
+                </div>
+
+                <!-- Syntax Dasar -->
+                <div class="card p-8 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                        📝 Syntax Dasar Class Python
+                    </h2>
+                    
+                    <div class="code-block mb-6">
+                        <div class="code-header">
+                            <i class="fab fa-python"></i>
+                            <span>Python - class_dasar.py</span>
+                        </div>
+                        <pre class="p-6 text-green-400 text-lg overflow-x-auto"><code># Membuat class sederhana
+class Siswa:
+    # Constructor - method khusus yang dijalankan saat object dibuat
+    def __init__(self, nama, nis):
+        # self merujuk pada object yang sedang dibuat
+        self.nama = nama        # Atribut untuk menyimpan nama siswa
+        self.nis = nis          # Atribut untuk menyimpan NIS siswa
+        self.status = "Aktif"   # Atribut default untuk semua siswa baru
+    
+    # Method untuk menampilkan informasi siswa
+    def tampilkan_info(self):
+        return f"Nama: {self.nama}, NIS: {self.nis}, Status: {self.status}"
+    
+    # Method untuk mengubah status siswa
+    def ubah_status(self, status_baru):
+        self.status = status_baru
+        return f"Status {self.nama} diubah menjadi {status_baru}"
+
+# Membuat object (instance) dari class Siswa
+siswa1 = Siswa("Andi Pratama", "001")  # Object pertama
+siswa2 = Siswa("Budi Santoso", "002")  # Object kedua
+
+# Menggunakan method dari object
+print(siswa1.tampilkan_info())  # Output: Nama: Andi Pratama, NIS: 001, Status: Aktif
+print(siswa2.ubah_status("Lulus"))  # Output: Status Budi Santoso diubah menjadi Lulus
+print(siswa2.tampilkan_info())  # Output: Nama: Budi Santoso, NIS: 002, Status: Lulus</code></pre>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-indigo-800 mb-4">🔍 Penjelasan Detail Kode:</h3>
+                        <div class="space-y-3 text-indigo-700">
+                            <p><strong>class Siswa:</strong> Mendefinisikan class bernama Siswa (huruf besar untuk nama class)</p>
+                            <p><strong>__init__(self, nama, nis):</strong> Constructor yang otomatis dijalankan saat object dibuat. Parameter nama dan nis wajib diisi</p>
+                            <p><strong>self:</strong> Keyword khusus yang merujuk pada object yang sedang dibuat/digunakan. Harus ada di setiap method</p>
+                            <p><strong>self.nama = nama:</strong> Menyimpan parameter nama ke dalam atribut object</p>
+                            <p><strong>def tampilkan_info(self):</strong> Method (fungsi dalam class) untuk menampilkan informasi siswa</p>
+                            <p><strong>siswa1 = Siswa(...):</strong> Membuat object baru dari class Siswa</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demo Interaktif -->
+                <div class="demo-area">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                        🎮 Demo Interaktif: Membuat Class Sederhana
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Buat Object Siswa</h3>
+                            <input type="text" id="demoNama" placeholder="Nama Siswa" class="input-cute">
+                            <input type="text" id="demoNIS" placeholder="NIS" class="input-cute">
+                            <button onclick="buatSiswaDemo()" class="btn-cute btn-primary w-full">
+                                <i class="fas fa-plus mr-2"></i>Buat Siswa
+                            </button>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Daftar Siswa</h3>
+                            <div id="daftarSiswaDemo" class="bg-white bg-opacity-50 p-4 rounded-xl min-h-32">
+                                <p class="text-gray-500 text-center">Belum ada siswa. Buat siswa pertama!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="next-btn" onclick="showSection('class-siswa')">
+                    Lanjut ke Class Siswa <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Class Siswa Section -->
+        <div id="class-siswa" class="section hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">
+                        👨‍🎓 Membuat Class Siswa Lengkap
+                    </h1>
+                    <p class="text-xl text-gray-600">
+                        Sekarang kita buat class siswa yang lebih lengkap dengan berbagai fitur!
+                    </p>
+                </div>
+
+                <!-- Implementasi Class Siswa -->
+                <div class="card p-8 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                        💻 Implementasi Class Siswa Lengkap
+                    </h2>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fab fa-python"></i>
+                            <span>Python - siswa_lengkap.py</span>
+                        </div>
+                        <pre class="p-6 text-green-400 text-lg overflow-x-auto"><code>class Siswa:
+    def __init__(self, nama, nis, kelas, tanggal_lahir="", alamat=""):
+        # Atribut wajib - harus diisi saat membuat object
+        self.nama = nama
+        self.nis = nis
+        self.kelas = kelas
+        
+        # Atribut opsional - boleh kosong (default value = "")
+        self.tanggal_lahir = tanggal_lahir
+        self.alamat = alamat
+        
+        # Atribut default - otomatis terisi untuk semua siswa baru
+        self.nilai = {}  # Dictionary kosong untuk menyimpan nilai per mata pelajaran
+        self.status = "Aktif"
+        self.tahun_masuk = 2024
+        
+        # Pesan konfirmasi saat siswa berhasil dibuat
+        print(f"✅ Siswa {self.nama} berhasil didaftarkan di kelas {self.kelas}")
+    
+    def tambah_nilai(self, mata_pelajaran, nilai):
+        """Method untuk menambahkan nilai mata pelajaran"""
+        # Validasi nilai harus antara 0-100
+        if 0 <= nilai <= 100:
+            self.nilai[mata_pelajaran] = nilai
+            return f"✅ Nilai {mata_pelajaran} untuk {self.nama}: {nilai}"
+        else:
+            return "❌ Nilai harus antara 0-100!"
+    
+    def hitung_rata_rata(self):
+        """Method untuk menghitung rata-rata semua nilai"""
+        if not self.nilai:  # Jika dictionary nilai masih kosong
+            return 0
+        
+        # Hitung total semua nilai
+        total_nilai = sum(self.nilai.values())
+        jumlah_mapel = len(self.nilai)
+        rata_rata = total_nilai / jumlah_mapel
+        
+        return round(rata_rata, 2)  # Bulatkan ke 2 angka desimal
+    
+    def dapatkan_predikat(self):
+        """Method untuk mendapatkan predikat berdasarkan rata-rata nilai"""
+        rata_rata = self.hitung_rata_rata()
+        
+        # Sistem penilaian standar sekolah
+        if rata_rata >= 90:
+            return "A - Sangat Baik"
+        elif rata_rata >= 80:
+            return "B - Baik"
+        elif rata_rata >= 70:
+            return "C - Cukup"
+        elif rata_rata >= 60:
+            return "D - Kurang"
+        else:
+            return "E - Sangat Kurang"
+    
+    def tampilkan_info(self):
+        """Method untuk menampilkan informasi lengkap siswa dalam format tabel"""
+        info = f"""
+╔══════════════════════════════════════╗
+║           INFORMASI SISWA            ║
+╠══════════════════════════════════════╣
+║ Nama         : {self.nama:<20} ║
+║ NIS          : {self.nis:<20} ║
+║ Kelas        : {self.kelas:<20} ║
+║ Status       : {self.status:<20} ║
+║ Rata-rata    : {self.hitung_rata_rata():<20} ║
+║ Predikat     : {self.dapatkan_predikat():<20} ║
+╚══════════════════════════════════════╝
+        """
+        return info
+
+# Contoh penggunaan:
+# siswa1 = Siswa("Andi Pratama", "001", "X RPL 1")
+# siswa1.tambah_nilai("Matematika", 85)
+# siswa1.tambah_nilai("Bahasa Indonesia", 90)
+# print(siswa1.tampilkan_info())</code></pre>
+                    </div>
+                </div>
+
+                <!-- Demo Class Siswa -->
+                <div class="demo-area">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                        🎮 Demo Interaktif: Class Siswa Lengkap
+                    </h2>
+                    
+                    <div class="grid lg:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Buat Siswa & Tambah Nilai</h3>
+                            <input type="text" id="siswaLengkapNama" placeholder="Nama Lengkap" class="input-cute">
+                            <input type="text" id="siswaLengkapNIS" placeholder="NIS" class="input-cute">
+                            <input type="text" id="siswaLengkapKelas" placeholder="Kelas" class="input-cute">
+                            <button onclick="buatSiswaLengkap()" class="btn-cute btn-primary w-full mb-4">
+                                <i class="fas fa-user-plus mr-2"></i>Buat Siswa
+                            </button>
+                            
+                            <h4 class="font-bold text-gray-700 mb-2">Tambah Nilai:</h4>
+                            <select id="pilihSiswa" class="input-cute">
+                                <option value="">Pilih Siswa</option>
+                            </select>
+                            <input type="text" id="mataPelajaran" placeholder="Mata Pelajaran" class="input-cute">
+                            <input type="number" id="nilaiSiswa" placeholder="Nilai (0-100)" min="0" max="100" class="input-cute">
+                            <button onclick="tambahNilai()" class="btn-cute btn-success w-full">
+                                <i class="fas fa-plus-circle mr-2"></i>Tambah Nilai
+                            </button>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Daftar Siswa & Nilai</h3>
+                            <div id="daftarSiswaLengkap" class="bg-white bg-opacity-50 p-4 rounded-xl min-h-96 max-h-96 overflow-y-auto">
+                                <p class="text-gray-500 text-center">Belum ada siswa. Buat siswa pertama!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="next-btn" onclick="showSection('implementasi')">
+                    Lanjut ke Implementasi <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Implementasi Section -->
+        <div id="implementasi" class="section hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">
+                        🚀 Implementasi Sistem Manajemen
+                    </h1>
+                    <p class="text-xl text-gray-600">
+                        Mari lihat bagaimana class bekerja dalam sistem yang lebih besar!
+                    </p>
+                </div>
+
+                <!-- Sistem Manajemen Kelas -->
+                <div class="card p-8 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                        🏫 Class ManajemenKelas
+                    </h2>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fab fa-python"></i>
+                            <span>Python - manajemen_kelas.py</span>
+                        </div>
+                        <pre class="p-6 text-green-400 text-lg overflow-x-auto"><code>class ManajemenKelas:
+    def __init__(self, nama_kelas, wali_kelas):
+        # Atribut dasar kelas
+        self.nama_kelas = nama_kelas
+        self.wali_kelas = wali_kelas
+        self.daftar_siswa = []  # List untuk menyimpan siswa
+        self.kapasitas_max = 30
+        
+        print(f"✅ Kelas {self.nama_kelas} berhasil dibuat!")
+    
+    def tambah_siswa(self, siswa):
+        """Menambahkan siswa ke dalam kelas"""
+        # Cek kapasitas
+        if len(self.daftar_siswa) >= self.kapasitas_max:
+            return "❌ Kelas sudah penuh!"
+        
+        # Cek NIS duplikat
+        for s in self.daftar_siswa:
+            if s.nis == siswa.nis:
+                return "❌ NIS sudah ada!"
+        
+        # Tambahkan siswa
+        self.daftar_siswa.append(siswa)
+        siswa.kelas = self.nama_kelas
+        return f"✅ {siswa.nama} berhasil ditambahkan"
+    
+    def hapus_siswa(self, nis):
+        """Menghapus siswa berdasarkan NIS"""
+        for i, siswa in enumerate(self.daftar_siswa):
+            if siswa.nis == nis:
+                nama = siswa.nama
+                siswa.kelas = ""  # Reset kelas siswa
+                self.daftar_siswa.pop(i)
+                return f"✅ {nama} berhasil dihapus"
+        return "❌ Siswa tidak ditemukan!"
+    
+    def cari_siswa(self, nis):
+        """Mencari siswa berdasarkan NIS"""
+        for siswa in self.daftar_siswa:
+            if siswa.nis == nis:
+                return siswa
+        return None
+    
+    def hitung_rata_rata_kelas(self):
+        """Menghitung rata-rata nilai kelas"""
+        if not self.daftar_siswa:
+            return 0
+        
+        total = 0
+        jumlah = 0
+        
+        for siswa in self.daftar_siswa:
+            rata_rata = siswa.hitung_rata_rata()
+            if rata_rata > 0:
+                total += rata_rata
+                jumlah += 1
+        
+        return round(total / jumlah, 2) if jumlah > 0 else 0
+    
+    def siswa_terbaik(self):
+        """Mencari siswa dengan nilai tertinggi"""
+        if not self.daftar_siswa:
+            return None
+        
+        terbaik = None
+        nilai_tertinggi = 0
+        
+        for siswa in self.daftar_siswa:
+            rata_rata = siswa.hitung_rata_rata()
+            if rata_rata > nilai_tertinggi:
+                nilai_tertinggi = rata_rata
+                terbaik = siswa
+        
+        return terbaik
+    
+    def tampilkan_daftar_siswa(self):
+        """Menampilkan daftar siswa"""
+        if not self.daftar_siswa:
+            return "Belum ada siswa di kelas ini."
+        
+        hasil = f"\n📋 DAFTAR SISWA KELAS {self.nama_kelas}\n"
+        hasil += "=" * 40 + "\n"
+        
+        for i, siswa in enumerate(self.daftar_siswa, 1):
+            rata_rata = siswa.hitung_rata_rata()
+            hasil += f"{i}. {siswa.nama} (NIS: {siswa.nis}) - Rata-rata: {rata_rata}\n"
+        
+        return hasil
+    
+    def tampilkan_statistik(self):
+        """Menampilkan statistik kelas"""
+        jumlah_siswa = len(self.daftar_siswa)
+        rata_rata_kelas = self.hitung_rata_rata_kelas()
+        terbaik = self.siswa_terbaik()
+        
+        print(f"\n📊 STATISTIK KELAS {self.nama_kelas}")
+        print("=" * 35)
+        print(f"Wali Kelas      : {self.wali_kelas}")
+        print(f"Jumlah Siswa    : {jumlah_siswa}/{self.kapasitas_max}")
+        print(f"Rata-rata Kelas : {rata_rata_kelas}")
+        print(f"Siswa Terbaik   : {terbaik.nama if terbaik else 'Belum ada'}")
+        print("=" * 35)
+
+# ===== CONTOH PENGGUNAAN LENGKAP =====
+
+# 1. Buat class Siswa terlebih dahulu
+class Siswa:
+    def __init__(self, nama, nis, kelas=""):
+        self.nama = nama
+        self.nis = nis
+        self.kelas = kelas
+        self.nilai = {}
+    
+    def tambah_nilai(self, mata_pelajaran, nilai):
+        if 0 <= nilai <= 100:
+            self.nilai[mata_pelajaran] = nilai
+            return f"✅ Nilai {mata_pelajaran}: {nilai}"
+        return "❌ Nilai harus 0-100!"
+    
+    def hitung_rata_rata(self):
+        if not self.nilai:
+            return 0
+        return round(sum(self.nilai.values()) / len(self.nilai), 2)
+
+# 2. Contoh penggunaan
+if __name__ == "__main__":
+    # Buat kelas
+    kelas_rpl = ManajemenKelas("X RPL 1", "Bu Sari")
+    
+    # Buat siswa
+    siswa1 = Siswa("Andi Pratama", "001")
+    siswa2 = Siswa("Budi Santoso", "002")
+    siswa3 = Siswa("Citra Dewi", "003")
+    
+    # Tambahkan siswa ke kelas
+    print(kelas_rpl.tambah_siswa(siswa1))
+    print(kelas_rpl.tambah_siswa(siswa2))
+    print(kelas_rpl.tambah_siswa(siswa3))
+    
+    # Tambahkan nilai
+    siswa1.tambah_nilai("Matematika", 85)
+    siswa1.tambah_nilai("Bahasa Indonesia", 90)
+    
+    siswa2.tambah_nilai("Matematika", 75)
+    siswa2.tambah_nilai("Bahasa Indonesia", 80)
+    
+    siswa3.tambah_nilai("Matematika", 95)
+    siswa3.tambah_nilai("Bahasa Indonesia", 88)
+    
+    # Tampilkan hasil
+    print(kelas_rpl.tampilkan_daftar_siswa())
+    kelas_rpl.tampilkan_statistik()</code></pre>
+                    </div>
+                </div>
+
+                <!-- Demo Sistem Lengkap -->
+                <div class="demo-area">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                        🎮 Demo Sistem Manajemen Lengkap
+                    </h2>
+                    
+                    <div class="grid lg:grid-cols-2 gap-8">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Kelola Kelas</h3>
+                            
+                            <div class="mb-6">
+                                <h4 class="font-bold text-gray-700 mb-2">Buat Kelas Baru:</h4>
+                                <input type="text" id="namaKelas" placeholder="Nama Kelas (X RPL 1)" class="input-cute">
+                                <input type="text" id="waliKelas" placeholder="Wali Kelas" class="input-cute">
+                                <button onclick="buatKelas()" class="btn-cute btn-primary w-full mb-4">
+                                    <i class="fas fa-school mr-2"></i>Buat Kelas
+                                </button>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <h4 class="font-bold text-gray-700 mb-2">Tambah Siswa ke Kelas:</h4>
+                                <select id="pilihKelasDemo" class="input-cute">
+                                    <option value="">Pilih Kelas</option>
+                                </select>
+                                <select id="pilihSiswaDemo" class="input-cute">
+                                    <option value="">Pilih Siswa</option>
+                                </select>
+                                <button onclick="tambahSiswaKeKelas()" class="btn-cute btn-success w-full">
+                                    <i class="fas fa-user-plus mr-2"></i>Tambah ke Kelas
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Statistik Kelas</h3>
+                            <div id="statistikKelas" class="bg-white bg-opacity-50 p-4 rounded-xl min-h-96 max-h-96 overflow-y-auto">
+                                <p class="text-gray-500 text-center">Belum ada kelas. Buat kelas pertama!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="next-btn" onclick="showSection('tugas')">
+                    Lanjut ke Tugas <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tugas Section -->
+        <div id="tugas" class="section hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">
+                        📝 Tugas Praktik
+                    </h1>
+                    <p class="text-xl text-gray-600">
+                        Saatnya menguji pemahamanmu dengan tugas praktik!
+                    </p>
+                </div>
+
+                <!-- Tugas 1 -->
+                <div class="card p-8 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                        🎯 Tugas 1: Membuat Class Buku
+                    </h2>
+                    
+                    <div class="bg-gradient-to-r from-blue-100 to-indigo-100 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-indigo-800 mb-3">📚 Deskripsi Tugas</h3>
+                        <p class="text-indigo-700 mb-4">
+                            Buatlah class <strong>Buku</strong> untuk sistem perpustakaan dengan spesifikasi berikut:
+                        </p>
+                        <ul class="text-indigo-700 space-y-2">
+                            <li><strong>Atribut:</strong> judul, pengarang, tahun_terbit, isbn, status_pinjam</li>
+                            <li><strong>Method:</strong> pinjam_buku(), kembalikan_buku(), tampilkan_info()</li>
+                            <li><strong>Fitur:</strong> Cek ketersediaan buku sebelum dipinjam</li>
+                        </ul>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fab fa-python"></i>
+                            <span>Python - tugas1_template.py</span>
+                        </div>
+                        <pre class="p-6 text-green-400 text-lg overflow-x-auto"><code># Template untuk Tugas 1 - Class Buku
+class Buku:
+    def __init__(self, judul, pengarang, tahun_terbit, isbn):
+        # TODO: Lengkapi constructor ini
+        # Hint: Simpan parameter ke dalam atribut self
+        # Jangan lupa tambahkan atribut status_pinjam dan peminjam
+        self.judul = judul
+        self.pengarang = pengarang
+        # Lengkapi sisanya...
+        pass
+    
+    def pinjam_buku(self, nama_peminjam):
+        # TODO: Implementasikan method untuk meminjam buku
+        # Hint: Cek dulu apakah buku sedang dipinjam atau tidak
+        # Jika tersedia, ubah status dan simpan nama peminjam
+        # Return pesan sukses atau gagal
+        pass
+    
+    def kembalikan_buku(self):
+        # TODO: Implementasikan method untuk mengembalikan buku
+        # Hint: Ubah status menjadi tersedia dan kosongkan peminjam
+        # Return pesan konfirmasi
+        pass
+    
+    def tampilkan_info(self):
+        # TODO: Implementasikan method untuk menampilkan info buku
+        # Hint: Tampilkan semua informasi buku dalam format yang rapi
+        # Termasuk status pinjam dan nama peminjam (jika ada)
+        pass
+
+# Contoh penggunaan yang diharapkan:
+# buku1 = Buku("Python Programming", "John Doe", 2023, "978-123456789")
+# print(buku1.pinjam_buku("Andi"))  # ✅ Buku berhasil dipinjam oleh Andi
+# print(buku1.tampilkan_info())     # Tampilkan info lengkap
+# print(buku1.kembalikan_buku())    # ✅ Buku berhasil dikembalikan</code></pre>
+                    </div>
+                </div>
+
+                <!-- Tugas 2 -->
+                <div class="card p-8 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                        🎯 Tugas 2: Sistem Perpustakaan
+                    </h2>
+                    
+                    <div class="bg-gradient-to-r from-green-100 to-teal-100 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-teal-800 mb-3">📖 Deskripsi Tugas</h3>
+                        <p class="text-teal-700 mb-4">
+                            Buatlah class <strong>Perpustakaan</strong> yang mengelola kumpulan buku:
+                        </p>
+                        <ul class="text-teal-700 space-y-2">
+                            <li><strong>Atribut:</strong> nama_perpustakaan, daftar_buku, daftar_anggota</li>
+                            <li><strong>Method:</strong> tambah_buku(), cari_buku(), daftar_buku_tersedia()</li>
+                            <li><strong>Bonus:</strong> Statistik peminjaman dan buku terpopuler</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Area Jawaban -->
+                <div class="demo-area">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                        ✍️ Area Pengerjaan Tugas
+                    </h2>
+                    
+                    <div class="mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Tulis Kode Jawabanmu:</h3>
+                        <textarea id="jawabanTugas" class="input-cute h-64 font-mono text-md" placeholder="# Tulis kode Python kamu di sini...
+class Buku:
+    def __init__(self, judul, pengarang, tahun_terbit, isbn):
+        # Lengkapi kode di sini
+        pass"></textarea>
+                        
+                        <button onclick="cekJawaban()" class="btn-cute btn-primary mt-4">
+                            <i class="fas fa-check mr-2"></i>Cek Jawaban
+                        </button>
+                        
+                        <div id="hasilCekJawaban" class="mt-4"></div>
+                    </div>
+                </div>
+
+                <button class="next-btn" onclick="showSection('kuis')">
+                    Lanjut ke Kuis <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Kuis Section -->
+        <div id="kuis" class="section hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">
+                        🧠 Kuis Pemahaman
+                    </h1>
+                    <p class="text-xl text-gray-600">
+                        Uji pemahamanmu dengan 10 soal pilihan ganda!
+                    </p>
+                </div>
+
+                <!-- Form Nama -->
+                <div id="formNamaKuis" class="card p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">
+                        👋 Masukkan Nama Kamu
+                    </h2>
+                    <input type="text" id="namaKuis" placeholder="Nama Lengkap" class="input-cute text-center text-lg">
+                    <button onclick="mulaiKuis()" class="btn-cute btn-primary w-full mt-4 text-lg">
+                        <i class="fas fa-play mr-2"></i>Mulai Kuis
+                    </button>
+                </div>
+
+                <!-- Area Kuis -->
+                <div id="areaKuis" class="hidden">
+                    <div class="card p-8 mb-8">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-bold text-gray-800">
+                                Soal <span id="nomorSoal">1</span> dari 10
+                            </h2>
+                            <div class="text-lg font-bold text-purple-600">
+                                Skor: <span id="skorSementara">0</span>
+                            </div>
+                        </div>
+                        
+                        <div id="soalKuis" class="mb-6">
+                            <!-- Soal akan dimuat di sini -->
+                        </div>
+                        
+                        <div id="pilihanJawaban" class="space-y-3 mb-6">
+                            <!-- Pilihan jawaban akan dimuat di sini -->
+                        </div>
+                        
+                        <button id="btnJawab" onclick="jawabSoal()" class="btn-cute btn-success w-full" disabled>
+                            <i class="fas fa-check mr-2"></i>Jawab
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hasil Kuis -->
+                <div id="hasilKuis" class="hidden">
+                    <div class="card p-8 text-center">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                            🎉 Kuis Selesai!
+                        </h2>
+                        <div id="skorAkhir" class="text-6xl font-bold text-purple-600 mb-4">
+                            <!-- Skor akan ditampilkan di sini -->
+                        </div>
+                        <div id="pesanHasil" class="text-xl text-gray-700 mb-6">
+                            <!-- Pesan hasil akan ditampilkan di sini -->
+                        </div>
+                        <button onclick="ulangiKuis()" class="btn-cute btn-primary">
+                            <i class="fas fa-redo mr-2"></i>Ulangi Kuis
+                        </button>
+                    </div>
+                </div>
+
+                <button class="next-btn" onclick="showSection('penutup')">
+                    Lanjut ke Penutup <i class="fas fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Penutup Section -->
+        <div id="penutup" class="section hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-12">
+                    <h1 class="text-4xl font-bold text-gray-800 mb-4">
+                        🎊 Selamat! Kamu Telah Menyelesaikan Pembelajaran
+                    </h1>
+                    <p class="text-xl text-gray-600">
+                        Mari refleksikan apa yang telah kamu pelajari!
+                    </p>
+                </div>
+
+                <!-- Refleksi -->
+                <div class="card p-8 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                        🤔 Refleksi Pembelajaran
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-100 to-indigo-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-indigo-800 mb-3">💭 Apa yang Sudah Kamu Pelajari?</h3>
+                            <ul class="text-indigo-700 space-y-2">
+                                <li>✅ Konsep dasar Class & Object dalam Python</li>
+                                <li>✅ Cara membuat class dengan atribut dan method</li>
+                                <li>✅ Implementasi sistem manajemen data siswa</li>
+                                <li>✅ Hubungan antar objek dalam sistem</li>
+                                <li>✅ Praktik langsung dengan demo interaktif</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-green-100 to-teal-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-teal-800 mb-3">🎯 Skill yang Sudah Dikuasai:</h3>
+                            <ul class="text-teal-700 space-y-2">
+                                <li>🔧 Membuat constructor (__init__)</li>
+                                <li>📊 Mengelola atribut object</li>
+                                <li>⚡ Membuat method yang fungsional</li>
+                                <li>🔗 Menghubungkan multiple objects</li>
+                                <li>💾 Implementasi sistem data management</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kesimpulan -->
+                <div class="card p-8 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                        📋 Kesimpulan Pembelajaran
+                    </h2>
+                    
+                    <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-purple-800 mb-4">🌟 Poin Penting yang Harus Diingat:</h3>
+                        <div class="space-y-3 text-purple-700">
+                            <p><strong>1. Class adalah Template:</strong> Seperti cetakan kue yang bisa digunakan berulang kali untuk membuat object</p>
+                            <p><strong>2. Object adalah Instance:</strong> Hasil jadi dari class dengan data unik masing-masing</p>
+                            <p><strong>3. Constructor (__init__):</strong> Method khusus yang otomatis dijalankan saat object dibuat</p>
+                            <p><strong>4. Atribut menyimpan Data:</strong> Informasi yang dimiliki setiap object (self.nama, self.nis, dll)</p>
+                            <p><strong>5. Method adalah Aksi:</strong> Fungsi yang bisa dilakukan object (tampilkan_info, tambah_nilai, dll)</p>
+                            <p><strong>6. Self merujuk Object:</strong> Keyword khusus yang merujuk pada object yang sedang digunakan</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-blue-100 to-indigo-100 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-indigo-800 mb-4">🔑 Konsep Kunci OOP:</h3>
+                        <div class="grid md:grid-cols-2 gap-4 text-indigo-700">
+                            <div>
+                                <p><strong>Encapsulation:</strong> Data dan method dikemas dalam satu class</p>
+                                <p><strong>Abstraction:</strong> Menyembunyikan detail kompleks di balik interface sederhana</p>
+                            </div>
+                            <div>
+                                <p><strong>Reusability:</strong> Class bisa digunakan berulang untuk membuat banyak object</p>
+                                <p><strong>Modularity:</strong> Kode terorganisir dalam unit-unit yang terpisah dan jelas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tindak Lanjut -->
+                <div class="card p-8 mb-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">
+                        🚀 Tindak Lanjut
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-gradient-to-br from-yellow-100 to-orange-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-orange-800 mb-4">📚 Materi Lanjutan:</h3>
+                            <ul class="text-orange-700 space-y-2">
+                                <li>• Inheritance (Pewarisan)</li>
+                                <li>• Polymorphism</li>
+                                <li>• Encapsulation</li>
+                                <li>• Abstract Classes</li>
+                                <li>• Design Patterns</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-100 to-blue-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-blue-800 mb-4">💡 Proyek Lanjutan:</h3>
+                            <ul class="text-blue-700 space-y-2">
+                                <li>• Sistem Perpustakaan Lengkap</li>
+                                <li>• Aplikasi Toko Online</li>
+                                <li>• Game RPG Sederhana</li>
+                                <li>• Sistem Inventory</li>
+                                <li>• Social Media App</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pesan Penutup -->
+                <div class="card p-8 text-center">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6">
+                        🎉 Terima Kasih & Selamat!
+                    </h2>
+                    <p class="text-xl text-gray-700 mb-6">
+                        Kamu telah berhasil menguasai konsep Class & Object Python! 
+                        Terus berlatih dan jangan takut untuk bereksperimen dengan kode.
+                    </p>
+                    <div class="text-6xl mb-4">🏆</div>
+                    <p class="text-lg text-gray-600">
+                        "Coding is not about what you know, it's about what you can figure out!"
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button class="floating-btn" onclick="scrollToTop()">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // Global variables
+        let currentSection = 'intro';
+        let demoSiswa = [];
+        let siswaLengkap = [];
+        let kelasDemo = [];
+        let kuisData = [];
+        let currentQuiz = 0;
+        let quizScore = 0;
+        let selectedAnswer = null;
+
+        // Sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const content = document.getElementById('content');
+            
+            if (window.innerWidth <= 768) {
+                sidebar.classList.toggle('sidebar-hidden');
+                if (sidebar.classList.contains('sidebar-hidden')) {
+                    overlay.style.display = 'none';
+                } else {
+                    overlay.style.display = 'block';
+                }
+            }
+        }
+
+        // Show section
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.add('hidden'));
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update active menu - find menu item by onclick content
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.classList.remove('active');
+                // Check if this menu item corresponds to the current section
+                const onclick = item.getAttribute('onclick');
+                if (onclick && onclick.includes(`'${sectionId}'`)) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Close sidebar on mobile
+            if (window.innerWidth <= 768) {
+                toggleSidebar();
+            }
+            
+            // Scroll to top with a small delay to ensure section is shown first
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 100);
+            
+            currentSection = sectionId;
+        }
+
+        // Scroll to top
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Demo functions
+        function buatSiswaDemo() {
+            const nama = document.getElementById('demoNama').value;
+            const nis = document.getElementById('demoNIS').value;
+            
+            if (!nama || !nis) {
+                alert('Mohon isi nama dan NIS!');
+                return;
+            }
+            
+            // Check if NIS already exists
+            if (demoSiswa.find(s => s.nis === nis)) {
+                alert('NIS sudah ada!');
+                return;
+            }
+            
+            const siswa = {
+                nama: nama,
+                nis: nis,
+                status: 'Aktif'
+            };
+            
+            demoSiswa.push(siswa);
+            updateDaftarSiswaDemo();
+            
+            // Clear inputs
+            document.getElementById('demoNama').value = '';
+            document.getElementById('demoNIS').value = '';
+        }
+
+        function updateDaftarSiswaDemo() {
+            const container = document.getElementById('daftarSiswaDemo');
+            
+            if (demoSiswa.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center">Belum ada siswa. Buat siswa pertama!</p>';
+                return;
+            }
+            
+            let html = '';
+            demoSiswa.forEach((siswa, index) => {
+                html += `
+                    <div class="bg-white bg-opacity-70 p-3 rounded-lg mb-2">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <strong>${siswa.nama}</strong><br>
+                                <small class="text-gray-600">NIS: ${siswa.nis} | Status: ${siswa.status}</small>
+                            </div>
+                            <button onclick="hapusSiswaDemo(${index})" class="text-red-500 hover:text-red-700">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function hapusSiswaDemo(index) {
+            demoSiswa.splice(index, 1);
+            updateDaftarSiswaDemo();
+        }
+
+        // Siswa Lengkap functions
+        function buatSiswaLengkap() {
+            const nama = document.getElementById('siswaLengkapNama').value;
+            const nis = document.getElementById('siswaLengkapNIS').value;
+            const kelas = document.getElementById('siswaLengkapKelas').value;
+            
+            if (!nama || !nis || !kelas) {
+                alert('Mohon isi semua field!');
+                return;
+            }
+            
+            if (siswaLengkap.find(s => s.nis === nis)) {
+                alert('NIS sudah ada!');
+                return;
+            }
+            
+            const siswa = {
+                nama: nama,
+                nis: nis,
+                kelas: kelas,
+                nilai: {},
+                status: 'Aktif'
+            };
+            
+            siswaLengkap.push(siswa);
+            updateDaftarSiswaLengkap();
+            updatePilihSiswa();
+            
+            // Clear inputs
+            document.getElementById('siswaLengkapNama').value = '';
+            document.getElementById('siswaLengkapNIS').value = '';
+            document.getElementById('siswaLengkapKelas').value = '';
+        }
+
+        function updatePilihSiswa() {
+            const select = document.getElementById('pilihSiswa');
+            select.innerHTML = '<option value="">Pilih Siswa</option>';
+            
+            siswaLengkap.forEach((siswa, index) => {
+                select.innerHTML += `<option value="${index}">${siswa.nama} (${siswa.nis})</option>`;
+            });
+            
+            // Update untuk demo kelas juga
+            const selectDemo = document.getElementById('pilihSiswaDemo');
+            if (selectDemo) {
+                selectDemo.innerHTML = '<option value="">Pilih Siswa</option>';
+                siswaLengkap.forEach((siswa, index) => {
+                    selectDemo.innerHTML += `<option value="${index}">${siswa.nama} (${siswa.nis})</option>`;
+                });
+            }
+        }
+
+        function tambahNilai() {
+            const siswaIndex = document.getElementById('pilihSiswa').value;
+            const mapel = document.getElementById('mataPelajaran').value;
+            const nilai = parseInt(document.getElementById('nilaiSiswa').value);
+            
+            if (siswaIndex === '' || !mapel || isNaN(nilai)) {
+                alert('Mohon lengkapi semua field!');
+                return;
+            }
+            
+            if (nilai < 0 || nilai > 100) {
+                alert('Nilai harus antara 0-100!');
+                return;
+            }
+            
+            siswaLengkap[siswaIndex].nilai[mapel] = nilai;
+            updateDaftarSiswaLengkap();
+            
+            // Clear inputs
+            document.getElementById('mataPelajaran').value = '';
+            document.getElementById('nilaiSiswa').value = '';
+        }
+
+        function hitungRataRata(nilai) {
+            const nilaiArray = Object.values(nilai);
+            if (nilaiArray.length === 0) return 0;
+            return Math.round(nilaiArray.reduce((a, b) => a + b, 0) / nilaiArray.length * 100) / 100;
+        }
+
+        function dapatkanPredikat(rataRata) {
+            if (rataRata >= 90) return 'A - Sangat Baik';
+            if (rataRata >= 80) return 'B - Baik';
+            if (rataRata >= 70) return 'C - Cukup';
+            if (rataRata >= 60) return 'D - Kurang';
+            return 'E - Sangat Kurang';
+        }
+
+        function updateDaftarSiswaLengkap() {
+            const container = document.getElementById('daftarSiswaLengkap');
+            
+            if (siswaLengkap.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center">Belum ada siswa. Buat siswa pertama!</p>';
+                return;
+            }
+            
+            let html = '';
+            siswaLengkap.forEach((siswa, index) => {
+                const rataRata = hitungRataRata(siswa.nilai);
+                const predikat = dapatkanPredikat(rataRata);
+                
+                html += `
+                    <div class="bg-white bg-opacity-70 p-4 rounded-lg mb-3">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800">${siswa.nama}</h4>
+                                <p class="text-base text-gray-600">NIS: ${siswa.nis} | Kelas: ${siswa.kelas}</p>
+                                <p class="text-base text-gray-600">Rata-rata: ${rataRata} | ${predikat}</p>
+                                
+                                ${Object.keys(siswa.nilai).length > 0 ? `
+                                    <div class="mt-2">
+                                        <strong class="text-base text-gray-700">Nilai:</strong>
+                                        <div class="text-base text-gray-600">
+                                            ${Object.entries(siswa.nilai).map(([mapel, nilai]) => 
+                                                `${mapel}: ${nilai}`
+                                            ).join(' | ')}
+                                        </div>
+                                    </div>
+                                ` : '<p class="text-base text-gray-500 mt-2">Belum ada nilai</p>'}
+                            </div>
+                            <button onclick="hapusSiswaLengkap(${index})" class="text-red-500 hover:text-red-700 ml-2">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function hapusSiswaLengkap(index) {
+            siswaLengkap.splice(index, 1);
+            updateDaftarSiswaLengkap();
+            updatePilihSiswa();
+        }
+
+        // Kelas Demo functions
+        function buatKelas() {
+            const namaKelas = document.getElementById('namaKelas').value;
+            const waliKelas = document.getElementById('waliKelas').value;
+            
+            if (!namaKelas || !waliKelas) {
+                alert('Mohon isi nama kelas dan wali kelas!');
+                return;
+            }
+            
+            if (kelasDemo.find(k => k.nama === namaKelas)) {
+                alert('Kelas sudah ada!');
+                return;
+            }
+            
+            const kelas = {
+                nama: namaKelas,
+                wali: waliKelas,
+                siswa: [],
+                kapasitas: 30
+            };
+            
+            kelasDemo.push(kelas);
+            updatePilihKelas();
+            updateStatistikKelas();
+            
+            // Clear inputs
+            document.getElementById('namaKelas').value = '';
+            document.getElementById('waliKelas').value = '';
+        }
+
+        function updatePilihKelas() {
+            const select = document.getElementById('pilihKelasDemo');
+            select.innerHTML = '<option value="">Pilih Kelas</option>';
+            
+            kelasDemo.forEach((kelas, index) => {
+                select.innerHTML += `<option value="${index}">${kelas.nama}</option>`;
+            });
+        }
+
+        function tambahSiswaKeKelas() {
+            const kelasIndex = document.getElementById('pilihKelasDemo').value;
+            const siswaIndex = document.getElementById('pilihSiswaDemo').value;
+            
+            if (kelasIndex === '' || siswaIndex === '') {
+                alert('Mohon pilih kelas dan siswa!');
+                return;
+            }
+            
+            const kelas = kelasDemo[kelasIndex];
+            const siswa = siswaLengkap[siswaIndex];
+            
+            if (kelas.siswa.find(s => s.nis === siswa.nis)) {
+                alert('Siswa sudah ada di kelas ini!');
+                return;
+            }
+            
+            if (kelas.siswa.length >= kelas.kapasitas) {
+                alert('Kelas sudah penuh!');
+                return;
+            }
+            
+            kelas.siswa.push(siswa);
+            siswa.kelas = kelas.nama;
+            
+            updateStatistikKelas();
+            updateDaftarSiswaLengkap();
+        }
+
+        function updateStatistikKelas() {
+            const container = document.getElementById('statistikKelas');
+            
+            if (kelasDemo.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center">Belum ada kelas. Buat kelas pertama!</p>';
+                return;
+            }
+            
+            let html = '';
+            kelasDemo.forEach((kelas, index) => {
+                const jumlahSiswa = kelas.siswa.length;
+                let rataRataKelas = 0;
+                let siswaTerbaik = null;
+                let nilaiTertinggi = 0;
+                
+                if (jumlahSiswa > 0) {
+                    let totalRata = 0;
+                    let siswaWithNilai = 0;
+                    
+                    kelas.siswa.forEach(siswa => {
+                        const rataRata = hitungRataRata(siswa.nilai);
+                        if (rataRata > 0) {
+                            totalRata += rataRata;
+                            siswaWithNilai++;
+                        }
+                        
+                        if (rataRata > nilaiTertinggi) {
+                            nilaiTertinggi = rataRata;
+                            siswaTerbaik = siswa;
+                        }
+                    });
+                    
+                    if (siswaWithNilai > 0) {
+                        rataRataKelas = Math.round(totalRata / siswaWithNilai * 100) / 100;
+                    }
+                }
+                
+                html += `
+                    <div class="bg-white bg-opacity-70 p-4 rounded-lg mb-4">
+                        <h4 class="font-bold text-lg text-gray-800 mb-2">${kelas.nama}</h4>
+                        <div class="text-base text-gray-700 space-y-1">
+                            <p><strong>Wali Kelas:</strong> ${kelas.wali}</p>
+                            <p><strong>Jumlah Siswa:</strong> ${jumlahSiswa}/${kelas.kapasitas}</p>
+                            <p><strong>Rata-rata Kelas:</strong> ${rataRataKelas}</p>
+                            <p><strong>Siswa Terbaik:</strong> ${siswaTerbaik ? `${siswaTerbaik.nama} (${nilaiTertinggi})` : 'Belum ada'}</p>
+                        </div>
+                        
+                        ${jumlahSiswa > 0 ? `
+                            <div class="mt-3">
+                                <strong class="text-base text-gray-700">Daftar Siswa:</strong>
+                                <div class="text-base text-gray-600 mt-1">
+                                    ${kelas.siswa.map(siswa => 
+                                        `${siswa.nama} (${hitungRataRata(siswa.nilai)})`
+                                    ).join(', ')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        <button onclick="hapusKelas(${index})" class="mt-3 text-red-500 hover:text-red-700 text-lg">
+                            <i class="fas fa-trash mr-1"></i>Hapus Kelas
+                        </button>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function hapusKelas(index) {
+            kelasDemo.splice(index, 1);
+            updatePilihKelas();
+            updateStatistikKelas();
+        }
+
+        // Tugas functions
+        function cekJawaban() {
+            const jawaban = document.getElementById('jawabanTugas').value;
+            const hasil = document.getElementById('hasilCekJawaban');
+            
+            if (!jawaban.trim()) {
+                hasil.innerHTML = '<div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">Mohon tulis jawaban terlebih dahulu!</div>';
+                return;
+            }
+            
+            // Detailed check for class structure
+            let feedback = [];
+            let score = 0;
+            
+            // Check class definition
+            if (jawaban.includes('class Buku:')) {
+                feedback.push('✅ Class Buku sudah didefinisikan dengan benar');
+                score += 15;
+            } else {
+                feedback.push('❌ Class Buku belum didefinisikan (gunakan: class Buku:)');
+            }
+            
+            // Check constructor
+            if (jawaban.includes('def __init__(') && jawaban.includes('self')) {
+                feedback.push('✅ Constructor __init__ sudah ada dengan parameter self');
+                score += 15;
+            } else {
+                feedback.push('❌ Constructor __init__(self, ...) belum ada atau salah');
+            }
+            
+            // Check attributes
+            if (jawaban.includes('self.judul') && jawaban.includes('self.pengarang')) {
+                feedback.push('✅ Atribut dasar (judul, pengarang) sudah didefinisikan');
+                score += 15;
+            } else {
+                feedback.push('❌ Atribut dasar belum lengkap (self.judul, self.pengarang, dll)');
+            }
+            
+            // Check status attribute
+            if (jawaban.includes('status') || jawaban.includes('pinjam')) {
+                feedback.push('✅ Atribut status peminjaman sudah ada');
+                score += 15;
+            } else {
+                feedback.push('❌ Atribut status peminjaman belum ada');
+            }
+            
+            // Check methods
+            let methodCount = 0;
+            if (jawaban.includes('def pinjam_buku(')) methodCount++;
+            if (jawaban.includes('def kembalikan_buku(')) methodCount++;
+            if (jawaban.includes('def tampilkan_info(')) methodCount++;
+            
+            if (methodCount >= 3) {
+                feedback.push('✅ Semua method (pinjam_buku, kembalikan_buku, tampilkan_info) sudah ada');
+                score += 20;
+            } else if (methodCount >= 2) {
+                feedback.push('⚠️ Sebagian method sudah ada, tapi belum lengkap');
+                score += 10;
+            } else {
+                feedback.push('❌ Method belum lengkap atau belum ada');
+            }
+            
+            // Check logic implementation
+            if (jawaban.includes('return') && (jawaban.includes('if') || jawaban.includes('else'))) {
+                feedback.push('✅ Logika dan return statement sudah diimplementasikan');
+                score += 20;
+            } else {
+                feedback.push('❌ Logika method belum diimplementasikan (gunakan if/else dan return)');
+            }
+            
+            // Overall assessment
+            let bgColor, message;
+            if (score >= 85) {
+                bgColor = 'bg-green-100 border-green-400 text-green-700';
+                message = '🎉 Excellent! Kode kamu sudah sangat baik!';
+            } else if (score >= 70) {
+                bgColor = 'bg-blue-100 border-blue-400 text-blue-700';
+                message = '👍 Good! Kode sudah baik, tinggal sedikit perbaikan.';
+            } else if (score >= 50) {
+                bgColor = 'bg-yellow-100 border-yellow-400 text-yellow-700';
+                message = '⚠️ Cukup baik, tapi masih perlu perbaikan di beberapa bagian.';
+            } else {
+                bgColor = 'bg-red-100 border-red-400 text-red-700';
+                message = '❌ Masih perlu banyak perbaikan. Coba lihat contoh lagi!';
+            }
+            
+            hasil.innerHTML = `
+                <div class="${bgColor} px-4 py-3 rounded border">
+                    <h4 class="font-bold mb-2">Hasil Pengecekan (Skor: ${score}/100)</h4>
+                    <p class="mb-3 font-semibold">${message}</p>
+                    <ul class="space-y-1">
+                        ${feedback.map(item => `<li>${item}</li>`).join('')}
+                    </ul>
+                    ${score < 70 ? `
+                        <div class="mt-3 p-3 bg-white bg-opacity-50 rounded">
+                            <strong>💡 Tips:</strong> Pastikan class memiliki constructor, atribut yang lengkap, 
+                            dan method yang menggunakan logika if/else dengan return statement.
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Quiz functions
+        const soalKuis = [
+            {
+                soal: "Apa yang dimaksud dengan Class dalam Python?",
+                pilihan: [
+                    "Fungsi untuk menghitung data",
+                    "Template atau cetakan untuk membuat object",
+                    "Variabel yang menyimpan angka",
+                    "Method untuk menampilkan output"
+                ],
+                jawaban: 1
+            },
+            {
+                soal: "Method khusus yang dijalankan saat object dibuat adalah:",
+                pilihan: [
+                    "__init__",
+                    "__start__",
+                    "__create__",
+                    "__new__"
+                ],
+                jawaban: 0
+            },
+            {
+                soal: "Keyword 'self' dalam Python digunakan untuk:",
+                pilihan: [
+                    "Membuat variabel global",
+                    "Merujuk pada class itu sendiri",
+                    "Merujuk pada object yang sedang digunakan",
+                    "Membuat function baru"
+                ],
+                jawaban: 2
+            },
+            {
+                soal: "Cara yang benar untuk membuat object dari class Siswa adalah:",
+                pilihan: [
+                    "siswa1 = new Siswa()",
+                    "siswa1 = Siswa.create()",
+                    "siswa1 = Siswa('Andi', '001')",
+                    "siswa1 = create Siswa('Andi', '001')"
+                ],
+                jawaban: 2
+            },
+            {
+                soal: "Atribut dalam class digunakan untuk:",
+                pilihan: [
+                    "Menyimpan data atau informasi object",
+                    "Menjalankan fungsi tertentu",
+                    "Membuat object baru",
+                    "Menghapus object"
+                ],
+                jawaban: 0
+            },
+            {
+                soal: "Method dalam class digunakan untuk:",
+                pilihan: [
+                    "Menyimpan data",
+                    "Mendefinisikan aksi yang bisa dilakukan object",
+                    "Membuat variabel",
+                    "Menghapus class"
+                ],
+                jawaban: 1
+            },
+            {
+                soal: "Perbedaan utama antara Class dan Object adalah:",
+                pilihan: [
+                    "Class adalah template, Object adalah instance dari template",
+                    "Class menyimpan data, Object menjalankan fungsi",
+                    "Class untuk angka, Object untuk teks",
+                    "Tidak ada perbedaan"
+                ],
+                jawaban: 0
+            },
+            {
+                soal: "Cara mengakses atribut 'nama' dari object siswa1 adalah:",
+                pilihan: [
+                    "siswa1->nama",
+                    "siswa1.nama",
+                    "siswa1['nama']",
+                    "get siswa1.nama"
+                ],
+                jawaban: 1
+            },
+            {
+                soal: "Dalam sistem manajemen siswa, class ManajemenKelas sebaiknya memiliki:",
+                pilihan: [
+                    "Hanya satu siswa",
+                    "List atau array untuk menyimpan multiple siswa",
+                    "Hanya method tanpa atribut",
+                    "Hanya atribut tanpa method"
+                ],
+                jawaban: 1
+            },
+            {
+                soal: "Keuntungan menggunakan Class & Object dalam programming adalah:",
+                pilihan: [
+                    "Kode lebih lambat tapi aman",
+                    "Kode lebih terorganisir, reusable, dan mudah maintenance",
+                    "Hanya untuk program besar",
+                    "Membuat program lebih rumit"
+                ],
+                jawaban: 1
+            }
+        ];
+
+        function mulaiKuis() {
+            const nama = document.getElementById('namaKuis').value.trim();
+            if (!nama) {
+                alert('Mohon masukkan nama terlebih dahulu!');
+                return;
+            }
+            
+            document.getElementById('formNamaKuis').classList.add('hidden');
+            document.getElementById('areaKuis').classList.remove('hidden');
+            
+            currentQuiz = 0;
+            quizScore = 0;
+            selectedAnswer = null;
+            
+            tampilkanSoal();
+        }
+
+        function tampilkanSoal() {
+            const soal = soalKuis[currentQuiz];
+            
+            document.getElementById('nomorSoal').textContent = currentQuiz + 1;
+            document.getElementById('skorSementara').textContent = quizScore;
+            document.getElementById('soalKuis').innerHTML = `
+                <h3 class="text-xl font-bold text-gray-800 mb-4">${soal.soal}</h3>
+            `;
+            
+            let pilihanHtml = '';
+            soal.pilihan.forEach((pilihan, index) => {
+                pilihanHtml += `
+                    <div class="quiz-option" onclick="pilihJawaban(${index})">
+                        <span class="font-bold">${String.fromCharCode(65 + index)}.</span> ${pilihan}
+                    </div>
+                `;
+            });
+            
+            document.getElementById('pilihanJawaban').innerHTML = pilihanHtml;
+            document.getElementById('btnJawab').disabled = true;
+            selectedAnswer = null;
+        }
+
+        function pilihJawaban(index) {
+            // Remove previous selection
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            event.target.classList.add('selected');
+            selectedAnswer = index;
+            document.getElementById('btnJawab').disabled = false;
+        }
+
+        function jawabSoal() {
+            if (selectedAnswer === null) return;
+            
+            const soal = soalKuis[currentQuiz];
+            if (selectedAnswer === soal.jawaban) {
+                quizScore += 10;
+            }
+            
+            currentQuiz++;
+            
+            if (currentQuiz < soalKuis.length) {
+                setTimeout(tampilkanSoal, 500);
+            } else {
+                tampilkanHasilKuis();
+            }
+        }
+
+        function tampilkanHasilKuis() {
+            const nama = document.getElementById('namaKuis').value;
+            
+            document.getElementById('areaKuis').classList.add('hidden');
+            document.getElementById('hasilKuis').classList.remove('hidden');
+            
+            document.getElementById('skorAkhir').textContent = `${quizScore}/100`;
+            
+            let pesan = '';
+            if (quizScore >= 90) {
+                pesan = `🏆 Luar biasa, ${nama}! Kamu sangat menguasai materi Class & Object!`;
+            } else if (quizScore >= 80) {
+                pesan = `🎉 Bagus sekali, ${nama}! Pemahaman kamu tentang Class & Object sudah baik!`;
+            } else if (quizScore >= 70) {
+                pesan = `👍 Cukup baik, ${nama}! Terus belajar untuk menguasai Class & Object!`;
+            } else if (quizScore >= 60) {
+                pesan = `📚 Lumayan, ${nama}! Masih perlu belajar lebih dalam tentang Class & Object.`;
+            } else {
+                pesan = `💪 Jangan menyerah, ${nama}! Ulangi materi dan coba lagi!`;
+            }
+            
+            document.getElementById('pesanHasil').textContent = pesan;
+        }
+
+        function ulangiKuis() {
+            document.getElementById('hasilKuis').classList.add('hidden');
+            document.getElementById('formNamaKuis').classList.remove('hidden');
+            
+            currentQuiz = 0;
+            quizScore = 0;
+            selectedAnswer = null;
+        }
+
+        // Responsive handling
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            const content = document.getElementById('content');
+            
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('sidebar-hidden');
+                overlay.style.display = 'none';
+                content.style.marginLeft = '320px';
+            } else {
+                content.style.marginLeft = '0';
+                if (!sidebar.classList.contains('sidebar-hidden')) {
+                    overlay.style.display = 'block';
+                }
+            }
+        });
+
+        // Initialize
+        window.addEventListener('load', function() {
+            // Set initial responsive state
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.add('sidebar-hidden');
+                document.getElementById('content').style.marginLeft = '0';
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'991cda2a679dea7f',t:'MTc2MTAwODc4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
