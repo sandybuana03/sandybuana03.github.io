@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface & Abstract Class Python - Pembelajaran Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #ffeef8 0%, #f0f9ff 50%, #f0fdf4 100%);
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .code-header {
+            background: linear-gradient(90deg, #f472b6, #a855f7);
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .floating-shapes {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .content-area {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .correct {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0) !important;
+            border-color: #22c55e !important;
+        }
+        
+        .incorrect {
+            background: linear-gradient(135deg, #fef2f2, #fecaca) !important;
+            border-color: #ef4444 !important;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-full font-sans">
+    <!-- Floating Shapes -->
+    <div class="floating-shapes">
+        <div class="shape" style="top: 10%; left: 10%; font-size: 60px;">🐍</div>
+        <div class="shape" style="top: 20%; right: 15%; font-size: 50px;">💻</div>
+        <div class="shape" style="top: 60%; left: 5%; font-size: 40px;">🎯</div>
+        <div class="shape" style="bottom: 20%; right: 10%; font-size: 55px;">📚</div>
+        <div class="shape" style="top: 40%; right: 5%; font-size: 45px;">⚡</div>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="md:hidden fixed top-4 left-4 z-50 bg-pink-400 text-white p-3 rounded-full shadow-lg hover:bg-pink-500 transition-colors">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-80 bg-white/90 backdrop-blur-sm shadow-xl z-40 overflow-y-auto max-h-screen">
+        <div class="p-6">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-12 h-12 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full flex items-center justify-center">
+                    <i class="fas fa-code text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">Python OOP</h1>
+                    <p class="text-md text-gray-600">Interface & Abstract</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" onclick="showSection('intro')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-pink-100 transition-colors text-gray-700">
+                    <i class="fas fa-play-circle text-pink-500"></i>
+                    <span>Intro</span>
+                </a>
+                <a href="#" onclick="showSection('pengenalan')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 transition-colors text-gray-700">
+                    <i class="fas fa-book-open text-blue-500"></i>
+                    <span>Pengenalan</span>
+                </a>
+                <a href="#" onclick="showSection('abstract-class')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-purple-100 transition-colors text-gray-700">
+                    <i class="fas fa-cube text-purple-500"></i>
+                    <span>Abstract Class</span>
+                </a>
+                <a href="#" onclick="showSection('interface')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-green-100 transition-colors text-gray-700">
+                    <i class="fas fa-plug text-green-500"></i>
+                    <span>Interface</span>
+                </a>
+                <a href="#" onclick="showSection('implementasi')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-yellow-100 transition-colors text-gray-700">
+                    <i class="fas fa-tools text-yellow-500"></i>
+                    <span>Implementasi</span>
+                </a>
+                <a href="#" onclick="showSection('tugas')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-orange-100 transition-colors text-gray-700">
+                    <i class="fas fa-tasks text-orange-500"></i>
+                    <span>Tugas</span>
+                </a>
+                <a href="#" onclick="showSection('kuis')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-red-100 transition-colors text-gray-700">
+                    <i class="fas fa-question-circle text-red-500"></i>
+                    <span>Kuis</span>
+                </a>
+                <a href="#" onclick="showSection('penutup')" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-indigo-100 transition-colors text-gray-700">
+                    <i class="fas fa-flag-checkered text-indigo-500"></i>
+                    <span>Penutup</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-80 min-h-full">
+        <div class="content-area max-w-4xl mx-auto p-6">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-rocket text-white text-3xl"></i>
+                        </div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-2">Selamat Datang! 🎉</h1>
+                        <p class="text-xl text-gray-600">Mari Belajar Interface & Abstract Class Python</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gradient-to-r from-pink-100 to-purple-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-lightbulb text-yellow-500"></i>
+                                Pertanyaan Pemantik
+                            </h3>
+                            <p class="text-gray-700 mb-3">🤔 Pernahkah kalian berpikir:</p>
+                            <ul class="space-y-2 text-gray-700">
+                                <li>• Bagaimana membuat "template" untuk class?</li>
+                                <li>• Mengapa perlu aturan yang sama untuk berbeda class?</li>
+                                <li>• Bagaimana memastikan semua class punya method yang sama?</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-100 to-green-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                <i class="fas fa-target text-red-500"></i>
+                                Tujuan Pembelajaran
+                            </h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li>• Memahami konsep Abstract Class</li>
+                                <li>• Memahami konsep Interface</li>
+                                <li>• Dapat mengimplementasikan keduanya</li>
+                                <li>• Mengetahui perbedaan dan kegunaannya</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-xl mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                            <i class="fas fa-brain text-purple-500"></i>
+                            Pemahaman Bermakna
+                        </h3>
+                        <p class="text-gray-700">
+                            Bayangkan kalian sedang membuat game RPG. Semua karakter (Warrior, Mage, Archer) harus bisa menyerang dan bertahan, 
+                            tapi cara mereka melakukannya berbeda-beda. Abstract Class dan Interface membantu kita membuat "aturan main" 
+                            yang harus diikuti semua karakter! 🎮⚔️
+                        </p>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-xl">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                            <i class="fas fa-fire text-orange-500"></i>
+                            Motivasi
+                        </h3>
+                        <p class="text-gray-700">
+                            Dengan menguasai konsep ini, kalian akan menjadi programmer yang lebih terstruktur dan profesional! 
+                            Skill ini sangat dibutuhkan di dunia kerja untuk membuat aplikasi yang mudah dikembangkan dan dipelihara. 
+                            Mari kita mulai petualangan coding yang seru! 🚀✨
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="goToNextSection()" class="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-8 py-3 rounded-full font-semibold hover:from-pink-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg">
+                        Mulai Belajar! <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-blue-400 to-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-book-open text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Pengenalan Konsep 📖</h2>
+                        <p class="text-gray-600">Mari kenali dulu apa itu Abstract Class dan Interface</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-cube text-purple-500"></i>
+                                Apa itu Abstract Class? 🎭
+                            </h3>
+                            <p class="text-gray-700 mb-4">
+                                Abstract Class adalah class yang <strong>tidak bisa dibuat objeknya secara langsung</strong>. 
+                                Ia seperti "template" atau "cetakan" yang harus diwarisi oleh class lain.
+                            </p>
+                            <div class="bg-white/50 p-4 rounded-lg">
+                                <p class="text-gray-700"><strong>Analogi:</strong> 🏠</p>
+                                <p class="text-gray-700">
+                                    Abstract Class seperti <em>blueprint rumah</em>. Kamu tidak bisa tinggal di blueprint, 
+                                    tapi kamu bisa membangun rumah berdasarkan blueprint tersebut!
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-plug text-green-500"></i>
+                                Apa itu Interface? 🔌
+                            </h3>
+                            <p class="text-gray-700 mb-4">
+                                Interface adalah "kontrak" yang menentukan method apa saja yang <strong>harus ada</strong> 
+                                di dalam class yang mengimplementasikannya.
+                            </p>
+                            <div class="bg-white/50 p-4 rounded-lg">
+                                <p class="text-gray-700"><strong>Analogi:</strong> 🎮</p>
+                                <p class="text-gray-700">
+                                    Interface seperti <em>controller game</em>. Semua controller harus punya tombol A, B, X, Y, 
+                                    tapi cara kerjanya bisa berbeda-beda tergantung mereknya!
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-xl">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-balance-scale text-yellow-500"></i>
+                                Perbedaan Utama 🤔
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white/50 p-4 rounded-lg">
+                                    <h4 class="font-bold text-purple-600 mb-2">Abstract Class</h4>
+                                    <ul class="space-y-1 text-gray-700 text-md">
+                                        <li>• Bisa punya method yang sudah diimplementasi</li>
+                                        <li>• Bisa punya atribut/variabel</li>
+                                        <li>• Diwarisi dengan <code>inheritance</code></li>
+                                        <li>• Satu class hanya bisa inherit satu abstract class</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white/50 p-4 rounded-lg">
+                                    <h4 class="font-bold text-green-600 mb-2">Interface</h4>
+                                    <ul class="space-y-1 text-gray-700 text-md">
+                                        <li>• Hanya berisi method yang belum diimplementasi</li>
+                                        <li>• Tidak bisa punya atribut</li>
+                                        <li>• Diimplementasi dengan <code>implements</code></li>
+                                        <li>• Satu class bisa implement banyak interface</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="goToNextSection()" class="bg-gradient-to-r from-blue-500 to-green-500 text-white px-8 py-3 rounded-full font-semibold hover:from-blue-600 hover:to-green-600 transition-all transform hover:scale-105 shadow-lg">
+                        Lanjut ke Abstract Class <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Abstract Class Section -->
+            <div id="abstract-class" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-cube text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Abstract Class 🎭</h2>
+                        <p class="text-gray-600">Pelajari cara membuat dan menggunakan Abstract Class</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Cara Membuat Abstract Class 📝</h3>
+                            <p class="text-gray-700 mb-4">
+                                Di Python, kita menggunakan modul <code>abc</code> (Abstract Base Classes) untuk membuat abstract class:
+                            </p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">hewan.py</span>
+                                </div>
+                                <pre class="p-4 text-green-400 text-md overflow-x-auto"><code>from abc import ABC, abstractmethod
+
+class Hewan(ABC):  # Abstract Class
+    def __init__(self, nama):
+        self.nama = nama
+    
+    # Method biasa (sudah diimplementasi)
+    def info(self):
+        return f"Ini adalah {self.nama}"
+    
+    # Abstract method (harus diimplementasi di child class)
+    @abstractmethod
+    def bersuara(self):
+        pass
+    
+    @abstractmethod
+    def bergerak(self):
+        pass</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-100 to-purple-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Implementasi Abstract Class 🛠️</h3>
+                            <p class="text-gray-700 mb-4">
+                                Sekarang kita buat class yang mewarisi abstract class tersebut:
+                            </p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">implementasi_hewan.py</span>
+                                </div>
+                                <pre class="p-4 text-green-400 text-md overflow-x-auto"><code># File lengkap dengan import dan implementasi
+from abc import ABC, abstractmethod
+
+class Hewan(ABC):  # Abstract Class
+    def __init__(self, nama):
+        self.nama = nama
+    
+    # Method biasa (sudah diimplementasi)
+    def info(self):
+        return f"Ini adalah {self.nama}"
+    
+    # Abstract method (harus diimplementasi di child class)
+    @abstractmethod
+    def bersuara(self):
+        pass
+    
+    @abstractmethod
+    def bergerak(self):
+        pass
+
+class Kucing(Hewan):
+    def bersuara(self):
+        return f"{self.nama} berkata: Meow! 🐱"
+    
+    def bergerak(self):
+        return f"{self.nama} berjalan dengan anggun"
+
+class Anjing(Hewan):
+    def bersuara(self):
+        return f"{self.nama} berkata: Woof! 🐶"
+    
+    def bergerak(self):
+        return f"{self.nama} berlari dengan cepat"
+
+# Contoh penggunaan yang benar
+if __name__ == "__main__":
+    # Membuat objek dari child class
+    kucing = Kucing("Kitty")
+    anjing = Anjing("Buddy")
+    
+    print("=== Demo Abstract Class ===")
+    print(kucing.info())      # Output: Ini adalah Kitty
+    print(kucing.bersuara())  # Output: Kitty berkata: Meow! 🐱
+    print(kucing.bergerak())  # Output: Kitty berjalan dengan anggun
+    print()
+    print(anjing.info())      # Output: Ini adalah Buddy
+    print(anjing.bersuara())  # Output: Buddy berkata: Woof! 🐶
+    print(anjing.bergerak())  # Output: Buddy berlari dengan cepat
+    
+    # Ini akan error jika dicoba:
+    # hewan = Hewan("Test")  # TypeError!</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-100 to-yellow-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Demo Interaktif 🎮</h3>
+                            <p class="text-gray-700 mb-4">Coba jalankan kode di bawah ini:</p>
+                            
+                            <div class="bg-white/50 p-4 rounded-lg mb-4">
+                                <button onclick="runAbstractDemo()" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors">
+                                    <i class="fas fa-play mr-2"></i>Jalankan Demo
+                                </button>
+                                <div id="abstractOutput" class="mt-4 p-4 bg-gray-800 text-green-400 rounded-lg hidden font-mono text-base"></div>
+                            </div>
+
+                            <div class="bg-red-100 p-4 rounded-lg">
+                                <h4 class="font-bold text-red-600 mb-2">⚠️ Penting!</h4>
+                                <p class="text-gray-700">
+                                    Kamu <strong>tidak bisa</strong> membuat objek langsung dari abstract class. 
+                                    Jika mencoba <code>hewan = Hewan("Test")</code>, akan muncul error!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="goToNextSection()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-full font-semibold hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Lanjut ke Interface <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interface Section -->
+            <div id="interface" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-plug text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Interface 🔌</h2>
+                        <p class="text-gray-600">Memahami konsep Interface dalam Python</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Interface di Python 🐍</h3>
+                            <p class="text-gray-700 mb-4">
+                                Python tidak memiliki keyword <code>interface</code> seperti Java, tapi kita bisa membuat interface 
+                                menggunakan abstract class yang semua methodnya abstract:
+                            </p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">interface_kendaraan.py</span>
+                                </div>
+                                <pre class="p-4 text-green-400 text-md overflow-x-auto"><code>from abc import ABC, abstractmethod
+
+class KendaraanInterface(ABC):
+    """Interface untuk semua kendaraan"""
+    
+    @abstractmethod
+    def nyalakan_mesin(self):
+        pass
+    
+    @abstractmethod
+    def matikan_mesin(self):
+        pass
+    
+    @abstractmethod
+    def bergerak(self):
+        pass
+    
+    @abstractmethod
+    def berhenti(self):
+        pass</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Implementasi Interface 🚗</h3>
+                            <p class="text-gray-700 mb-4">
+                                Sekarang kita buat berbagai jenis kendaraan yang mengimplementasi interface tersebut:
+                            </p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">implementasi_kendaraan.py</span>
+                                </div>
+                                <pre class="p-4 text-green-400 text-md overflow-x-auto"><code># File lengkap implementasi interface kendaraan
+from abc import ABC, abstractmethod
+
+class KendaraanInterface(ABC):
+    """Interface untuk semua kendaraan"""
+    
+    @abstractmethod
+    def nyalakan_mesin(self):
+        pass
+    
+    @abstractmethod
+    def matikan_mesin(self):
+        pass
+    
+    @abstractmethod
+    def bergerak(self):
+        pass
+    
+    @abstractmethod
+    def berhenti(self):
+        pass
+
+class Mobil(KendaraanInterface):
+    def __init__(self, merk):
+        self.merk = merk
+        self.mesin_hidup = False
+    
+    def nyalakan_mesin(self):
+        self.mesin_hidup = True
+        return f"🚗 Mesin {self.merk} dinyalakan: Vroom!"
+    
+    def matikan_mesin(self):
+        self.mesin_hidup = False
+        return f"🚗 Mesin {self.merk} dimatikan"
+    
+    def bergerak(self):
+        if self.mesin_hidup:
+            return f"🚗 {self.merk} melaju di jalan raya"
+        return f"❌ Nyalakan mesin dulu!"
+    
+    def berhenti(self):
+        return f"🚗 {self.merk} berhenti dengan rem"
+
+class Motor(KendaraanInterface):
+    def __init__(self, merk):
+        self.merk = merk
+        self.mesin_hidup = False
+    
+    def nyalakan_mesin(self):
+        self.mesin_hidup = True
+        return f"🏍️ Mesin {self.merk} dinyalakan: Brum!"
+    
+    def matikan_mesin(self):
+        self.mesin_hidup = False
+        return f"🏍️ Mesin {self.merk} dimatikan"
+    
+    def bergerak(self):
+        if self.mesin_hidup:
+            return f"🏍️ {self.merk} melaju dengan lincah"
+        return f"❌ Nyalakan mesin dulu!"
+    
+    def berhenti(self):
+        return f"🏍️ {self.merk} berhenti dengan rem cakram"
+
+# Contoh penggunaan
+if __name__ == "__main__":
+    print("=== Demo Interface Kendaraan ===")
+    
+    # Membuat objek mobil dan motor
+    mobil = Mobil("Toyota")
+    motor = Motor("Honda")
+    
+    # Demo mobil
+    print("--- Demo Mobil ---")
+    print(mobil.nyalakan_mesin())
+    print(mobil.bergerak())
+    print(mobil.berhenti())
+    print(mobil.matikan_mesin())
+    
+    print("\n--- Demo Motor ---")
+    print(motor.nyalakan_mesin())
+    print(motor.bergerak())
+    print(motor.berhenti())
+    print(motor.matikan_mesin())</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-pink-100 to-purple-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Demo Interaktif Interface 🎮</h3>
+                            <p class="text-gray-700 mb-4">Mari coba simulasi kendaraan:</p>
+                            
+                            <div class="bg-white/50 p-4 rounded-lg mb-4">
+                                <div class="flex gap-2 mb-4">
+                                    <button onclick="runInterfaceDemo('mobil')" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                                        <i class="fas fa-car mr-2"></i>Demo Mobil
+                                    </button>
+                                    <button onclick="runInterfaceDemo('motor')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                                        <i class="fas fa-motorcycle mr-2"></i>Demo Motor
+                                    </button>
+                                </div>
+                                <div id="interfaceOutput" class="p-4 bg-gray-800 text-green-400 rounded-lg hidden font-mono text-base"></div>
+                            </div>
+
+                            <div class="bg-blue-100 p-4 rounded-lg">
+                                <h4 class="font-bold text-blue-600 mb-2">💡 Keuntungan Interface</h4>
+                                <ul class="space-y-1 text-gray-700">
+                                    <li>• Memastikan semua class punya method yang sama</li>
+                                    <li>• Membuat kode lebih terstruktur dan mudah dipelihara</li>
+                                    <li>• Memungkinkan polymorphism yang konsisten</li>
+                                    <li>• Memudahkan testing dan debugging</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="goToNextSection()" class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-3 rounded-full font-semibold hover:from-green-600 hover:to-blue-600 transition-all transform hover:scale-105 shadow-lg">
+                        Lanjut ke Implementasi <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Implementasi Section -->
+            <div id="implementasi" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-tools text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Implementasi Praktis 🛠️</h2>
+                        <p class="text-gray-600">Contoh penggunaan dalam project nyata</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Studi Kasus: Sistem Pembayaran 💳</h3>
+                            <p class="text-gray-700 mb-4">
+                                Mari buat sistem pembayaran yang bisa menggunakan berbagai metode pembayaran:
+                            </p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">payment_system.py</span>
+                                </div>
+                                <pre class="p-4 text-green-400 text-md overflow-x-auto"><code>from abc import ABC, abstractmethod
+
+# Interface untuk metode pembayaran
+class PaymentInterface(ABC):
+    @abstractmethod
+    def proses_pembayaran(self, jumlah):
+        pass
+    
+    @abstractmethod
+    def verifikasi(self):
+        pass
+
+# Implementasi berbagai metode pembayaran
+class KartuKredit(PaymentInterface):
+    def __init__(self, nomor_kartu, nama_pemilik):
+        self.nomor_kartu = nomor_kartu
+        self.nama_pemilik = nama_pemilik
+    
+    def verifikasi(self):
+        return f"✅ Kartu kredit {self.nomor_kartu[-4:]} terverifikasi"
+    
+    def proses_pembayaran(self, jumlah):
+        return f"💳 Pembayaran Rp{jumlah:,} berhasil via kartu kredit"
+
+class EWallet(PaymentInterface):
+    def __init__(self, nomor_hp, saldo):
+        self.nomor_hp = nomor_hp
+        self.saldo = saldo
+    
+    def verifikasi(self):
+        return f"✅ E-Wallet {self.nomor_hp} terverifikasi"
+    
+    def proses_pembayaran(self, jumlah):
+        if self.saldo >= jumlah:
+            self.saldo -= jumlah
+            return f"📱 Pembayaran Rp{jumlah:,} berhasil via E-Wallet"
+        return f"❌ Saldo tidak mencukupi"
+
+class BankTransfer(PaymentInterface):
+    def __init__(self, nomor_rekening, nama_bank):
+        self.nomor_rekening = nomor_rekening
+        self.nama_bank = nama_bank
+    
+    def verifikasi(self):
+        return f"✅ Rekening {self.nama_bank} terverifikasi"
+    
+    def proses_pembayaran(self, jumlah):
+        return f"🏦 Transfer Rp{jumlah:,} berhasil via {self.nama_bank}"</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Processor Pembayaran 🔄</h3>
+                            <p class="text-gray-700 mb-4">
+                                Sekarang kita buat class yang bisa memproses pembayaran dari metode apapun:
+                            </p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">sistem_pembayaran_lengkap.py</span>
+                                </div>
+                                <pre class="p-4 text-green-400 text-md overflow-x-auto"><code># Sistem pembayaran lengkap dengan semua class
+from abc import ABC, abstractmethod
+
+# Interface untuk metode pembayaran
+class PaymentInterface(ABC):
+    @abstractmethod
+    def proses_pembayaran(self, jumlah):
+        pass
+    
+    @abstractmethod
+    def verifikasi(self):
+        pass
+
+# Implementasi berbagai metode pembayaran
+class KartuKredit(PaymentInterface):
+    def __init__(self, nomor_kartu, nama_pemilik):
+        self.nomor_kartu = nomor_kartu
+        self.nama_pemilik = nama_pemilik
+    
+    def verifikasi(self):
+        return f"✅ Kartu kredit {self.nomor_kartu[-4:]} terverifikasi"
+    
+    def proses_pembayaran(self, jumlah):
+        return f"💳 Pembayaran Rp{jumlah:,} berhasil via kartu kredit"
+
+class EWallet(PaymentInterface):
+    def __init__(self, nomor_hp, saldo):
+        self.nomor_hp = nomor_hp
+        self.saldo = saldo
+    
+    def verifikasi(self):
+        return f"✅ E-Wallet {self.nomor_hp} terverifikasi"
+    
+    def proses_pembayaran(self, jumlah):
+        if self.saldo >= jumlah:
+            self.saldo -= jumlah
+            return f"📱 Pembayaran Rp{jumlah:,} berhasil via E-Wallet (Sisa: Rp{self.saldo:,})"
+        return f"❌ Saldo tidak mencukupi (Saldo: Rp{self.saldo:,})"
+
+class BankTransfer(PaymentInterface):
+    def __init__(self, nomor_rekening, nama_bank):
+        self.nomor_rekening = nomor_rekening
+        self.nama_bank = nama_bank
+    
+    def verifikasi(self):
+        return f"✅ Rekening {self.nama_bank} terverifikasi"
+    
+    def proses_pembayaran(self, jumlah):
+        return f"🏦 Transfer Rp{jumlah:,} berhasil via {self.nama_bank}"
+
+class PaymentProcessor:
+    def __init__(self):
+        self.riwayat_transaksi = []
+    
+    def proses_transaksi(self, payment_method: PaymentInterface, jumlah):
+        """Memproses transaksi dengan metode pembayaran apapun"""
+        print("🔄 Memulai proses transaksi...")
+        
+        # Verifikasi metode pembayaran
+        verifikasi = payment_method.verifikasi()
+        print(verifikasi)
+        
+        # Proses pembayaran
+        hasil = payment_method.proses_pembayaran(jumlah)
+        print(hasil)
+        
+        # Tentukan status berdasarkan hasil
+        status = 'Berhasil' if '❌' not in hasil else 'Gagal'
+        
+        # Simpan ke riwayat
+        self.riwayat_transaksi.append({
+            'metode': payment_method.__class__.__name__,
+            'jumlah': jumlah,
+            'status': status
+        })
+        
+        print(f"Status: {status}")
+        print("-" * 50)
+        return hasil
+    
+    def tampilkan_riwayat(self):
+        print("\n📊 Riwayat Transaksi:")
+        for i, transaksi in enumerate(self.riwayat_transaksi, 1):
+            print(f"{i}. {transaksi['metode']}: Rp{transaksi['jumlah']:,} - {transaksi['status']}")
+
+# Contoh penggunaan lengkap
+if __name__ == "__main__":
+    print("=== Demo Sistem Pembayaran ===\n")
+    
+    # Inisialisasi processor
+    processor = PaymentProcessor()
+    
+    # Berbagai metode pembayaran
+    kartu = KartuKredit("1234-5678-9012-3456", "John Doe")
+    ewallet = EWallet("081234567890", 500000)
+    bank = BankTransfer("1234567890", "BCA")
+    
+    # Proses berbagai transaksi
+    processor.proses_transaksi(kartu, 100000)
+    processor.proses_transaksi(ewallet, 50000)
+    processor.proses_transaksi(bank, 200000)
+    processor.proses_transaksi(ewallet, 600000)  # Akan gagal karena saldo kurang
+    
+    # Tampilkan riwayat
+    processor.tampilkan_riwayat()</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Demo Sistem Pembayaran 💰</h3>
+                            <p class="text-gray-700 mb-4">Coba simulasi sistem pembayaran:</p>
+                            
+                            <div class="bg-white/50 p-4 rounded-lg mb-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
+                                    <button onclick="runPaymentDemo('kartu')" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">
+                                        <i class="fas fa-credit-card mr-2"></i>Kartu Kredit
+                                    </button>
+                                    <button onclick="runPaymentDemo('ewallet')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                                        <i class="fas fa-mobile-alt mr-2"></i>E-Wallet
+                                    </button>
+                                    <button onclick="runPaymentDemo('bank')" class="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors">
+                                        <i class="fas fa-university mr-2"></i>Bank Transfer
+                                    </button>
+                                </div>
+                                <div id="paymentOutput" class="p-4 bg-gray-800 text-green-400 rounded-lg hidden font-mono text-base"></div>
+                            </div>
+
+                            <div class="bg-orange-100 p-4 rounded-lg">
+                                <h4 class="font-bold text-orange-600 mb-2">🎯 Keuntungan Pendekatan Ini</h4>
+                                <ul class="space-y-1 text-gray-700">
+                                    <li>• <strong>Fleksibel:</strong> Mudah menambah metode pembayaran baru</li>
+                                    <li>• <strong>Konsisten:</strong> Semua metode punya interface yang sama</li>
+                                    <li>• <strong>Maintainable:</strong> Kode mudah dipelihara dan dikembangkan</li>
+                                    <li>• <strong>Testable:</strong> Setiap metode bisa ditest secara terpisah</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="goToNextSection()" class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-3 rounded-full font-semibold hover:from-yellow-600 hover:to-orange-600 transition-all transform hover:scale-105 shadow-lg">
+                        Lanjut ke Tugas <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tugas Section -->
+            <div id="tugas" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-orange-400 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-tasks text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Tugas Praktik 📝</h2>
+                        <p class="text-gray-600">Saatnya mengaplikasikan ilmu yang sudah dipelajari!</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-orange-100 to-red-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-gamepad text-orange-500"></i>
+                                Tugas: Sistem Game RPG 🎮
+                            </h3>
+                            <p class="text-gray-700 mb-4">
+                                Buatlah sistem game RPG sederhana dengan menggunakan Abstract Class dan Interface!
+                            </p>
+
+                            <div class="bg-white/50 p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-gray-800 mb-2">📋 Spesifikasi Tugas:</h4>
+                                <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                                    <li><strong>Buat Abstract Class "Character"</strong> dengan:
+                                        <ul class="list-disc list-inside ml-4 mt-1">
+                                            <li>Atribut: nama, hp, level</li>
+                                            <li>Method biasa: info(), level_up()</li>
+                                            <li>Abstract method: attack(), defend()</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Buat Interface "Skill"</strong> dengan:
+                                        <ul class="list-disc list-inside ml-4 mt-1">
+                                            <li>Abstract method: use_skill(), get_skill_name()</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Buat 3 class karakter</strong> yang inherit dari Character:
+                                        <ul class="list-disc list-inside ml-4 mt-1">
+                                            <li>Warrior (skill: Slash Attack)</li>
+                                            <li>Mage (skill: Fireball)</li>
+                                            <li>Archer (skill: Arrow Rain)</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Setiap karakter harus implement interface Skill</strong></li>
+                                    <li><strong>Buat fungsi battle()</strong> yang bisa menerima karakter apapun</li>
+                                </ol>
+                            </div>
+
+                            <div class="bg-yellow-100 p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-yellow-600 mb-2">💡 Tips Pengerjaan:</h4>
+                                <ul class="space-y-1 text-gray-700">
+                                    <li>• Gunakan <code>from abc import ABC, abstractmethod</code></li>
+                                    <li>• Pastikan semua abstract method diimplementasi</li>
+                                    <li>• Buat output yang menarik dengan emoji</li>
+                                    <li>• Test semua karakter dan skill mereka</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-green-100 p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-green-600 mb-2">✅ Kriteria Penilaian:</h4>
+                                <ul class="space-y-1 text-gray-700">
+                                    <li>• Abstract Class dibuat dengan benar (25%)</li>
+                                    <li>• Interface dibuat dan diimplementasi dengan benar (25%)</li>
+                                    <li>• Semua karakter berfungsi dengan baik (25%)</li>
+                                    <li>• Kode rapi, terstruktur, dan mudah dibaca (25%)</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-blue-100 p-4 rounded-lg">
+                                <h4 class="font-bold text-blue-600 mb-2">📝 Contoh Struktur Kode:</h4>
+                                <div class="text-base text-gray-700 font-mono bg-white p-3 rounded">
+                                    <div>from abc import ABC, abstractmethod</div>
+                                    <div><br></div>
+                                    <div># Abstract Class</div>
+                                    <div>class Character(ABC):</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;# ... implementasi ...</div>
+                                    <div><br></div>
+                                    <div># Interface</div>
+                                    <div>class Skill(ABC):</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;# ... implementasi ...</div>
+                                    <div><br></div>
+                                    <div># Character Classes</div>
+                                    <div>class Warrior(Character, Skill):</div>
+                                    <div>&nbsp;&nbsp;&nbsp;&nbsp;# ... implementasi ...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">📤 Cara Pengumpulan</h3>
+                            <div class="space-y-3 text-gray-700">
+                                <p><strong>1. Format File:</strong> Simpan dengan nama <code>rpg_game_[nama_kamu].py</code></p>
+                                <p><strong>2. Struktur Kode:</strong> Berikan komentar yang jelas pada setiap bagian</p>
+                                <p><strong>3. Testing:</strong> Sertakan contoh penggunaan di bagian bawah kode</p>
+                                <p><strong>4. Deadline:</strong> Sesuai jadwal yang ditentukan guru</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-100 to-indigo-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">🚀 Bonus Challenge (Opsional)</h3>
+                            <p class="text-gray-700 mb-3">
+                                Untuk yang ingin tantangan lebih, coba tambahkan fitur:
+                            </p>
+                            <ul class="space-y-1 text-gray-700">
+                                <li>• Sistem inventory untuk menyimpan item</li>
+                                <li>• Multiple skills per karakter</li>
+                                <li>• Status effect (poison, burn, freeze)</li>
+                                <li>• Battle system yang lebih kompleks</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="goToNextSection()" class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-3 rounded-full font-semibold hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-105 shadow-lg">
+                        Lanjut ke Kuis <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-red-400 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-question-circle text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Kuis Interaktif 🧠</h2>
+                        <p class="text-gray-600">Uji pemahaman kamu dengan 10 soal pilihan ganda!</p>
+                    </div>
+
+                    <!-- Quiz Start Form -->
+                    <div id="quizStart" class="text-center">
+                        <div class="bg-gradient-to-r from-pink-100 to-purple-100 p-6 rounded-xl mb-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Siap untuk tantangan? 🎯</h3>
+                            <div class="max-w-md mx-auto">
+                                <label for="studentName" class="block text-left font-semibold text-gray-700 mb-2">Masukkan nama kamu:</label>
+                                <input type="text" id="studentName" class="w-full p-3 border-2 border-pink-300 rounded-lg focus:border-pink-500 focus:outline-none" placeholder="Nama lengkap...">
+                            </div>
+                        </div>
+                        <button onclick="startQuiz()" class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-3 rounded-full font-semibold hover:from-red-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                            <i class="fas fa-play mr-2"></i>Mulai Kuis!
+                        </button>
+                    </div>
+
+                    <!-- Quiz Questions -->
+                    <div id="quizContent" class="hidden">
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <span id="questionNumber" class="text-lg font-semibold text-gray-600"></span>
+                                <div class="flex items-center gap-2">
+                                    <i class="fas fa-clock text-blue-500"></i>
+                                    <span id="timer" class="text-lg font-semibold text-blue-600">30</span>
+                                </div>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                                <div id="progressBar" class="bg-gradient-to-r from-red-500 to-pink-500 h-2 rounded-full transition-all duration-300"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-100 to-purple-100 p-6 rounded-xl mb-6">
+                            <h3 id="questionText" class="text-xl font-bold text-gray-800 mb-4"></h3>
+                            <div id="optionsContainer" class="space-y-3"></div>
+                        </div>
+
+                        <div class="text-center">
+                            <button id="nextButton" onclick="nextQuestion()" class="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-full font-semibold hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg hidden">
+                                Soal Berikutnya <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Results -->
+                    <div id="quizResults" class="hidden text-center">
+                        <div class="bg-gradient-to-r from-green-100 to-blue-100 p-8 rounded-xl">
+                            <div class="w-20 h-20 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-trophy text-white text-3xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">Selamat! 🎉</h3>
+                            <div id="finalScore" class="text-xl text-gray-700 mb-6"></div>
+                            <div id="scoreMessage" class="text-lg text-gray-600 mb-6"></div>
+                            <button onclick="restartQuiz()" class="bg-gradient-to-r from-green-500 to-blue-500 text-white px-6 py-3 rounded-full font-semibold hover:from-green-600 hover:to-blue-600 transition-all transform hover:scale-105 shadow-lg">
+                                <i class="fas fa-redo mr-2"></i>Ulangi Kuis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="goToNextSection()" class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-3 rounded-full font-semibold hover:from-red-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Lanjut ke Penutup <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 bg-gradient-to-r from-indigo-400 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-flag-checkered text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Penutup 🎊</h2>
+                        <p class="text-gray-600">Refleksi dan kesimpulan pembelajaran</p>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-gradient-to-r from-indigo-100 to-purple-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-mirror text-indigo-500"></i>
+                                Refleksi Pembelajaran 🤔
+                            </h3>
+                            <p class="text-gray-700 mb-4">
+                                Setelah mempelajari Interface dan Abstract Class, mari kita renungkan:
+                            </p>
+                            <div class="space-y-3">
+                                <div class="bg-white/50 p-4 rounded-lg">
+                                    <p class="text-gray-700"><strong>💭 Apa yang sudah kamu pelajari hari ini?</strong></p>
+                                    <p class="text-gray-600 mt-1">Konsep abstract class, interface, dan implementasinya dalam Python</p>
+                                </div>
+                                <div class="bg-white/50 p-4 rounded-lg">
+                                    <p class="text-gray-700"><strong>🎯 Bagian mana yang paling menarik?</strong></p>
+                                    <p class="text-gray-600 mt-1">Mungkin demo interaktif atau studi kasus sistem pembayaran?</p>
+                                </div>
+                                <div class="bg-white/50 p-4 rounded-lg">
+                                    <p class="text-gray-700"><strong>🤷 Apa yang masih membingungkan?</strong></p>
+                                    <p class="text-gray-600 mt-1">Jangan ragu untuk bertanya kepada guru atau teman!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-100 to-blue-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-lightbulb text-green-500"></i>
+                                Kesimpulan Pembelajaran 📚
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white/50 p-4 rounded-lg">
+                                    <h4 class="font-bold text-purple-600 mb-2">Abstract Class 🎭</h4>
+                                    <ul class="space-y-1 text-gray-700">
+                                        <li>• Template untuk class lain</li>
+                                        <li>• Tidak bisa dibuat objeknya langsung</li>
+                                        <li>• Bisa punya method yang sudah diimplementasi</li>
+                                        <li>• Menggunakan <code>@abstractmethod</code></li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white/50 p-4 rounded-lg">
+                                    <h4 class="font-bold text-green-600 mb-2">Interface 🔌</h4>
+                                    <ul class="space-y-1 text-gray-700">
+                                        <li>• Kontrak yang harus diikuti</li>
+                                        <li>• Semua method harus abstract</li>
+                                        <li>• Memastikan konsistensi method</li>
+                                        <li>• Mendukung multiple implementation</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                <i class="fas fa-rocket text-yellow-500"></i>
+                                Tindak Lanjut 🚀
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="bg-white/50 p-4 rounded-lg">
+                                    <h4 class="font-bold text-orange-600 mb-2">📖 Materi Selanjutnya</h4>
+                                    <ul class="space-y-1 text-gray-700">
+                                        <li>• Polymorphism dan Method Overriding</li>
+                                        <li>• Design Patterns (Strategy, Factory, Observer)</li>
+                                        <li>• Exception Handling yang Advanced</li>
+                                        <li>• Unit Testing untuk OOP</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white/50 p-4 rounded-lg">
+                                    <h4 class="font-bold text-blue-600 mb-2">💻 Praktik Mandiri</h4>
+                                    <ul class="space-y-1 text-gray-700">
+                                        <li>• Buat sistem manajemen perpustakaan</li>
+                                        <li>• Implementasi berbagai sorting algorithm</li>
+                                        <li>• Buat game sederhana dengan OOP</li>
+                                        <li>• Eksplorasi framework Python (Django, Flask)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-pink-100 to-purple-100 p-6 rounded-xl text-center">
+                            <h3 class="text-2xl font-bold text-gray-800 mb-4">Terima Kasih! 🙏</h3>
+                            <p class="text-gray-700 mb-4">
+                                Selamat! Kamu telah berhasil menyelesaikan pembelajaran tentang Interface dan Abstract Class. 
+                                Semoga ilmu yang didapat bermanfaat untuk perjalanan programming kamu selanjutnya!
+                            </p>
+                            <div class="flex justify-center gap-4 text-4xl">
+                                <span>🎉</span>
+                                <span>🚀</span>
+                                <span>💻</span>
+                                <span>🌟</span>
+                                <span>🎯</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button onclick="showSection('intro')" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-8 py-3 rounded-full font-semibold hover:from-indigo-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-home mr-2"></i>Kembali ke Awal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-pink-500 to-purple-500 text-white p-3 rounded-full shadow-lg hover:from-pink-600 hover:to-purple-600 transition-all transform hover:scale-110 hidden z-30">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+        // Quiz data
+        const quizData = [
+            {
+                question: "Apa yang dimaksud dengan Abstract Class?",
+                options: [
+                    "Class yang bisa dibuat objeknya langsung",
+                    "Class yang tidak bisa dibuat objeknya secara langsung",
+                    "Class yang tidak memiliki method",
+                    "Class yang hanya berisi variabel"
+                ],
+                correct: 1
+            },
+            {
+                question: "Modul apa yang digunakan untuk membuat Abstract Class di Python?",
+                options: ["abstract", "abc", "interface", "class"],
+                correct: 1
+            },
+            {
+                question: "Decorator apa yang digunakan untuk membuat abstract method?",
+                options: ["@abstract", "@abstractmethod", "@interface", "@virtual"],
+                correct: 1
+            },
+            {
+                question: "Apa perbedaan utama antara Abstract Class dan Interface?",
+                options: [
+                    "Tidak ada perbedaan",
+                    "Abstract Class bisa punya method yang sudah diimplementasi, Interface tidak",
+                    "Interface bisa punya atribut, Abstract Class tidak",
+                    "Abstract Class lebih cepat dari Interface"
+                ],
+                correct: 1
+            },
+            {
+                question: "Berapa banyak Abstract Class yang bisa diwarisi oleh satu class?",
+                options: ["Tidak terbatas", "Maksimal 2", "Hanya 1", "Minimal 3"],
+                correct: 2
+            },
+            {
+                question: "Apa yang terjadi jika child class tidak mengimplementasi abstract method?",
+                options: [
+                    "Program berjalan normal",
+                    "Muncul warning",
+                    "Terjadi TypeError saat membuat objek",
+                    "Method otomatis dibuat"
+                ],
+                correct: 2
+            },
+            {
+                question: "Dalam contoh sistem pembayaran, apa keuntungan menggunakan Interface?",
+                options: [
+                    "Program berjalan lebih cepat",
+                    "Menghemat memori",
+                    "Memastikan semua metode pembayaran punya method yang sama",
+                    "Mengurangi ukuran file"
+                ],
+                correct: 2
+            },
+            {
+                question: "Manakah yang BENAR tentang Interface di Python?",
+                options: [
+                    "Python punya keyword 'interface'",
+                    "Interface dibuat dengan abstract class yang semua methodnya abstract",
+                    "Interface tidak bisa digunakan di Python",
+                    "Interface sama dengan regular class"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa analogi yang tepat untuk Abstract Class?",
+                options: [
+                    "Rumah yang sudah jadi",
+                    "Blueprint/cetakan rumah",
+                    "Furniture rumah",
+                    "Cat rumah"
+                ],
+                correct: 1
+            },
+            {
+                question: "Dalam OOP, konsep Abstract Class dan Interface membantu mencapai prinsip apa?",
+                options: [
+                    "Encapsulation",
+                    "Inheritance",
+                    "Polymorphism",
+                    "Semua jawaban benar"
+                ],
+                correct: 3
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let studentName = '';
+        let timer;
+        let timeLeft = 30;
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update active navigation
+            updateActiveNav(sectionId);
+            
+            // Close mobile menu
+            document.getElementById('sidebar').classList.remove('open');
+            
+            // Scroll ke paling atas dengan multiple method untuk memastikan
+            window.scrollTo(0, 0);
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            
+            // Tambahan smooth scroll setelah delay kecil
+            setTimeout(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, 50);
+        }
+
+        function updateActiveNav(activeSection) {
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('bg-gradient-to-r', 'from-pink-500', 'to-purple-500', 'text-white', 'shadow-lg');
+                item.classList.add('text-gray-700');
+            });
+            
+            // Add active class to current nav item
+            const activeNav = document.querySelector(`[onclick="showSection('${activeSection}')"]`);
+            if (activeNav) {
+                activeNav.classList.remove('text-gray-700');
+                activeNav.classList.add('bg-gradient-to-r', 'from-pink-500', 'to-purple-500', 'text-white', 'shadow-lg');
+            }
+        }
+
+        function goToNextSection() {
+            const sections = ['intro', 'pengenalan', 'abstract-class', 'interface', 'implementasi', 'tugas', 'kuis', 'penutup'];
+            const currentSection = document.querySelector('.section:not(.hidden)').id;
+            const currentIndex = sections.indexOf(currentSection);
+            
+            if (currentIndex < sections.length - 1) {
+                const nextSection = sections[currentIndex + 1];
+                showSection(nextSection);
+                
+                // Pastikan scroll ke paling atas dengan delay kecil
+                setTimeout(() => {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    document.documentElement.scrollTop = 0;
+                    document.body.scrollTop = 0;
+                }, 100);
+            }
+        }
+
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            
+            if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Back to top functionality
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.remove('hidden');
+            } else {
+                backToTop.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('backToTop').addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Demo functions
+        function runAbstractDemo() {
+            const output = document.getElementById('abstractOutput');
+            output.classList.remove('hidden');
+            
+            // Simulasi output yang sebenarnya dari kode Python
+            const demoText = `=== Demo Abstract Class ===
+Ini adalah Kitty
+Kitty berkata: Meow! 🐱
+Kitty berjalan dengan anggun
+
+Ini adalah Buddy
+Buddy berkata: Woof! 🐶
+Buddy berlari dengan cepat
+
+❌ Error jika mencoba: hewan = Hewan("Test")
+TypeError: Can't instantiate abstract class Hewan with abstract methods bersuara, bergerak`;
+            
+            output.textContent = demoText;
+        }
+
+        function runInterfaceDemo(type) {
+            const output = document.getElementById('interfaceOutput');
+            output.classList.remove('hidden');
+            
+            let demoText = '';
+            if (type === 'mobil') {
+                demoText = `=== Demo Interface Kendaraan ===
+--- Demo Mobil ---
+🚗 Mesin Toyota dinyalakan: Vroom!
+🚗 Toyota melaju di jalan raya
+🚗 Toyota berhenti dengan rem
+🚗 Mesin Toyota dimatikan`;
+            } else {
+                demoText = `=== Demo Interface Kendaraan ===
+--- Demo Motor ---
+🏍️ Mesin Honda dinyalakan: Brum!
+🏍️ Honda melaju dengan lincah
+🏍️ Honda berhenti dengan rem cakram
+🏍️ Mesin Honda dimatikan`;
+            }
+            
+            output.textContent = demoText;
+        }
+
+        function runPaymentDemo(type) {
+            const output = document.getElementById('paymentOutput');
+            output.classList.remove('hidden');
+            
+            let demoText = '';
+            if (type === 'kartu') {
+                demoText = `=== Demo Sistem Pembayaran ===
+
+🔄 Memulai proses transaksi...
+✅ Kartu kredit 3456 terverifikasi
+💳 Pembayaran Rp100,000 berhasil via kartu kredit
+Status: Berhasil
+--------------------------------------------------`;
+            } else if (type === 'ewallet') {
+                demoText = `=== Demo Sistem Pembayaran ===
+
+🔄 Memulai proses transaksi...
+✅ E-Wallet 081234567890 terverifikasi
+📱 Pembayaran Rp50,000 berhasil via E-Wallet (Sisa: Rp450,000)
+Status: Berhasil
+--------------------------------------------------`;
+            } else {
+                demoText = `=== Demo Sistem Pembayaran ===
+
+🔄 Memulai proses transaksi...
+✅ Rekening BCA terverifikasi
+🏦 Transfer Rp200,000 berhasil via BCA
+Status: Berhasil
+--------------------------------------------------`;
+            }
+            
+            output.textContent = demoText;
+        }
+
+        // Quiz functions
+        function startQuiz() {
+            const name = document.getElementById('studentName').value.trim();
+            if (!name) {
+                // Gunakan custom modal instead of alert
+                showCustomAlert('Silakan masukkan nama kamu terlebih dahulu!');
+                return;
+            }
+            
+            studentName = name;
+            currentQuestion = 0;
+            score = 0;
+            
+            document.getElementById('quizStart').classList.add('hidden');
+            document.getElementById('quizContent').classList.remove('hidden');
+            
+            showQuestion();
+            startTimer();
+        }
+
+        function showCustomAlert(message) {
+            // Create custom alert modal
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            alertDiv.innerHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm mx-4">
+                    <div class="text-center">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 text-3xl mb-3"></i>
+                        <p class="text-gray-700 mb-4">${message}</p>
+                        <button onclick="this.closest('.fixed').remove()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(alertDiv);
+        }
+
+        function showQuestion() {
+            const question = quizData[currentQuestion];
+            
+            document.getElementById('questionNumber').textContent = `Soal ${currentQuestion + 1} dari ${quizData.length}`;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'quiz-option bg-white p-4 rounded-lg border-2 border-gray-200 cursor-pointer hover:border-blue-400 transition-all';
+                optionDiv.innerHTML = `
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="answer" value="${index}" class="mr-3">
+                        <span>${option}</span>
+                    </label>
+                `;
+                
+                optionDiv.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    selectAnswer(index);
+                });
+                
+                optionsContainer.appendChild(optionDiv);
+            });
+            
+            // Update progress bar
+            const progress = ((currentQuestion + 1) / quizData.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            document.getElementById('nextButton').classList.add('hidden');
+        }
+
+        function selectAnswer(selectedIndex) {
+            clearInterval(timer);
+            
+            const question = quizData[currentQuestion];
+            const options = document.querySelectorAll('.quiz-option');
+            
+            options.forEach((option, index) => {
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex && index !== question.correct) {
+                    option.classList.add('incorrect');
+                }
+                option.style.pointerEvents = 'none';
+            });
+            
+            if (selectedIndex === question.correct) {
+                score++;
+            }
+            
+            document.getElementById('nextButton').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < quizData.length) {
+                timeLeft = 30;
+                showQuestion();
+                startTimer();
+            } else {
+                showResults();
+            }
+        }
+
+        function startTimer() {
+            timeLeft = 30;
+            document.getElementById('timer').textContent = timeLeft;
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    selectAnswer(-1); // Auto select wrong answer
+                }
+            }, 1000);
+        }
+
+        function showResults() {
+            document.getElementById('quizContent').classList.add('hidden');
+            document.getElementById('quizResults').classList.remove('hidden');
+            
+            const percentage = Math.round((score / quizData.length) * 100);
+            
+            document.getElementById('finalScore').innerHTML = `
+                <strong>${studentName}</strong><br>
+                Skor: ${score}/${quizData.length} (${percentage}%)
+            `;
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = '🌟 Luar biasa! Kamu sangat menguasai materi ini!';
+            } else if (percentage >= 80) {
+                message = '🎉 Bagus sekali! Pemahaman kamu sudah sangat baik!';
+            } else if (percentage >= 70) {
+                message = '👍 Cukup baik! Masih ada beberapa konsep yang perlu diperdalam.';
+            } else if (percentage >= 60) {
+                message = '📚 Perlu belajar lagi. Coba ulangi materi dan coba lagi!';
+            } else {
+                message = '💪 Jangan menyerah! Pelajari kembali materinya dan coba lagi!';
+            }
+            
+            document.getElementById('scoreMessage').textContent = message;
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizResults').classList.add('hidden');
+            document.getElementById('quizStart').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('intro');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9922dd7b62094abc',t:'MTc2MTA3MTgzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
