@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enkapsulasi Python - Data Hiding</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .code-block {
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .code-header {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .code-content {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            color: #f8f8f2;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 1000;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .floating-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .content-transition {
+            transition: margin-left 0.3s ease-in-out;
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            transform: translateX(5px);
+        }
+        
+        .demo-box {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .floating-btn {
+                bottom: 1rem;
+                right: 1rem;
+                width: 3rem;
+                height: 3rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-100 via-purple-50 to-indigo-100 min-h-full">
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-64 bg-gradient-to-b from-purple-200 to-pink-200 shadow-lg z-50 sidebar-transition transform -translate-x-full md:translate-x-0">
+        <div class="p-6">
+            <div class="flex items-center mb-8">
+                <i class="fas fa-shield-alt text-purple-600 text-2xl mr-3"></i>
+                <h1 class="text-xl font-bold text-purple-800">Enkapsulasi Python</h1>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" onclick="showSection('intro')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-50 transition-all">
+                    <i class="fas fa-play-circle text-pink-500 mr-3"></i>
+                    <span class="text-purple-800 font-medium">Intro</span>
+                </a>
+                <a href="#" onclick="showSection('pengenalan')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-50 transition-all">
+                    <i class="fas fa-book-open text-blue-500 mr-3"></i>
+                    <span class="text-purple-800 font-medium">Pengenalan</span>
+                </a>
+                <a href="#" onclick="showSection('konsep-dasar')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-50 transition-all">
+                    <i class="fas fa-lightbulb text-yellow-500 mr-3"></i>
+                    <span class="text-purple-800 font-medium">Konsep Dasar</span>
+                </a>
+                <a href="#" onclick="showSection('access-modifier')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-50 transition-all">
+                    <i class="fas fa-key text-green-500 mr-3"></i>
+                    <span class="text-purple-800 font-medium">Access Modifier</span>
+                </a>
+                <a href="#" onclick="showSection('implementasi')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-50 transition-all">
+                    <i class="fas fa-code text-indigo-500 mr-3"></i>
+                    <span class="text-purple-800 font-medium">Implementasi</span>
+                </a>
+                <a href="#" onclick="showSection('getter-setter')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-50 transition-all">
+                    <i class="fas fa-exchange-alt text-orange-500 mr-3"></i>
+                    <span class="text-purple-800 font-medium">Getter & Setter</span>
+                </a>
+                <a href="#" onclick="showSection('tugas')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-50 transition-all">
+                    <i class="fas fa-tasks text-red-500 mr-3"></i>
+                    <span class="text-purple-800 font-medium">Tugas</span>
+                </a>
+                <a href="#" onclick="showSection('kuis')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-50 transition-all">
+                    <i class="fas fa-question-circle text-teal-500 mr-3"></i>
+                    <span class="text-purple-800 font-medium">Kuis</span>
+                </a>
+                <a href="#" onclick="showSection('penutup')" class="nav-item flex items-center p-3 rounded-lg hover:bg-white hover:bg-opacity-50 transition-all">
+                    <i class="fas fa-flag-checkered text-purple-500 mr-3"></i>
+                    <span class="text-purple-800 font-medium">Penutup</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Mobile Header -->
+    <div class="md:hidden bg-gradient-to-r from-purple-200 to-pink-200 p-4 shadow-lg">
+        <div class="flex items-center justify-between">
+            <button id="menuToggle" class="text-purple-800 text-xl">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="text-lg font-bold text-purple-800">Enkapsulasi Python</h1>
+            <div class="w-6"></div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="mainContent" class="content-transition md:ml-64 min-h-full">
+        <div class="p-6 md:p-8 max-w-4xl mx-auto">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section">
+                <div class="bg-gradient-to-r from-pink-200 to-purple-200 rounded-2xl p-8 mb-8 shadow-lg">
+                    <div class="text-center mb-6">
+                        <i class="fas fa-shield-alt text-6xl text-purple-600 mb-4"></i>
+                        <h1 class="text-4xl font-bold text-purple-800 mb-2">Enkapsulasi dalam Python</h1>
+                        <p class="text-lg text-purple-600">Konsep Penyembunyian Data (Data Hiding)</p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-question-circle text-pink-500 text-2xl mr-3"></i>
+                            <h3 class="text-xl font-bold text-gray-800">Pertanyaan Pemantik</h3>
+                        </div>
+                        <p class="text-gray-700 mb-4">🤔 Pernahkah kamu melihat ATM? Mengapa kita tidak bisa melihat atau mengubah saldo orang lain secara langsung?</p>
+                        <p class="text-gray-700">💡 Konsep inilah yang disebut dengan <strong>Enkapsulasi</strong> - melindungi data penting dari akses yang tidak diinginkan!</p>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-6 shadow-lg">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-target text-green-500 text-2xl mr-3"></i>
+                            <h3 class="text-xl font-bold text-gray-800">Tujuan Pembelajaran</h3>
+                        </div>
+                        <ul class="text-gray-700 space-y-2">
+                            <li>✅ Memahami konsep enkapsulasi</li>
+                            <li>✅ Mengenal access modifier di Python</li>
+                            <li>✅ Implementasi data hiding</li>
+                            <li>✅ Menggunakan getter dan setter</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-xl p-6 mb-6 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-lightbulb text-yellow-500 text-2xl mr-3"></i>
+                        <h3 class="text-xl font-bold text-gray-800">Pemahaman Bermakna</h3>
+                    </div>
+                    <p class="text-gray-700">Enkapsulasi seperti <strong>brankas</strong> 🏦 - data penting disimpan dengan aman dan hanya bisa diakses dengan cara yang benar. Ini membuat program kita lebih aman dan terorganisir!</p>
+                </div>
+
+                <div class="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-xl p-6 shadow-lg">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-rocket text-blue-500 text-2xl mr-3"></i>
+                        <h3 class="text-xl font-bold text-gray-800">Motivasi</h3>
+                    </div>
+                    <p class="text-gray-700">🚀 Dengan menguasai enkapsulasi, kamu akan bisa membuat aplikasi yang lebih profesional dan aman. Skill ini sangat dibutuhkan di dunia kerja programming!</p>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="navigateToSection('pengenalan')" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-3 rounded-full font-bold hover:shadow-lg transition-all transform hover:scale-105">
+                        <i class="fas fa-arrow-right mr-2"></i>Mulai Belajar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden">
+                <div class="bg-gradient-to-r from-blue-200 to-indigo-200 rounded-2xl p-8 mb-8 shadow-lg">
+                    <div class="text-center mb-6">
+                        <i class="fas fa-book-open text-6xl text-blue-600 mb-4"></i>
+                        <h1 class="text-4xl font-bold text-blue-800 mb-2">Pengenalan Enkapsulasi</h1>
+                        <p class="text-lg text-blue-600">Mari berkenalan dengan konsep dasar!</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-8 mb-8 shadow-lg">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-info-circle text-blue-500 mr-3"></i>
+                        Apa itu Enkapsulasi?
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                                <strong>Enkapsulasi</strong> adalah salah satu pilar utama dalam pemrograman berorientasi objek (OOP). 
+                                Konsep ini memungkinkan kita untuk <strong>"menyembunyikan"</strong> data dan method dari akses langsung dari luar class.
+                            </p>
+                            <p class="text-gray-700 text-lg leading-relaxed">
+                                Bayangkan enkapsulasi seperti <strong>kapsul obat</strong> 💊 - isi obat (data) dilindungi oleh cangkang kapsul, 
+                                dan hanya bisa diakses dengan cara yang benar!
+                            </p>
+                        </div>
+                        <div class="flex items-center justify-center">
+                            <div class="text-8xl">🛡️</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-box mb-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-eye text-green-500 mr-3"></i>
+                        Analogi Sederhana
+                    </h3>
+                    
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="bg-white rounded-lg p-4 text-center shadow-md">
+                            <div class="text-4xl mb-2">🏠</div>
+                            <h4 class="font-bold text-gray-800 mb-2">Rumah</h4>
+                            <p class="text-base text-gray-600">Kamar tidur (private), ruang tamu (public)</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 text-center shadow-md">
+                            <div class="text-4xl mb-2">🏦</div>
+                            <h4 class="font-bold text-gray-800 mb-2">Bank</h4>
+                            <p class="text-base text-gray-600">Brankas (private), lobi (public)</p>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 text-center shadow-md">
+                            <div class="text-4xl mb-2">📱</div>
+                            <h4 class="font-bold text-gray-800 mb-2">Smartphone</h4>
+                            <p class="text-base text-gray-600">Komponen dalam (private), layar (public)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="navigateToSection('konsep-dasar')" class="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-8 py-3 rounded-full font-bold hover:shadow-lg transition-all transform hover:scale-105">
+                        <i class="fas fa-arrow-right mr-2"></i>Lanjut ke Konsep Dasar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Konsep Dasar Section -->
+            <div id="konsep-dasar" class="section hidden">
+                <div class="bg-gradient-to-r from-yellow-200 to-orange-200 rounded-2xl p-8 mb-8 shadow-lg">
+                    <div class="text-center mb-6">
+                        <i class="fas fa-lightbulb text-6xl text-yellow-600 mb-4"></i>
+                        <h1 class="text-4xl font-bold text-yellow-800 mb-2">Konsep Dasar</h1>
+                        <p class="text-lg text-yellow-600">Memahami prinsip-prinsip enkapsulasi</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-8 mb-8 shadow-lg">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-layer-group text-purple-500 mr-3"></i>
+                        Tingkatan Akses dalam Python
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <div class="border-l-4 border-green-500 pl-6 py-4 bg-green-50 rounded-r-lg">
+                            <h3 class="text-xl font-bold text-green-700 mb-2">🌍 Public (Publik)</h3>
+                            <p class="text-gray-700 mb-2">Dapat diakses dari mana saja, baik dari dalam class maupun dari luar class.</p>
+                            <p class="text-base text-gray-600 font-mono">Contoh: nama, umur</p>
+                        </div>
+                        
+                        <div class="border-l-4 border-yellow-500 pl-6 py-4 bg-yellow-50 rounded-r-lg">
+                            <h3 class="text-xl font-bold text-yellow-700 mb-2">🏠 Protected (Terlindungi)</h3>
+                            <p class="text-gray-700 mb-2">Hanya dapat diakses dari dalam class dan class turunannya. Ditandai dengan underscore (_).</p>
+                            <p class="text-base text-gray-600 font-mono">Contoh: _alamat, _telepon</p>
+                            <p class="text-sm text-yellow-600 mt-2">⚠️ Ini hanya konvensi, masih bisa diakses dari luar tapi tidak disarankan.</p>
+                        </div>
+                        
+                        <div class="border-l-4 border-red-500 pl-6 py-4 bg-red-50 rounded-r-lg">
+                            <h3 class="text-xl font-bold text-red-700 mb-2">🔒 Private (Pribadi)</h3>
+                            <p class="text-gray-700 mb-2">Hanya dapat diakses dari dalam class itu sendiri. Ditandai dengan double underscore (__).</p>
+                            <p class="text-base text-gray-600 font-mono">Contoh: __password, __saldo</p>
+                            <p class="text-sm text-red-600 mt-2">🔐 Python menggunakan "name mangling" untuk menyembunyikan attribute ini.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <h4 class="font-bold text-blue-800 mb-2 flex items-center">
+                            <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                            Catatan Penting tentang Python
+                        </h4>
+                        <p class="text-blue-700 text-base">
+                            Python tidak memiliki enkapsulasi yang benar-benar "ketat" seperti Java atau C++. 
+                            Semua access modifier di Python lebih bersifat <strong>konvensi</strong> dan <strong>petunjuk</strong> 
+                            untuk programmer lain bahwa data tersebut tidak seharusnya diakses langsung.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="code-block">
+                    <div class="code-header">
+                        <i class="fab fa-python text-yellow-400"></i>
+                        <span class="text-white font-bold">Python</span>
+                        <span class="text-gray-300">|</span>
+                        <span class="text-gray-300">contoh_akses.py</span>
+                    </div>
+                    <div class="code-content">
+<pre>class ContohAkses:
+    def __init__(self):
+        self.public_var = "Saya bisa diakses dari mana saja! 🌍"
+        self._protected_var = "Saya untuk keluarga class ini 🏠"
+        self.__private_var = "Saya sangat rahasia! 🔒"
+    
+    def tampilkan_semua(self):
+        print("Dari dalam class:")
+        print(f"Public: {self.public_var}")
+        print(f"Protected: {self._protected_var}")
+        print(f"Private: {self.__private_var}")
+
+# Membuat objek
+obj = ContohAkses()
+
+# Akses dari luar class
+print("Dari luar class:")
+print(obj.public_var)        # ✅ Berhasil
+print(obj._protected_var)    # ⚠️ Bisa, tapi tidak disarankan
+# print(obj.__private_var)   # ❌ AttributeError!
+
+# Cara mengakses private variable (name mangling)
+# print(obj._ContohAkses__private_var)  # ✅ Bisa, tapi tidak disarankan
+
+# Cara yang benar: gunakan method public
+obj.tampilkan_semua()        # ✅ Cara yang tepat</pre>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="navigateToSection('access-modifier')" class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-3 rounded-full font-bold hover:shadow-lg transition-all transform hover:scale-105">
+                        <i class="fas fa-arrow-right mr-2"></i>Pelajari Access Modifier
+                    </button>
+                </div>
+            </div>
+
+            <!-- Access Modifier Section -->
+            <div id="access-modifier" class="section hidden">
+                <div class="bg-gradient-to-r from-green-200 to-teal-200 rounded-2xl p-8 mb-8 shadow-lg">
+                    <div class="text-center mb-6">
+                        <i class="fas fa-key text-6xl text-green-600 mb-4"></i>
+                        <h1 class="text-4xl font-bold text-green-800 mb-2">Access Modifier</h1>
+                        <p class="text-lg text-green-600">Mengatur akses data dengan tepat</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-8 mb-8 shadow-lg">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-code text-blue-500 mr-3"></i>
+                        Implementasi Access Modifier
+                    </h2>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fab fa-python text-yellow-400"></i>
+                            <span class="text-white font-bold">Python</span>
+                            <span class="text-gray-300">|</span>
+                            <span class="text-gray-300">rekening_bank.py</span>
+                        </div>
+                        <div class="code-content">
+<pre>class RekeningBank:
+    def __init__(self, nama, saldo_awal):
+        self.nama = nama                    # 🌍 Public
+        self._nomor_rekening = "001234"     # 🏠 Protected
+        self.__saldo = saldo_awal           # 🔒 Private
+        self.__pin = "1234"                 # 🔒 Private
+    
+    def cek_saldo(self):                    # 🌍 Public method
+        return f"Saldo Anda: Rp {self.__saldo:,}"
+    
+    def __validasi_pin(self, pin):          # 🔒 Private method
+        return pin == self.__pin
+    
+    def tarik_uang(self, jumlah, pin):      # 🌍 Public method
+        if self.__validasi_pin(pin):
+            if jumlah <= self.__saldo:
+                self.__saldo -= jumlah
+                return f"Berhasil tarik Rp {jumlah:,}"
+            else:
+                return "Saldo tidak cukup!"
+        else:
+            return "PIN salah!"
+
+# Penggunaan
+rekening = RekeningBank("Ani", 1000000)
+print(rekening.nama)                 # ✅ Public - OK
+print(rekening.cek_saldo())          # ✅ Public method - OK
+print(rekening.tarik_uang(50000, "1234"))  # ✅ OK</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="demo-box">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-play-circle text-purple-500 mr-3"></i>
+                        Demo: Coba Akses Data Bank
+                    </h3>
+                    
+                    <div class="bg-white rounded-lg p-6 shadow-md">
+                        <p class="text-gray-700 mb-4">Coba akses data rekening bank di bawah ini:</p>
+                        
+                        <div class="grid md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="pinInput" class="block text-base font-bold text-gray-700 mb-2">Masukkan PIN:</label>
+                                <input type="password" id="pinInput" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base" placeholder="Masukkan PIN (1234)">
+                            </div>
+                            <div>
+                                <label for="jumlahTarik" class="block text-base font-bold text-gray-700 mb-2">Jumlah Tarik:</label>
+                                <input type="number" id="jumlahTarik" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base" placeholder="Masukkan jumlah">
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-4 mb-4">
+                            <button onclick="cekSaldo()" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all">
+                                <i class="fas fa-eye mr-2"></i>Cek Saldo
+                            </button>
+                            <button onclick="tarikUang()" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-all">
+                                <i class="fas fa-money-bill-wave mr-2"></i>Tarik Uang
+                            </button>
+                        </div>
+                        
+                        <div id="bankResult" class="bg-gray-100 rounded-lg p-4 min-h-16">
+                            <p class="text-gray-600 text-base">Hasil akan ditampilkan di sini...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="navigateToSection('implementasi')" class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-8 py-3 rounded-full font-bold hover:shadow-lg transition-all transform hover:scale-105">
+                        <i class="fas fa-arrow-right mr-2"></i>Lihat Implementasi Lengkap
+                    </button>
+                </div>
+            </div>
+
+            <!-- Implementasi Section -->
+            <div id="implementasi" class="section hidden">
+                <div class="bg-gradient-to-r from-indigo-200 to-purple-200 rounded-2xl p-8 mb-8 shadow-lg">
+                    <div class="text-center mb-6">
+                        <i class="fas fa-code text-6xl text-indigo-600 mb-4"></i>
+                        <h1 class="text-4xl font-bold text-indigo-800 mb-2">Implementasi Lengkap</h1>
+                        <p class="text-lg text-indigo-600">Contoh nyata penggunaan enkapsulasi</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-8 mb-8 shadow-lg">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-project-diagram text-purple-500 mr-3"></i>
+                        Studi Kasus: Sistem Manajemen Siswa
+                    </h2>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fab fa-python text-yellow-400"></i>
+                            <span class="text-white font-bold">Python</span>
+                            <span class="text-gray-300">|</span>
+                            <span class="text-gray-300">sistem_siswa.py</span>
+                        </div>
+                        <div class="code-content">
+<pre>class Siswa:
+    def __init__(self, nama, nis, kelas):
+        # Validasi input
+        if not nama or not isinstance(nama, str):
+            raise ValueError("Nama harus berupa string dan tidak boleh kosong")
+        if not nis or not isinstance(nis, str):
+            raise ValueError("NIS harus berupa string dan tidak boleh kosong")
+        if not kelas or not isinstance(kelas, str):
+            raise ValueError("Kelas harus berupa string dan tidak boleh kosong")
+            
+        # Public attributes
+        self.nama = nama.strip()
+        self.kelas = kelas.strip()
+        
+        # Protected attributes
+        self._nis = nis.strip()
+        self._tanggal_masuk = "2024-07-01"
+        
+        # Private attributes
+        self.__nilai_rapor = []
+        self.__password = "default123"
+        self.__status_aktif = True
+    
+    # Public methods
+    def perkenalan(self):
+        return f"Halo! Saya {self.nama} dari kelas {self.kelas}"
+    
+    def info_dasar(self):
+        return {
+            'nama': self.nama,
+            'kelas': self.kelas,
+            'nis': self._nis,  # Protected bisa diakses dalam class
+            'status': 'Aktif' if self.__status_aktif else 'Tidak Aktif'
+        }
+    
+    # Private method untuk validasi
+    def __validasi_password(self, password):
+        return password == self.__password
+    
+    # Public method untuk mengubah password
+    def ubah_password(self, password_lama, password_baru):
+        if self.__validasi_password(password_lama):
+            if len(password_baru) >= 6:
+                self.__password = password_baru
+                return "Password berhasil diubah"
+            else:
+                return "Password baru minimal 6 karakter"
+        else:
+            return "Password lama salah!"
+    
+    # Public method untuk akses data private dengan aman
+    def tambah_nilai(self, nilai, password):
+        if self.__validasi_password(password):
+            if isinstance(nilai, (int, float)) and 0 <= nilai <= 100:
+                self.__nilai_rapor.append(float(nilai))
+                return f"Nilai {nilai} berhasil ditambahkan"
+            else:
+                return "Nilai harus berupa angka antara 0-100"
+        else:
+            return "Password salah!"
+    
+    def lihat_nilai(self, password):
+        if self.__validasi_password(password):
+            if len(self.__nilai_rapor) > 0:
+                rata_rata = sum(self.__nilai_rapor) / len(self.__nilai_rapor)
+                return {
+                    'nilai': self.__nilai_rapor.copy(),  # Return copy untuk keamanan
+                    'rata_rata': round(rata_rata, 2),
+                    'jumlah_nilai': len(self.__nilai_rapor)
+                }
+            else:
+                return {"pesan": "Belum ada nilai"}
+        else:
+            return {"error": "Password salah!"}
+
+# Contoh penggunaan
+try:
+    siswa1 = Siswa("Budi Santoso", "2024001", "XII IPA 1")
+    print(siswa1.perkenalan())
+    print(siswa1.info_dasar())
+    
+    # Menambah nilai dengan password
+    print(siswa1.tambah_nilai(85, "default123"))
+    print(siswa1.tambah_nilai(90, "default123"))
+    
+    # Melihat nilai
+    hasil = siswa1.lihat_nilai("default123")
+    print(f"Rata-rata: {hasil['rata_rata']}")
+    
+except ValueError as e:
+    print(f"Error: {e}")</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="navigateToSection('getter-setter')" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-8 py-3 rounded-full font-bold hover:shadow-lg transition-all transform hover:scale-105">
+                        <i class="fas fa-arrow-right mr-2"></i>Pelajari Getter & Setter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Getter Setter Section -->
+            <div id="getter-setter" class="section hidden">
+                <div class="bg-gradient-to-r from-orange-200 to-red-200 rounded-2xl p-8 mb-8 shadow-lg">
+                    <div class="text-center mb-6">
+                        <i class="fas fa-exchange-alt text-6xl text-orange-600 mb-4"></i>
+                        <h1 class="text-4xl font-bold text-orange-800 mb-2">Getter & Setter</h1>
+                        <p class="text-lg text-orange-600">Mengakses data private dengan aman</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-8 mb-8 shadow-lg">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-question-circle text-blue-500 mr-3"></i>
+                        Apa itu Getter dan Setter?
+                    </h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div class="border border-green-200 rounded-lg p-6 bg-green-50">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-download text-green-500 text-2xl mr-3"></i>
+                                <h3 class="text-xl font-bold text-green-700">Getter</h3>
+                            </div>
+                            <p class="text-gray-700 mb-4">Method untuk <strong>mengambil/membaca</strong> nilai dari attribute private.</p>
+                            <div class="bg-white rounded-lg p-3 border border-green-200">
+                                <code class="text-green-600">def get_nama(self):</code><br>
+                                <code class="text-green-600 ml-4">return self.__nama</code>
+                            </div>
+                        </div>
+                        
+                        <div class="border border-red-200 rounded-lg p-6 bg-red-50">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-upload text-red-500 text-2xl mr-3"></i>
+                                <h3 class="text-xl font-bold text-red-700">Setter</h3>
+                            </div>
+                            <p class="text-gray-700 mb-4">Method untuk <strong>mengubah/menulis</strong> nilai ke attribute private.</p>
+                            <div class="bg-white rounded-lg p-3 border border-red-200">
+                                <code class="text-red-600">def set_nama(self, nama):</code><br>
+                                <code class="text-red-600 ml-4">self.__nama = nama</code>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fab fa-python text-yellow-400"></i>
+                            <span class="text-white font-bold">Python</span>
+                            <span class="text-gray-300">|</span>
+                            <span class="text-gray-300">getter_setter_example.py</span>
+                        </div>
+                        <div class="code-content">
+<pre>class Produk:
+    def __init__(self, nama, harga):
+        # Validasi input saat inisialisasi
+        if not isinstance(nama, str) or len(nama.strip()) == 0:
+            raise ValueError("Nama produk harus berupa string dan tidak boleh kosong")
+        if not isinstance(harga, (int, float)) or harga <= 0:
+            raise ValueError("Harga harus berupa angka positif")
+            
+        self.__nama = nama.strip()
+        self.__harga = float(harga)
+        self.__stok = 0
+    
+    # GETTER METHODS
+    def get_nama(self):
+        return self.__nama
+    
+    def get_harga(self):
+        return self.__harga
+    
+    def get_stok(self):
+        return self.__stok
+    
+    def get_info_lengkap(self):
+        return {
+            'nama': self.__nama,
+            'harga': self.__harga,
+            'stok': self.__stok,
+            'tersedia': self.__stok > 0
+        }
+    
+    # SETTER METHODS dengan validasi
+    def set_nama(self, nama_baru):
+        if isinstance(nama_baru, str) and len(nama_baru.strip()) > 0:
+            self.__nama = nama_baru.strip()
+            return f"Nama berhasil diubah: {self.__nama}"
+        else:
+            return "Error: Nama harus berupa text dan tidak boleh kosong!"
+    
+    def set_harga(self, harga_baru):
+        if isinstance(harga_baru, (int, float)) and harga_baru > 0:
+            self.__harga = float(harga_baru)
+            return f"Harga berhasil diubah: Rp {self.__harga:,.0f}"
+        else:
+            return "Error: Harga harus angka positif!"
+    
+    def tambah_stok(self, jumlah):
+        if isinstance(jumlah, int) and jumlah > 0:
+            self.__stok += jumlah
+            return f"Stok bertambah {jumlah}. Total: {self.__stok}"
+        else:
+            return "Error: Jumlah harus berupa bilangan bulat positif!"
+    
+    def kurangi_stok(self, jumlah):
+        if isinstance(jumlah, int) and jumlah > 0:
+            if jumlah <= self.__stok:
+                self.__stok -= jumlah
+                return f"Stok berkurang {jumlah}. Sisa: {self.__stok}"
+            else:
+                return f"Error: Stok tidak cukup! Stok tersedia: {self.__stok}"
+        else:
+            return "Error: Jumlah harus berupa bilangan bulat positif!"
+
+# Contoh penggunaan
+try:
+    produk1 = Produk("Laptop Gaming", 15000000)
+    print(f"Produk: {produk1.get_nama()}")
+    print(f"Harga: Rp {produk1.get_harga():,.0f}")
+    
+    # Menambah stok
+    print(produk1.tambah_stok(10))
+    
+    # Mengubah harga
+    print(produk1.set_harga(14500000))
+    
+    # Info lengkap
+    info = produk1.get_info_lengkap()
+    print(f"Info: {info}")
+    
+except ValueError as e:
+    print(f"Error: {e}")</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-8 mb-8 shadow-lg">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-magic text-purple-500 mr-3"></i>
+                        Bonus: Property Decorator (Pythonic Way)
+                    </h2>
+                    
+                    <p class="text-gray-700 mb-4">
+                        Python menyediakan cara yang lebih elegan untuk membuat getter dan setter menggunakan 
+                        <strong>@property</strong> decorator. Ini membuat kode lebih bersih dan mudah dibaca.
+                    </p>
+                    
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fab fa-python text-yellow-400"></i>
+                            <span class="text-white font-bold">Python</span>
+                            <span class="text-gray-300">|</span>
+                            <span class="text-gray-300">property_example.py</span>
+                        </div>
+                        <div class="code-content">
+<pre>class Mahasiswa:
+    def __init__(self, nama, ipk):
+        self._nama = nama
+        self._ipk = ipk
+    
+    @property
+    def nama(self):
+        """Getter untuk nama"""
+        return self._nama
+    
+    @nama.setter
+    def nama(self, value):
+        """Setter untuk nama dengan validasi"""
+        if isinstance(value, str) and len(value.strip()) > 0:
+            self._nama = value.strip()
+        else:
+            raise ValueError("Nama harus berupa string dan tidak boleh kosong")
+    
+    @property
+    def ipk(self):
+        """Getter untuk IPK"""
+        return self._ipk
+    
+    @ipk.setter
+    def ipk(self, value):
+        """Setter untuk IPK dengan validasi"""
+        if isinstance(value, (int, float)) and 0.0 <= value <= 4.0:
+            self._ipk = float(value)
+        else:
+            raise ValueError("IPK harus antara 0.0 - 4.0")
+    
+    @property
+    def predikat(self):
+        """Property read-only untuk predikat berdasarkan IPK"""
+        if self._ipk >= 3.5:
+            return "Cum Laude"
+        elif self._ipk >= 3.0:
+            return "Sangat Memuaskan"
+        elif self._ipk >= 2.5:
+            return "Memuaskan"
+        else:
+            return "Cukup"
+
+# Penggunaan seperti attribute biasa
+mhs = Mahasiswa("Sari", 3.8)
+print(mhs.nama)        # Menggunakan getter
+print(mhs.ipk)         # Menggunakan getter
+print(mhs.predikat)    # Read-only property
+
+mhs.nama = "Sari Dewi" # Menggunakan setter
+mhs.ipk = 3.9          # Menggunakan setter dengan validasi</pre>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <h4 class="font-bold text-green-800 mb-2 flex items-center">
+                            <i class="fas fa-thumbs-up text-green-600 mr-2"></i>
+                            Keuntungan @property
+                        </h4>
+                        <ul class="text-green-700 space-y-1">
+                            <li>✅ Sintaks lebih bersih dan natural</li>
+                            <li>✅ Dapat membuat read-only properties</li>
+                            <li>✅ Validasi otomatis saat assignment</li>
+                            <li>✅ Lebih Pythonic dan mudah dibaca</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="navigateToSection('tugas')" class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-3 rounded-full font-bold hover:shadow-lg transition-all transform hover:scale-105">
+                        <i class="fas fa-arrow-right mr-2"></i>Lanjut ke Tugas
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tugas Section -->
+            <div id="tugas" class="section hidden">
+                <div class="bg-gradient-to-r from-red-200 to-pink-200 rounded-2xl p-8 mb-8 shadow-lg">
+                    <div class="text-center mb-6">
+                        <i class="fas fa-tasks text-6xl text-red-600 mb-4"></i>
+                        <h1 class="text-4xl font-bold text-red-800 mb-2">Tugas Praktik</h1>
+                        <p class="text-lg text-red-600">Uji kemampuan enkapsulasi Anda!</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-8 mb-8 shadow-lg">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fas fa-clipboard-list text-blue-500 mr-3"></i>
+                        Soal Praktik: Sistem Perpustakaan
+                    </h2>
+                    
+                    <div class="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg p-6 mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">📚 Deskripsi Tugas</h3>
+                        <p class="text-gray-700 mb-4">
+                            Buatlah class <strong>Buku</strong> dengan menerapkan konsep enkapsulasi yang telah dipelajari. 
+                            Class ini akan digunakan untuk sistem manajemen perpustakaan sekolah.
+                        </p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="border border-green-200 rounded-lg p-6 bg-green-50">
+                            <h4 class="font-bold text-green-700 mb-3 flex items-center">
+                                <i class="fas fa-list text-green-500 mr-2"></i>
+                                Spesifikasi Class Buku
+                            </h4>
+                            <div class="space-y-3 text-base">
+                                <div>
+                                    <strong>Attributes (Private):</strong>
+                                    <ul class="ml-4 mt-1 space-y-1">
+                                        <li>• __judul (string)</li>
+                                        <li>• __pengarang (string)</li>
+                                        <li>• __isbn (string)</li>
+                                        <li>• __tahun_terbit (integer)</li>
+                                        <li>• __status_tersedia (boolean)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="border border-blue-200 rounded-lg p-6 bg-blue-50">
+                            <h4 class="font-bold text-blue-700 mb-3 flex items-center">
+                                <i class="fas fa-cogs text-blue-500 mr-2"></i>
+                                Methods yang Diperlukan
+                            </h4>
+                            <div class="space-y-2 text-base">
+                                <p><strong>Getter Methods:</strong></p>
+                                <ul class="ml-4 space-y-1">
+                                    <li>• get_judul()</li>
+                                    <li>• get_pengarang()</li>
+                                    <li>• get_info_lengkap()</li>
+                                    <li>• is_tersedia()</li>
+                                </ul>
+                                <p><strong>Setter Methods:</strong></p>
+                                <ul class="ml-4 space-y-1">
+                                    <li>• pinjam_buku()</li>
+                                    <li>• kembalikan_buku()</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+                        <h4 class="font-bold text-yellow-700 mb-3 flex items-center">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                            Ketentuan Validasi
+                        </h4>
+                        <ul class="space-y-2 text-gray-700">
+                            <li>✅ Judul dan pengarang tidak boleh kosong</li>
+                            <li>✅ ISBN harus 13 digit angka</li>
+                            <li>✅ Tahun terbit antara 1900-2024</li>
+                            <li>✅ Buku hanya bisa dipinjam jika tersedia</li>
+                            <li>✅ Buku hanya bisa dikembalikan jika sedang dipinjam</li>
+                        </ul>
+                    </div>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <i class="fab fa-python text-yellow-400"></i>
+                            <span class="text-white font-bold">Python</span>
+                            <span class="text-gray-300">|</span>
+                            <span class="text-gray-300">template_buku.py</span>
+                        </div>
+                        <div class="code-content">
+<pre>class Buku:
+    def __init__(self, judul, pengarang, isbn, tahun_terbit):
+        # TODO: Implementasikan constructor dengan validasi
+        # Validasi judul dan pengarang tidak boleh kosong
+        # Validasi ISBN harus 13 digit angka
+        # Validasi tahun terbit antara 1900-2024
+        # Gunakan private attributes dengan prefix __
+        pass
+    
+    # TODO: Implementasikan getter methods
+    def get_judul(self):
+        # Return judul buku
+        pass
+    
+    def get_pengarang(self):
+        # Return nama pengarang
+        pass
+    
+    def get_isbn(self):
+        # Return ISBN buku
+        pass
+    
+    def get_tahun_terbit(self):
+        # Return tahun terbit
+        pass
+    
+    def get_info_lengkap(self):
+        # Return dictionary dengan semua informasi buku
+        # Format: {'judul': ..., 'pengarang': ..., 'isbn': ..., 
+        #          'tahun_terbit': ..., 'status': 'Tersedia'/'Dipinjam'}
+        pass
+    
+    def is_tersedia(self):
+        # Return True jika buku tersedia untuk dipinjam
+        pass
+    
+    # TODO: Implementasikan methods untuk peminjaman
+    def pinjam_buku(self):
+        # Ubah status menjadi tidak tersedia jika buku tersedia
+        # Return pesan sukses atau error
+        pass
+    
+    def kembalikan_buku(self):
+        # Ubah status menjadi tersedia jika buku sedang dipinjam
+        # Return pesan sukses atau error
+        pass
+
+# TODO: Buat contoh penggunaan class Buku
+# Contoh:
+# buku1 = Buku("Laskar Pelangi", "Andrea Hirata", "9786020331775", 2005)
+# print(buku1.get_info_lengkap())
+# print(buku1.pinjam_buku())
+# print(buku1.is_tersedia())</pre>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8">
+                    <button onclick="navigateToSection('kuis')" class="bg-gradient-to-r from-red-500 to-pink-500 text-white px-8 py-3 rounded-full font-bold hover:shadow-lg transition-all transform hover:scale-105">
+                        <i class="fas fa-arrow-right mr-2"></i>Lanjut ke Kuis
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden">
+                <div class="bg-gradient-to-r from-teal-200 to-cyan-200 rounded-2xl p-8 mb-8 shadow-lg">
+                    <div class="text-center mb-6">
+                        <i class="fas fa-question-circle text-6xl text-teal-600 mb-4"></i>
+                        <h1 class="text-4xl font-bold text-teal-800 mb-2">Kuis Enkapsulasi</h1>
+                        <p class="text-lg text-teal-600">Uji pemahaman Anda!</p>
+                    </div>
+                </div>
+
+                <!-- Quiz Start Form -->
+                <div id="quizStart" class="bg-white rounded-xl p-8 mb-8 shadow-lg">
+                    <div class="text-center mb-6">
+                        <i class="fas fa-user-graduate text-4xl text-blue-500 mb-4"></i>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4">Selamat Datang di Kuis!</h2>
+                        <p class="text-gray-600 mb-6">Masukkan nama Anda untuk memulai kuis tentang Enkapsulasi dalam Python</p>
+                    </div>
+                    
+                    <div class="max-w-md mx-auto">
+                        <label for="studentName" class="block text-base font-bold text-gray-700 mb-2">Nama Lengkap:</label>
+                        <input type="text" id="studentName" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-lg" placeholder="Masukkan nama lengkap Anda">
+                        <button onclick="startQuiz()" class="w-full mt-4 bg-gradient-to-r from-teal-500 to-cyan-500 text-white py-4 rounded-lg font-bold text-lg hover:shadow-lg transition-all transform hover:scale-105">
+                            <i class="fas fa-play mr-2"></i>Mulai Kuis
+                        </button>
+                    </div>
+                    
+                    <div class="mt-8 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg p-6">
+                        <h3 class="font-bold text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                            Informasi Kuis
+                        </h3>
+                        <div class="grid md:grid-cols-3 gap-4 text-center">
+                            <div>
+                                <div class="text-2xl font-bold text-blue-600">10</div>
+                                <div class="text-base text-gray-600">Soal</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-green-600">10</div>
+                                <div class="text-base text-gray-600">Poin per soal</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-purple-600">100</div>
+                                <div class="text-base text-gray-600">Skor maksimal</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Questions -->
+                <div id="quizQuestions" class="hidden">
+                    <div class="bg-white rounded-xl p-8 mb-8 shadow-lg">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-2xl font-bold text-gray-800">
+                                Soal <span id="currentQuestion">1</span> dari 10
+                            </h2>
+                            <div class="text-lg font-bold text-teal-600">
+                                Skor: <span id="currentScore">0</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-8">
+                            <div class="bg-gray-200 rounded-full h-3 mb-4">
+                                <div id="progressBar" class="bg-gradient-to-r from-teal-500 to-cyan-500 h-3 rounded-full transition-all duration-300" style="width: 10%"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="questionContainer" class="mb-8">
+                            <!-- Questions will be loaded here -->
+                        </div>
+                        
+                        <div class="text-center">
+                            <button id="nextButton" onclick="nextQuestion()" class="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-8 py-3 rounded-lg font-bold hover:shadow-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <i class="fas fa-arrow-right mr-2"></i>Soal Berikutnya
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Results -->
+                <div id="quizResults" class="hidden">
+                    <div class="bg-white rounded-xl p-8 shadow-lg">
+                        <div class="text-center mb-8">
+                            <div id="resultIcon" class="text-6xl mb-4">🎉</div>
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Kuis Selesai!</h2>
+                            <p class="text-lg text-gray-600">Terima kasih telah mengikuti kuis</p>
+                        </div>
+                        
+                        <div class="max-w-md mx-auto">
+                            <div class="bg-gradient-to-r from-teal-100 to-cyan-100 rounded-lg p-6 mb-6">
+                                <h3 class="text-xl font-bold text-gray-800 mb-4 text-center">Hasil Kuis</h3>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <span class="font-medium">Nama:</span>
+                                        <span id="finalName" class="font-bold"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="font-medium">Skor:</span>
+                                        <span id="finalScore" class="font-bold text-teal-600"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="font-medium">Persentase:</span>
+                                        <span id="finalPercentage" class="font-bold"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="font-medium">Grade:</span>
+                                        <span id="finalGrade" class="font-bold"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="feedback" class="text-center mb-6">
+                                <!-- Feedback will be shown here -->
+                            </div>
+                            
+                            <div class="text-center">
+                                <button onclick="restartQuiz()" class="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all transform hover:scale-105 mr-4">
+                                    <i class="fas fa-redo mr-2"></i>Ulangi Kuis
+                                </button>
+                                <button onclick="navigateToSection('penutup')" class="bg-gradient-to-r from-green-500 to-teal-500 text-white px-6 py-3 rounded-lg font-bold hover:shadow-lg transition-all transform hover:scale-105">
+                                    <i class="fas fa-arrow-right mr-2"></i>Lanjut ke Penutup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden">
+                <div class="bg-gradient-to-r from-purple-200 to-pink-200 rounded-2xl p-8 mb-8 shadow-lg">
+                    <div class="text-center mb-6">
+                        <i class="fas fa-flag-checkered text-6xl text-purple-600 mb-4"></i>
+                        <h1 class="text-4xl font-bold text-purple-800 mb-2">Penutup</h1>
+                        <p class="text-lg text-purple-600">Refleksi dan tindak lanjut pembelajaran</p>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div class="bg-white rounded-xl p-8 shadow-lg">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-mirror text-blue-500 mr-3"></i>
+                            Refleksi Pembelajaran
+                        </h2>
+                        
+                        <div class="space-y-6">
+                            <div class="border-l-4 border-blue-500 pl-4">
+                                <h3 class="font-bold text-gray-800 mb-2">🤔 Apa yang sudah dipelajari?</h3>
+                                <ul class="text-gray-700 space-y-1 text-base">
+                                    <li>• Konsep enkapsulasi dan data hiding</li>
+                                    <li>• Access modifier (public, protected, private)</li>
+                                    <li>• Implementasi getter dan setter methods</li>
+                                    <li>• Validasi data dalam enkapsulasi</li>
+                                    <li>• Manfaat enkapsulasi dalam OOP</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="border-l-4 border-green-500 pl-4">
+                                <h3 class="font-bold text-gray-800 mb-2">💡 Insight baru apa yang didapat?</h3>
+                                <p class="text-gray-700 text-base">
+                                    Enkapsulasi bukan hanya tentang menyembunyikan data, tetapi juga tentang 
+                                    <strong>mengontrol akses</strong> dan <strong>memvalidasi data</strong> untuk 
+                                    membuat program yang lebih aman dan robust.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl p-8 shadow-lg">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-lightbulb text-yellow-500 mr-3"></i>
+                            Kesimpulan Pembelajaran
+                        </h2>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg p-4">
+                                <h3 class="font-bold text-blue-800 mb-2 flex items-center">
+                                    <i class="fas fa-shield-alt text-blue-600 mr-2"></i>
+                                    Enkapsulasi = Keamanan
+                                </h3>
+                                <p class="text-blue-700 text-base">
+                                    Melindungi data penting dari akses yang tidak diinginkan
+                                </p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-green-100 to-teal-100 rounded-lg p-4">
+                                <h3 class="font-bold text-green-800 mb-2 flex items-center">
+                                    <i class="fas fa-cogs text-green-600 mr-2"></i>
+                                    Kontrol Akses = Kualitas
+                                </h3>
+                                <p class="text-green-700 text-base">
+                                    Mengatur siapa dan bagaimana data bisa diakses
+                                </p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg p-4">
+                                <h3 class="font-bold text-purple-800 mb-2 flex items-center">
+                                    <i class="fas fa-check-circle text-purple-600 mr-2"></i>
+                                    Validasi = Reliabilitas
+                                </h3>
+                                <p class="text-purple-700 text-base">
+                                    Memastikan data yang masuk sesuai dengan aturan
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 p-4 bg-gradient-to-r from-yellow-100 to-orange-100 rounded-lg">
+                            <p class="text-center font-bold text-gray-800">
+                                🎉 <strong>Selamat!</strong> Anda telah menguasai konsep enkapsulasi dalam Python!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-8 bg-gradient-to-r from-pink-100 to-purple-100 rounded-xl p-8">
+                    <i class="fas fa-heart text-4xl text-pink-500 mb-4"></i>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Terima Kasih!</h3>
+                    <p class="text-gray-700 text-lg mb-6">
+                        Semoga pembelajaran tentang enkapsulasi ini bermanfaat untuk perjalanan programming Anda. 
+                        Terus berlatih dan jangan takut untuk bereksperimen! 🚀
+                    </p>
+                    <div class="flex justify-center space-x-4">
+                        <div class="text-center">
+                            <div class="text-2xl">🎯</div>
+                            <div class="text-base text-gray-600">Keep Learning</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl">💪</div>
+                            <div class="text-base text-gray-600">Keep Practicing</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl">🌟</div>
+                            <div class="text-base text-gray-600">Keep Growing</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button onclick="scrollToTop()" class="floating-btn">
+        <i class="fas fa-arrow-up text-white text-xl"></i>
+    </button>
+
+    <script>
+        // Global variables
+        let currentSection = 'intro';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let studentName = '';
+        
+        // Demo data for interactive features
+        let bankAccount = {
+            saldo: 1000000,
+            pin: '1234'
+        };
+
+        // Quiz questions data
+        const quizQuestions = [
+            {
+                question: "Apa yang dimaksud dengan enkapsulasi dalam pemrograman berorientasi objek?",
+                options: [
+                    "Proses membuat objek dari class",
+                    "Konsep menyembunyikan data dan method dari akses langsung",
+                    "Cara membuat class turunan",
+                    "Teknik untuk menggabungkan beberapa class"
+                ],
+                correct: 1
+            },
+            {
+                question: "Bagaimana cara membuat attribute private dalam Python?",
+                options: [
+                    "Menggunakan kata kunci 'private'",
+                    "Menggunakan satu underscore (_) di depan nama",
+                    "Menggunakan dua underscore (__) di depan nama",
+                    "Menggunakan tanda pagar (#) di depan nama"
+                ],
+                correct: 2
+            },
+            {
+                question: "Apa perbedaan antara public, protected, dan private access modifier?",
+                options: [
+                    "Tidak ada perbedaan, semuanya sama",
+                    "Public bisa diakses semua, protected untuk keluarga class, private hanya dalam class",
+                    "Private bisa diakses semua, public hanya dalam class",
+                    "Hanya ada public dan private saja"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa fungsi utama dari getter method?",
+                options: [
+                    "Mengubah nilai attribute private",
+                    "Menghapus attribute dari class",
+                    "Mengambil/membaca nilai dari attribute private",
+                    "Membuat attribute baru"
+                ],
+                correct: 2
+            },
+            {
+                question: "Mengapa kita perlu menggunakan setter method dengan validasi?",
+                options: [
+                    "Untuk memperlambat program",
+                    "Untuk memastikan data yang masuk sesuai aturan dan mencegah error",
+                    "Untuk membuat kode lebih panjang",
+                    "Tidak perlu, langsung akses saja"
+                ],
+                correct: 1
+            },
+            {
+                question: "Manakah yang merupakan contoh penerapan enkapsulasi yang baik?",
+                options: [
+                    "Semua attribute dibuat public",
+                    "Password disimpan sebagai private dengan method untuk validasi",
+                    "Tidak menggunakan class sama sekali",
+                    "Semua method dibuat private"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa yang terjadi jika kita mencoba mengakses attribute private (dengan __) dari luar class di Python?",
+                options: [
+                    "Berjalan normal tanpa masalah",
+                    "Akan muncul peringatan tapi tetap bisa diakses",
+                    "Akan terjadi AttributeError karena name mangling",
+                    "Attribute akan terhapus otomatis"
+                ],
+                correct: 2
+            },
+            {
+                question: "Dalam konteks enkapsulasi, apa manfaat utama dari data hiding?",
+                options: [
+                    "Membuat program berjalan lebih cepat",
+                    "Melindungi data dari perubahan yang tidak diinginkan",
+                    "Mengurangi ukuran file program",
+                    "Membuat tampilan program lebih menarik"
+                ],
+                correct: 1
+            },
+            {
+                question: "Bagaimana cara yang benar untuk mengakses attribute private?",
+                options: [
+                    "Langsung mengakses dengan nama attribute",
+                    "Menggunakan method public yang disediakan (getter/setter)",
+                    "Mengubah attribute menjadi public dulu",
+                    "Tidak bisa diakses sama sekali"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa keuntungan menggunakan enkapsulasi dalam pengembangan aplikasi?",
+                options: [
+                    "Kode menjadi lebih pendek",
+                    "Program berjalan lebih cepat",
+                    "Keamanan data, kontrol akses, dan kode lebih terorganisir",
+                    "Tidak ada keuntungan khusus"
+                ],
+                correct: 2
+            }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial active navigation
+            updateActiveNav('intro');
+            
+            // Mobile menu toggle
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+            
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth < 768) {
+                    if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                        sidebar.classList.add('-translate-x-full');
+                    }
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth >= 768) {
+                    sidebar.classList.remove('-translate-x-full');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+        });
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show target section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+                currentSection = sectionId;
+                
+                // Update active nav item first
+                updateActiveNav(sectionId);
+                
+                // Scroll to top with delay to ensure content is loaded
+                setTimeout(() => {
+                    scrollToTop();
+                }, 50);
+                
+                // Close mobile menu
+                if (window.innerWidth < 768) {
+                    document.getElementById('sidebar').classList.add('-translate-x-full');
+                }
+            }
+        }
+
+        function updateActiveNav(sectionId) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('bg-white', 'bg-opacity-50', 'shadow-md', 'transform', 'scale-105');
+            });
+            
+            // Find and highlight active nav item
+            const activeNav = document.querySelector(`[onclick="showSection('${sectionId}')"]`);
+            if (activeNav) {
+                activeNav.classList.add('bg-white', 'bg-opacity-50', 'shadow-md', 'transform', 'scale-105');
+            }
+        }
+
+        function scrollToTop() {
+            // Force scroll to absolute top
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            
+            // Also use smooth scroll as backup
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Special navigation function for next buttons
+        function navigateToSection(sectionId) {
+            // First scroll to top immediately
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            
+            // Then show the section
+            showSection(sectionId);
+        }
+
+        // Demo functions
+        function cekSaldo() {
+            const resultDiv = document.getElementById('bankResult');
+            resultDiv.innerHTML = `
+                <div class="flex items-center text-blue-600">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <span>Saldo Anda: Rp ${bankAccount.saldo.toLocaleString('id-ID')}</span>
+                </div>
+            `;
+        }
+
+        function tarikUang() {
+            const pin = document.getElementById('pinInput').value;
+            const jumlah = parseInt(document.getElementById('jumlahTarik').value);
+            const resultDiv = document.getElementById('bankResult');
+            
+            if (!pin || !jumlah) {
+                resultDiv.innerHTML = `
+                    <div class="flex items-center text-red-600">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <span>Mohon isi PIN dan jumlah tarik!</span>
+                    </div>
+                `;
+                return;
+            }
+            
+            if (pin !== bankAccount.pin) {
+                resultDiv.innerHTML = `
+                    <div class="flex items-center text-red-600">
+                        <i class="fas fa-times-circle mr-2"></i>
+                        <span>PIN salah! Akses ditolak.</span>
+                    </div>
+                `;
+                return;
+            }
+            
+            if (jumlah > bankAccount.saldo) {
+                resultDiv.innerHTML = `
+                    <div class="flex items-center text-red-600">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <span>Saldo tidak cukup! Saldo Anda: Rp ${bankAccount.saldo.toLocaleString('id-ID')}</span>
+                    </div>
+                `;
+                return;
+            }
+            
+            bankAccount.saldo -= jumlah;
+            resultDiv.innerHTML = `
+                <div class="flex items-center text-green-600">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span>Berhasil tarik Rp ${jumlah.toLocaleString('id-ID')}. Sisa saldo: Rp ${bankAccount.saldo.toLocaleString('id-ID')}</span>
+                </div>
+            `;
+            
+            // Clear inputs
+            document.getElementById('pinInput').value = '';
+            document.getElementById('jumlahTarik').value = '';
+        }
+
+        // Quiz functions
+        function startQuiz() {
+            const name = document.getElementById('studentName').value.trim();
+            if (!name) {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = 'mt-4 p-3 bg-red-100 border border-red-300 rounded-lg text-red-700';
+                resultDiv.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Mohon masukkan nama Anda terlebih dahulu!';
+                
+                const existingError = document.querySelector('.bg-red-100');
+                if (existingError) existingError.remove();
+                
+                document.getElementById('studentName').parentNode.appendChild(resultDiv);
+                return;
+            }
+            
+            studentName = name;
+            currentQuestionIndex = 0;
+            score = 0;
+            
+            document.getElementById('quizStart').classList.add('hidden');
+            document.getElementById('quizQuestions').classList.remove('hidden');
+            
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const question = quizQuestions[currentQuestionIndex];
+            const container = document.getElementById('questionContainer');
+            
+            container.innerHTML = `
+                <div class="mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">${question.question}</h3>
+                    <div class="space-y-3">
+                        ${question.options.map((option, index) => `
+                            <label class="quiz-option flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-all">
+                                <input type="radio" name="answer" value="${index}" class="mr-4 text-teal-600 focus:ring-teal-500">
+                                <span class="text-gray-700">${option}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            // Update progress
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('currentScore').textContent = score;
+            document.getElementById('progressBar').style.width = `${((currentQuestionIndex + 1) / quizQuestions.length) * 100}%`;
+            
+            // Add event listeners to radio buttons
+            const radioButtons = container.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.getElementById('nextButton').disabled = false;
+                });
+            });
+            
+            // Reset next button
+            document.getElementById('nextButton').disabled = true;
+        }
+
+        function nextQuestion() {
+            const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+            if (!selectedAnswer) return;
+            
+            const answerValue = parseInt(selectedAnswer.value);
+            const question = quizQuestions[currentQuestionIndex];
+            
+            if (answerValue === question.correct) {
+                score += 10;
+            }
+            
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < quizQuestions.length) {
+                loadQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function showQuizResults() {
+            document.getElementById('quizQuestions').classList.add('hidden');
+            document.getElementById('quizResults').classList.remove('hidden');
+            
+            const percentage = (score / (quizQuestions.length * 10)) * 100;
+            let grade, icon, feedback;
+            
+            if (percentage >= 90) {
+                grade = 'A';
+                icon = '🏆';
+                feedback = 'Luar biasa! Anda sangat menguasai materi enkapsulasi!';
+            } else if (percentage >= 80) {
+                grade = 'B';
+                icon = '🎉';
+                feedback = 'Bagus sekali! Pemahaman Anda tentang enkapsulasi sudah baik!';
+            } else if (percentage >= 70) {
+                grade = 'C';
+                icon = '👍';
+                feedback = 'Cukup baik! Terus belajar untuk meningkatkan pemahaman!';
+            } else {
+                grade = 'D';
+                icon = '📚';
+                feedback = 'Perlu belajar lebih giat lagi. Ulangi materi dan coba lagi!';
+            }
+            
+            document.getElementById('resultIcon').textContent = icon;
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = `${score}/100`;
+            document.getElementById('finalPercentage').textContent = `${percentage.toFixed(1)}%`;
+            document.getElementById('finalGrade').textContent = grade;
+            document.getElementById('feedback').innerHTML = `
+                <div class="p-4 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg">
+                    <p class="text-gray-700 font-medium">${feedback}</p>
+                </div>
+            `;
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizResults').classList.add('hidden');
+            document.getElementById('quizStart').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+            
+            // Clear any error messages
+            const existingError = document.querySelector('.bg-red-100');
+            if (existingError) existingError.remove();
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'991e02d1637f659e',t:'MTc2MTAyMDkzNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
