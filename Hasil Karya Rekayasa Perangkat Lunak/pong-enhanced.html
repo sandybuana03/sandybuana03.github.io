@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Enhanced</title>
+    <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #0f0f23, #1a1a3e);
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100%;
+            color: white;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        .game-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        canvas {
+            border: 3px solid #00ffff;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+            background: #000011;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #00ffff, #0080ff);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .game-info {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #00ffff;
+        }
+
+        .power-up-info {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #ffff00;
+            min-height: 20px;
+        }
+
+        @media (max-width: 768px) {
+            canvas {
+                width: 100%;
+                max-width: 400px;
+                height: auto;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 style="color: #00ffff; text-shadow: 0 0 10px #00ffff;">🏓 PONG ENHANCED</h1>
+        
+        <div class="score-board">
+            <div>Player 1: <span id="playerScore">0</span></div>
+            <div><span id="opponentLabel">AI</span>: <span id="aiScore">0</span></div>
+        </div>
+        
+        <div class="game-info">
+            <div>Level: <span id="level">1</span> | Difficulty: <span id="difficulty">Easy</span></div>
+        </div>
+        
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+        
+        <div class="power-up-info" id="powerUpInfo">Use W/S or Arrow Keys to move paddle</div>
+        
+        <div class="controls">
+            <button class="btn" onclick="startGame()">🎮 Start Game</button>
+            <button class="btn" onclick="pauseGame()" id="pauseBtn">⏸️ Pause</button>
+            <button class="btn" onclick="resetGame()">🔄 Reset</button>
+            <button class="btn" onclick="toggleGameMode()" id="modeBtn">👥 VS Friend</button>
+            <button class="btn" onclick="changeDifficulty()" id="difficultyBtn">⚙️ Difficulty</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Game state
+        let gameRunning = false;
+        let gamePaused = false;
+        let currentLevel = 1;
+        let difficultyLevel = 0; // 0: Easy, 1: Medium, 2: Hard
+        const difficulties = ['Easy', 'Medium', 'Hard'];
+        let gameMode = 'ai'; // 'ai' or 'friend'
+        
+        // Game objects
+        const game = {
+            player: {
+                x: 20,
+                y: canvas.height / 2 - 50,
+                width: 15,
+                height: 100,
+                speed: 6,
+                score: 0,
+                powerUp: null,
+                powerUpTimer: 0
+            },
+            ai: {
+                x: canvas.width - 35,
+                y: canvas.height / 2 - 50,
+                width: 15,
+                height: 100,
+                speed: 4,
+                score: 0,
+                powerUp: null,
+                powerUpTimer: 0
+            },
+            ball: {
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                radius: 8,
+                speedX: 5,
+                speedY: 3,
+                maxSpeed: 12,
+                trail: []
+            },
+            powerUps: [],
+            particles: []
+        };
+        
+        // Input handling
+        const keys = {};
+        
+        document.addEventListener('keydown', (e) => {
+            keys[e.key.toLowerCase()] = true;
+            
+            // Spacebar to pause/resume
+            if (e.key === ' ' && gameRunning) {
+                e.preventDefault();
+                pauseGame();
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.key.toLowerCase()] = false;
+        });
+        
+        // Power-up types
+        const powerUpTypes = [
+            { type: 'bigPaddle', color: '#00ff00', duration: 5000, name: 'Big Paddle' },
+            { type: 'fastBall', color: '#ff0000', duration: 3000, name: 'Fast Ball' },
+            { type: 'slowAI', color: '#ffff00', duration: 4000, name: 'Slow AI' },
+            { type: 'multiball', color: '#ff00ff', duration: 0, name: 'Multi Ball' }
+        ];
+        
+        function createPowerUp() {
+            if (Math.random() < 0.3 && game.powerUps.length === 0) {
+                const type = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+                game.powerUps.push({
+                    x: Math.random() * (canvas.width - 100) + 50,
+                    y: Math.random() * (canvas.height - 100) + 50,
+                    width: 30,
+                    height: 30,
+                    type: type.type,
+                    color: type.color,
+                    name: type.name,
+                    duration: type.duration,
+                    rotation: 0
+                });
+            }
+        }
+        
+        function createParticles(x, y, color, count = 10) {
+            for (let i = 0; i < count; i++) {
+                game.particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    life: 1,
+                    decay: 0.02,
+                    color: color,
+                    size: Math.random() * 4 + 2
+                });
+            }
+        }
+        
+        function updatePlayer() {
+            // Player 1 movement (W/S keys only)
+            if (keys['w']) {
+                game.player.y = Math.max(0, game.player.y - game.player.speed);
+            }
+            if (keys['s']) {
+                game.player.y = Math.min(canvas.height - game.player.height, game.player.y + game.player.speed);
+            }
+            
+            // Handle power-up effects
+            if (game.player.powerUp) {
+                game.player.powerUpTimer -= 16;
+                if (game.player.powerUpTimer <= 0) {
+                    if (game.player.powerUp === 'bigPaddle') {
+                        game.player.height = 100;
+                    }
+                    game.player.powerUp = null;
+                }
+            }
+        }
+        
+        function updateAI() {
+            if (gameMode === 'friend') {
+                // Player 2 controls (Arrow keys)
+                if (keys['arrowup']) {
+                    game.ai.y = Math.max(0, game.ai.y - game.ai.speed);
+                }
+                if (keys['arrowdown']) {
+                    game.ai.y = Math.min(canvas.height - game.ai.height, game.ai.y + game.ai.speed);
+                }
+            } else {
+                // AI behavior
+                const aiCenter = game.ai.y + game.ai.height / 2;
+                const ballY = game.ball.y;
+                const aiSpeed = game.ai.powerUp === 'slowAI' ? game.ai.speed * 0.3 : game.ai.speed + difficultyLevel;
+                
+                if (aiCenter < ballY - 10) {
+                    game.ai.y = Math.min(canvas.height - game.ai.height, game.ai.y + aiSpeed);
+                } else if (aiCenter > ballY + 10) {
+                    game.ai.y = Math.max(0, game.ai.y - aiSpeed);
+                }
+            }
+            
+            // Handle power-up effects
+            if (game.ai.powerUp) {
+                game.ai.powerUpTimer -= 16;
+                if (game.ai.powerUpTimer <= 0) {
+                    if (game.ai.powerUp === 'bigPaddle') {
+                        game.ai.height = 100;
+                    }
+                    game.ai.powerUp = null;
+                }
+            }
+        }
+        
+        function updateBall() {
+            // Add to trail
+            game.ball.trail.push({ x: game.ball.x, y: game.ball.y });
+            if (game.ball.trail.length > 10) {
+                game.ball.trail.shift();
+            }
+            
+            game.ball.x += game.ball.speedX;
+            game.ball.y += game.ball.speedY;
+            
+            // Top and bottom collision
+            if (game.ball.y <= game.ball.radius || game.ball.y >= canvas.height - game.ball.radius) {
+                game.ball.speedY = -game.ball.speedY;
+                createParticles(game.ball.x, game.ball.y, '#00ffff', 5);
+            }
+            
+            // Player paddle collision
+            if (game.ball.x <= game.player.x + game.player.width &&
+                game.ball.y >= game.player.y &&
+                game.ball.y <= game.player.y + game.player.height &&
+                game.ball.speedX < 0) {
+                
+                const hitPos = (game.ball.y - game.player.y) / game.player.height;
+                game.ball.speedX = Math.abs(game.ball.speedX) * 1.05;
+                game.ball.speedY = (hitPos - 0.5) * 8;
+                
+                // Limit max speed
+                if (Math.abs(game.ball.speedX) > game.ball.maxSpeed) {
+                    game.ball.speedX = game.ball.maxSpeed * Math.sign(game.ball.speedX);
+                }
+                
+                createParticles(game.ball.x, game.ball.y, '#00ff00', 8);
+            }
+            
+            // AI paddle collision
+            if (game.ball.x >= game.ai.x - game.ball.radius &&
+                game.ball.y >= game.ai.y &&
+                game.ball.y <= game.ai.y + game.ai.height &&
+                game.ball.speedX > 0) {
+                
+                const hitPos = (game.ball.y - game.ai.y) / game.ai.height;
+                game.ball.speedX = -Math.abs(game.ball.speedX) * 1.05;
+                game.ball.speedY = (hitPos - 0.5) * 8;
+                
+                // Limit max speed
+                if (Math.abs(game.ball.speedX) > game.ball.maxSpeed) {
+                    game.ball.speedX = -game.ball.maxSpeed;
+                }
+                
+                createParticles(game.ball.x, game.ball.y, '#ff0000', 8);
+            }
+            
+            // Score
+            if (game.ball.x < 0) {
+                game.ai.score++;
+                resetBall();
+                createParticles(canvas.width / 2, canvas.height / 2, '#ff0000', 15);
+            } else if (game.ball.x > canvas.width) {
+                game.player.score++;
+                resetBall();
+                createParticles(canvas.width / 2, canvas.height / 2, '#00ff00', 15);
+                
+                // Level up every 3 points
+                if (game.player.score % 3 === 0) {
+                    currentLevel++;
+                    game.ball.maxSpeed += 1;
+                }
+            }
+        }
+        
+        function updatePowerUps() {
+            game.powerUps.forEach((powerUp, index) => {
+                powerUp.rotation += 0.1;
+                
+                // Check collision with ball
+                if (Math.abs(game.ball.x - (powerUp.x + powerUp.width / 2)) < powerUp.width / 2 + game.ball.radius &&
+                    Math.abs(game.ball.y - (powerUp.y + powerUp.height / 2)) < powerUp.height / 2 + game.ball.radius) {
+                    
+                    // Apply power-up effect
+                    applyPowerUp(powerUp);
+                    createParticles(powerUp.x + powerUp.width / 2, powerUp.y + powerUp.height / 2, powerUp.color, 12);
+                    game.powerUps.splice(index, 1);
+                }
+            });
+        }
+        
+        function applyPowerUp(powerUp) {
+            const target = Math.random() < 0.7 ? game.player : game.ai; // 70% chance for player
+            
+            switch (powerUp.type) {
+                case 'bigPaddle':
+                    target.height = 150;
+                    target.powerUp = 'bigPaddle';
+                    target.powerUpTimer = powerUp.duration;
+                    break;
+                case 'fastBall':
+                    game.ball.speedX *= 1.5;
+                    game.ball.speedY *= 1.5;
+                    break;
+                case 'slowAI':
+                    game.ai.powerUp = 'slowAI';
+                    game.ai.powerUpTimer = powerUp.duration;
+                    break;
+                case 'multiball':
+                    // Create additional ball (simplified)
+                    createParticles(game.ball.x, game.ball.y, '#ff00ff', 20);
+                    break;
+            }
+            
+            updatePowerUpInfo(powerUp.name + ' activated!');
+        }
+        
+        function updateParticles() {
+            game.particles.forEach((particle, index) => {
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.life -= particle.decay;
+                particle.vx *= 0.98;
+                particle.vy *= 0.98;
+                
+                if (particle.life <= 0) {
+                    game.particles.splice(index, 1);
+                }
+            });
+        }
+        
+        function resetBall() {
+            game.ball.x = canvas.width / 2;
+            game.ball.y = canvas.height / 2;
+            game.ball.speedX = (Math.random() > 0.5 ? 1 : -1) * (4 + difficultyLevel);
+            game.ball.speedY = (Math.random() - 0.5) * 6;
+            game.ball.trail = [];
+        }
+        
+        function draw() {
+            // Clear canvas with fade effect
+            ctx.fillStyle = 'rgba(0, 0, 17, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw center line
+            ctx.setLineDash([10, 10]);
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Draw ball trail
+            game.ball.trail.forEach((pos, index) => {
+                const alpha = index / game.ball.trail.length;
+                ctx.fillStyle = `rgba(0, 255, 255, ${alpha * 0.5})`;
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, game.ball.radius * alpha, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // Draw ball
+            const gradient = ctx.createRadialGradient(game.ball.x, game.ball.y, 0, game.ball.x, game.ball.y, game.ball.radius);
+            gradient.addColorStop(0, '#ffffff');
+            gradient.addColorStop(1, '#00ffff');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(game.ball.x, game.ball.y, game.ball.radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw paddles
+            const playerGlow = game.player.powerUp ? '#00ff00' : '#00ffff';
+            const aiGlow = game.ai.powerUp ? '#ffff00' : '#ff6666';
+            
+            // Player paddle
+            ctx.shadowColor = playerGlow;
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = playerGlow;
+            ctx.fillRect(game.player.x, game.player.y, game.player.width, game.player.height);
+            
+            // AI paddle
+            ctx.shadowColor = aiGlow;
+            ctx.fillStyle = aiGlow;
+            ctx.fillRect(game.ai.x, game.ai.y, game.ai.width, game.ai.height);
+            
+            ctx.shadowBlur = 0;
+            
+            // Draw power-ups
+            game.powerUps.forEach(powerUp => {
+                ctx.save();
+                ctx.translate(powerUp.x + powerUp.width / 2, powerUp.y + powerUp.height / 2);
+                ctx.rotate(powerUp.rotation);
+                ctx.fillStyle = powerUp.color;
+                ctx.shadowColor = powerUp.color;
+                ctx.shadowBlur = 15;
+                ctx.fillRect(-powerUp.width / 2, -powerUp.height / 2, powerUp.width, powerUp.height);
+                ctx.restore();
+            });
+            
+            // Draw particles
+            game.particles.forEach(particle => {
+                ctx.fillStyle = `${particle.color}${Math.floor(particle.life * 255).toString(16).padStart(2, '0')}`;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size * particle.life, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // Draw pause overlay
+            if (gamePaused) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Pause title
+                ctx.fillStyle = '#00ffff';
+                ctx.font = 'bold 48px Courier New';
+                ctx.textAlign = 'center';
+                ctx.shadowColor = '#00ffff';
+                ctx.shadowBlur = 20;
+                ctx.fillText('⏸️ PAUSED', canvas.width / 2, canvas.height / 2 - 40);
+                
+                // Instructions
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '20px Courier New';
+                ctx.shadowBlur = 10;
+                ctx.fillText('Press SPACE or click Pause to resume', canvas.width / 2, canvas.height / 2 + 20);
+                
+                // Controls reminder
+                ctx.fillStyle = '#ffff00';
+                ctx.font = '16px Courier New';
+                ctx.shadowBlur = 5;
+                if (gameMode === 'friend') {
+                    ctx.fillText('Player 1: W/S | Player 2: Arrow Keys', canvas.width / 2, canvas.height / 2 + 60);
+                } else {
+                    ctx.fillText('Player: W/S or Arrow Keys', canvas.width / 2, canvas.height / 2 + 60);
+                }
+                
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        function gameLoop() {
+            if (!gameRunning || gamePaused) return;
+            
+            updatePlayer();
+            updateAI();
+            updateBall();
+            updatePowerUps();
+            updateParticles();
+            
+            // Randomly spawn power-ups
+            if (Math.random() < 0.001) {
+                createPowerUp();
+            }
+            
+            draw();
+            
+            // Update UI
+            document.getElementById('playerScore').textContent = game.player.score;
+            document.getElementById('aiScore').textContent = game.ai.score;
+            document.getElementById('level').textContent = currentLevel;
+            document.getElementById('difficulty').textContent = difficulties[difficultyLevel];
+            
+            // Check win condition
+            if (game.player.score >= 10 || game.ai.score >= 10) {
+                gameRunning = false;
+                const winner = game.player.score >= 10 ? 'Player' : 'AI';
+                updatePowerUpInfo(`🎉 ${winner} Wins! Click Reset to play again.`);
+                return;
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function startGame() {
+            if (!gameRunning) {
+                gameRunning = true;
+                gamePaused = false;
+                resetBall();
+                updatePowerUpInfo('Game Started! Use W/S or Arrow Keys');
+                gameLoop();
+            }
+        }
+        
+        function pauseGame() {
+            gamePaused = !gamePaused;
+            const pauseBtn = document.getElementById('pauseBtn');
+            pauseBtn.textContent = gamePaused ? '▶️ Resume' : '⏸️ Pause';
+            
+            if (!gamePaused && gameRunning) {
+                gameLoop();
+            }
+        }
+        
+        function toggleGameMode() {
+            if (gameRunning) {
+                updatePowerUpInfo('Stop the game first to change mode!');
+                return;
+            }
+            
+            gameMode = gameMode === 'ai' ? 'friend' : 'ai';
+            const modeBtn = document.getElementById('modeBtn');
+            const difficultyBtn = document.getElementById('difficultyBtn');
+            const opponentLabel = document.getElementById('opponentLabel');
+            
+            if (gameMode === 'friend') {
+                modeBtn.textContent = '🤖 VS AI';
+                difficultyBtn.style.display = 'none';
+                opponentLabel.textContent = 'Player 2';
+                updatePowerUpInfo('VS Friend mode! Player 1: W/S | Player 2: Arrow Keys');
+            } else {
+                modeBtn.textContent = '👥 VS Friend';
+                difficultyBtn.style.display = 'inline-block';
+                opponentLabel.textContent = 'AI';
+                updatePowerUpInfo('VS AI mode! Use W/S or Arrow Keys to move');
+            }
+        }
+        
+        function resetGame() {
+            gameRunning = false;
+            gamePaused = false;
+            game.player.score = 0;
+            game.ai.score = 0;
+            game.player.height = 100;
+            game.ai.height = 100;
+            game.player.powerUp = null;
+            game.ai.powerUp = null;
+            game.powerUps = [];
+            game.particles = [];
+            currentLevel = 1;
+            
+            // Reset button text
+            const pauseBtn = document.getElementById('pauseBtn');
+            pauseBtn.textContent = '⏸️ Pause';
+            
+            resetBall();
+            draw();
+            
+            const modeText = gameMode === 'friend' ? 'VS Friend' : 'VS AI';
+            updatePowerUpInfo(`Game Reset! ${modeText} mode ready. Click Start to begin`);
+        }
+        
+        function changeDifficulty() {
+            difficultyLevel = (difficultyLevel + 1) % 3;
+            game.ai.speed = 4 + difficultyLevel * 2;
+            updatePowerUpInfo(`Difficulty changed to ${difficulties[difficultyLevel]}`);
+        }
+        
+        function updatePowerUpInfo(message) {
+            document.getElementById('powerUpInfo').textContent = message;
+            setTimeout(() => {
+                if (gameRunning) {
+                    document.getElementById('powerUpInfo').textContent = 'Use W/S or Arrow Keys to move paddle';
+                }
+            }, 3000);
+        }
+        
+        // Initialize
+        draw();
+        updatePowerUpInfo('🏓 Pong Enhanced Ready! Click Start Game to begin playing!');
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98e524d3e56dbd94',t:'MTc2MDQyNDY0MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
