@@ -25,6 +25,10 @@
             transform: translateX(-100%);
         }
         
+        .sidebar-open {
+            transform: translateX(0);
+        }
+        
         .content-area {
             transition: margin-left 0.3s ease;
         }
@@ -194,10 +198,17 @@
                 height: 100vh;
                 z-index: 999;
                 width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.sidebar-open {
+                transform: translateX(0);
             }
             
             .content-area {
                 margin-left: 0 !important;
+                padding-top: 80px;
             }
             
             .floating-btn {
@@ -209,6 +220,26 @@
             
             .section {
                 padding: 20px 15px;
+            }
+            
+            /* Mobile menu button */
+            .mobile-menu-btn {
+                display: block !important;
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 1000;
+                background: white;
+                padding: 12px;
+                border-radius: 50%;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                border: none;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            
+            .mobile-menu-btn:hover {
+                transform: scale(1.1);
             }
             
             /* Pastikan font size tetap sama di mobile */
@@ -244,7 +275,7 @@
                 font-size: 1rem !important;
             }
             
-            .text-md {
+            .text-sm {
                 font-size: 0.875rem !important;
             }
             
@@ -267,6 +298,21 @@
             
             .next-btn {
                 font-size: 1rem !important;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-menu-btn {
+                display: none !important;
+            }
+            
+            .sidebar {
+                transform: translateX(0) !important;
+            }
+            
+            .content-area {
+                margin-left: 320px !important;
+                padding-top: 0;
             }
         }
         
@@ -316,7 +362,7 @@
     <div class="sidebar fixed top-0 left-0 h-full w-80 p-6 z-50 overflow-y-auto" id="sidebar">
         <div class="text-center mb-8">
             <h1 class="text-2xl font-bold text-gray-800 mb-2">🐍 Python Class & Object</h1>
-            <p class="text-md text-gray-600">Manajemen Data Siswa</p>
+            <p class="text-sm text-gray-600">Manajemen Data Siswa</p>
         </div>
         
         <nav class="space-y-2">
@@ -348,8 +394,8 @@
     </div>
 
     <!-- Mobile Menu Button -->
-    <button class="md:hidden fixed top-4 left-4 z-50 bg-white p-3 rounded-full shadow-lg" onclick="toggleSidebar()">
-        <i class="fas fa-bars text-gray-800"></i>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()" style="display: none;">
+        <i class="fas fa-bars text-gray-800 text-xl"></i>
     </button>
 
     <!-- Main Content -->
@@ -1135,7 +1181,7 @@ class Buku:
                     
                     <div class="mb-6">
                         <h3 class="text-xl font-bold text-gray-800 mb-4">Tulis Kode Jawabanmu:</h3>
-                        <textarea id="jawabanTugas" class="input-cute h-64 font-mono text-md" placeholder="# Tulis kode Python kamu di sini...
+                        <textarea id="jawabanTugas" class="input-cute h-64 font-mono text-sm" placeholder="# Tulis kode Python kamu di sini...
 class Buku:
     def __init__(self, judul, pengarang, tahun_terbit, isbn):
         # Lengkapi kode di sini
@@ -1373,14 +1419,13 @@ class Buku:
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
-            const content = document.getElementById('content');
             
             if (window.innerWidth <= 768) {
-                sidebar.classList.toggle('sidebar-hidden');
-                if (sidebar.classList.contains('sidebar-hidden')) {
-                    overlay.style.display = 'none';
-                } else {
+                sidebar.classList.toggle('sidebar-open');
+                if (sidebar.classList.contains('sidebar-open')) {
                     overlay.style.display = 'block';
+                } else {
+                    overlay.style.display = 'none';
                 }
             }
         }
@@ -1407,7 +1452,10 @@ class Buku:
             
             // Close sidebar on mobile
             if (window.innerWidth <= 768) {
-                toggleSidebar();
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('overlay');
+                sidebar.classList.remove('sidebar-open');
+                overlay.style.display = 'none';
             }
             
             // Scroll to top with a small delay to ensure section is shown first
@@ -2080,16 +2128,15 @@ class Buku:
         window.addEventListener('resize', function() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
-            const content = document.getElementById('content');
             
             if (window.innerWidth > 768) {
-                sidebar.classList.remove('sidebar-hidden');
+                sidebar.classList.remove('sidebar-open');
                 overlay.style.display = 'none';
-                content.style.marginLeft = '320px';
             } else {
-                content.style.marginLeft = '0';
-                if (!sidebar.classList.contains('sidebar-hidden')) {
+                if (sidebar.classList.contains('sidebar-open')) {
                     overlay.style.display = 'block';
+                } else {
+                    overlay.style.display = 'none';
                 }
             }
         });
@@ -2098,10 +2145,10 @@ class Buku:
         window.addEventListener('load', function() {
             // Set initial responsive state
             if (window.innerWidth <= 768) {
-                document.getElementById('sidebar').classList.add('sidebar-hidden');
-                document.getElementById('content').style.marginLeft = '0';
+                // Sidebar starts hidden on mobile (CSS handles this)
+                document.getElementById('overlay').style.display = 'none';
             }
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'991cda2a679dea7f',t:'MTc2MTAwODc4NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'991d1fb45399db42',t:'MTc2MTAxMTYzMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
