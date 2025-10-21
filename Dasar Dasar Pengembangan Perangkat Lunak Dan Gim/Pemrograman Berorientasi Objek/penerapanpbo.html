@@ -1,0 +1,2706 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PBO Python - Pembelajaran Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #ffeef8 0%, #f0f9ff 50%, #f0fdf4 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .code-header {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 16px;
+            font-size: 12px;
+            color: #94a3b8;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .floating-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .quiz-option:hover {
+            background-color: #fce7f3;
+            border-color: #f472b6;
+        }
+        
+        .quiz-option.selected {
+            background-color: #ddd6fe;
+            border-color: #8b5cf6;
+        }
+        
+        .quiz-option.correct {
+            background-color: #dcfce7;
+            border-color: #22c55e;
+        }
+        
+        .quiz-option.incorrect {
+            background-color: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .demo-container {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .demo-output {
+            background: #1f2937;
+            color: #10b981;
+            font-family: 'Courier New', monospace;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-full">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="md:hidden fixed top-4 left-4 z-50 bg-pink-200 hover:bg-pink-300 p-3 rounded-full shadow-lg transition-all duration-300">
+        <i class="fas fa-bars text-pink-700"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar fixed left-0 top-0 h-full w-80 bg-white/90 backdrop-blur-sm shadow-xl z-40 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                        <i class="fas fa-code text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800">PBO Python</h1>
+                        <p class="text-md text-gray-600">Pembelajaran Interaktif</p>
+                    </div>
+                </div>
+                <button id="closeSidebar" class="md:hidden text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" onclick="showSection('intro')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-pink-100 transition-colors duration-200">
+                    <i class="fas fa-play-circle text-pink-500"></i>
+                    <span class="text-gray-700">Intro</span>
+                </a>
+                <a href="#" onclick="showSection('pengenalan')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+                    <i class="fas fa-book-open text-blue-500"></i>
+                    <span class="text-gray-700">Pengenalan</span>
+                </a>
+                <a href="#" onclick="showSection('konsep-dasar')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-purple-100 transition-colors duration-200">
+                    <i class="fas fa-cube text-purple-500"></i>
+                    <span class="text-gray-700">Konsep Dasar PBO</span>
+                </a>
+                <a href="#" onclick="showSection('class-object')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-green-100 transition-colors duration-200">
+                    <i class="fas fa-boxes text-green-500"></i>
+                    <span class="text-gray-700">Class & Object</span>
+                </a>
+                <a href="#" onclick="showSection('inheritance')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-yellow-100 transition-colors duration-200">
+                    <i class="fas fa-sitemap text-yellow-600"></i>
+                    <span class="text-gray-700">Inheritance</span>
+                </a>
+                <a href="#" onclick="showSection('polymorphism')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-indigo-100 transition-colors duration-200">
+                    <i class="fas fa-shapes text-indigo-500"></i>
+                    <span class="text-gray-700">Polymorphism</span>
+                </a>
+                <a href="#" onclick="showSection('encapsulation')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-red-100 transition-colors duration-200">
+                    <i class="fas fa-lock text-red-500"></i>
+                    <span class="text-gray-700">Encapsulation</span>
+                </a>
+                <a href="#" onclick="showSection('studi-kasus')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-teal-100 transition-colors duration-200">
+                    <i class="fas fa-project-diagram text-teal-500"></i>
+                    <span class="text-gray-700">Studi Kasus</span>
+                </a>
+                <a href="#" onclick="showSection('tugas')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-orange-100 transition-colors duration-200">
+                    <i class="fas fa-tasks text-orange-500"></i>
+                    <span class="text-gray-700">Tugas</span>
+                </a>
+                <a href="#" onclick="showSection('kuis')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-cyan-100 transition-colors duration-200">
+                    <i class="fas fa-question-circle text-cyan-500"></i>
+                    <span class="text-gray-700">Kuis</span>
+                </a>
+                <a href="#" onclick="showSection('penutup')" class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                    <i class="fas fa-flag-checkered text-gray-500"></i>
+                    <span class="text-gray-700">Penutup</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-80 min-h-full">
+        <div class="max-w-4xl mx-auto px-4 py-8">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-8 card-hover">
+                    <div class="text-center mb-8">
+                        <div class="w-24 h-24 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-rocket text-white text-3xl"></i>
+                        </div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-4">Selamat Datang! 🎉</h1>
+                        <p class="text-xl text-gray-600">Mari belajar PBO Python dengan cara yang menyenangkan!</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-pink-100 to-purple-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-lightbulb text-yellow-500 mr-3"></i>
+                                Pertanyaan Pemantik
+                            </h3>
+                            <div class="space-y-3 text-gray-700">
+                                <p>🤔 Pernahkah kamu berpikir bagaimana aplikasi seperti Instagram atau WhatsApp dibuat?</p>
+                                <p>🎮 Bagaimana game favoritmu bisa memiliki karakter yang berbeda-beda tapi punya kemampuan serupa?</p>
+                                <p>🏗️ Bagaimana programmer mengelola kode yang sangat kompleks agar tetap rapi dan mudah dipahami?</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-blue-100 to-cyan-100 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-target text-red-500 mr-3"></i>
+                                Tujuan Pembelajaran
+                            </h3>
+                            <div class="space-y-2 text-gray-700">
+                                <p>✅ Memahami konsep dasar PBO</p>
+                                <p>✅ Menguasai Class dan Object</p>
+                                <p>✅ Memahami Inheritance</p>
+                                <p>✅ Menerapkan Polymorphism</p>
+                                <p>✅ Menggunakan Encapsulation</p>
+                                <p>✅ Memecahkan masalah kompleks</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-100 to-emerald-100 p-6 rounded-2xl mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-brain text-purple-500 mr-3"></i>
+                            Pemahaman Bermakna
+                        </h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            PBO (Pemrograman Berorientasi Objek) adalah cara berpikir dalam pemrograman yang meniru dunia nyata. 
+                            Bayangkan dunia sebagai kumpulan objek yang saling berinteraksi - seperti mobil, rumah, manusia. 
+                            Setiap objek punya karakteristik (atribut) dan kemampuan (method) tersendiri. 
+                            Dengan PBO, kita bisa membuat program yang lebih terstruktur, mudah dipahami, dan mudah dikembangkan! 🌟
+                        </p>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-fire text-orange-500 mr-3"></i>
+                            Motivasi
+                        </h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            🚀 Dengan menguasai PBO, kamu akan bisa membuat aplikasi yang amazing! 
+                            Dari game sederhana hingga sistem manajemen sekolah, dari chatbot hingga aplikasi e-commerce. 
+                            PBO adalah fondasi yang digunakan oleh programmer profesional di seluruh dunia. 
+                            Mari mulai perjalanan coding yang seru ini! 💪✨
+                        </p>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('pengenalan')" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Mulai Belajar! <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-book-open text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Pengenalan PBO Python 📚</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-question-circle text-blue-500 mr-3"></i>
+                                Apa itu PBO?
+                            </h3>
+                            <p class="text-gray-700 leading-relaxed mb-4">
+                                PBO (Pemrograman Berorientasi Objek) atau OOP (Object-Oriented Programming) adalah paradigma pemrograman 
+                                yang mengorganisir kode berdasarkan konsep "objek". Objek adalah entitas yang memiliki data (atribut) 
+                                dan fungsi (method) yang bekerja dengan data tersebut.
+                            </p>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-gray-600 italic">💡 Analogi: Bayangkan sebuah mobil. Mobil punya warna, merek, kecepatan (atribut), 
+                                dan bisa bergerak, berhenti, klakson (method).</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-star text-green-500 mr-3"></i>
+                                Mengapa PBO Penting?
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="space-y-3">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-check-circle text-green-500"></i>
+                                        <span class="text-gray-700">Kode lebih terorganisir</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-check-circle text-green-500"></i>
+                                        <span class="text-gray-700">Mudah dipelihara</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-check-circle text-green-500"></i>
+                                        <span class="text-gray-700">Dapat digunakan ulang</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-check-circle text-green-500"></i>
+                                        <span class="text-gray-700">Mudah dikembangkan</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-check-circle text-green-500"></i>
+                                        <span class="text-gray-700">Meniru dunia nyata</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <i class="fas fa-check-circle text-green-500"></i>
+                                        <span class="text-gray-700">Kolaborasi tim lebih baik</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-puzzle-piece text-purple-500 mr-3"></i>
+                                4 Pilar Utama PBO
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-purple-600 mb-2">🏗️ Encapsulation</h4>
+                                    <p class="text-md text-gray-600">Menyembunyikan detail internal objek</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-blue-600 mb-2">🧬 Inheritance</h4>
+                                    <p class="text-md text-gray-600">Mewarisi sifat dari class lain</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-green-600 mb-2">🎭 Polymorphism</h4>
+                                    <p class="text-md text-gray-600">Satu interface, banyak implementasi</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-red-600 mb-2">🎯 Abstraction</h4>
+                                    <p class="text-md text-gray-600">Menyembunyikan kompleksitas, fokus pada interface</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('konsep-dasar')" class="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Lanjut ke Konsep Dasar <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Konsep Dasar Section -->
+            <div id="konsep-dasar" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-purple-400 to-indigo-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-cube text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Konsep Dasar PBO 🧱</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-lightbulb text-yellow-500 mr-3"></i>
+                                Perbedaan Pemrograman Prosedural vs PBO
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-red-100 p-4 rounded-lg">
+                                    <h4 class="font-bold text-red-600 mb-3">❌ Pemrograman Prosedural</h4>
+                                    <ul class="space-y-2 text-md text-gray-700">
+                                        <li>• Fokus pada fungsi/prosedur</li>
+                                        <li>• Data dan fungsi terpisah</li>
+                                        <li>• Sulit untuk program besar</li>
+                                        <li>• Kode sulit digunakan ulang</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-green-100 p-4 rounded-lg">
+                                    <h4 class="font-bold text-green-600 mb-3">✅ Pemrograman Berorientasi Objek</h4>
+                                    <ul class="space-y-2 text-md text-gray-700">
+                                        <li>• Fokus pada objek</li>
+                                        <li>• Data dan method dalam satu objek</li>
+                                        <li>• Cocok untuk program kompleks</li>
+                                        <li>• Kode mudah digunakan ulang</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="demo-container">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-play text-orange-500 mr-3"></i>
+                                Demo Konsep Dasar
+                            </h3>
+                            <p class="text-gray-700 mb-6">Mari lihat perbedaan pendekatan prosedural vs PBO dengan contoh sederhana:</p>
+                            
+                            <!-- Pendekatan Prosedural -->
+                            <div class="mb-8">
+                                <h4 class="font-bold text-red-600 mb-4 text-lg flex items-center">
+                                    <i class="fas fa-list mr-2"></i>
+                                    1. Pendekatan Prosedural
+                                </h4>
+                                <div class="bg-red-50 p-4 rounded-lg mb-4">
+                                    <p class="text-gray-700 text-md">
+                                        <strong>Karakteristik:</strong> Data dan fungsi terpisah, fokus pada urutan langkah-langkah
+                                    </p>
+                                </div>
+                                <div class="code-block">
+                                    <div class="code-header">
+                                        <i class="fab fa-python mr-2"></i>Python - prosedural.py
+                                    </div>
+                                    <pre class="text-green-400 p-4 text-base overflow-x-auto"><code># Data terpisah (variabel global)
+nama_siswa = "Budi"
+umur_siswa = 17
+kelas_siswa = "XII RPL"
+
+# Fungsi terpisah dari data
+def tampilkan_info(nama, umur, kelas):
+    print(f"Nama: {nama}")
+    print(f"Umur: {umur}")
+    print(f"Kelas: {kelas}")
+
+def ubah_kelas(kelas_baru):
+    global kelas_siswa
+    kelas_siswa = kelas_baru
+    print(f"Kelas diubah menjadi: {kelas_siswa}")
+
+# Penggunaan - harus passing semua parameter
+tampilkan_info(nama_siswa, umur_siswa, kelas_siswa)
+ubah_kelas("XII RPL 1")</code></pre>
+                                </div>
+                                <div class="mt-4">
+                                    <button onclick="runProceduralDemo()" class="bg-gradient-to-r from-red-400 to-pink-400 hover:from-red-500 hover:to-pink-500 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all duration-300">
+                                        <i class="fas fa-play mr-2"></i>Jalankan Demo Prosedural
+                                    </button>
+                                    <div id="proceduralDemoOutput" class="demo-output mt-4 hidden">
+                                        <div class="text-yellow-400 mb-2">Output Program Prosedural:</div>
+                                        <div>Nama: Budi</div>
+                                        <div>Umur: 17</div>
+                                        <div>Kelas: XII RPL</div>
+                                        <div>Kelas diubah menjadi: XII RPL 1</div>
+                                        <div class="text-red-400 mt-2">⚠️ Data dan fungsi terpisah, sulit dikelola untuk program besar!</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Pendekatan PBO -->
+                            <div>
+                                <h4 class="font-bold text-green-600 mb-4 text-lg flex items-center">
+                                    <i class="fas fa-cube mr-2"></i>
+                                    2. Pendekatan PBO (Object-Oriented)
+                                </h4>
+                                <div class="bg-green-50 p-4 rounded-lg mb-4">
+                                    <p class="text-gray-700 text-md">
+                                        <strong>Karakteristik:</strong> Data dan method tergabung dalam objek, lebih terstruktur dan mudah dikelola
+                                    </p>
+                                </div>
+                                <div class="code-block">
+                                    <div class="code-header">
+                                        <i class="fab fa-python mr-2"></i>Python - oop.py
+                                    </div>
+                                    <pre class="text-green-400 p-4 text-base overflow-x-auto"><code># Class sebagai blueprint/cetakan
+class Siswa:
+    def __init__(self, nama, umur, kelas):
+        # Attribute/data dalam objek
+        self.nama = nama
+        self.umur = umur
+        self.kelas = kelas
+    
+    def tampilkan_info(self):
+        # Method yang bekerja dengan data objek
+        print(f"Nama: {self.nama}")
+        print(f"Umur: {self.umur}")
+        print(f"Kelas: {self.kelas}")
+    
+    def ubah_kelas(self, kelas_baru):
+        # Method untuk mengubah data objek
+        self.kelas = kelas_baru
+        print(f"Kelas diubah menjadi: {self.kelas}")
+
+# Membuat objek dari class
+siswa1 = Siswa("Budi", 17, "XII RPL")
+siswa1.tampilkan_info()  # Tidak perlu passing parameter
+siswa1.ubah_kelas("XII RPL 1")</code></pre>
+                                </div>
+                                <div class="mt-4">
+                                    <button onclick="runOOPDemo()" class="bg-gradient-to-r from-green-400 to-emerald-400 hover:from-green-500 hover:to-emerald-500 text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all duration-300">
+                                        <i class="fas fa-play mr-2"></i>Jalankan Demo PBO
+                                    </button>
+                                    <div id="oopDemoOutput" class="demo-output mt-4 hidden">
+                                        <div class="text-yellow-400 mb-2">Output Program PBO:</div>
+                                        <div>Nama: Budi</div>
+                                        <div>Umur: 17</div>
+                                        <div>Kelas: XII RPL</div>
+                                        <div>Kelas diubah menjadi: XII RPL 1</div>
+                                        <div class="text-green-400 mt-2">✨ Data dan method tergabung dalam objek, lebih terorganisir!</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Perbandingan -->
+                            <div class="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg">
+                                <h4 class="font-bold text-gray-800 mb-4 flex items-center">
+                                    <i class="fas fa-balance-scale text-blue-500 mr-2"></i>
+                                    Perbandingan Kedua Pendekatan
+                                </h4>
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div class="bg-white p-4 rounded-lg">
+                                        <h5 class="font-bold text-red-600 mb-2">❌ Prosedural</h5>
+                                        <ul class="text-base text-gray-700 space-y-1">
+                                            <li>• Data dan fungsi terpisah</li>
+                                            <li>• Sulit untuk program kompleks</li>
+                                            <li>• Banyak parameter yang harus di-pass</li>
+                                            <li>• Sulit maintenance dan debugging</li>
+                                        </ul>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-lg">
+                                        <h5 class="font-bold text-green-600 mb-2">✅ PBO</h5>
+                                        <ul class="text-base text-gray-700 space-y-1">
+                                            <li>• Data dan method dalam satu objek</li>
+                                            <li>• Cocok untuk program kompleks</li>
+                                            <li>• Method otomatis akses data objek</li>
+                                            <li>• Mudah maintenance dan reusable</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('class-object')" class="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Pelajari Class & Object <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Class & Object Section -->
+            <div id="class-object" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-boxes text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Class & Object 📦</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-info-circle text-green-500 mr-3"></i>
+                                Memahami Class dan Object
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-green-600 mb-3 flex items-center">
+                                        <i class="fas fa-drafting-compass text-blue-500 mr-2"></i>
+                                        Class
+                                    </h4>
+                                    <p class="text-gray-700 mb-3">Class adalah blueprint atau cetakan untuk membuat objek. Seperti denah rumah yang digunakan untuk membangun rumah.</p>
+                                    <div class="bg-blue-50 p-3 rounded">
+                                        <p class="text-base text-blue-700">💡 Contoh: Class "Mobil" mendefinisikan bahwa setiap mobil punya merek, warna, dan bisa bergerak.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-green-600 mb-3 flex items-center">
+                                        <i class="fas fa-cube text-purple-500 mr-2"></i>
+                                        Object
+                                    </h4>
+                                    <p class="text-gray-700 mb-3">Object adalah instance atau wujud nyata dari class. Seperti rumah yang sudah jadi berdasarkan denah.</p>
+                                    <div class="bg-purple-50 p-3 rounded">
+                                        <p class="text-base text-purple-700">💡 Contoh: mobil1 = Mobil("Toyota", "Merah") adalah objek konkret dari class Mobil.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="demo-container">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-laptop-code text-orange-500 mr-3"></i>
+                                Demo Interaktif: Class Smartphone
+                            </h3>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python mr-2"></i>Python - smartphone.py
+                                </div>
+                                <pre class="text-green-400 p-4 text-base overflow-x-auto"><code>class Smartphone:
+    def __init__(self, merek, model, baterai=100):
+        self.merek = merek
+        self.model = model
+        self.baterai = baterai
+        self.status = "Mati"
+        self.aplikasi_terbuka = []
+    
+    def nyalakan(self):
+        if self.baterai > 0:
+            self.status = "Hidup"
+            self.baterai -= 5
+            return f"📱 {self.merek} {self.model} menyala!"
+        else:
+            return "🔋 Baterai habis!"
+    
+    def buka_aplikasi(self, nama_app):
+        if self.status == "Hidup" and self.baterai > 10:
+            self.aplikasi_terbuka.append(nama_app)
+            self.baterai -= 10
+            return f"📲 Membuka {nama_app}"
+        else:
+            return "❌ Tidak bisa membuka aplikasi"
+    
+    def info_hp(self):
+        return f"""
+📱 Info Smartphone:
+   Merek: {self.merek}
+   Model: {self.model}
+   Status: {self.status}
+   Baterai: {self.baterai}%
+   Aplikasi Terbuka: {len(self.aplikasi_terbuka)} aplikasi
+        """
+
+# ===== CONTOH PENGGUNAAN =====
+print("🚀 Demo Class & Object - Smartphone")
+print("=" * 40)
+
+# 1. Membuat objek smartphone (instantiation)
+hp1 = Smartphone("Samsung", "Galaxy S23")
+hp2 = Smartphone("iPhone", "14 Pro", 80)
+
+print("📱 Smartphone berhasil dibuat!")
+print(hp1.info_hp())
+print(hp2.info_hp())
+
+# 2. Menggunakan method objek
+print("\n🔛 Menyalakan smartphone...")
+print(hp1.nyalakan())
+print(hp2.nyalakan())
+
+# 3. Membuka aplikasi
+print("\n📲 Membuka aplikasi...")
+print(hp1.buka_aplikasi("Instagram"))
+print(hp1.buka_aplikasi("WhatsApp"))
+print(hp2.buka_aplikasi("TikTok"))
+
+# 4. Cek status setelah penggunaan
+print("\n📊 Status setelah penggunaan:")
+print(hp1.info_hp())
+print(hp2.info_hp())</code></pre>
+                            </div>
+                            
+                            <div class="bg-gray-800 rounded-lg p-4 mb-4">
+                                <div class="text-yellow-400 mb-2">📊 Output Program:</div>
+                                <div class="text-green-400 text-base font-mono">
+                                    <div>🚀 Demo Class & Object - Smartphone</div>
+                                    <div>========================================</div>
+                                    <div>📱 Smartphone berhasil dibuat!</div>
+                                    <div class="mt-2">📱 Info Smartphone:</div>
+                                    <div>   Merek: Samsung</div>
+                                    <div>   Model: Galaxy S23</div>
+                                    <div>   Status: Mati</div>
+                                    <div>   Baterai: 100%</div>
+                                    <div>   Aplikasi Terbuka: 0 aplikasi</div>
+                                    <div class="mt-2">📱 Info Smartphone:</div>
+                                    <div>   Merek: iPhone</div>
+                                    <div>   Model: 14 Pro</div>
+                                    <div>   Status: Mati</div>
+                                    <div>   Baterai: 80%</div>
+                                    <div>   Aplikasi Terbuka: 0 aplikasi</div>
+                                    <div class="mt-2">🔛 Menyalakan smartphone...</div>
+                                    <div>📱 Samsung Galaxy S23 menyala!</div>
+                                    <div>📱 iPhone 14 Pro menyala!</div>
+                                    <div class="mt-2">📲 Membuka aplikasi...</div>
+                                    <div>📲 Membuka Instagram</div>
+                                    <div>📲 Membuka WhatsApp</div>
+                                    <div>📲 Membuka TikTok</div>
+                                    <div class="mt-2">📊 Status setelah penggunaan:</div>
+                                    <div>📱 Info Smartphone:</div>
+                                    <div>   Merek: Samsung</div>
+                                    <div>   Model: Galaxy S23</div>
+                                    <div>   Status: Hidup</div>
+                                    <div>   Baterai: 75%</div>
+                                    <div>   Aplikasi Terbuka: 2 aplikasi</div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-gray-800 mb-3">🎮 Coba Sendiri!</h4>
+                                <div class="grid md:grid-cols-3 gap-3">
+                                    <button onclick="createPhone()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        📱 Buat HP Baru
+                                    </button>
+                                    <button onclick="turnOnPhone()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        🔛 Nyalakan HP
+                                    </button>
+                                    <button onclick="openApp()" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        📲 Buka Instagram
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="phoneDemo" class="demo-output hidden">
+                                <div class="text-yellow-400 mb-2">📱 Smartphone Demo:</div>
+                                <div id="phoneDemoContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('inheritance')" class="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Pelajari Inheritance <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Inheritance Section -->
+            <div id="inheritance" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-sitemap text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Inheritance (Pewarisan) 🧬</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-family text-yellow-600 mr-3"></i>
+                                Apa itu Inheritance?
+                            </h3>
+                            
+                            <p class="text-gray-700 mb-4 leading-relaxed">
+                                Inheritance adalah kemampuan sebuah class untuk mewarisi attribute dan method dari class lain. 
+                                Seperti anak yang mewarisi sifat dari orang tuanya! 👨‍👩‍👧‍👦
+                            </p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python mr-2"></i>Python - inheritance.py
+                                </div>
+                                <pre class="text-green-400 p-4 text-base overflow-x-auto"><code># Parent Class (Base Class)
+class Hewan:
+    def __init__(self, nama, umur):
+        self.nama = nama
+        self.umur = umur
+        self.status_hidup = True
+    
+    def bersuara(self):
+        return f"{self.nama} mengeluarkan suara"
+    
+    def info(self):
+        return f"Nama: {self.nama}, Umur: {self.umur} tahun"
+    
+    def makan(self):
+        return f"{self.nama} sedang makan"
+
+# Child Classes - mewarisi dari Hewan
+class Singa(Hewan):
+    def __init__(self, nama, umur, wilayah="Savana"):
+        super().__init__(nama, umur)  # Memanggil constructor parent
+        self.wilayah = wilayah
+        self.jenis = "Karnivora"
+    
+    def bersuara(self):  # Override method parent
+        return f"{self.nama} berkata: Roar! 🦁"
+    
+    def berburu(self):  # Method khusus Singa
+        return f"{self.nama} sedang berburu di {self.wilayah}"
+
+class Gajah(Hewan):
+    def __init__(self, nama, umur, berat=5000):
+        super().__init__(nama, umur)  # Memanggil constructor parent
+        self.berat = berat
+        self.jenis = "Herbivora"
+    
+    def bersuara(self):  # Override method parent
+        return f"{self.nama} berkata: Trumpet! 🐘"
+    
+    def mandi_lumpur(self):  # Method khusus Gajah
+        return f"{self.nama} sedang mandi lumpur (berat: {self.berat}kg)"
+
+class Monyet(Hewan):
+    def __init__(self, nama, umur, ekor=True):
+        super().__init__(nama, umur)  # Memanggil constructor parent
+        self.ekor = ekor
+        self.jenis = "Omnivora"
+    
+    def bersuara(self):  # Override method parent
+        return f"{self.nama} berkata: Oook ook! 🐵"
+    
+    def memanjat(self):  # Method khusus Monyet
+        ekor_status = "dengan ekor" if self.ekor else "tanpa ekor"
+        return f"{self.nama} memanjat pohon {ekor_status}"
+
+# ===== CONTOH PENGGUNAAN INHERITANCE =====
+print("🧬 Demo Inheritance - Pewarisan dalam PBO")
+print("=" * 50)
+
+# 1. Membuat objek dari setiap child class
+print("📝 1. Membuat objek hewan (Child classes):")
+singa1 = Singa("Simba", 5, "Afrika")
+gajah1 = Gajah("Dumbo", 10, 6000)
+monyet1 = Monyet("George", 3, True)
+
+print(f"✅ {singa1.nama} si Singa berhasil dibuat")
+print(f"✅ {gajah1.nama} si Gajah berhasil dibuat") 
+print(f"✅ {monyet1.nama} si Monyet berhasil dibuat")
+
+# 2. Menggunakan method yang diwarisi dari parent class
+print("\n📋 2. Method yang diwarisi dari class Hewan:")
+print(f"📊 {singa1.info()}")    # Method dari parent
+print(f"📊 {gajah1.info()}")    # Method dari parent
+print(f"📊 {monyet1.info()}")   # Method dari parent
+
+# 3. Menggunakan method yang di-override
+print("\n🎭 3. Method override - bersuara() berbeda tiap hewan:")
+print(f"🔊 {singa1.bersuara()}")   # Override method
+print(f"🔊 {gajah1.bersuara()}")   # Override method  
+print(f"🔊 {monyet1.bersuara()}")  # Override method
+
+# 4. Method yang sama dari parent, hasil sama
+print("\n🍽️ 4. Method makan() dari parent class:")
+print(f"🍖 {singa1.makan()}")    # Method dari parent
+print(f"🌿 {gajah1.makan()}")    # Method dari parent
+print(f"🍌 {monyet1.makan()}")   # Method dari parent
+
+# 5. Method khusus masing-masing child class
+print("\n⭐ 5. Method khusus setiap child class:")
+print(f"🏃 {singa1.berburu()}")        # Method khusus Singa
+print(f"🛁 {gajah1.mandi_lumpur()}")   # Method khusus Gajah
+print(f"🌳 {monyet1.memanjat()}")      # Method khusus Monyet
+
+# 6. Akses attribute yang diwarisi dan yang baru
+print("\n📊 6. Attribute inheritance:")
+print(f"🦁 {singa1.nama} - Umur: {singa1.umur}, Jenis: {singa1.jenis}, Wilayah: {singa1.wilayah}")
+print(f"🐘 {gajah1.nama} - Umur: {gajah1.umur}, Jenis: {gajah1.jenis}, Berat: {gajah1.berat}kg")
+print(f"🐵 {monyet1.nama} - Umur: {monyet1.umur}, Jenis: {monyet1.jenis}, Ekor: {monyet1.ekor}")
+
+# 7. Demonstrasi polymorphism dengan inheritance
+print("\n🎯 7. Polymorphism dengan inheritance:")
+daftar_hewan = [singa1, gajah1, monyet1]
+print("🔄 Loop semua hewan dengan method yang sama:")
+for hewan in daftar_hewan:
+    print(f"   • {hewan.bersuara()}")  # Method sama, hasil beda!
+
+print("\n✨ Kesimpulan Inheritance:")
+print("   ✅ Child class mewarisi semua attribute & method parent")
+print("   ✅ Child class bisa menambah attribute & method baru") 
+print("   ✅ Child class bisa override method parent")
+print("   ✅ super() digunakan untuk akses constructor parent")
+print("   ✅ Code reuse - tidak perlu tulis ulang method yang sama")</code></pre>
+                            </div>
+                            
+                            <div class="bg-gray-800 rounded-lg p-4 mb-4">
+                                <div class="text-yellow-400 mb-2">📊 Output Program Inheritance:</div>
+                                <div class="text-green-400 text-base font-mono">
+                                    <div>🧬 Demo Inheritance - Pewarisan dalam PBO</div>
+                                    <div>==================================================</div>
+                                    <div>📝 1. Membuat objek hewan (Child classes):</div>
+                                    <div>✅ Simba si Singa berhasil dibuat</div>
+                                    <div>✅ Dumbo si Gajah berhasil dibuat</div>
+                                    <div>✅ George si Monyet berhasil dibuat</div>
+                                    <div class="mt-2">📋 2. Method yang diwarisi dari class Hewan:</div>
+                                    <div>📊 Nama: Simba, Umur: 5 tahun</div>
+                                    <div>📊 Nama: Dumbo, Umur: 10 tahun</div>
+                                    <div>📊 Nama: George, Umur: 3 tahun</div>
+                                    <div class="mt-2">🎭 3. Method override - bersuara() berbeda tiap hewan:</div>
+                                    <div>🔊 Simba berkata: Roar! 🦁</div>
+                                    <div>🔊 Dumbo berkata: Trumpet! 🐘</div>
+                                    <div>🔊 George berkata: Oook ook! 🐵</div>
+                                    <div class="mt-2">🍽️ 4. Method makan() dari parent class:</div>
+                                    <div>🍖 Simba sedang makan</div>
+                                    <div>🌿 Dumbo sedang makan</div>
+                                    <div>🍌 George sedang makan</div>
+                                    <div class="mt-2">⭐ 5. Method khusus setiap child class:</div>
+                                    <div>🏃 Simba sedang berburu di Afrika</div>
+                                    <div>🛁 Dumbo sedang mandi lumpur (berat: 6000kg)</div>
+                                    <div>🌳 George memanjat pohon dengan ekor</div>
+                                    <div class="mt-2">🎯 7. Polymorphism dengan inheritance:</div>
+                                    <div>🔄 Loop semua hewan dengan method yang sama:</div>
+                                    <div>   • Simba berkata: Roar! 🦁</div>
+                                    <div>   • Dumbo berkata: Trumpet! 🐘</div>
+                                    <div>   • George berkata: Oook ook! 🐵</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="demo-container">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-paw text-orange-500 mr-3"></i>
+                                Demo Interaktif: Kebun Binatang Virtual
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-gray-800 mb-3">🦁 Kelola Kebun Binatang!</h4>
+                                <div class="grid md:grid-cols-2 gap-3">
+                                    <button onclick="createAnimals()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        🦁 Buat Hewan Baru
+                                    </button>
+                                    <button onclick="feedAnimals()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        🍽️ Beri Makan Semua
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="zooDemo" class="demo-output hidden">
+                                <div class="text-yellow-400 mb-2">🦁 Kebun Binatang Virtual:</div>
+                                <div id="zooDemoContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('polymorphism')" class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Pelajari Polymorphism <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Polymorphism Section -->
+            <div id="polymorphism" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-shapes text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Polymorphism 🎭</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-magic text-indigo-500 mr-3"></i>
+                                Apa itu Polymorphism?
+                            </h3>
+                            
+                            <p class="text-gray-700 mb-4 leading-relaxed">
+                                Polymorphism berarti "banyak bentuk". Dalam PBO, polymorphism memungkinkan objek yang berbeda 
+                                merespons method yang sama dengan cara yang berbeda. Seperti tombol "Play" yang bisa memutar musik, 
+                                video, atau game! 🎮🎵📺
+                            </p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python mr-2"></i>Python - polymorphism.py
+                                </div>
+                                <pre class="text-green-400 p-4 text-base overflow-x-auto"><code># Parent Class (Base Class)
+class Kendaraan:
+    def __init__(self, nama, kecepatan_max):
+        self.nama = nama
+        self.kecepatan_max = kecepatan_max
+        self.posisi = 0
+    
+    def bergerak(self):
+        # Method yang akan di-override oleh child classes
+        return f"{self.nama} sedang bergerak"
+    
+    def info(self):
+        return f"Kendaraan: {self.nama}, Kecepatan Max: {self.kecepatan_max} km/h"
+    
+    def berhenti(self):
+        return f"{self.nama} berhenti"
+
+# Child Classes - Implementasi berbeda untuk method yang sama
+class Mobil(Kendaraan):
+    def __init__(self, nama, kecepatan_max, jenis_bahan_bakar="Bensin"):
+        super().__init__(nama, kecepatan_max)
+        self.jenis_bahan_bakar = jenis_bahan_bakar
+        self.roda = 4
+    
+    def bergerak(self):  # Override method parent
+        self.posisi += 10
+        return f"🚗 {self.nama} melaju di jalan raya dengan {self.roda} roda (posisi: {self.posisi}km)"
+    
+    def klakson(self):  # Method khusus Mobil
+        return f"🚗 {self.nama}: Beep beep!"
+
+class Pesawat(Kendaraan):
+    def __init__(self, nama, kecepatan_max, ketinggian_max=10000):
+        super().__init__(nama, kecepatan_max)
+        self.ketinggian_max = ketinggian_max
+        self.ketinggian_sekarang = 0
+    
+    def bergerak(self):  # Override method parent
+        self.posisi += 50
+        self.ketinggian_sekarang = 8000
+        return f"✈️ {self.nama} terbang di udara pada ketinggian {self.ketinggian_sekarang}m (posisi: {self.posisi}km)"
+    
+    def lepas_landas(self):  # Method khusus Pesawat
+        return f"✈️ {self.nama} sedang lepas landas!"
+
+class Kapal(Kendaraan):
+    def __init__(self, nama, kecepatan_max, jenis="Penumpang"):
+        super().__init__(nama, kecepatan_max)
+        self.jenis = jenis
+        self.di_laut = True
+    
+    def bergerak(self):  # Override method parent
+        self.posisi += 5
+        return f"🚢 {self.nama} berlayar di laut dengan tenang (posisi: {self.posisi} mil laut)"
+    
+    def buang_jangkar(self):  # Method khusus Kapal
+        return f"⚓ {self.nama} membuang jangkar!"
+
+class Sepeda(Kendaraan):
+    def __init__(self, nama, kecepatan_max=25):
+        super().__init__(nama, kecepatan_max)
+        self.roda = 2
+        self.ramah_lingkungan = True
+    
+    def bergerak(self):  # Override method parent
+        self.posisi += 2
+        return f"🚴 {self.nama} dikayuh dengan tenaga manusia (posisi: {self.posisi}km)"
+    
+    def bel(self):  # Method khusus Sepeda
+        return f"🚴 {self.nama}: Ring ring!"
+
+# ===== CONTOH PENGGUNAAN POLYMORPHISM =====
+print("🎭 Demo Polymorphism - Banyak Bentuk dalam PBO")
+print("=" * 55)
+
+# 1. Membuat objek dari berbagai child classes
+print("📝 1. Membuat berbagai jenis kendaraan:")
+mobil = Mobil("Toyota Avanza", 180, "Bensin")
+pesawat = Pesawat("Garuda Indonesia", 900, 12000)
+kapal = Kapal("KM Lawit", 45, "Ferry")
+sepeda = Sepeda("Polygon", 25)
+
+print(f"✅ {mobil.nama} (Mobil) berhasil dibuat")
+print(f"✅ {pesawat.nama} (Pesawat) berhasil dibuat")
+print(f"✅ {kapal.nama} (Kapal) berhasil dibuat")
+print(f"✅ {sepeda.nama} (Sepeda) berhasil dibuat")
+
+# 2. Polymorphism - Method yang sama, perilaku berbeda
+print("\n🎭 2. Polymorphism - Method bergerak() dengan implementasi berbeda:")
+kendaraan_list = [mobil, pesawat, kapal, sepeda]
+
+for kendaraan in kendaraan_list:
+    print(f"   {kendaraan.bergerak()}")  # Method sama, hasil berbeda!
+
+# 3. Method yang diwarisi dari parent - hasil sama
+print("\n📊 3. Method info() yang diwarisi dari parent class:")
+for kendaraan in kendaraan_list:
+    print(f"   📋 {kendaraan.info()}")
+
+# 4. Polymorphism dengan method berhenti()
+print("\n🛑 4. Method berhenti() - implementasi sama dari parent:")
+for kendaraan in kendaraan_list:
+    print(f"   🛑 {kendaraan.berhenti()}")
+
+# 5. Method khusus masing-masing class (tidak polymorphic)
+print("\n⭐ 5. Method khusus setiap jenis kendaraan:")
+print(f"   {mobil.klakson()}")           # Method khusus Mobil
+print(f"   {pesawat.lepas_landas()}")    # Method khusus Pesawat
+print(f"   {kapal.buang_jangkar()}")     # Method khusus Kapal
+print(f"   {sepeda.bel()}")              # Method khusus Sepeda
+
+# 6. Demonstrasi polymorphism dengan function
+print("\n🔄 6. Function yang menerima berbagai jenis kendaraan:")
+def jalankan_kendaraan(kendaraan):
+    """Function yang bisa menerima objek kendaraan apapun"""
+    print(f"   🚀 Menjalankan: {kendaraan.bergerak()}")
+    return kendaraan.berhenti()
+
+print("   Function jalankan_kendaraan() dipanggil untuk setiap kendaraan:")
+for kendaraan in kendaraan_list:
+    hasil_berhenti = jalankan_kendaraan(kendaraan)
+    print(f"   🛑 {hasil_berhenti}")
+
+# 7. Polymorphism dengan isinstance() check
+print("\n🔍 7. Mengecek tipe objek dengan isinstance():")
+for kendaraan in kendaraan_list:
+    if isinstance(kendaraan, Mobil):
+        print(f"   🚗 {kendaraan.nama} adalah Mobil - {kendaraan.klakson()}")
+    elif isinstance(kendaraan, Pesawat):
+        print(f"   ✈️ {kendaraan.nama} adalah Pesawat - {kendaraan.lepas_landas()}")
+    elif isinstance(kendaraan, Kapal):
+        print(f"   🚢 {kendaraan.nama} adalah Kapal - {kendaraan.buang_jangkar()}")
+    elif isinstance(kendaraan, Sepeda):
+        print(f"   🚴 {kendaraan.nama} adalah Sepeda - {kendaraan.bel()}")
+
+# 8. Polymorphism dengan Duck Typing
+print("\n🦆 8. Duck Typing - 'If it walks like a duck...':")
+def test_bergerak(obj):
+    """Function yang tidak peduli tipe objek, asal punya method bergerak()"""
+    try:
+        return obj.bergerak()
+    except AttributeError:
+        return f"Objek {type(obj).__name__} tidak bisa bergerak"
+
+# Test dengan berbagai objek
+test_objects = [mobil, pesawat, "string", 123, sepeda]
+for obj in test_objects:
+    if hasattr(obj, 'bergerak'):  # Duck typing check
+        print(f"   ✅ {test_bergerak(obj)}")
+    else:
+        print(f"   ❌ {type(obj).__name__} tidak memiliki method bergerak()")
+
+print("\n✨ Kesimpulan Polymorphism:")
+print("   ✅ Satu interface (method name), banyak implementasi")
+print("   ✅ Method yang sama bisa berperilaku berbeda di setiap class")
+print("   ✅ Memungkinkan kode yang lebih fleksibel dan mudah dipelihara")
+print("   ✅ Duck typing: 'If it looks like a duck and quacks like a duck, it's a duck!'")
+print("   ✅ Polymorphism membuat kode lebih generic dan reusable")</code></pre>
+                            </div>
+                            
+                            <div class="bg-gray-800 rounded-lg p-4 mb-4">
+                                <div class="text-yellow-400 mb-2">📊 Output Program Polymorphism:</div>
+                                <div class="text-green-400 text-base font-mono">
+                                    <div>🎭 Demo Polymorphism - Banyak Bentuk dalam PBO</div>
+                                    <div>=======================================================</div>
+                                    <div>📝 1. Membuat berbagai jenis kendaraan:</div>
+                                    <div>✅ Toyota Avanza (Mobil) berhasil dibuat</div>
+                                    <div>✅ Garuda Indonesia (Pesawat) berhasil dibuat</div>
+                                    <div>✅ KM Lawit (Kapal) berhasil dibuat</div>
+                                    <div>✅ Polygon (Sepeda) berhasil dibuat</div>
+                                    <div class="mt-2">🎭 2. Polymorphism - Method bergerak() dengan implementasi berbeda:</div>
+                                    <div>   🚗 Toyota Avanza melaju di jalan raya dengan 4 roda (posisi: 10km)</div>
+                                    <div>   ✈️ Garuda Indonesia terbang di udara pada ketinggian 8000m (posisi: 50km)</div>
+                                    <div>   🚢 KM Lawit berlayar di laut dengan tenang (posisi: 5 mil laut)</div>
+                                    <div>   🚴 Polygon dikayuh dengan tenaga manusia (posisi: 2km)</div>
+                                    <div class="mt-2">⭐ 5. Method khusus setiap jenis kendaraan:</div>
+                                    <div>   🚗 Toyota Avanza: Beep beep!</div>
+                                    <div>   ✈️ Garuda Indonesia sedang lepas landas!</div>
+                                    <div>   ⚓ KM Lawit membuang jangkar!</div>
+                                    <div>   🚴 Polygon: Ring ring!</div>
+                                    <div class="mt-2">🔄 6. Function yang menerima berbagai jenis kendaraan:</div>
+                                    <div>   🚀 Menjalankan: 🚗 Toyota Avanza melaju di jalan raya dengan 4 roda (posisi: 20km)</div>
+                                    <div>   🛑 Toyota Avanza berhenti</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="demo-container">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-car text-orange-500 mr-3"></i>
+                                Demo Interaktif: Sistem Transportasi
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-gray-800 mb-3">🚦 Kontrol Lalu Lintas</h4>
+                                <div class="grid md:grid-cols-2 gap-3">
+                                    <button onclick="createVehicles()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        🚗 Buat Kendaraan
+                                    </button>
+                                    <button onclick="moveAllVehicles()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        🚦 Semua Bergerak!
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="vehicleDemo" class="demo-output hidden">
+                                <div class="text-yellow-400 mb-2">🚦 Sistem Transportasi:</div>
+                                <div id="vehicleDemoContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('encapsulation')" class="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Pelajari Encapsulation <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Encapsulation Section -->
+            <div id="encapsulation" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-red-400 to-pink-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-lock text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Encapsulation 🔒</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-shield-alt text-red-500 mr-3"></i>
+                                Apa itu Encapsulation?
+                            </h3>
+                            
+                            <p class="text-gray-700 mb-4 leading-relaxed">
+                                Encapsulation adalah prinsip menyembunyikan detail internal objek dan hanya mengekspos 
+                                interface yang diperlukan. Seperti remote TV - kamu tidak perlu tahu cara kerja internal TV, 
+                                cukup tekan tombol untuk mengoperasikannya! 📺🎮
+                            </p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python mr-2"></i>Python - encapsulation.py
+                                </div>
+                                <pre class="text-green-400 p-4 text-base overflow-x-auto"><code>class RekeningBank:
+    def __init__(self, nama_pemilik, saldo_awal):
+        self.nama_pemilik = nama_pemilik
+        self.__saldo = saldo_awal  # Private attribute (__)
+        self.__pin = "1234"        # Private attribute (__)
+    
+    def cek_saldo(self):  # Public method
+        return f"Saldo: Rp{self.__saldo:,}"
+    
+    def setor_uang(self, jumlah):  # Public method
+        if jumlah > 0:
+            self.__saldo += jumlah
+            return f"Berhasil setor Rp{jumlah:,}"
+        return "Jumlah tidak valid"
+    
+    def tarik_uang(self, jumlah, pin):  # Public method dengan validasi
+        if pin == self.__pin and jumlah <= self.__saldo:
+            self.__saldo -= jumlah
+            return f"Berhasil tarik Rp{jumlah:,}"
+        return "PIN salah atau saldo tidak cukup"
+
+# Penggunaan:
+# rekening = RekeningBank("Budi", 1000000)
+# print(rekening.cek_saldo())  # ✅ Bisa diakses
+# print(rekening.__saldo)      # ❌ Error! Private attribute</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="demo-container">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-university text-orange-500 mr-3"></i>
+                                Demo Interaktif: Sistem ATM
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-gray-800 mb-3">🏧 Simulasi ATM</h4>
+                                <div class="grid md:grid-cols-3 gap-3">
+                                    <button onclick="createAccount()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        💳 Buat Rekening
+                                    </button>
+                                    <button onclick="checkBalance()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        💰 Cek Saldo
+                                    </button>
+                                    <button onclick="withdrawMoney()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        💸 Tarik Tunai
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="atmDemo" class="demo-output hidden">
+                                <div class="text-yellow-400 mb-2">🏧 Sistem ATM:</div>
+                                <div id="atmDemoContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('studi-kasus')" class="bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Lihat Studi Kasus <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Studi Kasus Section -->
+            <div id="studi-kasus" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-teal-400 to-cyan-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-project-diagram text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Studi Kasus: Sistem Manajemen Sekolah 🏫</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-lightbulb text-teal-500 mr-3"></i>
+                                Deskripsi Masalah
+                            </h3>
+                            
+                            <p class="text-gray-700 mb-4 leading-relaxed">
+                                Kita akan membuat sistem manajemen sekolah yang menerapkan semua konsep PBO yang telah dipelajari. 
+                                Sistem ini akan mengelola data siswa, guru, dan mata pelajaran dengan menggunakan inheritance, 
+                                polymorphism, dan encapsulation. 🎓
+                            </p>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python mr-2"></i>Python - school_system.py
+                                </div>
+                                <pre class="text-green-400 p-4 text-base overflow-x-auto"><code># Parent Class (Base Class)
+class Person:
+    def __init__(self, nama, umur, id_number):
+        self.nama = nama
+        self.umur = umur
+        self.id_number = id_number
+        self.status_aktif = True
+    
+    def info(self):
+        # Method yang akan di-override oleh child classes
+        return f"Nama: {self.nama}, Umur: {self.umur}, ID: {self.id_number}"
+    
+    def ubah_status(self, status):
+        self.status_aktif = status
+        return f"Status {self.nama} diubah menjadi: {'Aktif' if status else 'Tidak Aktif'}"
+
+# Child Class 1 - Siswa
+class Siswa(Person):
+    def __init__(self, nama, umur, id_number, kelas, jurusan="Umum"):
+        super().__init__(nama, umur, id_number)  # Memanggil constructor parent
+        self.kelas = kelas
+        self.jurusan = jurusan
+        self.__nilai = {}  # Private attribute (Encapsulation)
+        self.__absensi = 0
+        self.prestasi = []
+    
+    def info(self):  # Override method parent (Polymorphism)
+        status = "Aktif" if self.status_aktif else "Tidak Aktif"
+        return f"👨‍🎓 Siswa - {self.nama} ({self.kelas} {self.jurusan}) - Status: {status}"
+    
+    def tambah_nilai(self, mata_pelajaran, nilai):
+        if 0 <= nilai <= 100:
+            self.__nilai[mata_pelajaran] = nilai
+            return f"✅ Nilai {mata_pelajaran}: {nilai} berhasil ditambahkan untuk {self.nama}"
+        return f"❌ Nilai harus antara 0-100!"
+    
+    def lihat_nilai(self):  # Public method untuk akses private data
+        if self.__nilai:
+            return self.__nilai.copy()  # Return copy untuk keamanan
+        return "Belum ada nilai"
+    
+    def rata_rata(self):
+        if self.__nilai:
+            rata = sum(self.__nilai.values()) / len(self.__nilai)
+            return round(rata, 2)
+        return 0
+    
+    def tambah_absensi(self):
+        self.__absensi += 1
+        return f"📅 Absensi {self.nama}: {self.__absensi} hari"
+    
+    def tambah_prestasi(self, prestasi):
+        self.prestasi.append(prestasi)
+        return f"🏆 Prestasi '{prestasi}' ditambahkan untuk {self.nama}"
+
+# Child Class 2 - Guru
+class Guru(Person):
+    def __init__(self, nama, umur, id_number, mata_pelajaran, gaji=5000000):
+        super().__init__(nama, umur, id_number)  # Memanggil constructor parent
+        self.mata_pelajaran = mata_pelajaran
+        self.__gaji = gaji  # Private attribute (Encapsulation)
+        self.kelas_diampu = []
+        self.jam_mengajar = 0
+    
+    def info(self):  # Override method parent (Polymorphism)
+        status = "Aktif" if self.status_aktif else "Tidak Aktif"
+        return f"👨‍🏫 Guru - {self.nama} (Mapel: {self.mata_pelajaran}) - Status: {status}"
+    
+    def mengajar(self, kelas):
+        if self.status_aktif:
+            if kelas not in self.kelas_diampu:
+                self.kelas_diampu.append(kelas)
+            self.jam_mengajar += 2
+            return f"📚 {self.nama} sedang mengajar {self.mata_pelajaran} di kelas {kelas}"
+        return f"❌ {self.nama} tidak aktif, tidak bisa mengajar"
+    
+    def lihat_gaji(self):  # Public method untuk akses private data
+        return f"💰 Gaji {self.nama}: Rp{self.__gaji:,}"
+    
+    def naik_gaji(self, kenaikan):
+        if kenaikan > 0:
+            self.__gaji += kenaikan
+            return f"📈 Gaji {self.nama} naik Rp{kenaikan:,} menjadi Rp{self.__gaji:,}"
+        return "❌ Kenaikan harus positif!"
+
+# Child Class 3 - Staff
+class Staff(Person):
+    def __init__(self, nama, umur, id_number, jabatan, departemen="Administrasi"):
+        super().__init__(nama, umur, id_number)
+        self.jabatan = jabatan
+        self.departemen = departemen
+        self.tugas_selesai = 0
+    
+    def info(self):  # Override method parent (Polymorphism)
+        status = "Aktif" if self.status_aktif else "Tidak Aktif"
+        return f"👔 Staff - {self.nama} ({self.jabatan}, {self.departemen}) - Status: {status}"
+    
+    def kerjakan_tugas(self, nama_tugas):
+        if self.status_aktif:
+            self.tugas_selesai += 1
+            return f"✅ {self.nama} menyelesaikan tugas: {nama_tugas} (Total: {self.tugas_selesai})"
+        return f"❌ {self.nama} tidak aktif"
+
+# Main System Class
+class Sekolah:
+    def __init__(self, nama_sekolah, alamat=""):
+        self.nama_sekolah = nama_sekolah
+        self.alamat = alamat
+        self.daftar_siswa = []
+        self.daftar_guru = []
+        self.daftar_staff = []
+        self.mata_pelajaran = []
+    
+    def tambah_siswa(self, siswa):
+        self.daftar_siswa.append(siswa)
+        return f"👨‍🎓 Siswa {siswa.nama} berhasil ditambahkan ke {self.nama_sekolah}"
+    
+    def tambah_guru(self, guru):
+        self.daftar_guru.append(guru)
+        if guru.mata_pelajaran not in self.mata_pelajaran:
+            self.mata_pelajaran.append(guru.mata_pelajaran)
+        return f"👨‍🏫 Guru {guru.nama} berhasil ditambahkan ke {self.nama_sekolah}"
+    
+    def tambah_staff(self, staff):
+        self.daftar_staff.append(staff)
+        return f"👔 Staff {staff.nama} berhasil ditambahkan ke {self.nama_sekolah}"
+    
+    def info_sekolah(self):
+        return f"""
+🏫 === INFO {self.nama_sekolah.upper()} ===
+📍 Alamat: {self.alamat}
+👨‍🎓 Jumlah Siswa: {len(self.daftar_siswa)} orang
+👨‍🏫 Jumlah Guru: {len(self.daftar_guru)} orang  
+👔 Jumlah Staff: {len(self.daftar_staff)} orang
+📚 Mata Pelajaran: {len(self.mata_pelajaran)} mapel
+        """
+    
+    def tampilkan_semua_orang(self):
+        # Polymorphism - method info() berbeda untuk setiap class
+        semua_orang = self.daftar_siswa + self.daftar_guru + self.daftar_staff
+        hasil = []
+        for orang in semua_orang:
+            hasil.append(orang.info())  # Method sama, hasil berbeda!
+        return hasil
+
+# ===== CONTOH PENGGUNAAN SISTEM SEKOLAH =====
+print("🏫 Demo Studi Kasus - Sistem Manajemen Sekolah")
+print("=" * 60)
+
+# 1. Membuat objek sekolah
+print("📝 1. Membuat Sekolah:")
+sekolah = Sekolah("SMK Nusantara", "Jl. Pendidikan No. 123, Jakarta")
+print(f"✅ {sekolah.nama_sekolah} berhasil dibuat!")
+
+# 2. Membuat objek siswa (Child class dari Person)
+print("\n👨‍🎓 2. Menambah Siswa:")
+siswa1 = Siswa("Andi Pratama", 17, "2024001", "XII RPL 1", "Rekayasa Perangkat Lunak")
+siswa2 = Siswa("Sari Dewi", 16, "2024002", "XI RPL 2", "Rekayasa Perangkat Lunak")
+siswa3 = Siswa("Budi Santoso", 17, "2024003", "XII TKJ 1", "Teknik Komputer Jaringan")
+
+print(sekolah.tambah_siswa(siswa1))
+print(sekolah.tambah_siswa(siswa2))
+print(sekolah.tambah_siswa(siswa3))
+
+# 3. Membuat objek guru (Child class dari Person)
+print("\n👨‍🏫 3. Menambah Guru:")
+guru1 = Guru("Pak Dedi Kurniawan", 35, "G001", "Pemrograman Python", 7000000)
+guru2 = Guru("Bu Ani Sari", 32, "G002", "Matematika", 6500000)
+guru3 = Guru("Pak Rudi Hartono", 40, "G003", "Jaringan Komputer", 7500000)
+
+print(sekolah.tambah_guru(guru1))
+print(sekolah.tambah_guru(guru2))
+print(sekolah.tambah_guru(guru3))
+
+# 4. Membuat objek staff (Child class dari Person)
+print("\n👔 4. Menambah Staff:")
+staff1 = Staff("Ibu Rina", 28, "S001", "Tata Usaha", "Administrasi")
+staff2 = Staff("Pak Joko", 45, "S002", "Kepala Lab", "Laboratorium")
+
+print(sekolah.tambah_staff(staff1))
+print(sekolah.tambah_staff(staff2))
+
+# 5. Menampilkan info sekolah
+print("\n🏫 5. Info Sekolah:")
+print(sekolah.info_sekolah())
+
+# 6. Polymorphism - method info() berbeda untuk setiap class
+print("🎭 6. Polymorphism - Method info() untuk semua orang:")
+semua_info = sekolah.tampilkan_semua_orang()
+for info in semua_info:
+    print(f"   {info}")
+
+# 7. Encapsulation - mengelola data private
+print("\n🔒 7. Encapsulation - Mengelola Nilai Siswa (Private Data):")
+print(siswa1.tambah_nilai("Python", 95))
+print(siswa1.tambah_nilai("Matematika", 88))
+print(siswa1.tambah_nilai("Bahasa Indonesia", 92))
+
+print(siswa2.tambah_nilai("Python", 87))
+print(siswa2.tambah_nilai("Matematika", 90))
+
+print(f"📊 Nilai {siswa1.nama}: {siswa1.lihat_nilai()}")
+print(f"📊 Rata-rata {siswa1.nama}: {siswa1.rata_rata()}")
+
+# 8. Method khusus setiap class
+print("\n⭐ 8. Method Khusus Setiap Class:")
+print(guru1.mengajar("XII RPL 1"))
+print(guru1.mengajar("XI RPL 2"))
+print(guru1.lihat_gaji())
+
+print(siswa1.tambah_prestasi("Juara 1 Lomba Programming"))
+print(siswa1.tambah_absensi())
+
+print(staff1.kerjakan_tugas("Input data siswa baru"))
+print(staff2.kerjakan_tugas("Maintenance komputer lab"))
+
+# 9. Inheritance - menggunakan method dari parent class
+print("\n🧬 9. Inheritance - Method dari Parent Class:")
+print(f"📋 Info dasar {siswa1.nama}: {super(Siswa, siswa1).info()}")  # Method parent
+print(siswa1.ubah_status(False))  # Method dari parent
+print(f"📋 Info lengkap {siswa1.nama}: {siswa1.info()}")  # Method override
+
+# 10. Demonstrasi Encapsulation dengan error handling
+print("\n🛡️ 10. Encapsulation - Validasi Data:")
+print(siswa2.tambah_nilai("Fisika", 105))  # Nilai invalid
+print(siswa2.tambah_nilai("Fisika", 85))   # Nilai valid
+print(guru2.naik_gaji(-1000000))  # Kenaikan invalid
+print(guru2.naik_gaji(500000))    # Kenaikan valid
+
+print("\n✨ Kesimpulan Studi Kasus:")
+print("   ✅ Inheritance: Person → Siswa, Guru, Staff")
+print("   ✅ Polymorphism: Method info() berbeda di setiap class")
+print("   ✅ Encapsulation: Data sensitif dilindungi (__nilai, __gaji)")
+print("   ✅ Abstraction: Interface sederhana untuk operasi kompleks")
+print("   ✅ Code Reuse: Method parent digunakan ulang di child classes")
+print("   ✅ Maintainability: Kode terstruktur dan mudah dikembangkan")</code></pre>
+                            </div>
+                            
+                            <div class="bg-gray-800 rounded-lg p-4 mb-4">
+                                <div class="text-yellow-400 mb-2">📊 Output Program Sistem Sekolah:</div>
+                                <div class="text-green-400 text-base font-mono">
+                                    <div>🏫 Demo Studi Kasus - Sistem Manajemen Sekolah</div>
+                                    <div>============================================================</div>
+                                    <div>📝 1. Membuat Sekolah:</div>
+                                    <div>✅ SMK Nusantara berhasil dibuat!</div>
+                                    <div class="mt-2">👨‍🎓 2. Menambah Siswa:</div>
+                                    <div>👨‍🎓 Siswa Andi Pratama berhasil ditambahkan ke SMK Nusantara</div>
+                                    <div>👨‍🎓 Siswa Sari Dewi berhasil ditambahkan ke SMK Nusantara</div>
+                                    <div>👨‍🎓 Siswa Budi Santoso berhasil ditambahkan ke SMK Nusantara</div>
+                                    <div class="mt-2">👨‍🏫 3. Menambah Guru:</div>
+                                    <div>👨‍🏫 Guru Pak Dedi Kurniawan berhasil ditambahkan ke SMK Nusantara</div>
+                                    <div>👨‍🏫 Guru Bu Ani Sari berhasil ditambahkan ke SMK Nusantara</div>
+                                    <div>👨‍🏫 Guru Pak Rudi Hartono berhasil ditambahkan ke SMK Nusantara</div>
+                                    <div class="mt-2">🏫 5. Info Sekolah:</div>
+                                    <div>🏫 === INFO SMK NUSANTARA ===</div>
+                                    <div>📍 Alamat: Jl. Pendidikan No. 123, Jakarta</div>
+                                    <div>👨‍🎓 Jumlah Siswa: 3 orang</div>
+                                    <div>👨‍🏫 Jumlah Guru: 3 orang</div>
+                                    <div>👔 Jumlah Staff: 2 orang</div>
+                                    <div>📚 Mata Pelajaran: 3 mapel</div>
+                                    <div class="mt-2">🎭 6. Polymorphism - Method info() untuk semua orang:</div>
+                                    <div>   👨‍🎓 Siswa - Andi Pratama (XII RPL 1 Rekayasa Perangkat Lunak) - Status: Aktif</div>
+                                    <div>   👨‍🎓 Siswa - Sari Dewi (XI RPL 2 Rekayasa Perangkat Lunak) - Status: Aktif</div>
+                                    <div>   👨‍🏫 Guru - Pak Dedi Kurniawan (Mapel: Pemrograman Python) - Status: Aktif</div>
+                                    <div>   👔 Staff - Ibu Rina (Tata Usaha, Administrasi) - Status: Aktif</div>
+                                    <div class="mt-2">🔒 7. Encapsulation - Mengelola Nilai Siswa (Private Data):</div>
+                                    <div>✅ Nilai Python: 95 berhasil ditambahkan untuk Andi Pratama</div>
+                                    <div>✅ Nilai Matematika: 88 berhasil ditambahkan untuk Andi Pratama</div>
+                                    <div>📊 Nilai Andi Pratama: {'Python': 95, 'Matematika': 88, 'Bahasa Indonesia': 92}</div>
+                                    <div>📊 Rata-rata Andi Pratama: 91.67</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="demo-container">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-school text-orange-500 mr-3"></i>
+                                Demo Interaktif: SMK Nusantara
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-gray-800 mb-3">🏫 Kelola Sekolah</h4>
+                                <div class="grid md:grid-cols-2 gap-3">
+                                    <button onclick="initializeSchool()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        🏫 Inisialisasi Sekolah
+                                    </button>
+                                    <button onclick="showSchoolInfo()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        📊 Info Sekolah
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="schoolDemo" class="demo-output hidden">
+                                <div class="text-yellow-400 mb-2">🏫 SMK Nusantara - Sistem Manajemen:</div>
+                                <div id="schoolDemoContent"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('tugas')" class="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Kerjakan Tugas <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tugas Section -->
+            <div id="tugas" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-orange-400 to-red-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-tasks text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Tugas Praktik PBO 📝</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-clipboard-list text-orange-500 mr-3"></i>
+                                Tugas: Sistem Perpustakaan Digital 📚
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-gray-800 mb-3">📋 Deskripsi Tugas:</h4>
+                                <p class="text-gray-700 mb-3">
+                                    Buatlah sistem perpustakaan digital yang menerapkan konsep PBO. Sistem harus bisa mengelola 
+                                    buku, anggota, dan transaksi peminjaman dengan menggunakan inheritance, polymorphism, dan encapsulation.
+                                </p>
+                                
+                                <div class="grid md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h5 class="font-bold text-blue-600 mb-2">🏗️ Class yang Diperlukan:</h5>
+                                        <ul class="text-base text-gray-600 space-y-1">
+                                            <li>• <strong>Item</strong> (Parent class)</li>
+                                            <li>• <strong>Buku</strong> (Child class)</li>
+                                            <li>• <strong>Majalah</strong> (Child class)</li>
+                                            <li>• <strong>Anggota</strong> (Class anggota)</li>
+                                            <li>• <strong>Perpustakaan</strong> (Main system)</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-bold text-green-600 mb-2">⚙️ Fitur yang Harus Ada:</h5>
+                                        <ul class="text-base text-gray-600 space-y-1">
+                                            <li>• Registrasi anggota baru</li>
+                                            <li>• Tambah buku ke koleksi</li>
+                                            <li>• Peminjaman dan pengembalian</li>
+                                            <li>• Cek ketersediaan item</li>
+                                            <li>• Laporan peminjaman</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-calendar-check text-purple-500 mr-3"></i>
+                                Petunjuk Pengerjaan
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-purple-600 mb-3">📅 Timeline:</h4>
+                                    <ul class="text-base text-gray-700 space-y-2">
+                                        <li>• <strong>Minggu 1:</strong> Desain class dan struktur</li>
+                                        <li>• <strong>Minggu 2:</strong> Implementasi class dasar</li>
+                                        <li>• <strong>Minggu 3:</strong> Testing dan debugging</li>
+                                        <li>• <strong>Minggu 4:</strong> Finalisasi dan dokumentasi</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-green-600 mb-3">📋 Format Pengumpulan:</h4>
+                                    <ul class="text-base text-gray-700 space-y-2">
+                                        <li>• File Python (.py) dengan komentar</li>
+                                        <li>• Dokumentasi singkat</li>
+                                        <li>• Screenshot hasil program</li>
+                                        <li>• Penjelasan konsep PBO yang diterapkan</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('kuis')" class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Ikuti Kuis <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-cyan-400 to-blue-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-question-circle text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Kuis PBO Python 🧠</h2>
+                    </div>
+
+                    <!-- Quiz Start Form -->
+                    <div id="quizStart" class="bg-gradient-to-r from-cyan-50 to-blue-50 p-6 rounded-2xl">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-user text-cyan-500 mr-3"></i>
+                            Siap untuk Tantangan?
+                        </h3>
+                        <p class="text-gray-700 mb-4">Masukkan nama kamu untuk memulai kuis 10 soal tentang PBO Python!</p>
+                        
+                        <div class="bg-white p-4 rounded-lg">
+                            <label for="studentName" class="block text-md font-bold text-gray-700 mb-2">Nama Lengkap:</label>
+                            <input type="text" id="studentName" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent" placeholder="Masukkan nama lengkap kamu...">
+                            <button onclick="startQuiz()" class="mt-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-6 py-3 rounded-lg font-bold transition-all duration-300">
+                                <i class="fas fa-play mr-2"></i>Mulai Kuis!
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Questions -->
+                    <div id="quizQuestions" class="hidden">
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-bold text-gray-800">
+                                    Soal <span id="currentQuestion">1</span> / 10
+                                </h3>
+                                <div class="text-md text-gray-600">
+                                    Peserta: <span id="quizStudentName" class="font-bold"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-lg">
+                                <h4 id="questionText" class="text-lg font-bold text-gray-800 mb-4"></h4>
+                                <div id="optionsContainer" class="space-y-3"></div>
+                                
+                                <div class="mt-6 flex justify-between">
+                                    <button id="prevBtn" onclick="previousQuestion()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors" disabled>
+                                        <i class="fas fa-arrow-left mr-2"></i>Sebelumnya
+                                    </button>
+                                    <button id="nextBtn" onclick="nextQuestion()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors">
+                                        Selanjutnya <i class="fas fa-arrow-right ml-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Results -->
+                    <div id="quizResults" class="hidden">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                            <div class="text-center">
+                                <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <i class="fas fa-trophy text-white text-2xl"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-800 mb-4">Kuis Selesai! 🎉</h3>
+                                
+                                <div class="bg-white p-6 rounded-lg mb-6">
+                                    <h4 class="text-xl font-bold text-gray-800 mb-4">Hasil Kuis</h4>
+                                    <div class="text-center">
+                                        <p class="text-lg text-gray-700 mb-2">Nama: <span id="finalName" class="font-bold text-blue-600"></span></p>
+                                        <p class="text-3xl font-bold text-green-600 mb-2">Skor: <span id="finalScore"></span>/10</p>
+                                        <p class="text-lg" id="gradeMessage"></p>
+                                    </div>
+                                </div>
+                                
+                                <button onclick="restartQuiz()" class="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-6 py-3 rounded-lg font-bold transition-all duration-300">
+                                    <i class="fas fa-redo mr-2"></i>Ulangi Kuis
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="nextSection('penutup')" class="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        Ke Penutup <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="w-20 h-20 bg-gradient-to-br from-gray-400 to-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-flag-checkered text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Penutup 🏁</h2>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-mirror text-purple-500 mr-3"></i>
+                                Refleksi Pembelajaran
+                            </h3>
+                            
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-gray-800 mb-3">🤔 Renungkan Perjalanan Belajar Kamu:</h4>
+                                <div class="space-y-3 text-base text-gray-700">
+                                    <p>• Konsep PBO mana yang paling mudah kamu pahami?</p>
+                                    <p>• Bagian mana yang masih terasa sulit?</p>
+                                    <p>• Bagaimana PBO bisa membantu dalam membuat program yang lebih baik?</p>
+                                    <p>• Aplikasi apa yang ingin kamu buat dengan konsep PBO?</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-graduation-cap text-green-500 mr-3"></i>
+                                Kesimpulan Pembelajaran
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-blue-600 mb-3">🎯 Yang Sudah Kamu Pelajari:</h4>
+                                    <ul class="text-base text-gray-700 space-y-1">
+                                        <li>✅ Konsep dasar PBO dan terminologinya</li>
+                                        <li>✅ Cara membuat Class dan Object di Python</li>
+                                        <li>✅ Implementasi Inheritance</li>
+                                        <li>✅ Penerapan Polymorphism</li>
+                                        <li>✅ Penggunaan Encapsulation</li>
+                                        <li>✅ Studi kasus sistem manajemen</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-purple-600 mb-3">🚀 Kemampuan yang Kamu Miliki:</h4>
+                                    <ul class="text-base text-gray-700 space-y-1">
+                                        <li>💪 Merancang struktur program dengan PBO</li>
+                                        <li>💪 Membuat class hierarchy yang efisien</li>
+                                        <li>💪 Mengimplementasikan method overriding</li>
+                                        <li>💪 Mengelola data dengan access modifiers</li>
+                                        <li>💪 Memecahkan masalah kompleks dengan PBO</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                <i class="fas fa-heart text-red-500 mr-3"></i>
+                                Pesan Penutup
+                            </h3>
+                            
+                            <div class="bg-white p-6 rounded-lg text-center">
+                                <p class="text-lg text-gray-700 leading-relaxed mb-4">
+                                    🎉 <strong>Selamat!</strong> Kamu telah menyelesaikan pembelajaran PBO Python dengan baik! 
+                                    Ingat, programming adalah skill yang terus berkembang. Terus berlatih, eksperimen dengan kode, 
+                                    dan jangan takut untuk membuat kesalahan - karena dari kesalahan itulah kita belajar! 
+                                </p>
+                                <p class="text-xl font-bold text-purple-600 mb-4">
+                                    "Code is poetry, and you are the poet!" 🎨✨
+                                </p>
+                                <p class="text-base text-gray-600">
+                                    Semoga ilmu yang kamu dapatkan bermanfaat dan bisa diterapkan dalam proyek-proyek keren di masa depan. 
+                                    Keep coding and stay awesome! 🚀💻
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="showSection('intro')" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                        <i class="fas fa-redo mr-2"></i>Mulai Lagi dari Awal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Back to Top Button -->
+    <button id="backToTop" class="floating-btn bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white p-4 rounded-full shadow-lg hidden">
+        <i class="fas fa-arrow-up text-xl"></i>
+    </button>
+
+    <script>
+        // Global variables
+        let currentPhone = null;
+        let animals = [];
+        let vehicles = [];
+        let bankAccount = null;
+        let school = null;
+        
+        // Quiz variables
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let studentName = '';
+        
+        const quizQuestions = [
+            {
+                question: "Apa yang dimaksud dengan PBO (Pemrograman Berorientasi Objek)?",
+                options: [
+                    "Paradigma pemrograman yang fokus pada fungsi",
+                    "Paradigma pemrograman yang mengorganisir kode berdasarkan objek",
+                    "Bahasa pemrograman khusus untuk web",
+                    "Metode debugging program"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa fungsi dari method __init__ dalam class Python?",
+                options: [
+                    "Menghapus objek dari memori",
+                    "Mengakhiri program",
+                    "Constructor yang dipanggil saat objek dibuat",
+                    "Method untuk mencetak output"
+                ],
+                correct: 2
+            },
+            {
+                question: "Dalam konteks PBO, apa yang dimaksud dengan 'self'?",
+                options: [
+                    "Nama variabel global",
+                    "Referensi ke objek itu sendiri",
+                    "Method khusus Python",
+                    "Tipe data baru"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa yang dimaksud dengan Inheritance dalam PBO?",
+                options: [
+                    "Proses menghapus class",
+                    "Kemampuan class untuk mewarisi attribute dan method dari class lain",
+                    "Cara membuat objek baru",
+                    "Method untuk mengubah data"
+                ],
+                correct: 1
+            },
+            {
+                question: "Manakah yang merupakan contoh Polymorphism?",
+                options: [
+                    "Membuat banyak objek dari satu class",
+                    "Menyembunyikan data dengan private attribute",
+                    "Method yang sama berperilaku berbeda pada class yang berbeda",
+                    "Mewarisi semua method dari parent class"
+                ],
+                correct: 2
+            },
+            {
+                question: "Bagaimana cara membuat private attribute dalam Python?",
+                options: [
+                    "Menggunakan keyword private",
+                    "Menambahkan underscore ganda (__) di depan nama attribute",
+                    "Menggunakan tanda kurung siku []",
+                    "Menambahkan kata 'hidden' di depan nama"
+                ],
+                correct: 1
+            },
+            {
+                question: "Apa keuntungan utama menggunakan Encapsulation?",
+                options: [
+                    "Membuat program berjalan lebih cepat",
+                    "Mengurangi ukuran file program",
+                    "Menyembunyikan detail internal dan mengontrol akses data",
+                    "Membuat syntax lebih pendek"
+                ],
+                correct: 2
+            },
+            {
+                question: "Dalam inheritance, apa yang dimaksud dengan 'super()'?",
+                options: [
+                    "Method untuk membuat objek baru",
+                    "Fungsi untuk mengakses method parent class",
+                    "Cara menghapus inheritance",
+                    "Method untuk mencetak informasi class"
+                ],
+                correct: 1
+            },
+            {
+                question: "Manakah yang BUKAN termasuk pilar utama PBO?",
+                options: [
+                    "Encapsulation",
+                    "Inheritance", 
+                    "Polymorphism",
+                    "Compilation"
+                ],
+                correct: 3
+            },
+            {
+                question: "Apa perbedaan utama antara class dan object?",
+                options: [
+                    "Class adalah objek, object adalah method",
+                    "Tidak ada perbedaan, keduanya sama",
+                    "Class adalah blueprint, object adalah instance dari class",
+                    "Class untuk data, object untuk fungsi"
+                ],
+                correct: 2
+            }
+        ];
+
+        // Mobile menu functionality
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.add('open');
+        });
+
+        document.getElementById('closeSidebar').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.remove('open');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !mobileBtn.contains(event.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+
+        // Back to top functionality
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.remove('hidden');
+            } else {
+                backToTop.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('backToTop').addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Section navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.add('hidden'));
+            
+            // Show target section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update active navigation item
+            updateActiveNavigation(sectionId);
+            
+            // Close mobile sidebar
+            document.getElementById('sidebar').classList.remove('open');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateActiveNavigation(activeSection) {
+            // Remove active class from all nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('bg-gradient-to-r', 'from-purple-100', 'to-pink-100', 'border-l-4', 'border-purple-500');
+                item.classList.add('hover:bg-pink-100', 'hover:bg-blue-100', 'hover:bg-purple-100', 'hover:bg-green-100', 'hover:bg-yellow-100', 'hover:bg-indigo-100', 'hover:bg-red-100', 'hover:bg-teal-100', 'hover:bg-orange-100', 'hover:bg-cyan-100', 'hover:bg-gray-100');
+            });
+            
+            // Add active class to current nav item
+            const activeNavItem = document.querySelector(`[onclick="showSection('${activeSection}')"]`);
+            if (activeNavItem) {
+                activeNavItem.classList.remove('hover:bg-pink-100', 'hover:bg-blue-100', 'hover:bg-purple-100', 'hover:bg-green-100', 'hover:bg-yellow-100', 'hover:bg-indigo-100', 'hover:bg-red-100', 'hover:bg-teal-100', 'hover:bg-orange-100', 'hover:bg-cyan-100', 'hover:bg-gray-100');
+                activeNavItem.classList.add('bg-gradient-to-r', 'from-purple-100', 'to-pink-100', 'border-l-4', 'border-purple-500');
+            }
+        }
+
+        function nextSection(sectionId) {
+            // First scroll to top immediately
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            
+            // Then show the section
+            setTimeout(() => {
+                showSection(sectionId);
+            }, 50);
+        }
+
+        // Demo functions
+        function runProceduralDemo() {
+            const output = document.getElementById('proceduralDemoOutput');
+            output.classList.remove('hidden');
+            
+            setTimeout(() => {
+                const content = output;
+                if (content) {
+                    content.innerHTML = `
+                        <div class="text-yellow-400 mb-2">📊 Output Program Prosedural:</div>
+                        <div class="text-green-400">>>> tampilkan_info(nama_siswa, umur_siswa, kelas_siswa)</div>
+                        <div class="mt-2">Nama: Budi</div>
+                        <div>Umur: 17</div>
+                        <div>Kelas: XII RPL</div>
+                        <div class="text-green-400 mt-2">>>> ubah_kelas("XII RPL 1")</div>
+                        <div>Kelas diubah menjadi: XII RPL 1</div>
+                        <div class="text-red-400 mt-3">⚠️ Data dan fungsi terpisah, sulit dikelola untuk program besar!</div>
+                        <div class="text-orange-400 mt-2">💡 Harus passing banyak parameter ke setiap fungsi</div>
+                    `;
+                }
+            }, 500);
+        }
+
+        function runOOPDemo() {
+            const output = document.getElementById('oopDemoOutput');
+            output.classList.remove('hidden');
+            
+            setTimeout(() => {
+                const content = output;
+                if (content) {
+                    content.innerHTML = `
+                        <div class="text-yellow-400 mb-2">📊 Output Program PBO:</div>
+                        <div class="text-green-400">>>> siswa1 = Siswa("Budi", 17, "XII RPL")</div>
+                        <div class="text-green-400">>>> siswa1.tampilkan_info()</div>
+                        <div class="mt-2">Nama: Budi</div>
+                        <div>Umur: 17</div>
+                        <div>Kelas: XII RPL</div>
+                        <div class="text-green-400 mt-2">>>> siswa1.ubah_kelas("XII RPL 1")</div>
+                        <div>Kelas diubah menjadi: XII RPL 1</div>
+                        <div class="text-green-400 mt-3">✨ Data dan method tergabung dalam objek, lebih terorganisir!</div>
+                        <div class="text-cyan-400 mt-2">🎯 Method otomatis mengakses data objek tanpa parameter tambahan!</div>
+                    `;
+                }
+            }, 500);
+        }
+
+        // Smartphone demo functions
+        function createPhone() {
+            currentPhone = {
+                merek: "Samsung",
+                model: "Galaxy S23",
+                baterai: 100,
+                status: "Mati",
+                aplikasi_terbuka: []
+            };
+            
+            const demo = document.getElementById('phoneDemo');
+            const content = document.getElementById('phoneDemoContent');
+            
+            // Pastikan elemen ditemukan
+            if (demo && content) {
+                demo.classList.remove('hidden');
+                content.innerHTML = `
+                    <div class="text-cyan-400 mb-2">📱 Smartphone Demo - Object Created!</div>
+                    <div class="text-green-400">>>> phone = Smartphone("${currentPhone.merek}", "${currentPhone.model}")</div>
+                    <div class="mt-2">📱 ${currentPhone.merek} ${currentPhone.model} berhasil dibuat!</div>
+                    <div>🔋 Status: ${currentPhone.status}</div>
+                    <div>⚡ Baterai: ${currentPhone.baterai}%</div>
+                    <div>📱 Aplikasi Terbuka: ${currentPhone.aplikasi_terbuka.length} aplikasi</div>
+                    <div class="text-purple-400 mt-2">✨ Object smartphone siap digunakan!</div>
+                `;
+            } else {
+                console.log('Element tidak ditemukan!');
+            }
+        }
+
+        function turnOnPhone() {
+            if (!currentPhone) {
+                createPhone();
+                setTimeout(() => turnOnPhone(), 100); // Retry setelah phone dibuat
+                return;
+            }
+            
+            if (currentPhone.baterai > 0) {
+                currentPhone.status = "Hidup";
+                currentPhone.baterai -= 5;
+                updatePhoneDisplay(`
+                    <div class="text-cyan-400 mb-2">📱 Method nyalakan() dipanggil:</div>
+                    <div class="text-green-400">>>> phone.nyalakan()</div>
+                    <div class="mt-2">🔛 ${currentPhone.merek} ${currentPhone.model} menyala!</div>
+                    <div>🔋 Status: ${currentPhone.status}</div>
+                    <div>⚡ Baterai: ${currentPhone.baterai}% (berkurang 5%)</div>
+                    <div class="text-purple-400 mt-2">✨ Method berhasil mengubah status object!</div>
+                `);
+            } else {
+                updatePhoneDisplay(`
+                    <div class="text-red-400">🔋 Baterai habis! Charge dulu ya.</div>
+                    <div class="text-yellow-400 mt-2">💡 Ini contoh kondisi dalam method!</div>
+                `);
+            }
+        }
+
+        function openApp() {
+            if (!currentPhone) {
+                updatePhoneDisplay(`
+                    <div class="text-red-400">❌ Buat HP dulu!</div>
+                    <div class="text-yellow-400 mt-2">💡 Object harus dibuat sebelum method dipanggil!</div>
+                `);
+                return;
+            }
+            
+            if (currentPhone.status === "Hidup" && currentPhone.baterai > 10) {
+                currentPhone.aplikasi_terbuka.push("Instagram");
+                currentPhone.baterai -= 10;
+                updatePhoneDisplay(`
+                    <div class="text-cyan-400 mb-2">📱 Method buka_aplikasi() dipanggil:</div>
+                    <div class="text-green-400">>>> phone.buka_aplikasi("Instagram")</div>
+                    <div class="mt-2">📲 Membuka Instagram</div>
+                    <div>⚡ Baterai: ${currentPhone.baterai}% (berkurang 10%)</div>
+                    <div>📱 Aplikasi Terbuka: ${currentPhone.aplikasi_terbuka.join(", ")}</div>
+                    <div class="text-purple-400 mt-2">✨ Method berhasil mengubah data object!</div>
+                `);
+            } else if (currentPhone.status === "Mati") {
+                updatePhoneDisplay(`
+                    <div class="text-red-400">❌ Nyalakan HP dulu!</div>
+                    <div class="text-yellow-400 mt-2">💡 Method memiliki kondisi yang harus dipenuhi!</div>
+                `);
+            } else {
+                updatePhoneDisplay(`
+                    <div class="text-red-400">🔋 Baterai terlalu rendah!</div>
+                    <div class="text-yellow-400 mt-2">💡 Encapsulation melindungi object dari kondisi tidak valid!</div>
+                `);
+            }
+        }
+
+        function updatePhoneDisplay(message) {
+            const demo = document.getElementById('phoneDemo');
+            const content = document.getElementById('phoneDemoContent');
+            
+            if (demo && content) {
+                demo.classList.remove('hidden');
+                content.innerHTML = message;
+            } else {
+                console.log('Demo elements tidak ditemukan:', { demo: !!demo, content: !!content });
+                // Fallback: coba cari ulang setelah delay
+                setTimeout(() => {
+                    const demoRetry = document.getElementById('phoneDemo');
+                    const contentRetry = document.getElementById('phoneDemoContent');
+                    if (demoRetry && contentRetry) {
+                        demoRetry.classList.remove('hidden');
+                        contentRetry.innerHTML = message;
+                    }
+                }, 100);
+            }
+        }
+
+        // Zoo demo functions
+        function createAnimals() {
+            animals = [
+                { nama: "Simba", jenis: "Singa", umur: 5, lapar: true, suara: "Roar! 🦁" },
+                { nama: "Dumbo", jenis: "Gajah", umur: 10, lapar: true, suara: "Trumpet! 🐘" },
+                { nama: "George", jenis: "Monyet", umur: 3, lapar: true, suara: "Oook ook! 🐵" }
+            ];
+            
+            const demo = document.getElementById('zooDemo');
+            const content = document.getElementById('zooDemoContent');
+            
+            if (demo && content) {
+                demo.classList.remove('hidden');
+                content.innerHTML = `
+                    <div class="text-yellow-400 mb-2">🦁 Kebun Binatang Virtual - Inheritance Demo:</div>
+                    <div class="text-green-400">>>> singa = Singa("Simba", 5)</div>
+                    <div class="text-green-400">>>> gajah = Gajah("Dumbo", 10)</div>
+                    <div class="text-green-400">>>> monyet = Monyet("George", 3)</div>
+                    <div class="mt-2">🦁 Hewan-hewan berhasil dibuat!</div>
+                    <div>• Simba si Singa, umur 5 tahun (Child class dari Hewan)</div>
+                    <div>• Dumbo si Gajah, umur 10 tahun (Child class dari Hewan)</div>
+                    <div>• George si Monyet, umur 3 tahun (Child class dari Hewan)</div>
+                    <div class="text-purple-400 mt-3">✨ Semua child class mewarisi attribute nama & umur dari parent class Hewan!</div>
+                    <div class="text-cyan-400 mt-2">🎯 Setiap child class punya method bersuara() yang berbeda (Method Override)!</div>
+                `;
+            }
+        }
+
+        function feedAnimals() {
+            if (animals.length === 0) {
+                createAnimals();
+                setTimeout(() => feedAnimals(), 100);
+                return;
+            }
+            
+            animals.forEach(animal => animal.lapar = false);
+            
+            const demo = document.getElementById('zooDemo');
+            const content = document.getElementById('zooDemoContent');
+            
+            if (demo && content) {
+                demo.classList.remove('hidden');
+                
+                let output = `
+                    <div class="text-yellow-400 mb-2">🦁 Kebun Binatang Virtual - Method Override Demo:</div>
+                    <div class="text-green-400">>>> for hewan in daftar_hewan:</div>
+                    <div class="text-green-400">...     print(hewan.info())      # Method dari Parent</div>
+                    <div class="text-green-400">...     print(hewan.bersuara())  # Method Override</div>
+                    <div class="mt-2">📊 Output Program Inheritance:</div>
+                `;
+                
+                animals.forEach(animal => {
+                    output += `<div class="mt-2">🔸 ${animal.nama} (${animal.jenis}):</div>`;
+                    output += `<div>   Info: Nama: ${animal.nama}, Umur: ${animal.umur} tahun</div>`;
+                    output += `<div>   Suara: ${animal.suara}</div>`;
+                });
+                
+                output += `
+                    <div class="text-purple-400 mt-4">✨ Method Override: Setiap child class mengimplementasikan bersuara() dengan cara berbeda!</div>
+                    <div class="text-cyan-400 mt-2">🎯 Inheritance: Method info() diwarisi dari parent class Hewan!</div>
+                    <div class="text-green-400 mt-2">💡 Code reuse: Tidak perlu menulis ulang method info() di setiap child class!</div>
+                `;
+                
+                content.innerHTML = output;
+            }
+        }
+
+        function updateZooDisplay(message) {
+            const demo = document.getElementById('zooDemo');
+            const content = document.getElementById('zooDemoContent');
+            
+            if (demo && content) {
+                demo.classList.remove('hidden');
+                content.innerHTML = message;
+            } else {
+                console.log('Zoo demo elements tidak ditemukan');
+                setTimeout(() => {
+                    const demoRetry = document.getElementById('zooDemo');
+                    const contentRetry = document.getElementById('zooDemoContent');
+                    if (demoRetry && contentRetry) {
+                        demoRetry.classList.remove('hidden');
+                        contentRetry.innerHTML = message;
+                    }
+                }, 100);
+            }
+        }
+
+        // Vehicle demo functions
+        function createVehicles() {
+            vehicles = [
+                { nama: "Toyota Avanza", jenis: "Mobil", gerakan: "melaju di jalan raya" },
+                { nama: "Garuda Indonesia", jenis: "Pesawat", gerakan: "terbang di udara" },
+                { nama: "KM Lawit", jenis: "Kapal", gerakan: "berlayar di laut" }
+            ];
+            
+            const demo = document.getElementById('vehicleDemo');
+            const content = document.getElementById('vehicleDemoContent');
+            
+            // Pastikan elemen ditemukan dengan retry mechanism
+            if (demo && content) {
+                demo.classList.remove('hidden');
+                content.innerHTML = `
+                    <div class="text-yellow-400 mb-2">🚗 Polymorphism Demo - Object Creation:</div>
+                    <div class="text-green-400">>>> mobil = Mobil("Toyota Avanza")</div>
+                    <div class="text-green-400">>>> pesawat = Pesawat("Garuda Indonesia")</div>
+                    <div class="text-green-400">>>> kapal = Kapal("KM Lawit")</div>
+                    <div class="mt-2">🚗 Kendaraan berhasil dibuat!</div>
+                    <div>• Toyota Avanza (Class Mobil extends Kendaraan)</div>
+                    <div>• Garuda Indonesia (Class Pesawat extends Kendaraan)</div>
+                    <div>• KM Lawit (Class Kapal extends Kendaraan)</div>
+                    <div class="text-purple-400 mt-3">✨ Semua class memiliki method bergerak() yang sama nama tapi implementasi berbeda!</div>
+                    <div class="text-cyan-400 mt-2">🎯 Ini adalah inti dari Polymorphism - "Many Forms"!</div>
+                `;
+            } else {
+                console.log('Vehicle demo elements tidak ditemukan, mencoba lagi...');
+                setTimeout(() => {
+                    const demoRetry = document.getElementById('vehicleDemo');
+                    const contentRetry = document.getElementById('vehicleDemoContent');
+                    if (demoRetry && contentRetry) {
+                        demoRetry.classList.remove('hidden');
+                        contentRetry.innerHTML = `
+                            <div class="text-yellow-400 mb-2">🚗 Polymorphism Demo - Object Creation:</div>
+                            <div class="text-green-400">>>> mobil = Mobil("Toyota Avanza")</div>
+                            <div class="text-green-400">>>> pesawat = Pesawat("Garuda Indonesia")</div>
+                            <div class="text-green-400">>>> kapal = Kapal("KM Lawit")</div>
+                            <div class="mt-2">🚗 Kendaraan berhasil dibuat!</div>
+                            <div>• Toyota Avanza (Class Mobil extends Kendaraan)</div>
+                            <div>• Garuda Indonesia (Class Pesawat extends Kendaraan)</div>
+                            <div>• KM Lawit (Class Kapal extends Kendaraan)</div>
+                            <div class="text-purple-400 mt-3">✨ Semua class memiliki method bergerak() yang sama nama tapi implementasi berbeda!</div>
+                            <div class="text-cyan-400 mt-2">🎯 Ini adalah inti dari Polymorphism - "Many Forms"!</div>
+                        `;
+                    }
+                }, 200);
+            }
+        }
+
+        function moveAllVehicles() {
+            if (vehicles.length === 0) {
+                createVehicles();
+                setTimeout(() => moveAllVehicles(), 300);
+                return;
+            }
+            
+            const demo = document.getElementById('vehicleDemo');
+            const content = document.getElementById('vehicleDemoContent');
+            
+            let output = `
+                <div class="text-yellow-400 mb-2">🚗 Polymorphism Demo - Same Method, Different Results!</div>
+                <div class="text-green-400">>>> kendaraan_list = [mobil, pesawat, kapal]</div>
+                <div class="text-green-400">>>> for kendaraan in kendaraan_list:</div>
+                <div class="text-green-400">...     print(kendaraan.bergerak())  # Method sama, hasil beda!</div>
+                <div class="mt-2">📊 Output Program Polymorphism:</div>
+            `;
+            
+            vehicles.forEach(vehicle => {
+                if (vehicle.jenis === "Mobil") {
+                    output += `<div class="mt-1">🚗 ${vehicle.nama} ${vehicle.gerakan}</div>`;
+                } else if (vehicle.jenis === "Pesawat") {
+                    output += `<div class="mt-1">✈️ ${vehicle.nama} ${vehicle.gerakan}</div>`;
+                } else if (vehicle.jenis === "Kapal") {
+                    output += `<div class="mt-1">🚢 ${vehicle.nama} ${vehicle.gerakan}</div>`;
+                }
+            });
+            
+            output += `
+                <div class="text-purple-400 mt-4">✨ Polymorphism: Satu method bergerak(), tiga implementasi berbeda!</div>
+                <div class="text-cyan-400 mt-2">🎯 Setiap child class override method bergerak() sesuai karakteristiknya!</div>
+                <div class="text-green-400 mt-2">💡 Kode yang sama (kendaraan.bergerak()) menghasilkan perilaku yang berbeda!</div>
+            `;
+            
+            if (demo && content) {
+                demo.classList.remove('hidden');
+                content.innerHTML = output;
+            } else {
+                console.log('Vehicle demo elements tidak ditemukan saat move, mencoba lagi...');
+                setTimeout(() => {
+                    const demoRetry = document.getElementById('vehicleDemo');
+                    const contentRetry = document.getElementById('vehicleDemoContent');
+                    if (demoRetry && contentRetry) {
+                        demoRetry.classList.remove('hidden');
+                        contentRetry.innerHTML = output;
+                    }
+                }, 200);
+            }
+        }
+
+        function updateVehicleDisplay(message) {
+            const demo = document.getElementById('vehicleDemo');
+            const content = document.getElementById('vehicleDemoContent');
+            
+            if (demo && content) {
+                demo.classList.remove('hidden');
+                content.innerHTML = message;
+            } else {
+                console.log('Vehicle display elements tidak ditemukan');
+                setTimeout(() => {
+                    const demoRetry = document.getElementById('vehicleDemo');
+                    const contentRetry = document.getElementById('vehicleDemoContent');
+                    if (demoRetry && contentRetry) {
+                        demoRetry.classList.remove('hidden');
+                        contentRetry.innerHTML = message;
+                    }
+                }, 200);
+            }
+        }
+
+        // ATM demo functions
+        function createAccount() {
+            bankAccount = {
+                nama_pemilik: "Budi Santoso",
+                saldo: 1000000,
+                pin: "1234",
+                transaksi: []
+            };
+            
+            updateATMDisplay(`
+                <div class="text-cyan-400 mb-2">🏧 Encapsulation Demo - Private Data Protection!</div>
+                <div class="text-green-400">>>> rekening = RekeningBank("Budi Santoso", 1000000)</div>
+                <div class="mt-2">💳 Rekening berhasil dibuat!</div>
+                <div>👤 Pemilik: ${bankAccount.nama_pemilik}</div>
+                <div>💰 Saldo Awal: Rp${bankAccount.saldo.toLocaleString()}</div>
+                <div>🔒 PIN: **** (private/tersembunyi)</div>
+                <div class="text-purple-400 mt-2">✨ Data sensitif dilindungi dengan encapsulation!</div>
+            `);
+        }
+
+        function checkBalance() {
+            if (!bankAccount) {
+                createAccount();
+                return;
+            }
+            
+            updateATMDisplay(`
+                <div class="text-cyan-400 mb-2">🏧 Encapsulation Demo - Controlled Access!</div>
+                <div class="text-green-400">>>> rekening.cek_saldo()</div>
+                <div class="mt-2">💰 Saldo Rekening: Rp${bankAccount.saldo.toLocaleString()}</div>
+                <div>👤 Pemilik: ${bankAccount.nama_pemilik}</div>
+                <div class="text-purple-400 mt-2">✨ Saldo dapat diakses melalui method public!</div>
+                <div class="text-yellow-400">💡 Data private (__saldo) tidak bisa diakses langsung dari luar class!</div>
+            `);
+        }
+
+        function withdrawMoney() {
+            if (!bankAccount) {
+                createAccount();
+                return;
+            }
+            
+            const jumlahTarik = 200000;
+            const pinInput = "1234"; // Simulasi PIN yang benar
+            
+            if (pinInput === bankAccount.pin && jumlahTarik <= bankAccount.saldo) {
+                bankAccount.saldo -= jumlahTarik;
+                bankAccount.transaksi.push(`Tarik tunai: Rp${jumlahTarik.toLocaleString()}`);
+                
+                updateATMDisplay(`
+                    <div class="text-cyan-400 mb-2">🏧 Encapsulation Demo - Secure Transaction!</div>
+                    <div class="text-green-400">>>> rekening.tarik_uang(200000, "1234")</div>
+                    <div class="mt-2">💸 Berhasil tarik tunai: Rp${jumlahTarik.toLocaleString()}</div>
+                    <div>💰 Saldo tersisa: Rp${bankAccount.saldo.toLocaleString()}</div>
+                    <div class="text-purple-400 mt-2">✨ PIN divalidasi sebelum transaksi!</div>
+                    <div class="text-yellow-400">💡 Encapsulation melindungi data dengan validasi!</div>
+                `);
+            } else {
+                updateATMDisplay(`
+                    <div class="text-red-400">❌ Transaksi gagal!</div>
+                    <div class="text-yellow-400 mt-2">💡 Encapsulation mencegah akses tidak sah!</div>
+                `);
+            }
+        }
+
+        function updateATMDisplay(message) {
+            const demo = document.getElementById('atmDemo');
+            const content = document.getElementById('atmDemoContent');
+            demo.classList.remove('hidden');
+            content.innerHTML = message;
+        }
+
+        // School demo functions
+        function initializeSchool() {
+            school = {
+                nama: "SMK Nusantara",
+                siswa: [
+                    { nama: "Andi", kelas: "XII RPL 1", nilai: { matematika: 85, bahasa: 90, pbo: 88 } },
+                    { nama: "Sari", kelas: "XII RPL 2", nilai: { matematika: 92, bahasa: 88, pbo: 95 } }
+                ],
+                guru: [
+                    { nama: "Pak Budi", mata_pelajaran: "Matematika", mengajar: true },
+                    { nama: "Bu Ani", mata_pelajaran: "Bahasa Indonesia", mengajar: false },
+                    { nama: "Pak Dedi", mata_pelajaran: "PBO Python", mengajar: true }
+                ]
+            };
+            
+            updateSchoolDisplay(`
+                <div class="text-cyan-400 mb-2">🏫 Studi Kasus - Sistem Manajemen Sekolah!</div>
+                <div class="text-green-400">>>> sekolah = Sekolah("SMK Nusantara")</div>
+                <div class="text-green-400">>>> sekolah.tambah_siswa(...)</div>
+                <div class="text-green-400">>>> sekolah.tambah_guru(...)</div>
+                <div class="mt-2">🏫 SMK Nusantara berhasil diinisialisasi!</div>
+                <div>📚 ${school.siswa.length} Siswa terdaftar</div>
+                <div>👨‍🏫 ${school.guru.length} Guru tersedia</div>
+                <div class="text-purple-400 mt-2">✨ Sistem menggunakan inheritance (Person → Siswa, Guru)!</div>
+            `);
+        }
+
+        function showSchoolInfo() {
+            if (!school) {
+                initializeSchool();
+                return;
+            }
+            
+            let output = `
+                <div class="text-cyan-400 mb-2">🏫 Studi Kasus - Polymorphism & Encapsulation!</div>
+                <div class="text-green-400">>>> sekolah.tampilkan_info()</div>
+                <div class="mt-2">🏫 Info ${school.nama}:</div>
+                <div class="mt-2">👨‍🎓 Daftar Siswa:</div>
+            `;
+            
+            school.siswa.forEach(siswa => {
+                const rataRata = Object.values(siswa.nilai).reduce((a, b) => a + b, 0) / Object.keys(siswa.nilai).length;
+                output += `<div>• ${siswa.nama} (${siswa.kelas}) - Rata-rata: ${rataRata.toFixed(1)}</div>`;
+            });
+            
+            output += `<div class="mt-2">👨‍🏫 Daftar Guru:</div>`;
+            school.guru.forEach(guru => {
+                const status = guru.mengajar ? "sedang mengajar" : "tidak mengajar";
+                output += `<div>• ${guru.nama} - ${guru.mata_pelajaran} (${status})</div>`;
+            });
+            
+            output += `
+                <div class="text-purple-400 mt-3">✨ Polymorphism: Method info() berbeda untuk Siswa dan Guru!</div>
+                <div class="text-yellow-400">💡 Encapsulation: Nilai siswa dilindungi dengan private attribute!</div>
+            `;
+            
+            updateSchoolDisplay(output);
+        }
+
+        function updateSchoolDisplay(message) {
+            const demo = document.getElementById('schoolDemo');
+            const content = document.getElementById('schoolDemoContent');
+            demo.classList.remove('hidden');
+            content.innerHTML = message;
+        }
+
+        // Quiz functions
+        function startQuiz() {
+            const nameInput = document.getElementById('studentName');
+            if (nameInput.value.trim() === '') {
+                nameInput.style.borderColor = '#ef4444';
+                nameInput.placeholder = 'Nama harus diisi!';
+                return;
+            }
+            
+            studentName = nameInput.value.trim();
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            
+            document.getElementById('quizStart').classList.add('hidden');
+            document.getElementById('quizQuestions').classList.remove('hidden');
+            document.getElementById('quizStudentName').textContent = studentName;
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = quizQuestions[currentQuestionIndex];
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'quiz-option border-2 border-gray-200 p-4 rounded-lg';
+                optionDiv.innerHTML = `
+                    <label class="flex items-center cursor-pointer">
+                        <input type="radio" name="answer" value="${index}" class="mr-3">
+                        <span>${option}</span>
+                    </label>
+                `;
+                
+                optionDiv.addEventListener('click', function() {
+                    const radio = optionDiv.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    
+                    // Remove selected class from all options
+                    container.querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked option
+                    optionDiv.classList.add('selected');
+                });
+                
+                container.appendChild(optionDiv);
+            });
+            
+            // Set previous answer if exists
+            if (userAnswers[currentQuestionIndex] !== undefined) {
+                const radio = container.querySelector(`input[value="${userAnswers[currentQuestionIndex]}"]`);
+                if (radio) {
+                    radio.checked = true;
+                    radio.closest('.quiz-option').classList.add('selected');
+                }
+            }
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentQuestionIndex === 0;
+            document.getElementById('nextBtn').textContent = 
+                currentQuestionIndex === quizQuestions.length - 1 ? 'Selesai' : 'Selanjutnya';
+        }
+
+        function nextQuestion() {
+            const selectedAnswer = document.querySelector('input[name="answer"]:checked');
+            if (selectedAnswer) {
+                userAnswers[currentQuestionIndex] = parseInt(selectedAnswer.value);
+            }
+            
+            if (currentQuestionIndex === quizQuestions.length - 1) {
+                finishQuiz();
+            } else {
+                currentQuestionIndex++;
+                showQuestion();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+            }
+        }
+
+        function finishQuiz() {
+            let score = 0;
+            userAnswers.forEach((answer, index) => {
+                if (answer === quizQuestions[index].correct) {
+                    score++;
+                }
+            });
+            
+            document.getElementById('quizQuestions').classList.add('hidden');
+            document.getElementById('quizResults').classList.remove('hidden');
+            
+            document.getElementById('finalName').textContent = studentName;
+            document.getElementById('finalScore').textContent = score;
+            
+            let gradeMessage = '';
+            if (score >= 9) {
+                gradeMessage = '🏆 Excellent! Kamu sangat menguasai PBO!';
+            } else if (score >= 7) {
+                gradeMessage = '👍 Good! Pemahaman PBO kamu sudah baik!';
+            } else if (score >= 5) {
+                gradeMessage = '📚 Not bad! Perlu belajar lagi ya!';
+            } else {
+                gradeMessage = '💪 Keep trying! Jangan menyerah, belajar lagi!';
+            }
+            
+            document.getElementById('gradeMessage').textContent = gradeMessage;
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizResults').classList.add('hidden');
+            document.getElementById('quizStart').classList.remove('hidden');
+            document.getElementById('studentName').value = '';
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            studentName = '';
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('intro');
+            // Set initial active navigation
+            updateActiveNavigation('intro');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9923152d9605807d',t:'MTc2MTA3NDExNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
