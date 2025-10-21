@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enkapsulasi Python - Getter & Setter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .pastel-bg {
+            background: linear-gradient(135deg, #ffeef8 0%, #f0f9ff 50%, #f0fdf4 100%);
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .code-header {
+            background: linear-gradient(90deg, #f472b6 0%, #a855f7 100%);
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .floating-elements {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .content-area {
+            position: relative;
+            z-index: 10;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .quiz-option {
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .correct {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            border-color: #22c55e;
+        }
+        
+        .incorrect {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border-color: #ef4444;
+        }
+    </style>
+</head>
+<body class="pastel-bg min-h-full font-sans">
+    <!-- Floating Decorative Elements -->
+    <div class="floating-elements">
+        <div class="absolute top-20 left-10 text-6xl opacity-20 float-animation">🐍</div>
+        <div class="absolute top-40 right-20 text-4xl opacity-20 float-animation" style="animation-delay: 1s;">🔒</div>
+        <div class="absolute top-80 left-1/4 text-5xl opacity-20 float-animation" style="animation-delay: 2s;">💎</div>
+        <div class="absolute bottom-40 right-10 text-4xl opacity-20 float-animation" style="animation-delay: 3s;">⚡</div>
+        <div class="absolute bottom-20 left-20 text-5xl opacity-20 float-animation" style="animation-delay: 4s;">🎯</div>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="lg:hidden fixed top-4 left-4 z-50 bg-gradient-to-r from-pink-400 to-purple-500 text-white p-3 rounded-full shadow-lg">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-gradient-to-b from-purple-100 to-pink-100 shadow-2xl transform -translate-x-full lg:translate-x-0 transition-transform duration-300 z-40 overflow-y-auto">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center space-x-3">
+                    <div class="text-4xl">🐍</div>
+                    <div>
+                        <h1 class="text-xl font-bold text-purple-800">Python OOP</h1>
+                        <p class="text-base text-purple-600">Enkapsulasi & Getter/Setter</p>
+                    </div>
+                </div>
+                <button id="closeSidebar" class="lg:hidden text-purple-600 text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" onclick="showSection('intro')" class="nav-item flex items-center space-x-3 p-3 rounded-xl bg-gradient-to-r from-pink-200 to-purple-200 text-purple-800 font-semibold shadow-md">
+                    <i class="fas fa-rocket text-xl"></i>
+                    <span class="text-base">Intro</span>
+                </a>
+                <a href="#" onclick="showSection('pengenalan')" class="nav-item flex items-center space-x-3 p-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-200 hover:to-purple-200 text-purple-700 transition-all">
+                    <i class="fas fa-lightbulb text-xl"></i>
+                    <span class="text-base">Pengenalan</span>
+                </a>
+                <a href="#" onclick="showSection('enkapsulasi')" class="nav-item flex items-center space-x-3 p-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-200 hover:to-purple-200 text-purple-700 transition-all">
+                    <i class="fas fa-shield-alt text-xl"></i>
+                    <span class="text-base">Enkapsulasi</span>
+                </a>
+                <a href="#" onclick="showSection('getter-setter')" class="nav-item flex items-center space-x-3 p-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-200 hover:to-purple-200 text-purple-700 transition-all">
+                    <i class="fas fa-key text-xl"></i>
+                    <span class="text-base">Getter & Setter</span>
+                </a>
+                <a href="#" onclick="showSection('property')" class="nav-item flex items-center space-x-3 p-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-200 hover:to-purple-200 text-purple-700 transition-all">
+                    <i class="fas fa-magic text-xl"></i>
+                    <span class="text-base">Property Decorator</span>
+                </a>
+                <a href="#" onclick="showSection('tugas')" class="nav-item flex items-center space-x-3 p-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-200 hover:to-purple-200 text-purple-700 transition-all">
+                    <i class="fas fa-tasks text-xl"></i>
+                    <span class="text-base">Tugas</span>
+                </a>
+                <a href="#" onclick="showSection('kuis')" class="nav-item flex items-center space-x-3 p-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-200 hover:to-purple-200 text-purple-700 transition-all">
+                    <i class="fas fa-question-circle text-xl"></i>
+                    <span class="text-base">Kuis</span>
+                </a>
+                <a href="#" onclick="showSection('penutup')" class="nav-item flex items-center space-x-3 p-3 rounded-xl hover:bg-gradient-to-r hover:from-pink-200 hover:to-purple-200 text-purple-700 transition-all">
+                    <i class="fas fa-flag-checkered text-xl"></i>
+                    <span class="text-base">Penutup</span>
+                </a>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="lg:ml-80 min-h-full content-area">
+        <div class="max-w-4xl mx-auto p-6 lg:p-8">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section">
+                <div class="bg-gradient-to-br from-pink-50 to-purple-50 rounded-3xl p-8 shadow-xl border border-pink-200">
+                    <div class="text-center mb-8">
+                        <div class="text-8xl mb-4">🐍✨</div>
+                        <h1 class="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+                            Enkapsulasi Python
+                        </h1>
+                        <p class="text-xl text-purple-700 font-semibold">Getter & Setter untuk Atribut Private</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-8 mb-8">
+                        <div class="bg-gradient-to-br from-yellow-100 to-orange-100 p-6 rounded-2xl border-2 border-yellow-300">
+                            <h3 class="text-2xl font-bold text-orange-800 mb-4 flex items-center">
+                                <i class="fas fa-question-circle mr-3 text-3xl"></i>
+                                Pertanyaan Pemantik
+                            </h3>
+                            <div class="space-y-3 text-orange-700">
+                                <p class="flex items-start text-lg"><span class="text-2xl mr-2">🤔</span> Bagaimana cara melindungi data dalam program?</p>
+                                <p class="flex items-start text-lg"><span class="text-2xl mr-2">🔐</span> Mengapa kita perlu mengontrol akses ke atribut?</p>
+                                <p class="flex items-start text-lg"><span class="text-2xl mr-2">⚡</span> Apa itu getter dan setter dalam Python?</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-2xl border-2 border-green-300">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                                <i class="fas fa-target mr-3 text-3xl"></i>
+                                Tujuan Pembelajaran
+                            </h3>
+                            <div class="space-y-3 text-green-700">
+                                <p class="flex items-start text-lg"><span class="text-2xl mr-2">🎯</span> Memahami konsep enkapsulasi</p>
+                                <p class="flex items-start text-lg"><span class="text-2xl mr-2">🔒</span> Membuat atribut private</p>
+                                <p class="flex items-start text-lg"><span class="text-2xl mr-2">🔑</span> Menggunakan getter & setter</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-blue-100 to-cyan-100 p-6 rounded-2xl border-2 border-blue-300 mb-8">
+                        <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                            <i class="fas fa-lightbulb mr-3 text-3xl"></i>
+                            Pemahaman Bermakna
+                        </h3>
+                        <p class="text-blue-700 text-lg leading-relaxed">
+                            <span class="text-2xl mr-2">💡</span>
+                            Enkapsulasi seperti brankas di bank - data penting dilindungi dan hanya bisa diakses dengan cara yang benar. 
+                            Getter dan setter adalah kunci khusus untuk membuka dan mengubah data dengan aman!
+                        </p>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-purple-100 to-pink-100 p-6 rounded-2xl border-2 border-purple-300">
+                        <h3 class="text-2xl font-bold text-purple-800 mb-4 flex items-center">
+                            <i class="fas fa-fire mr-3 text-3xl"></i>
+                            Motivasi
+                        </h3>
+                        <p class="text-purple-700 text-lg leading-relaxed">
+                            <span class="text-2xl mr-2">🚀</span>
+                            Dengan menguasai enkapsulasi, kamu akan bisa membuat program yang lebih aman, terstruktur, dan profesional. 
+                            Skill ini sangat dibutuhkan di dunia kerja programmer!
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
+                        Mulai Belajar! <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden">
+                <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-8 shadow-xl border border-indigo-200">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🏛️</div>
+                        <h2 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                            Pengenalan Enkapsulasi
+                        </h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-indigo-400">
+                            <h3 class="text-2xl font-bold text-indigo-800 mb-4 flex items-center">
+                                <i class="fas fa-info-circle mr-3"></i>
+                                Apa itu Enkapsulasi?
+                            </h3>
+                            <p class="text-gray-700 text-lg leading-relaxed mb-4">
+                                <span class="text-2xl mr-2">🔐</span>
+                                Enkapsulasi adalah salah satu pilar utama dalam Object-Oriented Programming (OOP). 
+                                Konsep ini memungkinkan kita untuk "membungkus" data dan method dalam satu unit (class) 
+                                dan mengontrol akses terhadap data tersebut.
+                            </p>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-2xl border-2 border-green-300">
+                                <h4 class="text-xl font-bold text-green-800 mb-3 flex items-center">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    Keuntungan Enkapsulasi
+                                </h4>
+                                <ul class="space-y-2 text-green-700">
+                                    <li class="flex items-start text-lg"><span class="text-xl mr-2">✅</span> Data lebih aman</li>
+                                    <li class="flex items-start text-lg"><span class="text-xl mr-2">✅</span> Kontrol akses yang baik</li>
+                                    <li class="flex items-start text-lg"><span class="text-xl mr-2">✅</span> Kode lebih terstruktur</li>
+                                    <li class="flex items-start text-lg"><span class="text-xl mr-2">✅</span> Mudah maintenance</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-yellow-100 to-orange-100 p-6 rounded-2xl border-2 border-yellow-300">
+                                <h4 class="text-xl font-bold text-orange-800 mb-3 flex items-center">
+                                    <i class="fas fa-lightbulb mr-2"></i>
+                                    Analogi Sederhana
+                                </h4>
+                                <p class="text-orange-700 text-lg">
+                                    <span class="text-2xl mr-2">🏠</span>
+                                    Seperti rumah dengan pintu dan jendela. Kamu tidak bisa langsung masuk ke kamar tidur, 
+                                    harus melalui pintu depan dulu. Begitu juga dengan data dalam class!
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-pink-100 to-rose-100 p-6 rounded-2xl border-2 border-pink-300">
+                            <h4 class="text-xl font-bold text-pink-800 mb-4 flex items-center">
+                                <i class="fas fa-eye mr-2"></i>
+                                Contoh dalam Kehidupan Nyata
+                            </h4>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="text-center">
+                                    <div class="text-4xl mb-2">🏧</div>
+                                    <p class="text-pink-700 font-semibold text-lg">ATM</p>
+                                    <p class="text-lg text-pink-600">Saldo tersembunyi, akses via PIN</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-4xl mb-2">📱</div>
+                                    <p class="text-pink-700 font-semibold text-lg">Smartphone</p>
+                                    <p class="text-lg text-pink-600">Data internal dilindungi OS</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-4xl mb-2">🚗</div>
+                                    <p class="text-pink-700 font-semibold text-lg">Mobil</p>
+                                    <p class="text-lg text-pink-600">Mesin tersembunyi, kontrol via dashboard</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
+                        Lanjut ke Enkapsulasi <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Enkapsulasi Section -->
+            <div id="enkapsulasi" class="section hidden">
+                <div class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-8 shadow-xl border border-emerald-200">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🛡️</div>
+                        <h2 class="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                            Konsep Enkapsulasi
+                        </h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-white p-6 rounded-2xl shadow-lg">
+                            <h3 class="text-2xl font-bold text-emerald-800 mb-4 flex items-center">
+                                <i class="fas fa-layer-group mr-3"></i>
+                                Tingkat Akses dalam Python
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-3 gap-6">
+                                <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-4 rounded-xl border-2 border-green-300">
+                                    <div class="text-center mb-3">
+                                        <div class="text-3xl mb-2">🌍</div>
+                                        <h4 class="font-bold text-green-800 text-lg">Public</h4>
+                                    </div>
+                                    <p class="text-green-700 text-lg">Bisa diakses dari mana saja</p>
+                                    <div class="code-block mt-3">
+                                        <div class="code-header">Python - public_attribute.py</div>
+                                        <pre class="text-green-400 p-3 text-base"><code>self.nama = "John"</code></pre>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gradient-to-br from-yellow-100 to-orange-100 p-4 rounded-xl border-2 border-yellow-300">
+                                    <div class="text-center mb-3">
+                                        <div class="text-3xl mb-2">🏠</div>
+                                        <h4 class="font-bold text-orange-800 text-lg">Protected</h4>
+                                    </div>
+                                    <p class="text-orange-700 text-lg">Hanya untuk class dan subclass</p>
+                                    <div class="code-block mt-3">
+                                        <div class="code-header">Python - protected_attribute.py</div>
+                                        <pre class="text-yellow-400 p-3 text-base"><code>self._nama = "John"</code></pre>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gradient-to-br from-red-100 to-pink-100 p-4 rounded-xl border-2 border-red-300">
+                                    <div class="text-center mb-3">
+                                        <div class="text-3xl mb-2">🔒</div>
+                                        <h4 class="font-bold text-red-800 text-lg">Private</h4>
+                                    </div>
+                                    <p class="text-red-700 text-lg">Hanya dalam class itu sendiri</p>
+                                    <div class="code-block mt-3">
+                                        <div class="code-header">Python - private_attribute.py</div>
+                                        <pre class="text-red-400 p-3 text-base"><code>self.__nama = "John"</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-blue-100 to-indigo-100 p-6 rounded-2xl border-2 border-blue-300">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                                <i class="fas fa-code mr-3"></i>
+                                Contoh Sederhana
+                            </h3>
+                            
+                            <div class="code-block">
+                                <div class="code-header">Python - mahasiswa.py</div>
+                                <pre class="text-gray-300 p-4 text-base leading-relaxed"><code>class Mahasiswa:
+    def __init__(self, nama, nim):
+        self.nama = nama          # Public - bisa diakses langsung
+        self._jurusan = "TI"      # Protected - sebaiknya tidak diakses langsung  
+        self.__ipk = 0.0          # Private - tidak bisa diakses langsung
+    
+    def tampilkan_info(self):
+        print(f"Nama: {self.nama}")
+        print(f"Jurusan: {self._jurusan}")
+        print(f"IPK: {self.__ipk}")
+
+# Penggunaan
+mhs = Mahasiswa("Budi", "12345")
+print(mhs.nama)        # ✅ Bisa diakses
+print(mhs._jurusan)    # ⚠️ Bisa tapi tidak disarankan
+# print(mhs.__ipk)     # ❌ Error! Tidak bisa diakses</code></pre>
+                            </div>
+                        </div>
+
+                        <div id="demo-enkapsulasi" class="bg-gradient-to-br from-purple-100 to-pink-100 p-6 rounded-2xl border-2 border-purple-300">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4 flex items-center">
+                                <i class="fas fa-play-circle mr-3"></i>
+                                Demo Interaktif
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="studentName" class="block text-purple-700 font-semibold mb-2 text-lg">Nama Mahasiswa:</label>
+                                    <input type="text" id="studentName" class="w-full p-3 border-2 border-purple-300 rounded-lg text-lg" placeholder="Masukkan nama...">
+                                    
+                                    <button onclick="createStudent()" class="mt-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all text-lg">
+                                        Buat Mahasiswa <i class="fas fa-plus ml-2"></i>
+                                    </button>
+                                </div>
+                                
+                                <div id="studentOutput" class="bg-white p-4 rounded-lg border-2 border-purple-200 min-h-32">
+                                    <p class="text-gray-500 italic text-lg">Output akan muncul di sini...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
+                        Pelajari Getter & Setter <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Getter & Setter Section -->
+            <div id="getter-setter" class="section hidden">
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-8 shadow-xl border border-blue-200">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🔑</div>
+                        <h2 class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                            Getter & Setter Methods
+                        </h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-white p-6 rounded-2xl shadow-lg">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                                <i class="fas fa-question-circle mr-3"></i>
+                                Apa itu Getter & Setter?
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-xl border-2 border-green-300">
+                                    <div class="text-center mb-4">
+                                        <div class="text-4xl mb-2">📤</div>
+                                        <h4 class="text-xl font-bold text-green-800">Getter</h4>
+                                    </div>
+                                    <p class="text-green-700 mb-3 text-lg">Method untuk <strong>mengambil</strong> nilai atribut private</p>
+                                    <div class="code-block">
+                                        <div class="code-header">Python - getter_example.py</div>
+                                        <pre class="text-green-400 p-3 text-base"><code>def get_nama(self):
+    return self.__nama</code></pre>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gradient-to-br from-orange-100 to-red-100 p-6 rounded-xl border-2 border-orange-300">
+                                    <div class="text-center mb-4">
+                                        <div class="text-4xl mb-2">📥</div>
+                                        <h4 class="text-xl font-bold text-orange-800">Setter</h4>
+                                    </div>
+                                    <p class="text-orange-700 mb-3 text-lg">Method untuk <strong>mengubah</strong> nilai atribut private</p>
+                                    <div class="code-block">
+                                        <div class="code-header">Python - setter_example.py</div>
+                                        <pre class="text-orange-400 p-3 text-base"><code>def set_nama(self, nama):
+    if nama:
+        self.__nama = nama</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-purple-100 to-pink-100 p-6 rounded-2xl border-2 border-purple-300">
+                            <h3 class="text-2xl font-bold text-purple-800 mb-4 flex items-center">
+                                <i class="fas fa-code mr-3"></i>
+                                Contoh Lengkap: Class Siswa
+                            </h3>
+                            
+                            <div class="code-block">
+                                <div class="code-header">Python - siswa_dengan_getter_setter.py</div>
+                                <pre class="text-gray-300 p-4 text-base leading-relaxed"><code>class Siswa:
+    def __init__(self, nama, umur, nilai):
+        self.__nama = nama
+        self.__umur = umur
+        self.__nilai = nilai
+    
+    # Getter Methods
+    def get_nama(self):
+        return self.__nama
+    
+    def get_umur(self):
+        return self.__umur
+    
+    def get_nilai(self):
+        return self.__nilai
+    
+    # Setter Methods dengan Validasi
+    def set_nama(self, nama):
+        if isinstance(nama, str) and len(nama) > 0:
+            self.__nama = nama
+        else:
+            print("❌ Nama harus berupa string dan tidak kosong!")
+    
+    def set_umur(self, umur):
+        if isinstance(umur, int) and 5 <= umur <= 25:
+            self.__umur = umur
+        else:
+            print("❌ Umur harus antara 5-25 tahun!")
+    
+    def set_nilai(self, nilai):
+        if isinstance(nilai, (int, float)) and 0 <= nilai <= 100:
+            self.__nilai = nilai
+        else:
+            print("❌ Nilai harus antara 0-100!")
+    
+    def tampilkan_info(self):
+        print(f"👤 Nama: {self.__nama}")
+        print(f"🎂 Umur: {self.__umur} tahun")
+        print(f"📊 Nilai: {self.__nilai}")
+        
+        # Menentukan grade
+        if self.__nilai >= 90:
+            grade = "A (Excellent! 🌟)"
+        elif self.__nilai >= 80:
+            grade = "B (Good! 👍)"
+        elif self.__nilai >= 70:
+            grade = "C (Fair 👌)"
+        elif self.__nilai >= 60:
+            grade = "D (Need Improvement 📚)"
+        else:
+            grade = "E (Study Harder! 💪)"
+        
+        print(f"🏆 Grade: {grade}")
+
+# Contoh Penggunaan
+siswa = Siswa("Andi", 17, 85)
+siswa.tampilkan_info()
+
+# Menggunakan getter
+print(f"\nNama siswa: {siswa.get_nama()}")
+
+# Menggunakan setter dengan validasi
+siswa.set_nilai(95)  # ✅ Valid
+siswa.set_nilai(150) # ❌ Invalid
+siswa.set_umur(-5)   # ❌ Invalid</code></pre>
+                            </div>
+                        </div>
+
+                        <div id="demo-getter-setter" class="bg-gradient-to-br from-cyan-100 to-blue-100 p-6 rounded-2xl border-2 border-cyan-300">
+                            <h3 class="text-2xl font-bold text-cyan-800 mb-4 flex items-center">
+                                <i class="fas fa-play-circle mr-3"></i>
+                                Demo Interaktif: Manajemen Siswa
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="studentNameGS" class="block text-cyan-700 font-semibold mb-2 text-lg">Nama Siswa:</label>
+                                        <input type="text" id="studentNameGS" class="w-full p-3 border-2 border-cyan-300 rounded-lg text-lg" placeholder="Masukkan nama...">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="studentAge" class="block text-cyan-700 font-semibold mb-2 text-lg">Umur (5-25):</label>
+                                        <input type="number" id="studentAge" class="w-full p-3 border-2 border-cyan-300 rounded-lg text-lg" placeholder="17" min="5" max="25">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="studentGrade" class="block text-cyan-700 font-semibold mb-2 text-lg">Nilai (0-100):</label>
+                                        <input type="number" id="studentGrade" class="w-full p-3 border-2 border-cyan-300 rounded-lg text-lg" placeholder="85" min="0" max="100">
+                                    </div>
+                                    
+                                    <button onclick="createStudentGS()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all text-lg">
+                                        Buat Siswa <i class="fas fa-user-plus ml-2"></i>
+                                    </button>
+                                    
+                                    <div class="border-t-2 border-cyan-300 pt-4">
+                                        <h4 class="font-bold text-cyan-800 mb-3 text-lg">Update Data Siswa:</h4>
+                                        <div class="space-y-2">
+                                            <div class="flex gap-2">
+                                                <input type="text" id="newName" class="flex-1 p-2 border border-cyan-300 rounded text-lg" placeholder="Nama baru...">
+                                                <button onclick="updateName()" class="bg-green-500 text-white px-3 py-2 rounded text-lg hover:bg-green-600 transition-all">
+                                                    Update
+                                                </button>
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <input type="number" id="newAge" class="flex-1 p-2 border border-cyan-300 rounded text-lg" placeholder="Umur baru..." min="5" max="25">
+                                                <button onclick="updateAge()" class="bg-blue-500 text-white px-3 py-2 rounded text-lg hover:bg-blue-600 transition-all">
+                                                    Update
+                                                </button>
+                                            </div>
+                                            <div class="flex gap-2">
+                                                <input type="number" id="newGrade" class="flex-1 p-2 border border-cyan-300 rounded text-lg" placeholder="Nilai baru..." min="0" max="100">
+                                                <button onclick="updateGrade()" class="bg-purple-500 text-white px-3 py-2 rounded text-lg hover:bg-purple-600 transition-all">
+                                                    Update
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="studentGSOutput" class="bg-white p-4 rounded-lg border-2 border-cyan-200 min-h-96 overflow-y-auto">
+                                    <p class="text-gray-500 italic text-lg">Buat siswa untuk melihat demo getter & setter...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
+                        Pelajari Property Decorator <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Property Decorator Section -->
+            <div id="property" class="section hidden">
+                <div class="bg-gradient-to-br from-violet-50 to-purple-50 rounded-3xl p-8 shadow-xl border border-violet-200">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">✨</div>
+                        <h2 class="text-4xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                            Property Decorator
+                        </h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-white p-6 rounded-2xl shadow-lg">
+                            <h3 class="text-2xl font-bold text-violet-800 mb-4 flex items-center">
+                                <i class="fas fa-magic mr-3"></i>
+                                Cara Modern: @property
+                            </h3>
+                            
+                            <p class="text-gray-700 text-lg mb-6">
+                                <span class="text-2xl mr-2">🎯</span>
+                                Property decorator membuat getter dan setter lebih elegan dan mudah digunakan. 
+                                Kita bisa mengakses atribut private seperti atribut biasa, tapi tetap dengan kontrol penuh!
+                            </p>
+
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-gradient-to-br from-red-100 to-pink-100 p-4 rounded-xl border-l-4 border-red-400">
+                                    <h4 class="font-bold text-red-800 mb-3 flex items-center text-lg">
+                                        <i class="fas fa-times-circle mr-2"></i>
+                                        Cara Lama (Ribet)
+                                    </h4>
+                                    <div class="code-block">
+                                        <div class="code-header">Python - cara_lama.py</div>
+                                        <pre class="text-red-400 p-3 text-base"><code>siswa.set_nama("Budi")
+nama = siswa.get_nama()
+siswa.set_nilai(90)
+nilai = siswa.get_nilai()</code></pre>
+                                    </div>
+                                </div>
+
+                                <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-4 rounded-xl border-l-4 border-green-400">
+                                    <h4 class="font-bold text-green-800 mb-3 flex items-center text-lg">
+                                        <i class="fas fa-check-circle mr-2"></i>
+                                        Cara Baru (Elegan)
+                                    </h4>
+                                    <div class="code-block">
+                                        <div class="code-header">Python - cara_baru.py</div>
+                                        <pre class="text-green-400 p-3 text-base"><code>siswa.nama = "Budi"
+nama = siswa.nama
+siswa.nilai = 90
+nilai = siswa.nilai</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-blue-100 to-indigo-100 p-6 rounded-2xl border-2 border-blue-300">
+                            <h3 class="text-2xl font-bold text-blue-800 mb-4 flex items-center">
+                                <i class="fas fa-code mr-3"></i>
+                                Implementasi Property Decorator
+                            </h3>
+                            
+                            <div class="code-block">
+                                <div class="code-header">Python - siswa_dengan_property.py</div>
+                                <pre class="text-gray-300 p-4 text-base leading-relaxed"><code>class Siswa:
+    def __init__(self, nama, nilai):
+        self.__nama = nama
+        self.__nilai = nilai
+    
+    # Property untuk NAMA
+    @property
+    def nama(self):
+        """Getter untuk nama"""
+        return self.__nama
+    
+    @nama.setter
+    def nama(self, nama):
+        """Setter untuk nama dengan validasi"""
+        if isinstance(nama, str) and len(nama.strip()) > 0:
+            self.__nama = nama.strip().title()
+        else:
+            raise ValueError("❌ Nama harus berupa string dan tidak kosong!")
+    
+    # Property untuk NILAI
+    @property
+    def nilai(self):
+        """Getter untuk nilai"""
+        return self.__nilai
+    
+    @nilai.setter
+    def nilai(self, nilai):
+        """Setter untuk nilai dengan validasi"""
+        if isinstance(nilai, (int, float)) and 0 <= nilai <= 100:
+            self.__nilai = float(nilai)
+        else:
+            raise ValueError("❌ Nilai harus antara 0-100!")
+    
+    # Property READ-ONLY untuk grade
+    @property
+    def grade(self):
+        """Property read-only untuk menghitung grade"""
+        if self.__nilai >= 90:
+            return "A"
+        elif self.__nilai >= 80:
+            return "B"
+        elif self.__nilai >= 70:
+            return "C"
+        elif self.__nilai >= 60:
+            return "D"
+        else:
+            return "E"
+    
+    def __str__(self):
+        return f"👤 {self.__nama} - Nilai: {self.__nilai} (Grade {self.grade})"
+
+# Contoh Penggunaan yang Elegan
+siswa = Siswa("andi", 85)
+
+# Menggunakan property seperti atribut biasa
+print(f"Nama: {siswa.nama}")        # Getter
+print(f"Nilai: {siswa.nilai}")      # Getter
+print(f"Grade: {siswa.grade}")      # Read-only property
+
+# Mengubah nilai dengan validasi otomatis
+siswa.nama = "budi setiawan"        # Setter (otomatis jadi "Budi Setiawan")
+siswa.nilai = 95                    # Setter
+
+print(f"\nSetelah diupdate: {siswa}")</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-yellow-100 to-orange-100 p-6 rounded-2xl border-2 border-yellow-300">
+                            <h3 class="text-2xl font-bold text-orange-800 mb-4 flex items-center">
+                                <i class="fas fa-info-circle mr-3"></i>
+                                Cara Kerja Property Decorator
+                            </h3>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-white p-4 rounded-lg border-l-4 border-orange-400">
+                                    <h4 class="font-bold text-orange-800 mb-2 text-lg">1. @property (Getter)</h4>
+                                    <p class="text-orange-700 text-lg">Mengubah method menjadi atribut yang bisa diakses tanpa tanda kurung ()</p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg border-l-4 border-orange-400">
+                                    <h4 class="font-bold text-orange-800 mb-2 text-lg">2. @nama.setter (Setter)</h4>
+                                    <p class="text-orange-700 text-lg">Memungkinkan assignment (=) dengan validasi otomatis</p>
+                                </div>
+                                
+                                <div class="bg-white p-4 rounded-lg border-l-4 border-orange-400">
+                                    <h4 class="font-bold text-orange-800 mb-2 text-lg">3. Read-Only Property</h4>
+                                    <p class="text-orange-700 text-lg">Hanya @property tanpa setter - tidak bisa diubah dari luar</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="demo-property" class="bg-gradient-to-br from-pink-100 to-rose-100 p-6 rounded-2xl border-2 border-pink-300">
+                            <h3 class="text-2xl font-bold text-pink-800 mb-4 flex items-center">
+                                <i class="fas fa-play-circle mr-3"></i>
+                                Demo Property Decorator
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="propStudentName" class="block text-pink-700 font-semibold mb-2 text-lg">Nama Siswa:</label>
+                                        <input type="text" id="propStudentName" class="w-full p-3 border-2 border-pink-300 rounded-lg text-lg" placeholder="Masukkan nama...">
+                                    </div>
+                                    
+                                    <div>
+                                        <label for="propStudentGrade" class="block text-pink-700 font-semibold mb-2 text-lg">Nilai (0-100):</label>
+                                        <input type="number" id="propStudentGrade" class="w-full p-3 border-2 border-pink-300 rounded-lg text-lg" placeholder="85" min="0" max="100">
+                                    </div>
+                                    
+                                    <button onclick="createStudentProperty()" class="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all text-lg">
+                                        Buat Siswa <i class="fas fa-user-plus ml-2"></i>
+                                    </button>
+                                    
+                                    <div class="border-t-2 border-pink-300 pt-4">
+                                        <h4 class="font-bold text-pink-800 mb-3 text-lg">Test Property Access:</h4>
+                                        <div class="space-y-2">
+                                            <button onclick="testPropertyAccess()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded font-semibold hover:shadow-lg transition-all text-lg">
+                                                Test Akses Property <i class="fas fa-test-tube ml-2"></i>
+                                            </button>
+                                            <button onclick="testInvalidData()" class="w-full bg-gradient-to-r from-red-500 to-pink-500 text-white px-4 py-2 rounded font-semibold hover:shadow-lg transition-all text-lg">
+                                                Test Data Invalid <i class="fas fa-exclamation-triangle ml-2"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div id="propertyOutput" class="bg-white p-4 rounded-lg border-2 border-pink-200 min-h-96 overflow-y-auto">
+                                    <p class="text-gray-500 italic text-lg">Buat siswa untuk melihat demo property decorator...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-violet-500 to-purple-500 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
+                        Kerjakan Tugas <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tugas Section -->
+            <div id="tugas" class="section hidden">
+                <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-3xl p-8 shadow-xl border border-orange-200">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">📝</div>
+                        <h2 class="text-4xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                            Tugas Praktik
+                        </h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-white p-6 rounded-2xl shadow-lg">
+                            <h3 class="text-2xl font-bold text-orange-800 mb-4 flex items-center">
+                                <i class="fas fa-tasks mr-3"></i>
+                                Tugas: Buat Class Kendaraan
+                            </h3>
+                            
+                            <div class="bg-gradient-to-br from-yellow-100 to-orange-100 p-6 rounded-xl border-l-4 border-yellow-400 mb-6">
+                                <h4 class="font-bold text-orange-800 mb-3 flex items-center text-lg">
+                                    <i class="fas fa-car mr-2"></i>
+                                    Deskripsi Tugas
+                                </h4>
+                                <p class="text-orange-700 mb-4 text-lg">
+                                    Buatlah class <code class="bg-orange-200 px-2 py-1 rounded">Kendaraan</code> yang menerapkan konsep enkapsulasi 
+                                    dengan property decorator untuk mengelola data kendaraan di rental mobil.
+                                </p>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-gradient-to-br from-blue-100 to-indigo-100 p-6 rounded-xl border-2 border-blue-300">
+                                    <h4 class="font-bold text-blue-800 mb-3 flex items-center text-lg">
+                                        <i class="fas fa-list mr-2"></i>
+                                        Atribut yang Diperlukan
+                                    </h4>
+                                    <ul class="space-y-2 text-blue-700 text-lg">
+                                        <li class="flex items-start"><span class="text-xl mr-2">🚗</span> <strong>merk</strong> (string, min 2 karakter)</li>
+                                        <li class="flex items-start"><span class="text-xl mr-2">🏷️</span> <strong>model</strong> (string, min 2 karakter)</li>
+                                        <li class="flex items-start"><span class="text-xl mr-2">📅</span> <strong>tahun</strong> (integer, 1990-2024)</li>
+                                        <li class="flex items-start"><span class="text-xl mr-2">💰</span> <strong>harga_sewa</strong> (float, > 0)</li>
+                                        <li class="flex items-start"><span class="text-xl mr-2">📊</span> <strong>status</strong> ("Tersedia"/"Disewa")</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-xl border-2 border-green-300">
+                                    <h4 class="font-bold text-green-800 mb-3 flex items-center text-lg">
+                                        <i class="fas fa-cogs mr-2"></i>
+                                        Method yang Diperlukan
+                                    </h4>
+                                    <ul class="space-y-2 text-green-700 text-lg">
+                                        <li class="flex items-start"><span class="text-xl mr-2">🔧</span> <strong>sewa()</strong> - ubah status jadi "Disewa"</li>
+                                        <li class="flex items-start"><span class="text-xl mr-2">↩️</span> <strong>kembalikan()</strong> - ubah status jadi "Tersedia"</li>
+                                        <li class="flex items-start"><span class="text-xl mr-2">💸</span> <strong>hitung_biaya(hari)</strong> - hitung biaya sewa</li>
+                                        <li class="flex items-start"><span class="text-xl mr-2">📄</span> <strong>info()</strong> - tampilkan info lengkap</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-br from-purple-100 to-pink-100 p-6 rounded-xl border-2 border-purple-300 mt-6">
+                                <h4 class="font-bold text-purple-800 mb-3 flex items-center text-lg">
+                                    <i class="fas fa-star mr-2"></i>
+                                    Property Read-Only yang Diperlukan
+                                </h4>
+                                <ul class="space-y-2 text-purple-700 text-lg">
+                                    <li class="flex items-start"><span class="text-xl mr-2">🏷️</span> <strong>nama_lengkap</strong> - gabungan merk dan model</li>
+                                    <li class="flex items-start"><span class="text-xl mr-2">⏰</span> <strong>umur</strong> - hitung umur kendaraan dari tahun sekarang</li>
+                                    <li class="flex items-start"><span class="text-xl mr-2">💎</span> <strong>kategori_harga</strong> - "Murah" (<100k), "Sedang" (100k-300k), "Mahal" (>300k)</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-cyan-100 to-blue-100 p-6 rounded-2xl border-2 border-cyan-300">
+                            <h3 class="text-2xl font-bold text-cyan-800 mb-4 flex items-center">
+                                <i class="fas fa-check-circle mr-3"></i>
+                                Kriteria Penilaian
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
+                                        <span class="text-cyan-700 text-lg">Semua atribut menggunakan private (double underscore)</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold">2</div>
+                                        <span class="text-cyan-700 text-lg">Property decorator digunakan dengan benar</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold">3</div>
+                                        <span class="text-cyan-700 text-lg">Validasi data pada setiap setter</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">4</div>
+                                        <span class="text-cyan-700 text-lg">Property read-only berfungsi dengan baik</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">5</div>
+                                        <span class="text-cyan-700 text-lg">Semua method bekerja sesuai spesifikasi</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-bold">6</div>
+                                        <span class="text-cyan-700 text-lg">Kode bersih dan mudah dibaca</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-teal-100 to-cyan-100 p-6 rounded-2xl border-2 border-teal-300">
+                            <h3 class="text-2xl font-bold text-teal-800 mb-4 flex items-center">
+                                <i class="fas fa-code mr-3"></i>
+                                Template Kode (Opsional)
+                            </h3>
+                            
+                            <div class="code-block">
+                                <div class="code-header">Python - template_kendaraan.py</div>
+                                <pre class="text-gray-300 p-4 text-base leading-relaxed"><code>class Kendaraan:
+    def __init__(self, merk, model, tahun, harga_sewa):
+        # TODO: Inisialisasi atribut private
+        pass
+    
+    # TODO: Property untuk merk
+    @property
+    def merk(self):
+        pass
+    
+    @merk.setter
+    def merk(self, value):
+        # TODO: Validasi merk (min 2 karakter)
+        pass
+    
+    # TODO: Property untuk model, tahun, harga_sewa, status
+    
+    # TODO: Property read-only
+    @property
+    def nama_lengkap(self):
+        # TODO: Return gabungan merk dan model
+        pass
+    
+    @property
+    def umur(self):
+        # TODO: Hitung umur dari tahun sekarang
+        pass
+    
+    @property
+    def kategori_harga(self):
+        # TODO: Return kategori berdasarkan harga
+        pass
+    
+    # TODO: Method sewa(), kembalikan(), hitung_biaya(), info()</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-orange-500 to-red-500 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
+                        Lanjut ke Kuis <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden">
+                <div class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-3xl p-8 shadow-xl border border-purple-200">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🧠</div>
+                        <h2 class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                            Kuis Enkapsulasi
+                        </h2>
+                    </div>
+
+                    <!-- Quiz Start Form -->
+                    <div id="quizStart" class="bg-white p-8 rounded-2xl shadow-lg text-center">
+                        <div class="text-6xl mb-4">🎯</div>
+                        <h3 class="text-2xl font-bold text-purple-800 mb-4">Siap untuk Kuis?</h3>
+                        <p class="text-gray-700 mb-6 text-lg">Masukkan nama kamu untuk memulai kuis tentang Enkapsulasi, Getter & Setter!</p>
+                        
+                        <div class="max-w-md mx-auto">
+                            <label for="quizName" class="block text-purple-700 font-semibold mb-2 text-lg">Nama Lengkap:</label>
+                            <input type="text" id="quizName" class="w-full p-4 border-2 border-purple-300 rounded-lg text-center text-lg" placeholder="Masukkan nama kamu...">
+                            <button onclick="startQuiz()" class="mt-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
+                                Mulai Kuis! <i class="fas fa-play ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Questions -->
+                    <div id="quizQuestions" class="hidden">
+                        <div class="bg-white p-6 rounded-2xl shadow-lg mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-xl font-bold text-purple-800">
+                                    Soal <span id="currentQuestion">1</span> / 10
+                                </h3>
+                                <div class="text-purple-600 text-lg">
+                                    <i class="fas fa-user mr-2"></i>
+                                    <span id="quizPlayerName"></span>
+                                </div>
+                            </div>
+                            <div class="w-full bg-purple-200 rounded-full h-3 mb-6">
+                                <div id="progressBar" class="bg-gradient-to-r from-purple-500 to-indigo-500 h-3 rounded-full transition-all duration-300" style="width: 10%"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-8 rounded-2xl shadow-lg">
+                            <h4 id="questionText" class="text-xl font-bold text-gray-800 mb-6"></h4>
+                            <div id="optionsContainer" class="space-y-3"></div>
+                            <button id="nextButton" onclick="nextQuestion()" class="mt-6 bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-6 py-3 rounded-lg font-semibold opacity-50 cursor-not-allowed text-lg" disabled>
+                                Soal Berikutnya <i class="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quiz Results -->
+                    <div id="quizResults" class="hidden bg-white p-8 rounded-2xl shadow-lg text-center">
+                        <div id="resultIcon" class="text-8xl mb-4"></div>
+                        <h3 class="text-3xl font-bold mb-4" id="resultTitle"></h3>
+                        <div class="text-6xl font-bold mb-4" id="finalScore"></div>
+                        <p class="text-xl text-gray-700 mb-6" id="resultMessage"></p>
+                        <div class="bg-gradient-to-br from-purple-100 to-indigo-100 p-6 rounded-xl border-2 border-purple-300 mb-6">
+                            <h4 class="font-bold text-purple-800 mb-3 text-lg">📊 Detail Hasil:</h4>
+                            <div class="grid grid-cols-2 gap-4 text-purple-700 text-lg">
+                                <div>Benar: <span id="correctCount" class="font-bold text-green-600"></span></div>
+                                <div>Salah: <span id="wrongCount" class="font-bold text-red-600"></span></div>
+                            </div>
+                        </div>
+                        <button onclick="restartQuiz()" class="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
+                            Ulangi Kuis <i class="fas fa-redo ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="nextSection()" class="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
+                        Selesai Belajar <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden">
+                <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-3xl p-8 shadow-xl border border-green-200">
+                    <div class="text-center mb-8">
+                        <div class="text-6xl mb-4">🎉</div>
+                        <h2 class="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                            Selamat! Kamu Berhasil!
+                        </h2>
+                    </div>
+
+                    <div class="space-y-8">
+                        <div class="bg-white p-6 rounded-2xl shadow-lg">
+                            <h3 class="text-2xl font-bold text-green-800 mb-4 flex items-center">
+                                <i class="fas fa-trophy mr-3"></i>
+                                Refleksi Pembelajaran
+                            </h3>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-gradient-to-br from-blue-100 to-indigo-100 p-6 rounded-xl border-2 border-blue-300">
+                                    <h4 class="font-bold text-blue-800 mb-3 flex items-center text-lg">
+                                        <i class="fas fa-lightbulb mr-2"></i>
+                                        Apa yang Sudah Kamu Pelajari?
+                                    </h4>
+                                    <ul class="space-y-2 text-blue-700 text-lg">
+                                        <li class="flex items-start"><span class="text-xl mr-2">✅</span> Konsep enkapsulasi dalam OOP</li>
+                                        <li class="flex items-start"><span class="text-xl mr-2">✅</span> Membuat atribut private dengan double underscore</li>
+                                        <li class="flex items-start"><span class="text-xl mr-2">✅</span> Menggunakan getter dan setter methods</li>
+                                        <li class="flex items-start"><span class="text-xl mr-2">✅</span> Menerapkan property decorator</li>
+                                        <li class="flex items-start"><span class="text-xl mr-2">✅</span> Validasi data dengan enkapsulasi</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-gradient-to-br from-purple-100 to-pink-100 p-6 rounded-xl border-2 border-purple-300">
+                                    <h4 class="font-bold text-purple-800 mb-3 flex items-center text-lg">
+                                        <i class="fas fa-star mr-2"></i>
+                                        Skill yang Kamu Kuasai
+                                    </h4>
+                                    <ul class="space-y-2 text-purple-700 text-lg">
+                                        <li class="flex items-start"><span class="text-xl mr-2">🎯</span> Melindungi data dengan enkapsulasi</li>
+                                        <li class="flex items-start"><span class="text-xl mr-2">🎯</span> Membuat kode yang lebih aman dan terstruktur</li>
+                                        <li class="flex items-start"><span class="text-xl mr-2">🎯</span> Mengontrol akses ke atribut class</li>
+                                        <li class="flex items-start"><span class="text-xl mr-2">🎯</span> Menerapkan best practice Python</li>
+                                        <li class="flex items-start"><span class="text-xl mr-2">🎯</span> Membuat aplikasi yang maintainable</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-yellow-100 to-orange-100 p-6 rounded-2xl border-2 border-yellow-300">
+                            <h3 class="text-2xl font-bold text-orange-800 mb-4 flex items-center">
+                                <i class="fas fa-graduation-cap mr-3"></i>
+                                Kesimpulan Pembelajaran
+                            </h3>
+                            
+                            <div class="space-y-4 text-orange-700">
+                                <p class="flex items-start text-lg">
+                                    <span class="text-2xl mr-3">🔐</span>
+                                    <strong>Enkapsulasi</strong> adalah konsep fundamental dalam OOP yang memungkinkan kita melindungi data 
+                                    dan mengontrol akses terhadap atribut dalam class.
+                                </p>
+                                
+                                <p class="flex items-start text-lg">
+                                    <span class="text-2xl mr-3">🔑</span>
+                                    <strong>Getter dan Setter</strong> memberikan cara yang aman untuk mengakses dan memodifikasi 
+                                    atribut private dengan validasi yang tepat.
+                                </p>
+                                
+                                <p class="flex items-start text-lg">
+                                    <span class="text-2xl mr-3">✨</span>
+                                    <strong>Property Decorator</strong> membuat kode lebih elegan dan pythonic, 
+                                    memungkinkan akses seperti atribut biasa namun tetap terkontrol.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-pink-100 to-rose-100 p-6 rounded-2xl border-2 border-pink-300 text-center">
+                            <h3 class="text-2xl font-bold text-pink-800 mb-4 flex items-center justify-center">
+                                <i class="fas fa-heart mr-3"></i>
+                                Pesan Motivasi
+                            </h3>
+                            <p class="text-pink-700 text-lg leading-relaxed">
+                                <span class="text-3xl mr-2">🌟</span>
+                                Selamat! Kamu telah menguasai salah satu konsep terpenting dalam pemrograman. 
+                                Enkapsulasi akan membantumu membuat kode yang lebih profesional dan aman. 
+                                Terus berlatih dan jangan takut untuk bereksperimen dengan konsep-konsep baru!
+                            </p>
+                            
+                            <div class="mt-6 text-4xl">
+                                🎊 🎉 🏆 🎊 🎉
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button onclick="showSection('intro')" class="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 py-4 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all">
+                        Kembali ke Awal <i class="fas fa-home ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all z-30 hidden">
+        <i class="fas fa-arrow-up text-xl"></i>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden lg:hidden"></div>
+
+    <script>
+        // Global variables
+        let currentSectionIndex = 0;
+        let currentStudent = null;
+        let currentStudentGS = null;
+        let currentStudentProperty = null;
+        
+        // Quiz variables
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let playerName = '';
+        let selectedAnswer = null;
+
+        const sections = ['intro', 'pengenalan', 'enkapsulasi', 'getter-setter', 'property', 'tugas', 'kuis', 'penutup'];
+
+        // Quiz questions
+        const questions = [
+            {
+                question: "Apa yang dimaksud dengan enkapsulasi dalam OOP?",
+                options: [
+                    "Membuat banyak class dalam satu file",
+                    "Membungkus data dan method dalam satu unit dan mengontrol aksesnya",
+                    "Membuat program yang berjalan lebih cepat",
+                    "Menggunakan banyak variabel global"
+                ],
+                correct: 1
+            },
+            {
+                question: "Bagaimana cara membuat atribut private dalam Python?",
+                options: [
+                    "Menggunakan satu underscore (_nama)",
+                    "Menggunakan kata kunci private",
+                    "Menggunakan double underscore (__nama)",
+                    "Menggunakan tanda pagar (#nama)"
+                ],
+                correct: 2
+            },
+            {
+                question: "Apa fungsi utama dari getter method?",
+                options: [
+                    "Mengubah nilai atribut private",
+                    "Menghapus atribut dari class",
+                    "Mengambil nilai atribut private",
+                    "Membuat atribut baru"
+                ],
+                correct: 2
+            },
+            {
+                question: "Apa keuntungan menggunakan property decorator dibanding getter/setter biasa?",
+                options: [
+                    "Lebih cepat dalam eksekusi",
+                    "Sintaks lebih bersih dan pythonic",
+                    "Menggunakan memori lebih sedikit",
+                    "Tidak ada perbedaan"
+                ],
+                correct: 1
+            },
+            {
+                question: "Decorator apa yang digunakan untuk membuat setter dalam property?",
+                options: [
+                    "@setter",
+                    "@property.setter",
+                    "@nama_property.setter",
+                    "@set"
+                ],
+                correct: 2
+            },
+            {
+                question: "Apa yang terjadi jika kita mencoba mengakses atribut private langsung dari luar class?",
+                options: [
+                    "Program akan crash",
+                    "Akan muncul peringatan",
+                    "AttributeError atau hasil tidak sesuai harapan",
+                    "Tidak ada masalah"
+                ],
+                correct: 2
+            },
+            {
+                question: "Manakah yang merupakan contoh property read-only?",
+                options: [
+                    "Property yang hanya memiliki getter",
+                    "Property yang hanya memiliki setter",
+                    "Property yang memiliki getter dan setter",
+                    "Property yang tidak memiliki decorator"
+                ],
+                correct: 0
+            },
+            {
+                question: "Apa perbedaan antara atribut protected (_nama) dan private (__nama)?",
+                options: [
+                    "Tidak ada perbedaan",
+                    "Protected untuk subclass, private hanya untuk class itu sendiri",
+                    "Protected lebih aman dari private",
+                    "Private bisa diakses dari luar, protected tidak"
+                ],
+                correct: 1
+            },
+            {
+                question: "Kapan sebaiknya kita menggunakan validasi dalam setter?",
+                options: [
+                    "Hanya untuk data numerik",
+                    "Tidak pernah, karena memperlambat program",
+                    "Selalu, untuk memastikan data yang masuk sesuai aturan",
+                    "Hanya untuk data string"
+                ],
+                correct: 2
+            },
+            {
+                question: "Apa yang dimaksud dengan 'pythonic' dalam konteks property decorator?",
+                options: [
+                    "Menggunakan bahasa Python",
+                    "Mengikuti konvensi dan best practice Python",
+                    "Membuat program yang kompleks",
+                    "Menggunakan banyak decorator"
+                ],
+                correct: 1
+            }
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('intro');
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Mobile menu
+            document.getElementById('mobileMenuBtn').addEventListener('click', toggleSidebar);
+            document.getElementById('closeSidebar').addEventListener('click', closeSidebar);
+            document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
+
+            // Back to top button
+            window.addEventListener('scroll', handleScroll);
+            document.getElementById('backToTop').addEventListener('click', scrollToTop);
+
+            // Resize handler
+            window.addEventListener('resize', handleResize);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+        }
+
+        function handleResize() {
+            if (window.innerWidth >= 1024) {
+                closeSidebar();
+            }
+        }
+
+        function handleScroll() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.remove('hidden');
+            } else {
+                backToTop.classList.add('hidden');
+            }
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        function scrollToTopInstant() {
+            window.scrollTo(0, 0);
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            const allSections = document.querySelectorAll('.section');
+            allSections.forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Show target section
+            document.getElementById(sectionId).classList.remove('hidden');
+
+            // Update navigation
+            updateNavigation(sectionId);
+
+            // Close sidebar on mobile
+            closeSidebar();
+
+            // Scroll to top immediately
+            scrollToTopInstant();
+
+            // Update current section index
+            currentSectionIndex = sections.indexOf(sectionId);
+        }
+
+        function updateNavigation(activeSection) {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                // Reset all items to default state
+                item.classList.remove('bg-gradient-to-r', 'from-pink-200', 'to-purple-200', 'text-purple-800', 'font-semibold', 'shadow-md');
+                item.classList.remove('hover:bg-gradient-to-r', 'hover:from-pink-200', 'hover:to-purple-200');
+                item.classList.add('hover:bg-gradient-to-r', 'hover:from-pink-200', 'hover:to-purple-200', 'text-purple-700', 'transition-all');
+            });
+
+            // Find and highlight active section
+            navItems.forEach(item => {
+                const onclickAttr = item.getAttribute('onclick');
+                if (onclickAttr && onclickAttr.includes(`'${activeSection}'`)) {
+                    item.classList.remove('hover:bg-gradient-to-r', 'hover:from-pink-200', 'hover:to-purple-200', 'text-purple-700');
+                    item.classList.add('bg-gradient-to-r', 'from-pink-200', 'to-purple-200', 'text-purple-800', 'font-semibold', 'shadow-md');
+                }
+            });
+        }
+
+        function nextSection() {
+            if (currentSectionIndex < sections.length - 1) {
+                currentSectionIndex++;
+                showSection(sections[currentSectionIndex]);
+                // Ensure we're at the top after section change
+                setTimeout(() => {
+                    window.scrollTo(0, 0);
+                }, 100);
+            }
+        }
+
+        // Demo Functions
+        function createStudent() {
+            const name = document.getElementById('studentName').value.trim();
+            if (!name) {
+                document.getElementById('studentOutput').innerHTML = '<p class="text-red-500 text-lg">❌ Masukkan nama terlebih dahulu!</p>';
+                return;
+            }
+
+            currentStudent = {
+                nama: name,
+                _jurusan: "Teknik Informatika",
+                __ipk: 3.5
+            };
+
+            const output = `
+                <div class="space-y-3">
+                    <h4 class="font-bold text-purple-800 text-lg">✅ Mahasiswa berhasil dibuat!</h4>
+                    <div class="bg-gray-100 p-3 rounded">
+                        <p class="text-lg"><strong>Public:</strong> mhs.nama = "${currentStudent.nama}" ✅</p>
+                        <p class="text-lg"><strong>Protected:</strong> mhs._jurusan = "${currentStudent._jurusan}" ⚠️</p>
+                        <p class="text-lg"><strong>Private:</strong> mhs.__ipk = Error! ❌</p>
+                    </div>
+                    <p class="text-lg text-gray-600">Coba akses atribut private dari luar class - akan error!</p>
+                </div>
+            `;
+            document.getElementById('studentOutput').innerHTML = output;
+        }
+
+        function createStudentGS() {
+            const name = document.getElementById('studentNameGS').value.trim();
+            const age = parseInt(document.getElementById('studentAge').value);
+            const grade = parseFloat(document.getElementById('studentGrade').value);
+
+            if (!name || isNaN(age) || isNaN(grade)) {
+                document.getElementById('studentGSOutput').innerHTML = '<p class="text-red-500 text-lg">❌ Lengkapi semua data dengan benar!</p>';
+                return;
+            }
+
+            // Simulate class with getter/setter
+            currentStudentGS = {
+                __nama: name,
+                __umur: age,
+                __nilai: grade,
+                
+                get_nama: function() { return this.__nama; },
+                get_umur: function() { return this.__umur; },
+                get_nilai: function() { return this.__nilai; },
+                
+                set_nama: function(nama) {
+                    if (typeof nama === 'string' && nama.trim().length > 0) {
+                        this.__nama = nama.trim();
+                        return "✅ Nama berhasil diupdate!";
+                    }
+                    return "❌ Nama harus string dan tidak kosong!";
+                },
+                
+                set_umur: function(umur) {
+                    if (Number.isInteger(umur) && umur >= 5 && umur <= 25) {
+                        this.__umur = umur;
+                        return "✅ Umur berhasil diupdate!";
+                    }
+                    return "❌ Umur harus antara 5-25 tahun!";
+                },
+                
+                set_nilai: function(nilai) {
+                    if (typeof nilai === 'number' && nilai >= 0 && nilai <= 100) {
+                        this.__nilai = nilai;
+                        return "✅ Nilai berhasil diupdate!";
+                    }
+                    return "❌ Nilai harus antara 0-100!";
+                },
+                
+                get_grade: function() {
+                    if (this.__nilai >= 90) return "A";
+                    if (this.__nilai >= 80) return "B";
+                    if (this.__nilai >= 70) return "C";
+                    if (this.__nilai >= 60) return "D";
+                    return "E";
+                }
+            };
+
+            updateStudentGSDisplay();
+        }
+
+        function updateStudentGSDisplay() {
+            if (!currentStudentGS) return;
+            
+            const output = `
+                <div class="space-y-4">
+                    <h4 class="font-bold text-cyan-800 text-lg">👤 Data Siswa</h4>
+                    <div class="bg-gray-100 p-4 rounded">
+                        <p class="text-lg"><strong>Nama:</strong> ${currentStudentGS.get_nama()}</p>
+                        <p class="text-lg"><strong>Umur:</strong> ${currentStudentGS.get_umur()} tahun</p>
+                        <p class="text-lg"><strong>Nilai:</strong> ${currentStudentGS.get_nilai()}</p>
+                        <p class="text-lg"><strong>Grade:</strong> ${currentStudentGS.get_grade()}</p>
+                    </div>
+                    <div class="text-lg text-gray-600">
+                        <p>💡 Gunakan tombol update untuk mengubah data dengan validasi!</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('studentGSOutput').innerHTML = output;
+        }
+
+        function updateName() {
+            const newName = document.getElementById('newName').value.trim();
+            if (currentStudentGS && newName) {
+                const result = currentStudentGS.set_nama(newName);
+                updateStudentGSDisplay();
+                document.getElementById('studentGSOutput').innerHTML += `<p class="mt-2 text-lg ${result.includes('✅') ? 'text-green-600' : 'text-red-600'}">${result}</p>`;
+                document.getElementById('newName').value = '';
+            }
+        }
+
+        function updateAge() {
+            const newAge = parseInt(document.getElementById('newAge').value);
+            if (currentStudentGS && !isNaN(newAge)) {
+                const result = currentStudentGS.set_umur(newAge);
+                updateStudentGSDisplay();
+                document.getElementById('studentGSOutput').innerHTML += `<p class="mt-2 text-lg ${result.includes('✅') ? 'text-green-600' : 'text-red-600'}">${result}</p>`;
+                document.getElementById('newAge').value = '';
+            }
+        }
+
+        function updateGrade() {
+            const newGrade = parseFloat(document.getElementById('newGrade').value);
+            if (currentStudentGS && !isNaN(newGrade)) {
+                const result = currentStudentGS.set_nilai(newGrade);
+                updateStudentGSDisplay();
+                document.getElementById('studentGSOutput').innerHTML += `<p class="mt-2 text-lg ${result.includes('✅') ? 'text-green-600' : 'text-red-600'}">${result}</p>`;
+                document.getElementById('newGrade').value = '';
+            }
+        }
+
+        function createStudentProperty() {
+            const name = document.getElementById('propStudentName').value.trim();
+            const grade = parseFloat(document.getElementById('propStudentGrade').value);
+
+            if (!name || isNaN(grade)) {
+                document.getElementById('propertyOutput').innerHTML = '<p class="text-red-500 text-lg">❌ Lengkapi semua data dengan benar!</p>';
+                return;
+            }
+
+            // Simulate class with property decorator
+            currentStudentProperty = {
+                __nama: name,
+                __nilai: grade,
+                
+                // Property getter/setter simulation
+                get nama() { return this.__nama; },
+                set nama(nama) {
+                    if (typeof nama === 'string' && nama.trim().length > 0) {
+                        this.__nama = nama.trim().charAt(0).toUpperCase() + nama.trim().slice(1).toLowerCase();
+                    } else {
+                        throw new Error("❌ Nama harus string dan tidak kosong!");
+                    }
+                },
+                
+                get nilai() { return this.__nilai; },
+                set nilai(nilai) {
+                    if (typeof nilai === 'number' && nilai >= 0 && nilai <= 100) {
+                        this.__nilai = nilai;
+                    } else {
+                        throw new Error("❌ Nilai harus antara 0-100!");
+                    }
+                },
+                
+                get grade() {
+                    if (this.__nilai >= 90) return "A";
+                    if (this.__nilai >= 80) return "B";
+                    if (this.__nilai >= 70) return "C";
+                    if (this.__nilai >= 60) return "D";
+                    return "E";
+                }
+            };
+
+            updateStudentPropertyDisplay();
+        }
+
+        function updateStudentPropertyDisplay() {
+            if (!currentStudentProperty) return;
+            
+            const output = `
+                <div class="space-y-4">
+                    <h4 class="font-bold text-pink-800 text-lg">👤 Data Siswa (Property)</h4>
+                    <div class="bg-gray-100 p-4 rounded font-mono text-lg">
+                        <p><strong>siswa.nama:</strong> "${currentStudentProperty.nama}"</p>
+                        <p><strong>siswa.nilai:</strong> ${currentStudentProperty.nilai}</p>
+                        <p><strong>siswa.grade:</strong> "${currentStudentProperty.grade}" (read-only)</p>
+                    </div>
+                    <div class="text-lg text-gray-600">
+                        <p>✨ Akses seperti atribut biasa, tapi tetap terkontrol!</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('propertyOutput').innerHTML = output;
+        }
+
+        function testPropertyAccess() {
+            if (!currentStudentProperty) {
+                document.getElementById('propertyOutput').innerHTML = '<p class="text-red-500 text-lg">❌ Buat siswa terlebih dahulu!</p>';
+                return;
+            }
+
+            // Test valid access
+            try {
+                currentStudentProperty.nama = "budi setiawan";
+                currentStudentProperty.nilai = 95;
+            } catch (e) {
+                // Handle any errors
+            }
+
+            const output = `
+                <div class="space-y-4">
+                    <h4 class="font-bold text-pink-800 text-lg">🧪 Test Property Access</h4>
+                    <div class="bg-green-100 p-4 rounded">
+                        <p class="font-bold text-green-800 text-lg">✅ Akses Valid:</p>
+                        <div class="font-mono text-lg mt-2">
+                            <p>siswa.nama = "budi setiawan"</p>
+                            <p>→ Hasil: "${currentStudentProperty.nama}" (auto format)</p>
+                            <p>siswa.nilai = 95</p>
+                            <p>→ Hasil: ${currentStudentProperty.nilai}</p>
+                            <p>siswa.grade</p>
+                            <p>→ Hasil: "${currentStudentProperty.grade}" (calculated)</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('propertyOutput').innerHTML = output;
+        }
+
+        function testInvalidData() {
+            if (!currentStudentProperty) {
+                document.getElementById('propertyOutput').innerHTML = '<p class="text-red-500 text-lg">❌ Buat siswa terlebih dahulu!</p>';
+                return;
+            }
+
+            const output = `
+                <div class="space-y-4">
+                    <h4 class="font-bold text-pink-800 text-lg">🧪 Test Data Invalid</h4>
+                    <div class="bg-red-100 p-4 rounded">
+                        <p class="font-bold text-red-800 text-lg">❌ Akses Invalid:</p>
+                        <div class="font-mono text-lg mt-2">
+                            <p>siswa.nama = ""</p>
+                            <p class="text-red-600">→ Error: Nama harus string dan tidak kosong!</p>
+                            <p>siswa.nilai = 150</p>
+                            <p class="text-red-600">→ Error: Nilai harus antara 0-100!</p>
+                            <p>siswa.grade = "A+"</p>
+                            <p class="text-red-600">→ Error: Cannot set read-only property!</p>
+                        </div>
+                    </div>
+                    <p class="text-lg text-gray-600">💡 Property decorator otomatis memvalidasi data!</p>
+                </div>
+            `;
+            document.getElementById('propertyOutput').innerHTML = output;
+        }
+
+        // Quiz Functions
+        function startQuiz() {
+            const name = document.getElementById('quizName').value.trim();
+            if (!name) {
+                alert('Masukkan nama terlebih dahulu!');
+                return;
+            }
+
+            playerName = name;
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedAnswer = null;
+
+            document.getElementById('quizStart').classList.add('hidden');
+            document.getElementById('quizQuestions').classList.remove('hidden');
+            document.getElementById('quizPlayerName').textContent = playerName;
+
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const question = questions[currentQuestionIndex];
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('progressBar').style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
+
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'quiz-option p-4 border-2 border-purple-200 rounded-lg cursor-pointer hover:border-purple-400 transition-all';
+                optionDiv.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 border-2 border-purple-300 rounded-full flex items-center justify-center font-bold text-purple-600">
+                            ${String.fromCharCode(65 + index)}
+                        </div>
+                        <span class="text-gray-800 text-lg">${option}</span>
+                    </div>
+                `;
+                
+                optionDiv.addEventListener('click', () => selectAnswer(index, optionDiv));
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            document.getElementById('nextButton').disabled = true;
+            document.getElementById('nextButton').className = 'mt-6 bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-6 py-3 rounded-lg font-semibold opacity-50 cursor-not-allowed text-lg';
+        }
+
+        function selectAnswer(answerIndex, optionElement) {
+            // Remove previous selection
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('border-purple-500', 'bg-purple-100');
+            });
+
+            // Highlight selected option
+            optionElement.classList.add('border-purple-500', 'bg-purple-100');
+            selectedAnswer = answerIndex;
+
+            // Enable next button
+            document.getElementById('nextButton').disabled = false;
+            document.getElementById('nextButton').className = 'mt-6 bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all text-lg';
+        }
+
+        function nextQuestion() {
+            if (selectedAnswer === null) return;
+
+            const question = questions[currentQuestionIndex];
+            const isCorrect = selectedAnswer === question.correct;
+
+            // Show correct/incorrect feedback
+            document.querySelectorAll('.quiz-option').forEach((option, index) => {
+                if (index === question.correct) {
+                    option.classList.add('correct');
+                } else if (index === selectedAnswer && !isCorrect) {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            if (isCorrect) {
+                score++;
+            }
+
+            // Wait a moment then proceed
+            setTimeout(() => {
+                currentQuestionIndex++;
+                selectedAnswer = null;
+
+                if (currentQuestionIndex < questions.length) {
+                    showQuestion();
+                } else {
+                    showResults();
+                }
+            }, 1500);
+        }
+
+        function showResults() {
+            document.getElementById('quizQuestions').classList.add('hidden');
+            document.getElementById('quizResults').classList.remove('hidden');
+
+            const percentage = Math.round((score / questions.length) * 100);
+            const correctCount = score;
+            const wrongCount = questions.length - score;
+
+            document.getElementById('finalScore').textContent = `${score}/${questions.length} (${percentage}%)`;
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('wrongCount').textContent = wrongCount;
+
+            let resultIcon, resultTitle, resultMessage;
+
+            if (percentage >= 90) {
+                resultIcon = '🏆';
+                resultTitle = `Luar Biasa, ${playerName}!`;
+                resultMessage = 'Kamu menguasai enkapsulasi dengan sempurna!';
+            } else if (percentage >= 80) {
+                resultIcon = '🎉';
+                resultTitle = `Bagus Sekali, ${playerName}!`;
+                resultMessage = 'Pemahaman kamu tentang enkapsulasi sangat baik!';
+            } else if (percentage >= 70) {
+                resultIcon = '👍';
+                resultTitle = `Baik, ${playerName}!`;
+                resultMessage = 'Kamu sudah memahami konsep dasar enkapsulasi.';
+            } else if (percentage >= 60) {
+                resultIcon = '📚';
+                resultTitle = `Cukup, ${playerName}`;
+                resultMessage = 'Pelajari lagi materi enkapsulasi untuk pemahaman yang lebih baik.';
+            } else {
+                resultIcon = '💪';
+                resultTitle = `Semangat, ${playerName}!`;
+                resultMessage = 'Jangan menyerah! Ulangi materi dan coba lagi.';
+            }
+
+            document.getElementById('resultIcon').textContent = resultIcon;
+            document.getElementById('resultTitle').textContent = resultTitle;
+            document.getElementById('resultMessage').textContent = resultMessage;
+        }
+
+        function restartQuiz() {
+            document.getElementById('quizResults').classList.add('hidden');
+            document.getElementById('quizStart').classList.remove('hidden');
+            document.getElementById('quizName').value = '';
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'991e54b775d20557',t:'MTc2MTAyNDI5MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
