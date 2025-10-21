@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manfaat Inheritance - Reuse Kode Python</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #fef3ff 0%, #f0f9ff 25%, #f0fdf4 50%, #fefce8 75%, #fef2f2 100%);
+        }
+        
+        .code-block {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .code-header {
+            background: linear-gradient(90deg, #f472b6, #a855f7);
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .floating-elements {
+            position: fixed;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .content-area {
+            position: relative;
+            z-index: 10;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .sidebar-transition {
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar-hidden {
+                transform: translateX(-100%);
+            }
+        }
+        
+        .demo-card {
+            transition: all 0.3s ease;
+        }
+        
+        .demo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-full font-sans">
+    <!-- Floating Decorative Elements -->
+    <div class="floating-elements">
+        <div class="absolute top-20 left-10 text-6xl opacity-20 float-animation" style="animation-delay: 0s;">🐍</div>
+        <div class="absolute top-40 right-20 text-4xl opacity-20 float-animation" style="animation-delay: 1s;">♻️</div>
+        <div class="absolute top-60 left-1/4 text-5xl opacity-20 float-animation" style="animation-delay: 2s;">💎</div>
+        <div class="absolute bottom-40 right-10 text-4xl opacity-20 float-animation" style="animation-delay: 3s;">⚡</div>
+        <div class="absolute bottom-20 left-20 text-5xl opacity-20 float-animation" style="animation-delay: 4s;">🚀</div>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuBtn" class="md:hidden fixed top-4 left-4 z-50 bg-pink-400 text-white p-3 rounded-full shadow-lg hover:bg-pink-500 transition-colors">
+        <i class="fas fa-bars text-lg"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white/90 backdrop-blur-sm shadow-xl z-40 sidebar-transition md:translate-x-0 sidebar-hidden flex flex-col">
+        <div class="p-6 border-b border-pink-200 flex-shrink-0">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-12 h-12 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full flex items-center justify-center">
+                    <i class="fas fa-recycle text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-800">Reuse Kode Python</h1>
+                    <p class="text-md text-gray-600">Manfaat Inheritance</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="p-4 space-y-2 flex-1 overflow-y-auto pb-20">
+            <a href="#" onclick="showSection('intro')" data-section="intro" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-pink-100 transition-colors text-gray-700 hover:text-pink-600">
+                <i class="fas fa-play-circle text-pink-400"></i>
+                <span class="font-medium">Intro</span>
+            </a>
+            <a href="#" onclick="showSection('pengenalan')" data-section="pengenalan" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-blue-100 transition-colors text-gray-700 hover:text-blue-600">
+                <i class="fas fa-book-open text-blue-400"></i>
+                <span class="font-medium">Pengenalan</span>
+            </a>
+            <a href="#" onclick="showSection('masalah-tanpa-inheritance')" data-section="masalah-tanpa-inheritance" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-red-100 transition-colors text-gray-700 hover:text-red-600">
+                <i class="fas fa-exclamation-triangle text-red-400"></i>
+                <span class="font-medium">Masalah Tanpa Inheritance</span>
+            </a>
+            <a href="#" onclick="showSection('solusi-inheritance')" data-section="solusi-inheritance" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-green-100 transition-colors text-gray-700 hover:text-green-600">
+                <i class="fas fa-lightbulb text-green-400"></i>
+                <span class="font-medium">Solusi dengan Inheritance</span>
+            </a>
+            <a href="#" onclick="showSection('keuntungan-reuse')" data-section="keuntungan-reuse" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-yellow-100 transition-colors text-gray-700 hover:text-yellow-600">
+                <i class="fas fa-star text-yellow-400"></i>
+                <span class="font-medium">Keuntungan Reuse Kode</span>
+            </a>
+            <a href="#" onclick="showSection('contoh-praktis')" data-section="contoh-praktis" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-purple-100 transition-colors text-gray-700 hover:text-purple-600">
+                <i class="fas fa-laptop-code text-purple-400"></i>
+                <span class="font-medium">Contoh Praktis</span>
+            </a>
+            <a href="#" onclick="showSection('tugas')" data-section="tugas" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-orange-100 transition-colors text-gray-700 hover:text-orange-600">
+                <i class="fas fa-tasks text-orange-400"></i>
+                <span class="font-medium">Tugas</span>
+            </a>
+            <a href="#" onclick="showSection('kuis')" data-section="kuis" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-cyan-100 transition-colors text-gray-700 hover:text-cyan-600">
+                <i class="fas fa-question-circle text-cyan-400"></i>
+                <span class="font-medium">Kuis</span>
+            </a>
+            <a href="#" onclick="showSection('penutup')" data-section="penutup" class="nav-item flex items-center gap-3 p-3 rounded-lg hover:bg-teal-100 transition-colors text-gray-700 hover:text-teal-600">
+                <i class="fas fa-flag-checkered text-teal-400"></i>
+                <span class="font-medium">Penutup</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="md:ml-80 min-h-full">
+        <div class="content-area max-w-4xl mx-auto p-6 md:p-8">
+            
+            <!-- Intro Section -->
+            <div id="intro" class="section">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full mb-4">
+                            <i class="fas fa-recycle text-white text-3xl"></i>
+                        </div>
+                        <h1 class="text-4xl font-bold text-gray-800 mb-2">Selamat Datang! 🎉</h1>
+                        <p class="text-xl text-gray-600">Mari Pelajari Manfaat Inheritance untuk Reuse Kode Python</p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-pink-50 to-rose-100 p-6 rounded-xl">
+                            <h3 class="text-lg font-bold text-pink-700 mb-3 flex items-center gap-2">
+                                <i class="fas fa-question-circle"></i>
+                                Pertanyaan Pemantik
+                            </h3>
+                            <p class="text-gray-700 mb-3">🤔 Pernahkah kalian menulis kode yang sama berulang-ulang?</p>
+                            <p class="text-gray-700">Bagaimana jika ada cara untuk menulis sekali, pakai berkali-kali? Itulah keajaiban inheritance dalam Python! ✨</p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-blue-50 to-cyan-100 p-6 rounded-xl">
+                            <h3 class="text-lg font-bold text-blue-700 mb-3 flex items-center gap-2">
+                                <i class="fas fa-target"></i>
+                                Apa yang Dipelajari?
+                            </h3>
+                            <ul class="text-gray-700 space-y-2">
+                                <li>• Masalah duplikasi kode</li>
+                                <li>• Solusi dengan inheritance</li>
+                                <li>• Keuntungan reuse kode</li>
+                                <li>• Contoh praktis implementasi</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl mb-6">
+                        <h3 class="text-lg font-bold text-green-700 mb-3 flex items-center gap-2">
+                            <i class="fas fa-bullseye"></i>
+                            Tujuan Pembelajaran
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4 text-gray-700">
+                            <div>
+                                <p class="mb-2">🎯 Memahami pentingnya reuse kode</p>
+                                <p class="mb-2">🎯 Menguasai inheritance untuk efisiensi</p>
+                            </div>
+                            <div>
+                                <p class="mb-2">🎯 Menerapkan best practices</p>
+                                <p class="mb-2">🎯 Membuat kode yang maintainable</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl mb-6">
+                        <h3 class="text-lg font-bold text-purple-700 mb-3 flex items-center gap-2">
+                            <i class="fas fa-heart"></i>
+                            Pemahaman Bermakna
+                        </h3>
+                        <p class="text-gray-700">Inheritance bukan hanya tentang teknik programming, tapi tentang cara berpikir efisien! Seperti mewarisi resep masakan keluarga, kita bisa mewarisi kode yang sudah teruji dan mengembangkannya sesuai kebutuhan. 👨‍🍳💝</p>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl">
+                        <h3 class="text-lg font-bold text-orange-700 mb-3 flex items-center gap-2">
+                            <i class="fas fa-fire"></i>
+                            Motivasi
+                        </h3>
+                        <p class="text-gray-700">Programmer handal adalah programmer yang efisien! Dengan menguasai reuse kode melalui inheritance, kalian akan menghemat waktu, mengurangi bug, dan membuat kode yang lebih profesional. Mari jadi programmer yang cerdas! 🚀✨</p>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="showSection('pengenalan')" class="bg-gradient-to-r from-pink-400 to-purple-500 text-white px-8 py-3 rounded-full font-semibold hover:from-pink-500 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg">
+                        Mulai Belajar! <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Pengenalan Section -->
+            <div id="pengenalan" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full mb-4">
+                            <i class="fas fa-book-open text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Pengenalan Reuse Kode 📚</h2>
+                        <p class="text-lg text-gray-600">Mengapa reuse kode penting dalam programming?</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-info-circle"></i>
+                                Apa itu Reuse Kode?
+                            </h3>
+                            <p class="text-gray-700 mb-4">
+                                <strong>Reuse Kode (Code Reuse)</strong> adalah praktik menggunakan kembali kode yang sudah ada untuk menyelesaikan masalah yang serupa, tanpa perlu menulis ulang dari awal.
+                            </p>
+                            <div class="bg-white p-4 rounded-lg border-l-4 border-blue-400">
+                                <p class="text-gray-700">
+                                    <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                    <strong>Analogi:</strong> Seperti menggunakan template surat yang sudah ada, tinggal ganti nama dan alamat. Tidak perlu menulis format surat dari awal! 📝
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-recycle"></i>
+                                Mengapa Reuse Kode Penting?
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="bg-white p-4 rounded-lg">
+                                        <h4 class="font-bold text-green-600 mb-2 flex items-center gap-2">
+                                            <i class="fas fa-clock"></i> Menghemat Waktu
+                                        </h4>
+                                        <p class="text-gray-700 text-md">Tidak perlu menulis kode yang sama berulang kali. Fokus pada fitur baru!</p>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-lg">
+                                        <h4 class="font-bold text-blue-600 mb-2 flex items-center gap-2">
+                                            <i class="fas fa-bug"></i> Mengurangi Bug
+                                        </h4>
+                                        <p class="text-gray-700 text-md">Kode yang sudah teruji lebih reliable daripada menulis ulang.</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="bg-white p-4 rounded-lg">
+                                        <h4 class="font-bold text-purple-600 mb-2 flex items-center gap-2">
+                                            <i class="fas fa-tools"></i> Mudah Maintenance
+                                        </h4>
+                                        <p class="text-gray-700 text-md">Update sekali, berlaku di semua tempat yang menggunakan kode tersebut.</p>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-lg">
+                                        <h4 class="font-bold text-pink-600 mb-2 flex items-center gap-2">
+                                            <i class="fas fa-users"></i> Konsistensi
+                                        </h4>
+                                        <p class="text-gray-700 text-md">Semua bagian aplikasi menggunakan standar yang sama.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-magic"></i>
+                                Inheritance sebagai Solusi
+                            </h3>
+                            <p class="text-gray-700 mb-4">
+                                Dalam Python, <strong>Inheritance (Pewarisan)</strong> adalah mekanisme dimana sebuah class (child/subclass) dapat mewarisi atribut dan method dari class lain (parent/superclass). 
+                                Dengan inheritance, kita bisa:
+                            </p>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="text-center">
+                                    <div class="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <i class="fas fa-share-alt text-white"></i>
+                                    </div>
+                                    <h4 class="font-bold text-gray-800 mb-2">Berbagi Kode</h4>
+                                    <p class="text-gray-600 text-md">Parent class menyediakan kode umum</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="w-12 h-12 bg-green-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <i class="fas fa-plus text-white"></i>
+                                    </div>
+                                    <h4 class="font-bold text-gray-800 mb-2">Menambah Fitur</h4>
+                                    <p class="text-gray-600 text-md">Child class menambah fitur spesifik</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="w-12 h-12 bg-blue-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <i class="fas fa-sync-alt text-white"></i>
+                                    </div>
+                                    <h4 class="font-bold text-gray-800 mb-2">Modifikasi</h4>
+                                    <p class="text-gray-600 text-md">Override method sesuai kebutuhan</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="showSection('masalah-tanpa-inheritance')" class="bg-gradient-to-r from-blue-400 to-cyan-500 text-white px-8 py-3 rounded-full font-semibold hover:from-blue-500 hover:to-cyan-600 transition-all transform hover:scale-105 shadow-lg">
+                        Lihat Masalahnya <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Masalah Tanpa Inheritance Section -->
+            <div id="masalah-tanpa-inheritance" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-400 to-pink-500 rounded-full mb-4">
+                            <i class="fas fa-exclamation-triangle text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Masalah Tanpa Inheritance ⚠️</h2>
+                        <p class="text-lg text-gray-600">Melihat dampak buruk duplikasi kode</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-red-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-red-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-copy"></i>
+                                Contoh Kode Berulang (Tidak Efisien)
+                            </h3>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">kode_berulang.py</span>
+                                </div>
+                                <pre class="p-4 text-green-300 text-base overflow-x-auto"><code># TANPA INHERITANCE - Banyak kode berulang! 😵
+
+class Kucing:
+    def __init__(self, nama, umur):
+        self.nama = nama
+        self.umur = umur
+        self.jenis = "Mamalia"  # ← Berulang
+        self.bernapas = "Paru-paru"  # ← Berulang
+    
+    def makan(self):  # ← Berulang
+        print(f"{self.nama} sedang makan")
+    
+    def tidur(self):  # ← Berulang
+        print(f"{self.nama} sedang tidur")
+    
+    def bergerak(self):  # ← Berulang
+        print(f"{self.nama} sedang bergerak")
+    
+    def bersuara(self):
+        print(f"{self.nama} mengeong")
+
+class Anjing:
+    def __init__(self, nama, umur):
+        self.nama = nama
+        self.umur = umur
+        self.jenis = "Mamalia"  # ← Berulang lagi!
+        self.bernapas = "Paru-paru"  # ← Berulang lagi!
+    
+    def makan(self):  # ← Berulang lagi!
+        print(f"{self.nama} sedang makan")
+    
+    def tidur(self):  # ← Berulang lagi!
+        print(f"{self.nama} sedang tidur")
+    
+    def bergerak(self):  # ← Berulang lagi!
+        print(f"{self.nama} sedang bergerak")
+    
+    def bersuara(self):
+        print(f"{self.nama} menggonggong")
+
+class Burung:
+    def __init__(self, nama, umur):
+        self.nama = nama
+        self.umur = umur
+        self.jenis = "Aves"  # ← Berbeda tapi tetap berulang
+        self.bernapas = "Paru-paru"  # ← Berulang lagi!
+    
+    def makan(self):  # ← Berulang lagi!
+        print(f"{self.nama} sedang makan")
+    
+    def tidur(self):  # ← Berulang lagi!
+        print(f"{self.nama} sedang tidur")
+    
+    def bergerak(self):  # ← Berulang lagi!
+        print(f"{self.nama} sedang bergerak")
+    
+    def bersuara(self):
+        print(f"{self.nama} berkicau")
+    
+    def terbang(self):  # ← Hanya ini yang unik
+        print(f"{self.nama} sedang terbang")</code></pre>
+                            </div>
+
+                            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-play"></i>
+                                    Contoh Penggunaan dan Output:
+                                </h4>
+                                <div class="code-block mb-3">
+                                    <div class="code-header">
+                                        <i class="fab fa-python"></i>
+                                        <span>Python</span>
+                                        <span class="ml-auto">Melanjutkan kode di atas...</span>
+                                    </div>
+                                    <pre class="p-4 text-green-300 text-base overflow-x-auto"><code># Membuat instance dari setiap class
+kucing1 = Kucing("Mimi", 2)
+anjing1 = Anjing("Buddy", 3)
+burung1 = Burung("Tweety", 1)
+
+# Memanggil method yang sama di setiap class
+print("=== Testing Method yang Berulang ===")
+kucing1.makan()    
+anjing1.makan()    
+burung1.makan()    
+
+kucing1.tidur()    
+anjing1.tidur()    
+burung1.tidur()    
+
+print("\n=== Method Unik Setiap Hewan ===")
+kucing1.bersuara() 
+anjing1.bersuara() 
+burung1.bersuara() 
+burung1.terbang()  </code></pre>
+                                </div>
+                                <div class="code-block">
+                                    <div class="code-header">
+                                        <i class="fas fa-terminal"></i>
+                                        <span>Output</span>
+                                        <span class="ml-auto">Hasil Eksekusi</span>
+                                    </div>
+                                    <pre class="p-4 text-green-300 text-base overflow-x-auto"><code>=== Testing Method yang Berulang ===
+Mimi sedang makan
+Buddy sedang makan
+Tweety sedang makan
+Mimi sedang tidur
+Buddy sedang tidur
+Tweety sedang tidur
+
+=== Method Unik Setiap Hewan ===
+Mimi mengeong
+Buddy menggonggong
+Tweety berkicau
+Tweety sedang terbang</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-lg border-l-4 border-red-400">
+                                <h4 class="font-bold text-red-600 mb-2">😱 Masalah yang Terlihat:</h4>
+                                <ul class="text-gray-700 space-y-2 text-lg">
+                                    <li>• Kode makan(), tidur(), bergerak() ditulis 3 kali!</li>
+                                    <li>• Atribut nama, umur, bernapas berulang terus</li>
+                                    <li>• Total ~60 baris kode untuk hal yang sederhana</li>
+                                    <li>• Jika ada bug di method makan(), harus fix di 3 tempat!</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-orange-50 to-yellow-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-orange-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-calculator"></i>
+                                Demo Masalah Maintenance
+                            </h3>
+                            <div class="bg-white p-4 rounded-lg border">
+                                <p class="text-gray-700 mb-4">
+                                    <strong>Skenario:</strong> Kita ingin mengubah method makan() agar menampilkan waktu makan. 
+                                    Tanpa inheritance, kita harus edit di 3 tempat berbeda!
+                                </p>
+                                
+                                <div class="space-y-3">
+                                    <button onclick="simulasiMasalah('step1')" class="w-full bg-red-400 text-white py-2 rounded-lg hover:bg-red-500 transition-colors">
+                                        <i class="fas fa-edit mr-2"></i> Step 1: Edit method makan() di class Kucing
+                                    </button>
+                                    <button onclick="simulasiMasalah('step2')" class="w-full bg-orange-400 text-white py-2 rounded-lg hover:bg-orange-500 transition-colors">
+                                        <i class="fas fa-edit mr-2"></i> Step 2: Edit method makan() di class Anjing
+                                    </button>
+                                    <button onclick="simulasiMasalah('step3')" class="w-full bg-yellow-400 text-white py-2 rounded-lg hover:bg-yellow-500 transition-colors">
+                                        <i class="fas fa-edit mr-2"></i> Step 3: Edit method makan() di class Burung
+                                    </button>
+                                    <button onclick="simulasiMasalah('reset')" class="w-full bg-gray-400 text-white py-2 rounded-lg hover:bg-gray-500 transition-colors">
+                                        <i class="fas fa-redo mr-2"></i> Reset Demo
+                                    </button>
+                                </div>
+                                
+                                <div id="masalahOutput" class="mt-4 p-3 bg-gray-100 rounded-lg min-h-[80px] text-gray-700">
+                                    <p class="text-lg text-gray-500">Klik tombol di atas untuk melihat betapa merepotkannya maintenance tanpa inheritance! 😰</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="showSection('solusi-inheritance')" class="bg-gradient-to-r from-red-400 to-pink-500 text-white px-8 py-3 rounded-full font-semibold hover:from-red-500 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg">
+                        Lihat Solusinya! <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Solusi Inheritance Section -->
+            <div id="solusi-inheritance" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full mb-4">
+                            <i class="fas fa-lightbulb text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Solusi dengan Inheritance ✨</h2>
+                        <p class="text-lg text-gray-600">Bagaimana inheritance menyelesaikan masalah duplikasi kode</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-magic"></i>
+                                Kode dengan Inheritance (Efisien!)
+                            </h3>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">kode_efisien.py</span>
+                                </div>
+                                <pre class="p-4 text-green-300 text-base overflow-x-auto"><code># DENGAN INHERITANCE - Kode efisien dan rapi! 🎉
+
+# Parent Class - Semua kode umum di sini
+class Hewan:
+    def __init__(self, nama, umur):
+        self.nama = nama
+        self.umur = umur
+        self.bernapas = "Paru-paru"
+    
+    def makan(self):  # ← Ditulis sekali, dipakai semua child
+        print(f"{self.nama} sedang makan")
+    
+    def tidur(self):  # ← Ditulis sekali, dipakai semua child
+        print(f"{self.nama} sedang tidur")
+    
+    def bergerak(self):  # ← Ditulis sekali, dipakai semua child
+        print(f"{self.nama} sedang bergerak")
+    
+    def info(self):
+        return f"{self.nama} adalah hewan berumur {self.umur} tahun"
+
+# Child Classes - Hanya kode spesifik
+class Kucing(Hewan):  # ← Mewarisi semua dari Hewan
+    def __init__(self, nama, umur):
+        super().__init__(nama, umur)
+        self.jenis = "Mamalia"
+    
+    def bersuara(self):  # ← Hanya method unik
+        print(f"{self.nama} mengeong")
+    
+    def memanjat(self):  # ← Method khusus kucing
+        print(f"{self.nama} memanjat pohon")
+
+class Anjing(Hewan):  # ← Mewarisi semua dari Hewan
+    def __init__(self, nama, umur):
+        super().__init__(nama, umur)
+        self.jenis = "Mamalia"
+    
+    def bersuara(self):  # ← Hanya method unik
+        print(f"{self.nama} menggonggong")
+    
+    def menjaga(self):  # ← Method khusus anjing
+        print(f"{self.nama} menjaga rumah")
+
+class Burung(Hewan):  # ← Mewarisi semua dari Hewan
+    def __init__(self, nama, umur):
+        super().__init__(nama, umur)
+        self.jenis = "Aves"
+    
+    def bersuara(self):  # ← Hanya method unik
+        print(f"{self.nama} berkicau")
+    
+    def terbang(self):  # ← Method khusus burung
+        print(f"{self.nama} sedang terbang")</code></pre>
+                            </div>
+
+                            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-play"></i>
+                                    Contoh Penggunaan dan Output:
+                                </h4>
+                                <div class="code-block mb-3">
+                                    <div class="code-header">
+                                        <i class="fab fa-python"></i>
+                                        <span>Python</span>
+                                        <span class="ml-auto">Melanjutkan kode di atas...</span>
+                                    </div>
+                                    <pre class="p-4 text-green-300 text-base overflow-x-auto"><code># Membuat instance dari setiap class
+kucing1 = Kucing("Mimi", 2)
+anjing1 = Anjing("Buddy", 3)
+burung1 = Burung("Tweety", 1)
+
+# Memanggil method yang diwarisi dari parent class
+print("=== Method yang Diwarisi dari Parent ===")
+kucing1.makan()    # Method dari class Hewan
+anjing1.makan()    # Method dari class Hewan
+burung1.makan()    # Method dari class Hewan
+
+kucing1.tidur()    # Method dari class Hewan
+anjing1.tidur()    # Method dari class Hewan
+burung1.tidur()    # Method dari class Hewan
+
+print("\n=== Method Unik Setiap Child Class ===")
+kucing1.bersuara()  # Method khusus Kucing
+kucing1.memanjat()  # Method khusus Kucing
+
+anjing1.bersuara()  # Method khusus Anjing
+anjing1.menjaga()   # Method khusus Anjing
+
+burung1.bersuara()  # Method khusus Burung
+burung1.terbang()   # Method khusus Burung
+
+print("\n=== Informasi Hewan ===")
+print(kucing1.info())  # Method dari parent class
+print(anjing1.info())  # Method dari parent class
+print(burung1.info())  # Method dari parent class</code></pre>
+                                </div>
+                                <div class="code-block">
+                                    <div class="code-header">
+                                        <i class="fas fa-terminal"></i>
+                                        <span>Output</span>
+                                        <span class="ml-auto">Hasil Eksekusi</span>
+                                    </div>
+                                    <pre class="p-4 text-green-300 text-base overflow-x-auto"><code>=== Method yang Diwarisi dari Parent ===
+Mimi sedang makan
+Buddy sedang makan
+Tweety sedang makan
+Mimi sedang tidur
+Buddy sedang tidur
+Tweety sedang tidur
+
+=== Method Unik Setiap Child Class ===
+Mimi mengeong
+Mimi memanjat pohon
+Buddy menggonggong
+Buddy menjaga rumah
+Tweety berkicau
+Tweety sedang terbang
+
+=== Informasi Hewan ===
+Mimi adalah hewan berumur 2 tahun
+Buddy adalah hewan berumur 3 tahun
+Tweety adalah hewan berumur 1 tahun</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-lg border-l-4 border-green-400">
+                                <h4 class="font-bold text-green-600 mb-2">🎉 Keajaiban Inheritance:</h4>
+                                <ul class="text-gray-700 space-y-2 text-lg">
+                                    <li>• Method makan(), tidur(), bergerak(), info() hanya ditulis SEKALI di parent!</li>
+                                    <li>• Setiap child class otomatis punya akses ke semua method parent</li>
+                                    <li>• Total kode berkurang dari ~60 baris menjadi ~40 baris (33% lebih efisien)</li>
+                                    <li>• Update method parent = otomatis berlaku untuk semua child</li>
+                                    <li>• Child class fokus hanya pada fitur unik mereka</li>
+                                    <li>• Konsistensi interface - semua hewan punya method yang sama</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-play-circle"></i>
+                                Demo Solusi Maintenance
+                            </h3>
+                            <div class="bg-white p-4 rounded-lg border">
+                                <p class="text-gray-700 mb-4">
+                                    <strong>Skenario yang sama:</strong> Mengubah method makan() agar menampilkan waktu. 
+                                    Dengan inheritance, cukup edit di 1 tempat saja!
+                                </p>
+                                
+                                <div class="space-y-3">
+                                    <button onclick="simulasiSolusi('edit')" class="w-full bg-green-400 text-white py-2 rounded-lg hover:bg-green-500 transition-colors">
+                                        <i class="fas fa-edit mr-2"></i> Edit method makan() di Parent Class Hewan
+                                    </button>
+                                    <button onclick="simulasiSolusi('test')" class="w-full bg-blue-400 text-white py-2 rounded-lg hover:bg-blue-500 transition-colors">
+                                        <i class="fas fa-play mr-2"></i> Test semua child class
+                                    </button>
+                                    <button onclick="simulasiSolusi('reset')" class="w-full bg-gray-400 text-white py-2 rounded-lg hover:bg-gray-500 transition-colors">
+                                        <i class="fas fa-redo mr-2"></i> Reset Demo
+                                    </button>
+                                </div>
+                                
+                                <div id="solusiOutput" class="mt-4 p-3 bg-gray-100 rounded-lg min-h-[80px] text-gray-700">
+                                    <p class="text-lg text-gray-500">Lihat betapa mudahnya maintenance dengan inheritance! 🎉</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="showSection('keuntungan-reuse')" class="bg-gradient-to-r from-green-400 to-emerald-500 text-white px-8 py-3 rounded-full font-semibold hover:from-green-500 hover:to-emerald-600 transition-all transform hover:scale-105 shadow-lg">
+                        Pelajari Keuntungannya <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Keuntungan Reuse Section -->
+            <div id="keuntungan-reuse" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mb-4">
+                            <i class="fas fa-star text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Keuntungan Reuse Kode ⭐</h2>
+                        <p class="text-lg text-gray-600">Mengapa inheritance sangat berharga dalam development?</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-orange-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-trophy"></i>
+                                Keuntungan Utama
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="demo-card bg-white p-4 rounded-lg border-l-4 border-green-400">
+                                        <h4 class="font-bold text-green-600 mb-2 flex items-center gap-2">
+                                            <i class="fas fa-clock"></i> Efisiensi Waktu
+                                        </h4>
+                                        <p class="text-gray-700 text-lg mb-2">Tidak perlu menulis ulang kode yang sama. Fokus pada fitur baru!</p>
+                                        <div class="text-base text-green-600 font-semibold">⏱️ Hemat 60-80% waktu development</div>
+                                    </div>
+                                    <div class="demo-card bg-white p-4 rounded-lg border-l-4 border-blue-400">
+                                        <h4 class="font-bold text-blue-600 mb-2 flex items-center gap-2">
+                                            <i class="fas fa-shield-alt"></i> Kualitas Kode
+                                        </h4>
+                                        <p class="text-gray-700 text-lg mb-2">Kode yang sudah teruji lebih reliable dan stabil.</p>
+                                        <div class="text-base text-blue-600 font-semibold">🛡️ Mengurangi 50-70% bug</div>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="demo-card bg-white p-4 rounded-lg border-l-4 border-purple-400">
+                                        <h4 class="font-bold text-purple-600 mb-2 flex items-center gap-2">
+                                            <i class="fas fa-tools"></i> Maintenance Mudah
+                                        </h4>
+                                        <p class="text-gray-700 text-lg mb-2">Update sekali, berlaku di semua tempat yang menggunakan.</p>
+                                        <div class="text-base text-purple-600 font-semibold">🔧 Maintenance 3x lebih cepat</div>
+                                    </div>
+                                    <div class="demo-card bg-white p-4 rounded-lg border-l-4 border-pink-400">
+                                        <h4 class="font-bold text-pink-600 mb-2 flex items-center gap-2">
+                                            <i class="fas fa-expand-arrows-alt"></i> Skalabilitas
+                                        </h4>
+                                        <p class="text-gray-700 text-lg mb-2">Mudah menambah fitur baru tanpa mengubah kode lama.</p>
+                                        <div class="text-base text-pink-600 font-semibold">📈 Ekspansi 5x lebih mudah</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-calculator"></i>
+                                Kalkulator Efisiensi Reuse Kode
+                            </h3>
+                            <div class="bg-white p-4 rounded-lg border">
+                                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <label for="jumlahClass" class="block text-md font-medium text-gray-700 mb-2">Jumlah Class yang Mirip:</label>
+                                        <input type="number" id="jumlahClass" class="w-full p-2 border border-gray-300 rounded-lg" value="5" min="2" max="20">
+                                    </div>
+                                    <div>
+                                        <label for="barisKodeUmum" class="block text-md font-medium text-gray-700 mb-2">Baris Kode Umum per Class:</label>
+                                        <input type="number" id="barisKodeUmum" class="w-full p-2 border border-gray-300 rounded-lg" value="15" min="5" max="100">
+                                    </div>
+                                </div>
+                                <button onclick="hitungEfisiensi()" class="w-full bg-green-400 text-white py-2 rounded-lg hover:bg-green-500 transition-colors mb-4">
+                                    <i class="fas fa-calculator mr-2"></i> Hitung Efisiensi
+                                </button>
+                                <div id="hasilEfisiensi" class="bg-gray-100 p-3 rounded-lg min-h-[100px] text-gray-700">
+                                    <p class="text-lg text-gray-500">Masukkan data dan klik hitung untuk melihat penghematan dengan inheritance! 📊</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="showSection('contoh-praktis')" class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-8 py-3 rounded-full font-semibold hover:from-yellow-500 hover:to-orange-600 transition-all transform hover:scale-105 shadow-lg">
+                        Lihat Contoh Praktis <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contoh Praktis Section -->
+            <div id="contoh-praktis" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full mb-4">
+                            <i class="fas fa-laptop-code text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Contoh Praktis 💼</h2>
+                        <p class="text-lg text-gray-600">Implementasi reuse kode dalam project nyata</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-shopping-cart"></i>
+                                Studi Kasus: Sistem Toko Online
+                            </h3>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">toko_online.py</span>
+                                </div>
+                                <pre class="p-4 text-green-300 text-base overflow-x-auto"><code># Parent Class - Produk Umum
+class Produk:
+    def __init__(self, nama, harga, stok):
+        self.nama = nama
+        self.harga = harga
+        self.stok = stok
+        self.terjual = 0
+    
+    def info_dasar(self):
+        return f"{self.nama} - Rp{self.harga:,}"
+    
+    def cek_stok(self):
+        return self.stok > 0
+    
+    def jual(self, jumlah=1):
+        if self.stok >= jumlah:
+            self.stok -= jumlah
+            self.terjual += jumlah
+            return True
+        return False
+    
+    def hitung_total(self, jumlah):
+        return self.harga * jumlah
+
+# Child Class - Buku
+class Buku(Produk):
+    def __init__(self, nama, harga, stok, penulis, halaman):
+        super().__init__(nama, harga, stok)
+        self.penulis = penulis
+        self.halaman = halaman
+        self.kategori = "Buku"
+    
+    def info_lengkap(self):
+        return f"{self.info_dasar()} | Penulis: {self.penulis}"
+    
+    def diskon_pelajar(self):
+        return self.harga * 0.9  # Diskon 10%
+
+# Child Class - Elektronik
+class Elektronik(Produk):
+    def __init__(self, nama, harga, stok, merk, garansi):
+        super().__init__(nama, harga, stok)
+        self.merk = merk
+        self.garansi = garansi
+        self.kategori = "Elektronik"
+    
+    def info_lengkap(self):
+        return f"{self.info_dasar()} | Merk: {self.merk}"
+    
+    def hitung_total(self, jumlah):  # Override untuk pajak
+        subtotal = super().hitung_total(jumlah)
+        pajak = subtotal * 0.1  # Pajak 10%
+        return subtotal + pajak</code></pre>
+                            </div>
+
+                            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                                <h4 class="font-bold text-gray-700 mb-3 flex items-center gap-2">
+                                    <i class="fas fa-play"></i>
+                                    Contoh Penggunaan dan Output:
+                                </h4>
+                                <div class="code-block mb-3">
+                                    <div class="code-header">
+                                        <i class="fab fa-python"></i>
+                                        <span>Python</span>
+                                        <span class="ml-auto">Melanjutkan kode di atas...</span>
+                                    </div>
+                                    <pre class="p-4 text-green-300 text-base overflow-x-auto"><code># Membuat instance produk
+buku1 = Buku("Python untuk Pemula", 75000, 20, "Dr. Budi", 300)
+elektronik1 = Elektronik("Smartphone XYZ", 2500000, 10, "TechBrand", "2 tahun")
+
+print("=== Informasi Produk ===")
+print("Buku:", buku1.info_lengkap())  # Method khusus + method parent
+print("Elektronik:", elektronik1.info_lengkap())  # Method khusus + method parent
+
+print("\n=== Cek Stok (Method dari Parent) ===")
+print(f"Buku tersedia: {buku1.cek_stok()}")  # Method dari parent class
+print(f"Elektronik tersedia: {elektronik1.cek_stok()}")  # Method dari parent class
+
+print("\n=== Simulasi Penjualan ===")
+# Jual buku (menggunakan method parent)
+if buku1.jual(3):  # Method dari parent class
+    print(f"Berhasil jual 3 buku. Sisa stok: {buku1.stok}")
+else:
+    print("Stok tidak cukup!")
+
+# Jual elektronik (menggunakan method parent)
+if elektronik1.jual(1):  # Method dari parent class
+    print(f"Berhasil jual 1 elektronik. Sisa stok: {elektronik1.stok}")
+
+print("\n=== Perhitungan Total (Method Override) ===")
+# Buku menggunakan method parent (tanpa pajak)
+total_buku = buku1.hitung_total(2)  # Method dari parent
+print(f"Total 2 buku: Rp{total_buku:,}")
+
+# Elektronik menggunakan method override (dengan pajak)
+total_elektronik = elektronik1.hitung_total(1)  # Method override
+print(f"Total 1 elektronik (+ pajak): Rp{total_elektronik:,}")
+
+print("\n=== Fitur Khusus Setiap Class ===")
+# Method khusus buku
+harga_diskon = buku1.diskon_pelajar()  # Method khusus Buku
+print(f"Harga buku dengan diskon pelajar: Rp{harga_diskon:,}")
+
+# Akses atribut khusus
+print(f"Garansi elektronik: {elektronik1.garansi}")  # Atribut khusus Elektronik
+print(f"Halaman buku: {buku1.halaman}")  # Atribut khusus Buku</code></pre>
+                                </div>
+                                <div class="code-block">
+                                    <div class="code-header">
+                                        <i class="fas fa-terminal"></i>
+                                        <span>Output</span>
+                                        <span class="ml-auto">Hasil Eksekusi</span>
+                                    </div>
+                                    <pre class="p-4 text-green-300 text-base overflow-x-auto"><code>=== Informasi Produk ===
+Buku: Python untuk Pemula - Rp75,000 | Penulis: Dr. Budi
+Elektronik: Smartphone XYZ - Rp2,500,000 | Merk: TechBrand
+
+=== Cek Stok (Method dari Parent) ===
+Buku tersedia: True
+Elektronik tersedia: True
+
+=== Simulasi Penjualan ===
+Berhasil jual 3 buku. Sisa stok: 17
+Berhasil jual 1 elektronik. Sisa stok: 9
+
+=== Perhitungan Total (Method Override) ===
+Total 2 buku: Rp150,000
+Total 1 elektronik (+ pajak): Rp2,750,000
+
+=== Fitur Khusus Setiap Class ===
+Harga buku dengan diskon pelajar: Rp67,500
+Garansi elektronik: 2 tahun
+Halaman buku: 300</code></pre>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-lg border-l-4 border-purple-400">
+                                <h4 class="font-bold text-purple-600 mb-2">🎯 Keajaiban Inheritance dalam Toko Online:</h4>
+                                <ul class="text-gray-700 space-y-2 text-lg">
+                                    <li>• <strong>Method Shared:</strong> info_dasar(), cek_stok(), jual() digunakan semua produk</li>
+                                    <li>• <strong>Method Override:</strong> hitung_total() di Elektronik menambah pajak otomatis</li>
+                                    <li>• <strong>Method Khusus:</strong> diskon_pelajar() hanya untuk Buku</li>
+                                    <li>• <strong>Konsistensi:</strong> Semua produk punya interface yang sama</li>
+                                    <li>• <strong>Extensibility:</strong> Mudah tambah produk baru (Pakaian, Makanan, dll)</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-play-circle"></i>
+                                Demo Toko Online
+                            </h3>
+                            <div class="bg-white p-4 rounded-lg border">
+                                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                                    <div>
+                                        <h4 class="font-bold text-blue-600 mb-2">📚 Tambah Buku</h4>
+                                        <div class="space-y-2">
+                                            <input type="text" id="judulBuku" placeholder="Judul buku" class="w-full p-2 border border-gray-300 rounded-lg text-base" value="Python untuk Pemula">
+                                            <input type="number" id="hargaBuku" placeholder="Harga" class="w-full p-2 border border-gray-300 rounded-lg text-base" value="75000">
+                                            <input type="text" id="penulisBuku" placeholder="Penulis" class="w-full p-2 border border-gray-300 rounded-lg text-base" value="Dr. Budi">
+                                        </div>
+                                        <button onclick="tambahProduk('buku')" class="w-full mt-2 bg-blue-400 text-white py-2 rounded-lg hover:bg-blue-500 transition-colors text-base">
+                                            <i class="fas fa-plus mr-1"></i> Tambah Buku
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-green-600 mb-2">📱 Tambah Elektronik</h4>
+                                        <div class="space-y-2">
+                                            <input type="text" id="namaElektronik" placeholder="Nama produk" class="w-full p-2 border border-gray-300 rounded-lg text-base" value="Smartphone XYZ">
+                                            <input type="number" id="hargaElektronik" placeholder="Harga" class="w-full p-2 border border-gray-300 rounded-lg text-base" value="2500000">
+                                            <input type="text" id="merkElektronik" placeholder="Merk" class="w-full p-2 border border-gray-300 rounded-lg text-base" value="TechBrand">
+                                        </div>
+                                        <button onclick="tambahProduk('elektronik')" class="w-full mt-2 bg-green-400 text-white py-2 rounded-lg hover:bg-green-500 transition-colors text-base">
+                                            <i class="fas fa-plus mr-1"></i> Tambah Elektronik
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    <button onclick="aksiToko('jual')" class="bg-orange-400 text-white px-4 py-2 rounded-lg hover:bg-orange-500 transition-colors">
+                                        <i class="fas fa-shopping-cart mr-1"></i> Jual Produk
+                                    </button>
+                                    <button onclick="aksiToko('stok')" class="bg-cyan-400 text-white px-4 py-2 rounded-lg hover:bg-cyan-500 transition-colors">
+                                        <i class="fas fa-boxes mr-1"></i> Cek Stok
+                                    </button>
+                                    <button onclick="aksiToko('laporan')" class="bg-indigo-400 text-white px-4 py-2 rounded-lg hover:bg-indigo-500 transition-colors">
+                                        <i class="fas fa-chart-bar mr-1"></i> Laporan
+                                    </button>
+                                </div>
+
+                                <div id="tokoOutput" class="bg-gray-100 p-3 rounded-lg min-h-[100px] text-gray-700">
+                                    <p class="text-lg text-gray-500">Tambahkan produk dan coba fitur-fitur toko online! 🛒</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="showSection('tugas')" class="bg-gradient-to-r from-purple-400 to-indigo-500 text-white px-8 py-3 rounded-full font-semibold hover:from-purple-500 hover:to-indigo-600 transition-all transform hover:scale-105 shadow-lg">
+                        Kerjakan Tugas <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tugas Section -->
+            <div id="tugas" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-orange-400 to-red-500 rounded-full mb-4">
+                            <i class="fas fa-tasks text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Tugas Praktik 📝</h2>
+                        <p class="text-lg text-gray-600">Uji kemampuan kalian dalam menerapkan reuse kode!</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-orange-50 to-red-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-orange-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-clipboard-list"></i>
+                                Tugas: Sistem Perpustakaan Digital
+                            </h3>
+                            <div class="bg-white p-4 rounded-lg mb-4">
+                                <p class="text-gray-700 mb-3">
+                                    Buatlah sistem perpustakaan digital yang menerapkan prinsip reuse kode dengan inheritance:
+                                </p>
+                                <ul class="text-gray-700 space-y-2 text-lg ml-4">
+                                    <li>• <strong>Parent class "Item"</strong> dengan atribut: judul, tahun_terbit, tersedia (boolean)</li>
+                                    <li>• <strong>Method umum:</strong> info(), pinjam(), kembalikan(), cek_ketersediaan()</li>
+                                    <li>• <strong>Child class "Buku"</strong> dengan atribut tambahan: penulis, isbn, halaman</li>
+                                    <li>• <strong>Child class "Majalah"</strong> dengan atribut tambahan: edisi, bulan, penerbit</li>
+                                    <li>• <strong>Child class "DVD"</strong> dengan atribut tambahan: durasi, genre, sutradara</li>
+                                    <li>• Setiap child class punya method khusus (misal: baca_preview(), lihat_edisi(), putar_trailer())</li>
+                                    <li>• Implementasikan method override untuk info() di setiap child class</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="bg-yellow-100 p-3 rounded-lg mb-4">
+                                <h4 class="font-bold text-yellow-700 mb-2">📋 Kriteria Penilaian:</h4>
+                                <ul class="text-yellow-800 space-y-2 text-lg">
+                                    <li>• Penggunaan inheritance yang benar (25%)</li>
+                                    <li>• Implementasi method super() (25%)</li>
+                                    <li>• Kode yang bersih dan efisien (25%)</li>
+                                    <li>• Dokumentasi dan komentar (25%)</li>
+                                </ul>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-lg">
+                                <h4 class="font-bold text-green-600 mb-3">💡 Tips Pengerjaan:</h4>
+                                <div class="grid md:grid-cols-2 gap-4 text-lg">
+                                    <ul class="text-gray-700 space-y-2">
+                                        <li>• Mulai dengan merancang parent class dulu</li>
+                                        <li>• Identifikasi atribut dan method yang umum</li>
+                                        <li>• Gunakan super() untuk memanggil parent constructor</li>
+                                    </ul>
+                                    <ul class="text-gray-700 space-y-2">
+                                        <li>• Beri nama method yang descriptive</li>
+                                        <li>• Tambahkan docstring untuk dokumentasi</li>
+                                        <li>• Test semua method yang dibuat</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-code"></i>
+                                Template Kode
+                            </h3>
+                            
+                            <div class="code-block mb-4">
+                                <div class="code-header">
+                                    <i class="fab fa-python"></i>
+                                    <span>Python</span>
+                                    <span class="ml-auto">template_tugas.py</span>
+                                </div>
+                                <pre class="p-4 text-green-300 text-lg overflow-x-auto"><code># Template untuk Tugas Perpustakaan Digital
+
+class Item:
+    """Parent class untuk semua item perpustakaan"""
+    
+    def __init__(self, judul, tahun_terbit):
+        # TODO: Set atribut judul, tahun_terbit, dan tersedia (default True)
+        pass
+    
+    def info(self):
+        """Menampilkan informasi dasar item"""
+        # TODO: Return string dengan format "Judul (Tahun)"
+        pass
+    
+    def pinjam(self):
+        """Method untuk meminjam item"""
+        # TODO: Cek ketersediaan, ubah status tersedia jadi False jika bisa dipinjam
+        # Return True jika berhasil, False jika sudah dipinjam
+        pass
+    
+    def kembalikan(self):
+        """Method untuk mengembalikan item"""
+        # TODO: Ubah status tersedia jadi True
+        pass
+    
+    def cek_ketersediaan(self):
+        """Mengecek apakah item tersedia"""
+        # TODO: Return status tersedia
+        pass
+
+class Buku(Item):
+    """Child class untuk buku"""
+    
+    def __init__(self, judul, tahun_terbit, penulis, isbn, halaman):
+        # TODO: Panggil parent constructor dengan super()
+        # TODO: Set atribut tambahan: penulis, isbn, halaman
+        pass
+    
+    def info(self):
+        """Override method info untuk buku"""
+        # TODO: Return info parent + info penulis
+        # Format: "Judul (Tahun) - Penulis: Nama Penulis"
+        pass
+    
+    def baca_preview(self):
+        """Method khusus buku"""
+        # TODO: Return string preview buku
+        pass
+
+class Majalah(Item):
+    """Child class untuk majalah"""
+    
+    def __init__(self, judul, tahun_terbit, edisi, bulan, penerbit):
+        # TODO: Panggil parent constructor dengan super()
+        # TODO: Set atribut tambahan: edisi, bulan, penerbit
+        pass
+    
+    def info(self):
+        """Override method info untuk majalah"""
+        # TODO: Return info parent + info edisi dan bulan
+        pass
+    
+    def lihat_edisi(self):
+        """Method khusus majalah"""
+        # TODO: Return informasi edisi
+        pass
+
+class DVD(Item):
+    """Child class untuk DVD"""
+    
+    def __init__(self, judul, tahun_terbit, durasi, genre, sutradara):
+        # TODO: Panggil parent constructor dengan super()
+        # TODO: Set atribut tambahan: durasi, genre, sutradara
+        pass
+    
+    def info(self):
+        """Override method info untuk DVD"""
+        # TODO: Return info parent + info durasi dan genre
+        pass
+    
+    def putar_trailer(self):
+        """Method khusus DVD"""
+        # TODO: Return string simulasi putar trailer
+        pass
+
+# TODO: Buat instance dan test semua class
+# Contoh penggunaan:
+# buku1 = Buku("Python Programming", 2023, "Dr. Budi", "978-123456", 300)
+# print(buku1.info())
+# print(buku1.pinjam())
+# print(buku1.baca_preview())
+
+# majalah1 = Majalah("Tech Today", 2023, "Vol 5", "Desember", "Tech Publisher")
+# print(majalah1.info())
+# print(majalah1.lihat_edisi())
+
+# dvd1 = DVD("Avengers", 2019, 180, "Action", "Russo Brothers")
+# print(dvd1.info())
+# print(dvd1.putar_trailer())</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-green-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-upload"></i>
+                                Cara Pengumpulan
+                            </h3>
+                            <div class="bg-white p-4 rounded-lg">
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <div>
+                                        <h4 class="font-bold text-blue-600 mb-3">📁 Format File:</h4>
+                                        <ul class="text-gray-700 space-y-2 text-lg">
+                                            <li>• Nama file: <code>NamaKelas_NamaSiswa_Perpustakaan.py</code></li>
+                                            <li>• Contoh: <code>XII_RPL1_Budi_Perpustakaan.py</code></li>
+                                            <li>• Sertakan komentar di setiap class dan method</li>
+                                            <li>• Tambahkan contoh penggunaan di akhir file</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-green-600 mb-3">⏰ Deadline:</h4>
+                                        <ul class="text-gray-700 space-y-2 text-lg">
+                                            <li>• Waktu pengerjaan: 2 minggu</li>
+                                            <li>• Dikumpulkan via Google Classroom</li>
+                                            <li>• Presentasi hasil: Minggu ke-3</li>
+                                            <li>• Tanya jawab jika ada kesulitan</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="showSection('kuis')" class="bg-gradient-to-r from-orange-400 to-red-500 text-white px-8 py-3 rounded-full font-semibold hover:from-orange-500 hover:to-red-600 transition-all transform hover:scale-105 shadow-lg">
+                        Lanjut ke Kuis <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kuis Section -->
+            <div id="kuis" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full mb-4">
+                            <i class="fas fa-question-circle text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Kuis Interaktif 🧠</h2>
+                        <p class="text-lg text-gray-600">Uji pemahaman kalian tentang inheritance!</p>
+                    </div>
+
+                    <!-- Form Nama -->
+                    <div id="formNama" class="bg-gradient-to-r from-cyan-50 to-blue-50 p-6 rounded-xl mb-6">
+                        <h3 class="text-xl font-bold text-cyan-700 mb-4 text-center">Masukkan Nama Kalian</h3>
+                        <div class="max-w-md mx-auto">
+                            <input type="text" id="namaKuis" placeholder="Nama lengkap..." class="w-full p-3 border border-gray-300 rounded-lg text-center text-lg mb-4">
+                            <button onclick="mulaiKuis()" class="w-full bg-cyan-400 text-white py-3 rounded-lg hover:bg-cyan-500 transition-colors font-semibold">
+                                <i class="fas fa-play mr-2"></i> Mulai Kuis!
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Area Kuis -->
+                    <div id="areaKuis" class="hidden">
+                        <div class="bg-white p-6 rounded-xl border mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <span id="nomorSoal" class="text-lg font-bold text-gray-600">Soal 1 dari 10</span>
+                                <span id="skorSementara" class="text-lg font-bold text-blue-600">Skor: 0</span>
+                            </div>
+                            
+                            <div id="soalKuis" class="mb-6">
+                                <!-- Soal akan dimuat di sini -->
+                            </div>
+                            
+                            <div id="pilihanJawaban" class="space-y-3 mb-6">
+                                <!-- Pilihan jawaban akan dimuat di sini -->
+                            </div>
+                            
+                            <button id="btnNext" onclick="soalBerikutnya()" class="w-full bg-blue-400 text-white py-3 rounded-lg hover:bg-blue-500 transition-colors font-semibold" disabled>
+                                <i class="fas fa-arrow-right mr-2"></i> Soal Berikutnya
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Hasil Kuis -->
+                    <div id="hasilKuis" class="hidden">
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-xl text-center">
+                            <div class="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-trophy text-white text-3xl"></i>
+                            </div>
+                            <h3 class="text-2xl font-bold text-green-700 mb-2">Kuis Selesai!</h3>
+                            <div id="skorAkhir" class="text-xl text-gray-700 mb-4"></div>
+                            <div id="pesanHasil" class="text-gray-600 mb-6"></div>
+                            <button onclick="resetKuis()" class="bg-green-400 text-white px-6 py-3 rounded-lg hover:bg-green-500 transition-colors font-semibold">
+                                <i class="fas fa-redo mr-2"></i> Ulangi Kuis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="showSection('penutup')" class="bg-gradient-to-r from-cyan-400 to-blue-500 text-white px-8 py-3 rounded-full font-semibold hover:from-cyan-500 hover:to-blue-600 transition-all transform hover:scale-105 shadow-lg">
+                        Ke Penutup <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Penutup Section -->
+            <div id="penutup" class="section hidden">
+                <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-teal-400 to-green-500 rounded-full mb-4">
+                            <i class="fas fa-flag-checkered text-white text-2xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Penutup 🎯</h2>
+                        <p class="text-lg text-gray-600">Refleksi dan langkah selanjutnya</p>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="bg-gradient-to-r from-teal-50 to-green-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-teal-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-mirror"></i>
+                                Refleksi Pembelajaran
+                            </h3>
+                            <div class="bg-white p-4 rounded-lg">
+                                <p class="text-gray-700 mb-4">Setelah mempelajari materi ini, mari kita refleksikan:</p>
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <div>
+                                        <h4 class="font-bold text-green-600 mb-3">🤔 Pertanyaan Refleksi:</h4>
+                                        <ul class="text-gray-700 space-y-2 text-lg">
+                                            <li>• Bagaimana inheritance mengubah cara kalian berpikir tentang kode?</li>
+                                            <li>• Apa manfaat terbesar yang kalian rasakan?</li>
+                                            <li>• Dimana kalian bisa menerapkan konsep ini?</li>
+                                            <li>• Apa tantangan yang kalian hadapi?</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-blue-600 mb-3">💡 Insight yang Didapat:</h4>
+                                        <ul class="text-gray-700 space-y-2 text-lg">
+                                            <li>• Reuse kode menghemat waktu dan effort</li>
+                                            <li>• Inheritance membuat kode lebih maintainable</li>
+                                            <li>• DRY principle sangat penting dalam programming</li>
+                                            <li>• Desain yang baik memudahkan development</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-blue-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-graduation-cap"></i>
+                                Kesimpulan Pembelajaran
+                            </h3>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="w-12 h-12 bg-green-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <i class="fas fa-recycle text-white"></i>
+                                    </div>
+                                    <h4 class="font-bold text-gray-800 mb-2">Reuse Kode</h4>
+                                    <p class="text-gray-600 text-base">Inheritance memungkinkan kita menggunakan kembali kode yang sudah ada</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="w-12 h-12 bg-blue-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <i class="fas fa-tools text-white"></i>
+                                    </div>
+                                    <h4 class="font-bold text-gray-800 mb-2">Efisiensi</h4>
+                                    <p class="text-gray-600 text-base">Menghemat waktu development dan memudahkan maintenance</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <div class="w-12 h-12 bg-purple-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                                        <i class="fas fa-star text-white"></i>
+                                    </div>
+                                    <h4 class="font-bold text-gray-800 mb-2">Best Practice</h4>
+                                    <p class="text-gray-600 text-base">Menerapkan prinsip DRY dan membuat kode yang berkualitas</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-purple-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-rocket"></i>
+                                Tindak Lanjut
+                            </h3>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-green-600 mb-3">🎯 Langkah Selanjutnya:</h4>
+                                    <ul class="text-gray-700 space-y-2 text-lg">
+                                        <li>• Praktik inheritance di project pribadi</li>
+                                        <li>• Pelajari abstract classes dan interfaces</li>
+                                        <li>• Eksplorasi multiple inheritance</li>
+                                        <li>• Terapkan di framework seperti Django/Flask</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg">
+                                    <h4 class="font-bold text-blue-600 mb-3">📚 Materi Lanjutan:</h4>
+                                    <ul class="text-gray-700 space-y-2 text-lg">
+                                        <li>• Polymorphism dan method overriding</li>
+                                        <li>• Design patterns (Factory, Observer)</li>
+                                        <li>• SOLID principles dalam OOP</li>
+                                        <li>• Unit testing untuk inheritance</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-xl">
+                            <h3 class="text-xl font-bold text-orange-700 mb-4 flex items-center gap-2">
+                                <i class="fas fa-heart"></i>
+                                Pesan Penutup
+                            </h3>
+                            <div class="bg-white p-4 rounded-lg text-center">
+                                <p class="text-gray-700 text-lg mb-4">
+                                    Selamat! Kalian telah menguasai salah satu konsep terpenting dalam programming. 
+                                    Inheritance bukan hanya tentang teknik, tapi tentang cara berpikir yang efisien dan elegant.
+                                </p>
+                                <p class="text-gray-600 mb-4 text-lg">
+                                    Terus berlatih, eksplorasi, dan jangan takut untuk bereksperimen. 
+                                    Setiap programmer handal pernah memulai dari langkah kecil seperti ini.
+                                </p>
+                                <div class="text-2xl mb-4">🚀✨🎉</div>
+                                <p class="text-purple-600 font-semibold text-lg">
+                                    Keep coding, keep learning, keep growing!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center">
+                    <button onclick="showSection('intro')" class="bg-gradient-to-r from-teal-400 to-green-500 text-white px-8 py-3 rounded-full font-semibold hover:from-teal-500 hover:to-green-600 transition-all transform hover:scale-105 shadow-lg">
+                        Kembali ke Awal <i class="fas fa-home ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="fixed bottom-6 right-6 bg-gradient-to-r from-pink-400 to-purple-500 text-white p-3 rounded-full shadow-lg hover:from-pink-500 hover:to-purple-600 transition-all transform hover:scale-110 z-30 hidden">
+        <i class="fas fa-arrow-up text-lg"></i>
+    </button>
+
+    <script>
+        // Global variables
+        let currentSection = 'intro';
+        let produkToko = [];
+        let soalKuis = [
+            {
+                soal: "Apa keuntungan utama dari menggunakan inheritance dalam Python?",
+                pilihan: ["Membuat kode lebih kompleks", "Reuse kode dan mengurangi duplikasi", "Memperlambat eksekusi program", "Membuat file lebih besar"],
+                jawaban: 1
+            },
+            {
+                soal: "Keyword apa yang digunakan untuk memanggil constructor parent class?",
+                pilihan: ["parent()", "super()", "base()", "inherit()"],
+                jawaban: 1
+            },
+            {
+                soal: "Dalam inheritance, class yang mewarisi disebut?",
+                pilihan: ["Parent class", "Base class", "Child class", "Super class"],
+                jawaban: 2
+            },
+            {
+                soal: "Apa yang dimaksud dengan method overriding?",
+                pilihan: ["Menambah method baru", "Menghapus method parent", "Mengubah implementasi method parent", "Menyembunyikan method"],
+                jawaban: 2
+            },
+            {
+                soal: "Prinsip DRY dalam programming berarti?",
+                pilihan: ["Don't Repeat Yourself", "Do Repeat Yourself", "Don't Run Yet", "Do Run Yourself"],
+                jawaban: 0
+            },
+            {
+                soal: "Manakah sintaks yang benar untuk inheritance di Python?",
+                pilihan: ["class Child extends Parent:", "class Child(Parent):", "class Child inherits Parent:", "class Child -> Parent:"],
+                jawaban: 1
+            },
+            {
+                soal: "Apa yang terjadi jika child class tidak mendefinisikan constructor?",
+                pilihan: ["Error akan terjadi", "Menggunakan constructor parent", "Program tidak bisa dijalankan", "Constructor kosong otomatis dibuat"],
+                jawaban: 1
+            },
+            {
+                soal: "Berapa persen kode yang umumnya bisa dihemat dengan inheritance yang baik?",
+                pilihan: ["10-20%", "30-60%", "70-80%", "90-95%"],
+                jawaban: 1
+            },
+            {
+                soal: "Kapan sebaiknya menggunakan inheritance?",
+                pilihan: ["Ketika ada relationship 'has-a'", "Ketika ada relationship 'is-a'", "Ketika ingin membuat kode kompleks", "Ketika file terlalu kecil"],
+                jawaban: 1
+            },
+            {
+                soal: "Apa manfaat maintenance dengan inheritance?",
+                pilihan: ["Lebih sulit diperbaiki", "Update di satu tempat berlaku untuk semua", "Harus update di banyak tempat", "Tidak ada perbedaan"],
+                jawaban: 1
+            }
+        ];
+        let currentSoal = 0;
+        let skorKuis = 0;
+        let namaUser = '';
+
+        // Mobile menu functionality
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('sidebar-hidden');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            
+            if (window.innerWidth < 768 && !sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                sidebar.classList.add('sidebar-hidden');
+            }
+        });
+
+        // Back to top functionality
+        window.addEventListener('scroll', function() {
+            const backToTop = document.getElementById('backToTop');
+            if (window.pageYOffset > 300) {
+                backToTop.classList.remove('hidden');
+            } else {
+                backToTop.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('backToTop').addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Section navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.add('hidden'));
+            
+            // Show target section
+            document.getElementById(sectionId).classList.remove('hidden');
+            
+            // Update current section
+            currentSection = sectionId;
+            
+            // Update active navigation item
+            updateActiveNavItem(sectionId);
+            
+            // Close mobile menu
+            document.getElementById('sidebar').classList.add('sidebar-hidden');
+            
+            // Scroll to top immediately
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+        }
+
+        // Update active navigation item
+        function updateActiveNavItem(sectionId) {
+            // Remove active class from all nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'text-white', 'shadow-lg', 'transform', 'scale-105');
+                item.classList.add('text-gray-700');
+            });
+            
+            // Add active class to current nav item
+            const activeItem = document.querySelector(`[data-section="${sectionId}"]`);
+            if (activeItem) {
+                activeItem.classList.remove('text-gray-700');
+                activeItem.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-purple-600', 'text-white', 'shadow-lg', 'transform', 'scale-105');
+            }
+        }
+
+        // Simulasi masalah maintenance
+        function simulasiMasalah(step) {
+            const output = document.getElementById('masalahOutput');
+            
+            switch(step) {
+                case 'step1':
+                    output.innerHTML = `
+                        <div class="text-red-600 font-semibold mb-2">Step 1: Edit class Kucing ✅</div>
+                        <div class="bg-red-50 p-2 rounded text-md">
+                            <code>def makan(self):<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;waktu = "08:00"<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;print(f"{self.nama} makan pada {waktu}")</code>
+                        </div>
+                        <p class="text-gray-600 text-md mt-2">1 dari 3 class sudah diedit... 😓</p>
+                    `;
+                    break;
+                case 'step2':
+                    output.innerHTML = `
+                        <div class="text-orange-600 font-semibold mb-2">Step 2: Edit class Anjing ✅</div>
+                        <div class="bg-orange-50 p-2 rounded text-md">
+                            <code>def makan(self):<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;waktu = "08:00"<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;print(f"{self.nama} makan pada {waktu}")</code>
+                        </div>
+                        <p class="text-gray-600 text-md mt-2">2 dari 3 class sudah diedit... 😰</p>
+                    `;
+                    break;
+                case 'step3':
+                    output.innerHTML = `
+                        <div class="text-yellow-600 font-semibold mb-2">Step 3: Edit class Burung ✅</div>
+                        <div class="bg-yellow-50 p-2 rounded text-md">
+                            <code>def makan(self):<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;waktu = "08:00"<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;print(f"{self.nama} makan pada {waktu}")</code>
+                        </div>
+                        <div class="bg-red-100 p-3 rounded mt-3">
+                            <p class="text-red-700 font-semibold">😵 Hasil: Harus edit 3 tempat berbeda!</p>
+                            <p class="text-red-600 text-md">Bayangkan jika ada 10 atau 100 class... Nightmare! 💀</p>
+                        </div>
+                    `;
+                    break;
+                case 'reset':
+                    output.innerHTML = `<p class="text-md text-gray-500">Klik tombol di atas untuk melihat betapa merepotkannya maintenance tanpa inheritance! 😰</p>`;
+                    break;
+            }
+        }
+
+        // Simulasi solusi dengan inheritance
+        function simulasiSolusi(action) {
+            const output = document.getElementById('solusiOutput');
+            
+            switch(action) {
+                case 'edit':
+                    output.innerHTML = `
+                        <div class="text-green-600 font-semibold mb-2">Edit Parent Class Hewan ✅</div>
+                        <div class="bg-green-50 p-2 rounded text-md">
+                            <code>def makan(self):<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;waktu = "08:00"<br>
+                            &nbsp;&nbsp;&nbsp;&nbsp;print(f"{self.nama} makan pada {waktu}")</code>
+                        </div>
+                        <p class="text-green-600 text-md mt-2">Hanya edit 1 tempat! Semua child otomatis terupdate! 🎉</p>
+                    `;
+                    break;
+                case 'test':
+                    output.innerHTML = `
+                        <div class="text-blue-600 font-semibold mb-2">Testing Semua Child Class ✅</div>
+                        <div class="bg-blue-50 p-2 rounded text-md space-y-1">
+                            <div>🐱 Kucing: "Mimi makan pada 08:00"</div>
+                            <div>🐶 Anjing: "Buddy makan pada 08:00"</div>
+                            <div>🐦 Burung: "Tweety makan pada 08:00"</div>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded mt-3">
+                            <p class="text-green-700 font-semibold">🎉 Hasil: Semua class terupdate otomatis!</p>
+                            <p class="text-green-600 text-md">1 edit = berlaku untuk semua! Itulah kekuatan inheritance! ✨</p>
+                        </div>
+                    `;
+                    break;
+                case 'reset':
+                    output.innerHTML = `<p class="text-md text-gray-500">Lihat betapa mudahnya maintenance dengan inheritance! 🎉</p>`;
+                    break;
+            }
+        }
+
+        // Kalkulator efisiensi
+        function hitungEfisiensi() {
+            const jumlahClass = parseInt(document.getElementById('jumlahClass').value);
+            const barisKodeUmum = parseInt(document.getElementById('barisKodeUmum').value);
+            
+            // Validasi input
+            if (jumlahClass < 2 || barisKodeUmum < 5) {
+                document.getElementById('hasilEfisiensi').innerHTML = `
+                    <p class="text-red-600">⚠️ Minimal 2 class dan 5 baris kode umum!</p>
+                `;
+                return;
+            }
+            
+            const tanpaInheritance = jumlahClass * barisKodeUmum;
+            const denganInheritance = barisKodeUmum + (jumlahClass * 5); // Parent + child classes
+            const penghematan = tanpaInheritance - denganInheritance;
+            const persenPenghematan = Math.round((penghematan / tanpaInheritance) * 100);
+            
+            const waktuTanpa = jumlahClass * 2; // 2 jam per class
+            const waktuDengan = 3 + (jumlahClass * 0.5); // 3 jam parent + 0.5 jam per child
+            const waktuHemat = Math.round(waktuTanpa - waktuDengan);
+            
+            document.getElementById('hasilEfisiensi').innerHTML = `
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-red-100 p-3 rounded">
+                        <h4 class="font-bold text-red-600 mb-2">❌ Tanpa Inheritance:</h4>
+                        <p class="text-md">Baris kode: ${tanpaInheritance}</p>
+                        <p class="text-md">Waktu development: ${waktuTanpa} jam</p>
+                    </div>
+                    <div class="bg-green-100 p-3 rounded">
+                        <h4 class="font-bold text-green-600 mb-2">✅ Dengan Inheritance:</h4>
+                        <p class="text-md">Baris kode: ${denganInheritance}</p>
+                        <p class="text-md">Waktu development: ${waktuDengan} jam</p>
+                    </div>
+                </div>
+                <div class="bg-yellow-100 p-3 rounded mt-3 text-center">
+                    <p class="font-bold text-yellow-800">🎉 Penghematan:</p>
+                    <p class="text-yellow-700">${penghematan} baris kode (${persenPenghematan}%)</p>
+                    <p class="text-yellow-700">${waktuHemat} jam waktu development</p>
+                </div>
+            `;
+        }
+
+        // Demo toko online
+        function tambahProduk(jenis) {
+            if (jenis === 'buku') {
+                const judul = document.getElementById('judulBuku').value;
+                const harga = parseInt(document.getElementById('hargaBuku').value);
+                const penulis = document.getElementById('penulisBuku').value;
+                
+                produkToko.push({
+                    jenis: 'Buku',
+                    nama: judul,
+                    harga: harga,
+                    penulis: penulis,
+                    stok: 10,
+                    terjual: 0
+                });
+            } else if (jenis === 'elektronik') {
+                const nama = document.getElementById('namaElektronik').value;
+                const harga = parseInt(document.getElementById('hargaElektronik').value);
+                const merk = document.getElementById('merkElektronik').value;
+                
+                produkToko.push({
+                    jenis: 'Elektronik',
+                    nama: nama,
+                    harga: harga,
+                    merk: merk,
+                    stok: 5,
+                    terjual: 0
+                });
+            }
+            
+            document.getElementById('tokoOutput').innerHTML = `
+                <div class="text-green-600 font-semibold mb-2">✅ Produk berhasil ditambahkan!</div>
+                <p class="text-gray-700 text-md">Total produk: ${produkToko.length}</p>
+                <p class="text-gray-600 text-md">Coba fitur lainnya untuk melihat inheritance bekerja! 🛒</p>
+            `;
+        }
+
+        function aksiToko(aksi) {
+            const output = document.getElementById('tokoOutput');
+            
+            if (produkToko.length === 0) {
+                output.innerHTML = `<p class="text-red-600">Tambahkan produk terlebih dahulu! 📦</p>`;
+                return;
+            }
+            
+            switch(aksi) {
+                case 'jual':
+                    const produk = produkToko[0];
+                    if (produk.stok > 0) {
+                        produk.stok--;
+                        produk.terjual++;
+                        output.innerHTML = `
+                            <div class="text-green-600 font-semibold mb-2">🛒 Penjualan Berhasil!</div>
+                            <p class="text-gray-700">${produk.nama} terjual</p>
+                            <p class="text-gray-600 text-md">Sisa stok: ${produk.stok}</p>
+                        `;
+                    } else {
+                        output.innerHTML = `<p class="text-red-600">Stok habis! 😞</p>`;
+                    }
+                    break;
+                case 'stok':
+                    let stokInfo = '<div class="text-blue-600 font-semibold mb-2">📦 Informasi Stok:</div>';
+                    produkToko.forEach(p => {
+                        stokInfo += `<p class="text-md">${p.nama}: ${p.stok} unit</p>`;
+                    });
+                    output.innerHTML = stokInfo;
+                    break;
+                case 'laporan':
+                    let totalRevenue = 0;
+                    let laporanInfo = '<div class="text-purple-600 font-semibold mb-2">📊 Laporan Penjualan:</div>';
+                    produkToko.forEach(p => {
+                        const revenue = p.terjual * p.harga;
+                        totalRevenue += revenue;
+                        laporanInfo += `<p class="text-md">${p.nama}: ${p.terjual} terjual, Revenue: Rp${revenue.toLocaleString()}</p>`;
+                    });
+                    laporanInfo += `<div class="bg-green-100 p-2 rounded mt-2"><strong>Total Revenue: Rp${totalRevenue.toLocaleString()}</strong></div>`;
+                    output.innerHTML = laporanInfo;
+                    break;
+            }
+        }
+
+        // Kuis functionality
+        function mulaiKuis() {
+            namaUser = document.getElementById('namaKuis').value.trim();
+            if (!namaUser) {
+                document.getElementById('namaKuis').style.borderColor = '#ef4444';
+                document.getElementById('namaKuis').placeholder = 'Nama wajib diisi!';
+                return;
+            }
+            
+            // Reset border jika valid
+            document.getElementById('namaKuis').style.borderColor = '#d1d5db';
+            
+            document.getElementById('formNama').classList.add('hidden');
+            document.getElementById('areaKuis').classList.remove('hidden');
+            
+            currentSoal = 0;
+            skorKuis = 0;
+            tampilkanSoal();
+        }
+
+        function tampilkanSoal() {
+            const soal = soalKuis[currentSoal];
+            
+            document.getElementById('nomorSoal').textContent = `Soal ${currentSoal + 1} dari ${soalKuis.length}`;
+            document.getElementById('skorSementara').textContent = `Skor: ${skorKuis}`;
+            
+            document.getElementById('soalKuis').innerHTML = `
+                <h4 class="text-lg font-semibold text-gray-800 mb-4">${soal.soal}</h4>
+            `;
+            
+            let pilihanHTML = '';
+            soal.pilihan.forEach((pilihan, index) => {
+                pilihanHTML += `
+                    <button onclick="pilihJawaban(${index})" class="pilihan-btn w-full text-left p-3 border border-gray-300 rounded-lg hover:bg-blue-50 transition-colors">
+                        ${String.fromCharCode(65 + index)}. ${pilihan}
+                    </button>
+                `;
+            });
+            
+            document.getElementById('pilihanJawaban').innerHTML = pilihanHTML;
+            document.getElementById('btnNext').disabled = true;
+        }
+
+        function pilihJawaban(index) {
+            const buttons = document.querySelectorAll('.pilihan-btn');
+            buttons.forEach(btn => btn.classList.remove('bg-blue-100', 'border-blue-400'));
+            
+            buttons[index].classList.add('bg-blue-100', 'border-blue-400');
+            
+            const soal = soalKuis[currentSoal];
+            if (index === soal.jawaban) {
+                skorKuis += 10;
+                buttons[index].classList.add('bg-green-100', 'border-green-400');
+            } else {
+                buttons[index].classList.add('bg-red-100', 'border-red-400');
+                buttons[soal.jawaban].classList.add('bg-green-100', 'border-green-400');
+            }
+            
+            buttons.forEach(btn => btn.disabled = true);
+            document.getElementById('btnNext').disabled = false;
+            document.getElementById('skorSementara').textContent = `Skor: ${skorKuis}`;
+        }
+
+        function soalBerikutnya() {
+            currentSoal++;
+            
+            if (currentSoal < soalKuis.length) {
+                tampilkanSoal();
+            } else {
+                selesaiKuis();
+            }
+        }
+
+        function selesaiKuis() {
+            document.getElementById('areaKuis').classList.add('hidden');
+            document.getElementById('hasilKuis').classList.remove('hidden');
+            
+            const persentase = (skorKuis / (soalKuis.length * 10)) * 100;
+            let pesan = '';
+            
+            if (persentase >= 80) {
+                pesan = 'Excellent! Kalian sangat memahami inheritance! 🏆';
+            } else if (persentase >= 60) {
+                pesan = 'Good job! Pemahaman kalian sudah baik! 👍';
+            } else if (persentase >= 40) {
+                pesan = 'Not bad! Perlu belajar lagi sedikit! 📚';
+            } else {
+                pesan = 'Keep learning! Jangan menyerah! 💪';
+            }
+            
+            document.getElementById('skorAkhir').innerHTML = `
+                <strong>${namaUser}</strong><br>
+                Skor: ${skorKuis}/${soalKuis.length * 10} (${persentase}%)
+            `;
+            document.getElementById('pesanHasil').textContent = pesan;
+        }
+
+        function resetKuis() {
+            document.getElementById('hasilKuis').classList.add('hidden');
+            document.getElementById('formNama').classList.remove('hidden');
+            document.getElementById('namaKuis').value = '';
+            currentSoal = 0;
+            skorKuis = 0;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSection('intro');
+            updateActiveNavItem('intro');
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99221f3654efa396',t:'MTc2MTA2NDA0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
