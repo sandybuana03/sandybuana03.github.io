@@ -1,9 +1,11 @@
 # sandybuana03.github.io
 
 
+
 Jika ingin menambahkan file baru atau folder baru, cari dibagian
 
 // File structure configuration - Update this with your actual files and folders
+
 
 
 
@@ -15,9 +17,11 @@ Jika ingin menambahkan file baru atau folder baru, cari dibagian
 overflow-x-auto w-full md:w-100
 
 
+
 // membuat scroll horizontal + text tanpa wrap (AMPUH 100%)
 
 whitespace-nowrap overflow-x-auto w-full md:w-100
+
 
 
 // membuat scroll horizontal + layout vertical colom (atas ke bawah)
@@ -25,14 +29,17 @@ whitespace-nowrap overflow-x-auto w-full md:w-100
 flex flex-col whitespace-nowrap overflow-x-auto w-full md:w-100
 
 
+
 // mengubah menjadi layout vertical colom
 
 flex flex-col
 
 
+
 // 2 grid pada desktop, 1 grid di hp
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
 
 
 // setting scroll horizontal dan tanpa wrap di tag css
@@ -43,9 +50,11 @@ flex flex-col
 }
 
 
+
 // membuat teks rata kiri
 
 items-start text-left
+
 
 
 // di hp bertumpuk (vertical colom), di computer ke samping (horizontal colom)
