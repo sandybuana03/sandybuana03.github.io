@@ -1,0 +1,217 @@
+// scnMenu TA
+// Create Script
+
+function create() {
+    
+    X_POSITION =
+    {
+        'LEFT': 0,
+        'CENTER': game.canvas.width / 2,
+        'RIGHT': game.canvas.width,
+    };
+    
+    Y_POSITION =
+    {
+        'TOP': 0,
+        'CENTER': game.canvas.height / 2,
+        'BOTTOM': game.canvas.height,
+    };
+    
+    
+    // mengisikan variabel global dengan musik latar jika
+    // variabel snd_ambience masih kosong
+    if (snd_ambience == null) {
+        snd_ambience = this.sound.add('snd_ambience');
+        snd_ambience.loop = true;
+        snd_ambience.setVolume(0.35);
+        snd_ambience.play();
+    }
+    
+    // Membuat variabel sound lain
+    this.touch = this.sound.add('touch');
+    var snd_transisi = this.sound.add('snd_transisi_menu');
+    
+    
+   // Update kode prgoam background di dalam scene menjadi seperti berikut
+    this.add.image(X_POSITION.CENTER, Y_POSITION.CENTER,'bg_start');
+
+    // Update kode prgoam background di dalam scene menjadi seperti berikut
+    var btnPlay = this.add.image(X_POSITION.CENTER, Y_POSITION.CENTER + 60, 'btn_play');
+    btnPlay.setDepth(10);
+    
+    
+    // menambahkan judul game di dalam scene scnMenu
+    this.titleGame = this.add.image(X_POSITION.CENTER, Y_POSITION.CENTER, 'title_game');
+    this.titleGame.setDepth(10);
+    
+    // mengurangi posisi y judul game sebanyak 384 piksel
+    this.titleGame.y -= 384;
+    
+    var diz = this;
+    
+    // menambahkan animasi judul game
+    this.tweens.add ({
+        targets: diz.titleGame,
+        ease: 'Bounce.easeOut',
+        duration: 750,
+        delay: 250,
+        y: 200,
+        onComplete: function() {
+            snd_transisi.play();
+        }
+    });
+    
+    this.titleGame.setScale(0);
+    
+    // Animasi Title
+    this.tweens.add({
+        targets: diz.titleGame,
+        ease: 'Elastic',
+        duration:750,
+        delay:1000,
+        scaleX:1,
+        scaleY:1
+    });
+    
+    // mengatur scale awal btnPlay menjadi 0
+    btnPlay.setScale(0);
+    
+    // menambahakan animasi ke tombol play
+    this.tweens.add({
+        targets: btnPlay,
+        ease: 'Back',
+        duration: 500,
+        delay: 750,
+        scaleX : 1,
+        scaleY : 1
+    });
+    
+    // mengatur scale awal btnPlay menjadi 0
+    btnPlay.setScale(0);
+
+    // menambahakan animasi ke tombol play
+    this.tweens.add({
+        targets: btnPlay,
+        ease:' Back',
+        duration: 500,
+        delay: 750,
+        scaleX : 1,
+        scaleY : 1
+    
+    });
+    
+    btnPlay.setInteractive();
+    
+    // menambahkan variabel penanda apakah tombol sedang diklik atau tidak
+    var btnCliked = false;
+    
+    // variabel untuk menampung menampung skor tertinggi yang sudah pernah dicapai
+    var skorTertinggi = localStorage["highScore"] || 0;
+    
+    // Membuat panel nilai
+    var panelSkor = this.add.image(X_POSITION.CENTER, 768-120, 'panel_skor');
+    panelSkor.setOrigin(0.5);
+    panelSkor.setDepth(10);
+    panelSkor.setAlpha(0.8);
+    
+    // Membuat label skor pada panel
+    var lblSkor = this.add.text(X_POSITION.CENTER + 25, panelSkor.y, "HighScore:" + skorTertinggi);
+    lblSkor.setOrigin(0.5);
+    lblSkor.setDepth(10);
+    lblSkor.setFontSize(30);
+    lblSkor.setTint(0xff732e);
+    
+    var spnCoin = this.add.spine(X_POSITION.CENTER, 100, 'spn_chara', 'animation', true);
+    spnCoin.setScale(0.5);
+    
+    const mummyAnimation = this.anims.create({
+    key: 'walk',
+    frames: this.anims.generateFrameNumbers('sps_mummy'),
+    frameRate: 16
+    });
+    
+    const sprite = this.add.sprite(X_POSITION.CENTER - 270, 768/2+ 150, 'sps_mummy').setScale(4);
+    sprite.play({ key: 'walk', repeat: -1});
+    
+    var particleL = this.add.particles('ptc_flares');
+    particleL.createEmitter({
+        frame: 'blue',
+        x: X_POSITION.CENTER - 100,
+        y: 220,
+        lifespan: 1400,
+        speed: { min: 100, max: 300 },
+        angle: 220,
+        gravityY: 500,
+        scale: { start: 0.6, end: 0 },
+        quantity: 1,
+        blendMode: 'ADD'
+    });
+    
+    var particleR = this.add.particles('ptc_flares');
+    particleR.createEmitter({
+        frame: 'yellow',
+        x: X_POSITION.CENTER + 100,
+        y: 220,
+        lifespan: 1400,
+        speed: { min: 100, max: 300 },
+        angle: 320,
+        gravityY: 500,
+        scale: { start: 0.6, end: 0 },
+        quantity: 1,
+        blendMode: 'ADD'
+    });
+    
+    // menambahkan input user
+    this.input.on('gameobjectover', function(pointer, gameObject) {
+        console.log("Scene Menu | Object Over");
+    
+        if (!btnCliked) return;
+        
+        if (gameObject == btnPlay) {
+            btnPlay.setTint(0x616161);
+        }
+    
+    }, this);
+    
+    this.input.on('gameobjectout', function(pointer, gameObject) {
+        console.log("Scene Menu | Object Out");
+    
+        if (!btnCliked) return;
+        
+        if (gameObject == btnPlay) {
+            btnPlay.setTint(0xffffff);
+        }
+    
+    }, this);
+    
+    this.input.on('gameobjectdown', function(pointer, gameObject) {
+        console.log("Scene Menu | Object Click");
+    
+        if (gameObject == btnPlay) {
+            btnPlay.setTint(0x616161);
+            btnCliked = true;
+        }
+    
+    }, this);
+    
+    // menambahkan deteksi objek selesai diklik
+    this.input.on('gameobjectup', function(pointer, gameObject) {
+        console.log("Scene Menu | Object End Click");
+    
+        if (gameObject == btnPlay) {
+            btnPlay.setTint(0xffffff);
+        
+            // sesuaikan nama scene dengan yang sebelumnya dibuat
+            this.touch.play();
+            this.scene.start('scnPlay');
+        }
+    
+    }, this);
+    
+    this. input.on('pointerup', function(pointer, currentlyOver) {
+        console.log("Scene Menu | Mouse Up");
+        
+        btnCliked = false;
+    
+    }, this);
+}

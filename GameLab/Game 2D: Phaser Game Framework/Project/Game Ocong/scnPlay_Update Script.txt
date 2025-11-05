@@ -1,0 +1,176 @@
+// scnPlay
+// update script
+
+function update() {
+    // Sama saja dengan if (this.isGameRunning == true)
+    if (this.isGameRunning) {
+        
+        // KARAKTER
+        // Sifat karakter, naik 5 pixel setiap frame
+        // Sama dengan this.chara.y = this.chara.y - 5;
+        this.chara.y -= 5;
+        
+        // Batas karakter agar karakter tidak bisa jauh ke bawah
+        if (this.chara.y > 690)this.chara.y = 690;
+        
+        
+        // Mengakses Array
+        for (let i = 0; i < this.backgrounds.length; i++)
+        {
+            // Mengakses Array di dalam array
+            for (var j = 0; j < this.backgrounds[i].length; j++)
+            {
+                // Mengambil data kecepatan, lalu mengurangi nilai x sebanyak kecepatan tersebut
+                this.backgrounds[i][j].x -= this.backgrounds[i][j].getData('kecepatan');
+                
+                // Atur ulang posisi jika posisi sudah berada di kiri kanvas
+                // Karena titik posisi adalah tengah dan ukuran background adalah 1366
+                // Maka background akan tidak terlihat ketika mencapai posisi MINUS 1366/2
+                if (this.backgrounds[i][j].x <= -(1366/2))
+                {
+                    // Digunakan untuk pengaturan ulang posisi agar tidak ada jarak antar background
+                    // Misal, posisi x background adalah -685, selisih 2 pixel dengan -(1366/2) = -683
+                    // Selisih tersebut akan ditambahkan untuk pengaturan ulang posisi
+                    var diff = 1336 * this.backgrounds.length - 1;
+                    
+                    // Mengatur ulang posisi menjadi di sebelah kanan kanvas + selisih akhir sebelum atur
+                    this.backgrounds[i][j].x = this.backgrounds[i][j].x + diff;
+                }
+            }
+        }
+        
+        // Jika this.timerHalangan adalah 0, maka buat peluru baru
+        if (this.timerHalangan == 0)
+        {
+            // mendapatkan angka acak antara 60 hingga 680
+            var acak_y = Math.floor((Math.random() * 680) + 60);
+            
+            // Membuat peluru baru dengan posisi x 1500 (kanan), dan posisi y acak antara 60-680
+            var halanganBaru = this.add.image(1500, acak_y, 'obstc');
+            // Mengubah titik posisi (anchor point) berada di kiri, bukan di tengah
+            halanganBaru.setOrigin(0.0);
+            halanganBaru.setData("status_aktif", true);
+            halanganBaru.setData("kecepatan", Math.floor((Math.random() * 15) + 10))
+            halanganBaru.setDepth(5);
+            
+            // Memasukkan peluru ke dalam array agar dapat di akses kembali
+            this.halangan.push(halanganBaru);
+            
+            // Mengatur ulang waktu untuk memunculkan halangan selanjutnya. Acak antara 10 sampai 50 frame
+            this.timerHalangan = Math.floor((Math.random() *50) +10);
+        }
+        
+        // Mengakses array halangan
+        for (let i = this.halangan.length - 1; i >= 0; i -- )
+        {
+            // Menggerakkan halangan sebanyak kecepatan per frame
+            this.halangan[i].x -= this.halangan[i].getData("kecepatan");
+            
+            // Jika halangan sudah di posisi kurang dari -200 (sudah tidak terlihat)
+            if (this.halangan[i].x < -200)
+            {
+                // Hancurkan halangan untuk mengurangi beba n memori
+                this.halangan[i].destroy();
+                
+                // Hapus dari array halangan yang sudah dihancurkan
+                this.halangan.splice(i, 1);
+                
+                break;
+            }
+        }
+                
+        // Mengurangi timer halangan sebanyak 1 setiap framenya
+        // Jika sudah 0, akan di atur ulang lagi nilainya pada kode di atas
+        this.timerHalangan --;
+        
+        for (var i = this.halangan.length - 1; i >= 0; i -- )
+        {
+        
+            // Jika posisi halangan + 50 lebih kecil dari karakter dan status halangan masih aktif
+            if (this.chara.x > this.halangan[i].x + 50 && this.halangan[i].getData("status_aktif") == true)
+            {
+                
+                // Ubah status halangan menjadi tidak aktif
+                this.halangan[i].setData("status_aktif", false);
+                
+                // Tambahkan nilai sebanyak 1 poin
+                this.score++;
+                
+                // Ubah label menjadi nilai terbaru
+                this.label_score.setText(this.score);
+            }
+        }
+        
+        
+        for (let i = this.halangan. length - 1; i >= 0; i -- ) {
+            // Jika rect chara mengenai titik posisi halangan
+            if (this.chara.getBounds().contains(this.halangan[i].x, this.halangan[i].y)) {
+                // Ubah status halangan menjadi tidak aktif
+                this.halangan[i].setData("status_aktif", false);
+                
+                // Ubah status game
+                this.isGameRunning = false;
+                
+                // memainkan suara karakter kalah
+                this.snd_dead.play();
+                
+                //Menyembunyikan partikel
+                this.trail.setVisible(false);
+            
+                // melakukan cek variabel penampung animasi karakter
+                // sebelum menghentikan animasi karakter
+                if (this.charaTweens != null) {
+                    this.charaTweens. stop();
+                }
+            
+                // Membuat Objek pengganti this, karena this tidak dapat di akses pada onComplete secara l
+                var myScene = this;
+                
+                // Membuat animasi kalah
+                this.charaTweens = this.tweens.add({
+                    targets: this.chara,
+                    ease: 'Elastic.easeOut',
+                    duration: 2000,
+                    alpha: 0,
+                    // Memanggil fungsi gameOver() setelah animasi selesai
+                    onComplete: myScene.gameOver
+                });
+            
+            // menghentikan looping jika sudah terpenuhi pengecekannya
+            break;
+            }
+        }
+        
+         if (this.chara.y < -50) {
+             // Ubah status game
+             this.isGameRunning = false;
+            
+             // memainkan suara karakter kalah
+             this.snd_dead.play();
+            
+             //Menyembunyikan partikel
+             this.trail.setVisible(false);
+            
+             // melakukan cek variabel penampung animasi karakter
+             // sebelum menghentikan animasi karakter
+             if (this.charaTweens != null) {
+             this.charaTweens.stop();
+             }
+            
+             // Membuat Objek pengganti this, karena this tidak dapat di akses pada onComplete secara langs
+             let myScene = this;
+            
+             // Membuat animasi kalah
+             this.charaTweens = this.tweens.add({
+                 targets: this.chara,
+                 ease: 'Elastic.easeOut',
+                 duration: 2000,
+                 alpha: 0,
+                 // Memanggil fungsi gameOver() setelah animasi selesai
+                 onComplete: myScene.gameOver
+             });
+        
+         }
+        
+    }
+}
