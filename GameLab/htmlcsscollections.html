@@ -181,6 +181,14 @@
      <div class="text-center mb-16 relative z-10">
       <h3 class="text-4xl font-bold text-white mb-4">Portfolio Siswa</h3>
       <div class="w-24 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 mx-auto rounded-full shadow-lg shadow-cyan-400/50"></div>
+     </div><!-- Search Bar -->
+     <div class="flex justify-center mb-8 relative z-10">
+      <div class="glass-effect rounded-full p-2 shadow-lg max-w-md w-full">
+       <div class="relative"><input type="text" id="search-input" placeholder="Cari nama siswa atau judul project..." class="w-full px-6 py-3 pl-12 bg-transparent text-white placeholder-gray-400 rounded-full focus:outline-none focus:ring-2 focus:ring-cyan-400/50" oninput="searchProjects()">
+        <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+       </div>
+      </div>
      </div><!-- Filter Buttons -->
      <div class="flex justify-center mb-12 relative z-10">
       <div class="glass-effect rounded-full p-2 shadow-lg"><button onclick="filterProjects('all')" class="filter-btn active px-6 py-3 rounded-full font-medium transition-all duration-300"> Semua </button> <button onclick="filterProjects('rpl')" class="filter-btn px-6 py-3 rounded-full font-medium transition-all duration-300"> XI RPL </button> <button onclick="filterProjects('tkj')" class="filter-btn px-6 py-3 rounded-full font-medium transition-all duration-300"> XI TKJ </button>
@@ -209,8 +217,7 @@
             { name: "Chelsea Yosha Alindra", class: "XI RPL", link: "https://www.gamelab.id/codeplayground/4rePMfHTBA6k/tugas-akhir-chelsea", title: "Chelsea Portfolio" },
             { name: "Disti Julia Mauizatun Nisa", class: "XI RPL", link: "https://www.gamelab.id/codeplayground/jEf7srBPlm9d/11-11-2025-08-10-23", title: "Disti Creative Project" },
             { name: "Hanin", class: "XI RPL", link: "https://www.gamelab.id/codeplayground/tchUdgeEfaxM/hanin-tugas-akhir", title: "Hanin Final Project" },
-            { name: "Khilayatul Azkiya", class: "XI RPL", link: "https://www.gamelab.id/codeplayground/CrLwYyhX75S0/11-11-2025-12-36-58
-", title: "Azkiya Web Design" },
+            { name: "Khilayatul Azkiya", class: "XI RPL", link: "https://www.gamelab.id/codeplayground/CrLwYyhX75S0/11-11-2025-12-36-58", title: "Azkiya Web Design" },
             { name: "Muhammad Irfaan Hafiz", class: "XI RPL", link: "https://www.gamelab.id/codeplayground/IJUzqrdtkzYL/initial-d-jdm", title: "Initial D JDM" },
             { name: "Muhammad Rofif Nabil", class: "XI RPL", link: "https://www.gamelab.id/codeplayground/IkJiD5RnpZgU/landing-page-legend-of-formula-1", title: "Legend of Formula 1" },
             { name: "Wieke Nurbaeti", class: "XI RPL", link: "https://www.gamelab.id/codeplayground/oeOhS6s7bCe4/wieke-nurbaeti", title: "Wieke Portfolio" },
@@ -286,22 +293,75 @@
             });
         }
 
+        // Current filter state
+        let currentFilter = 'all';
+        let currentSearchTerm = '';
+
+        // Search projects
+        function searchProjects() {
+            const searchInput = document.getElementById('search-input');
+            currentSearchTerm = searchInput.value.toLowerCase();
+            applyFiltersAndSearch();
+        }
+
         // Filter projects
         function filterProjects(filter) {
             const buttons = document.querySelectorAll('.filter-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
+            
+            currentFilter = filter;
+            applyFiltersAndSearch();
+        }
 
-            let filteredProjects;
-            if (filter === 'all') {
-                filteredProjects = projects;
-            } else if (filter === 'rpl') {
-                filteredProjects = projects.filter(p => p.class === 'XI RPL');
-            } else if (filter === 'tkj') {
-                filteredProjects = projects.filter(p => p.class === 'XI TKJ');
+        // Apply both filters and search
+        function applyFiltersAndSearch() {
+            let filteredProjects = projects;
+
+            // Apply class filter
+            if (currentFilter === 'rpl') {
+                filteredProjects = filteredProjects.filter(p => p.class === 'XI RPL');
+            } else if (currentFilter === 'tkj') {
+                filteredProjects = filteredProjects.filter(p => p.class === 'XI TKJ');
+            }
+
+            // Apply search filter
+            if (currentSearchTerm) {
+                filteredProjects = filteredProjects.filter(p => 
+                    p.name.toLowerCase().includes(currentSearchTerm) ||
+                    p.title.toLowerCase().includes(currentSearchTerm) ||
+                    p.class.toLowerCase().includes(currentSearchTerm)
+                );
             }
 
             renderProjects(filteredProjects);
+            
+            // Show no results message if needed
+            showNoResultsMessage(filteredProjects.length === 0);
+        }
+
+        // Show no results message
+        function showNoResultsMessage(show) {
+            const grid = document.getElementById('projects-grid');
+            const existingMessage = document.getElementById('no-results-message');
+            
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            if (show) {
+                const message = document.createElement('div');
+                message.id = 'no-results-message';
+                message.className = 'col-span-full text-center py-16';
+                message.innerHTML = `
+                    <div class="glass-effect rounded-2xl p-8 max-w-md mx-auto">
+                        <div class="text-6xl mb-4">🔍</div>
+                        <h4 class="text-xl font-bold text-cyan-100 mb-2">Tidak ada hasil ditemukan</h4>
+                        <p class="text-cyan-300">Coba ubah kata kunci pencarian atau filter yang dipilih</p>
+                    </div>
+                `;
+                grid.appendChild(message);
+            }
         }
 
         // Element SDK implementation
@@ -368,5 +428,5 @@
             }
         });
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99e7df6c07558740',t:'MTc2MzEzNzYwOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'99e7ed63f7c9b5ac',t:'MTc2MzEzODE4Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
