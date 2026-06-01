@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Project Gallery</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+        * { font-family: 'Outfit', sans-serif; }
+        .card-hover:hover { transform: translateY(-8px) scale(1.02); }
+        .card-hover:hover .card-overlay { opacity: 1; }
+        .card-hover:hover .card-image { transform: scale(1.08); }
+        .glow { box-shadow: 0 0 60px -12px rgba(99, 102, 241, 0.3); }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-card { animation: fadeUp 0.6s ease forwards; opacity: 0; }
+        .search-glow:focus { box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); }
+    </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ <script src="/_sdk/telemetry_sdk.js"></script></head>
+ <body class="h-full">
+  <div id="app" class="w-full h-full bg-gray-950 overflow-auto"><!-- Header -->
+   <header class="relative py-16 px-6 text-center overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-indigo-950/80 via-gray-950 to-purple-950/60"></div>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-500/10 rounded-full blur-3xl"></div>
+    <div class="relative z-10 max-w-4xl mx-auto">
+     <h1 id="main-title" class="text-4xl md:text-6xl font-800 text-white tracking-tight mb-3">🎨 Galeri Karya Siswa</h1>
+     <p id="subtitle" class="text-lg md:text-xl text-indigo-300/80 font-light">Kumpulan Project JavaScript dan jQuery</p><!-- Search & Filter -->
+     <div class="mt-10 flex flex-col sm:flex-row gap-3 justify-center items-center">
+      <div class="relative w-full max-w-md"><i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-400"></i> <input type="text" id="searchInput" placeholder="Cari nama atau judul project..." class="w-full pl-12 pr-4 py-3 bg-gray-900/80 border border-indigo-500/30 rounded-xl text-white placeholder-gray-500 focus:outline-none search-glow transition-all">
+      </div><select id="classFilter" class="px-4 py-3 bg-gray-900/80 border border-indigo-500/30 rounded-xl text-white focus:outline-none cursor-pointer"> <option value="all">Semua Kelas</option> </select>
+     </div>
+     <p id="countText" class="mt-4 text-sm text-gray-500"></p>
+    </div>
+   </header><!-- Grid -->
+   <main class="max-w-7xl mx-auto px-4 sm:px-6 pb-20">
+    <div id="projectGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
+    <p id="noResults" class="hidden text-center text-gray-500 py-20 text-lg">Tidak ada project yang ditemukan 😢</p>
+   </main>
+  </div>
+  <script>
+// ===== DATA SISWA =====
+const projects = [
+    { name: "🤓 Abdul Hannaan Al Ghozy", class: "XI RPL", link: "https://www.gamelab.id/codeplayground/WTPO2XC3azMi/grp-forces-military-forum", title: "GRP-FORCES Military Forum", image: "https://picsum.photos/1600/800?random=29" },
+    { name: "🧑‍🚀 Abdullah", class: "XI RPL", link: "https://www.gamelab.id/codeplayground/mKmaGOxednvL/landing-page-astrolab", title: "AstroLab Landing Page", image: "https://picsum.photos/1600/800?random=1" },
+    { name: "💻 Budi Santoso", class: "XI RPL", link: "https://example.com/budi", title: "Portfolio Website", image: "https://picsum.photos/1600/800?random=2" },
+    { name: "🎮 Citra Dewi", class: "XII RPL", link: "https://example.com/citra", title: "Game Dashboard", image: "https://picsum.photos/1600/800?random=3" },
+    { name: "🎨 Dani Pratama", class: "XII RPL", link: "https://example.com/dani", title: "Art Gallery Online", image: "https://picsum.photos/1600/800?random=4" },
+    { name: "🚀 Eka Putri", class: "X RPL", link: "https://example.com/eka", title: "Space Explorer App", image: "https://picsum.photos/1600/800?random=5" },
+    { name: "📱 Fajar Hidayat", class: "X RPL", link: "https://example.com/fajar", title: "Mobile Banking UI", image: "https://picsum.photos/1600/800?random=6" },
+];
+
+// ===== RENDER =====
+const grid = document.getElementById('projectGrid');
+const searchInput = document.getElementById('searchInput');
+const classFilter = document.getElementById('classFilter');
+const noResults = document.getElementById('noResults');
+const countText = document.getElementById('countText');
+
+// Populate filter
+const classes = [...new Set(projects.map(p => p.class))];
+classes.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    classFilter.appendChild(opt);
+});
+
+function renderCards(filtered) {
+    grid.innerHTML = '';
+    noResults.classList.toggle('hidden', filtered.length > 0);
+    countText.textContent = `Menampilkan ${filtered.length} dari ${projects.length} project`;
+
+    filtered.forEach((p, i) => {
+        const card = document.createElement('a');
+        card.href = p.link;
+        card.target = "_blank";
+        card.rel = "noopener noreferrer";
+        card.className = "card-hover group block rounded-2xl overflow-hidden bg-gray-900 border border-gray-800/60 transition-all duration-300 animate-card glow";
+        card.style.animationDelay = `${i * 0.07}s`;
+        card.innerHTML = `
+            <div class="relative h-44 overflow-hidden">
+                <img src="${p.image}" alt="${p.title}" loading="lazy" 
+                    class="card-image w-full h-full object-cover transition-transform duration-500"
+                    onerror="this.style.background='linear-gradient(135deg,#312e81,#1e1b4b)';this.alt='Image unavailable';this.src='';">
+                <div class="card-overlay absolute inset-0 bg-gradient-to-t from-indigo-900/90 via-indigo-900/40 to-transparent opacity-0 transition-opacity duration-300 flex items-end p-4">
+                    <span class="text-white text-sm font-medium flex items-center gap-1"><i data-lucide="external-link" class="w-4 h-4"></i> Lihat Project</span>
+                </div>
+            </div>
+            <div class="p-4">
+                <h3 class="text-white font-semibold text-sm truncate mb-1">${p.title}</h3>
+                <p class="text-indigo-300 text-sm truncate">${p.name}</p>
+                <span class="inline-block mt-2 px-2.5 py-0.5 text-xs rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">${p.class}</span>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+    lucide.createIcons();
+}
+
+function filterProjects() {
+    const q = searchInput.value.toLowerCase();
+    const cls = classFilter.value;
+    const filtered = projects.filter(p => {
+        const matchSearch = p.name.toLowerCase().includes(q) || p.title.toLowerCase().includes(q);
+        const matchClass = cls === 'all' || p.class === cls;
+        return matchSearch && matchClass;
+    });
+    renderCards(filtered);
+}
+
+searchInput.addEventListener('input', filterProjects);
+classFilter.addEventListener('change', filterProjects);
+
+renderCards(projects);
+lucide.createIcons();
+
+// ===== ELEMENT SDK =====
+const defaultConfig = {
+    gallery_title: "🎨 Galeri Karya Siswa",
+    subtitle_text: "Kumpulan project terbaik dari siswa-siswi kreatif",
+    background_color: "#030712",
+    surface_color: "#111827",
+    text_color: "#ffffff",
+    primary_action: "#6366f1",
+    secondary_action: "#a5b4fc",
+    font_family: "Outfit",
+    font_size: 16
+};
+
+function applyConfig(config) {
+    document.getElementById('main-title').textContent = config.gallery_title || defaultConfig.gallery_title;
+    document.getElementById('subtitle').textContent = config.subtitle_text || defaultConfig.subtitle_text;
+    
+    const app = document.getElementById('app');
+    app.style.backgroundColor = config.background_color || defaultConfig.background_color;
+    
+    const font = config.font_family || defaultConfig.font_family;
+    document.body.style.fontFamily = `${font}, sans-serif`;
+    
+    const baseSize = config.font_size || defaultConfig.font_size;
+    document.getElementById('main-title').style.fontSize = `${baseSize * 2.5}px`;
+    document.getElementById('subtitle').style.fontSize = `${baseSize * 1.1}px`;
+}
+
+window.elementSdk.init({
+    defaultConfig,
+    onConfigChange: async (config) => applyConfig(config),
+    mapToCapabilities: (config) => ({
+        recolorables: [
+            { get: () => config.background_color || defaultConfig.background_color, set: (v) => { config.background_color = v; window.elementSdk.setConfig({ background_color: v }); } },
+            { get: () => config.surface_color || defaultConfig.surface_color, set: (v) => { config.surface_color = v; window.elementSdk.setConfig({ surface_color: v }); } },
+            { get: () => config.text_color || defaultConfig.text_color, set: (v) => { config.text_color = v; window.elementSdk.setConfig({ text_color: v }); } },
+            { get: () => config.primary_action || defaultConfig.primary_action, set: (v) => { config.primary_action = v; window.elementSdk.setConfig({ primary_action: v }); } },
+            { get: () => config.secondary_action || defaultConfig.secondary_action, set: (v) => { config.secondary_action = v; window.elementSdk.setConfig({ secondary_action: v }); } },
+        ],
+        borderables: [],
+        fontEditable: { get: () => config.font_family || defaultConfig.font_family, set: (v) => { config.font_family = v; window.elementSdk.setConfig({ font_family: v }); } },
+        fontSizeable: { get: () => config.font_size || defaultConfig.font_size, set: (v) => { config.font_size = v; window.elementSdk.setConfig({ font_size: v }); } },
+    }),
+    mapToEditPanelValues: (config) => new Map([
+        ["gallery_title", config.gallery_title || defaultConfig.gallery_title],
+        ["subtitle_text", config.subtitle_text || defaultConfig.subtitle_text],
+    ])
+});
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a04e39ee1f9ece55',t:'MTc4MDMxNjk5MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
