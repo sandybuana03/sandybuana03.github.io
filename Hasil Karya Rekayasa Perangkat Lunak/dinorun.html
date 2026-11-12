@@ -1,0 +1,2584 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Dino Run: Petualangan Mencari Telur</title>
+  <!-- Google Fonts untuk nuansa kartun petualangan yang ramah dan mudah dibaca -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #101923;
+      --panel-bg: rgba(20, 32, 46, 0.92);
+      --panel-border: rgba(255, 255, 255, 0.16);
+      --accent-green: #4ade80;
+      --accent-green-dark: #16a34a;
+      --accent-amber: #fbbf24;
+      --accent-amber-dark: #d97706;
+      --accent-red: #f87171;
+      --text-light: #f8fafc;
+      --text-muted: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      font-family: 'Nunito', sans-serif;
+      color: var(--text-light);
+    }
+
+    h1, h2, h3, .font-display {
+      font-family: 'Fredoka', sans-serif;
+    }
+
+    #game-wrapper {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* HUD Bar di bagian atas */
+    #hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .hud-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      pointer-events: auto;
+    }
+
+    .hud-pill {
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(8px);
+      border: 2px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      padding: 6px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .hud-btn {
+      background: rgba(15, 23, 42, 0.85);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      color: #fff;
+      border-radius: 14px;
+      padding: 8px 12px;
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.12s ease, background-color 0.15s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    }
+
+    .hud-btn:hover {
+      background: rgba(30, 41, 59, 0.95);
+      transform: translateY(-1px);
+    }
+
+    .hud-btn:active {
+      transform: translateY(1px) scale(0.97);
+    }
+
+    /* Overlay Screens (Menu, Pause, Game Over, Level Complete, Victory) */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(9, 14, 23, 0.72);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 20;
+      transition: opacity 0.25s ease;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 640px;
+      max-height: 92vh;
+      overflow-y: auto;
+      background: var(--panel-bg);
+      border: 3px solid var(--panel-border);
+      border-radius: 28px;
+      padding: 26px 24px;
+      text-align: center;
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      animation: popIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .game-title {
+      font-size: clamp(1.8rem, 4vw, 2.7rem);
+      line-height: 1.1;
+      margin: 6px 0 4px;
+      background: linear-gradient(180deg, #bef264 0%, #4ade80 55%, #16a34a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.45));
+    }
+
+    .game-subtitle {
+      font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+      color: var(--accent-amber);
+      margin: 0 0 14px;
+      font-weight: 700;
+    }
+
+    .story-box {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 12px 16px;
+      font-size: 0.94rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .control-item {
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      padding: 10px;
+      font-size: 0.85rem;
+    }
+
+    .key-badge {
+      display: inline-block;
+      background: #334155;
+      border-bottom: 3px solid #1e293b;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 7px;
+      font-weight: 800;
+      font-size: 0.8rem;
+      margin: 2px;
+    }
+
+    .level-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .level-card-btn {
+      background: rgba(30, 41, 59, 0.85);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 12px 8px;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .level-card-btn:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent-amber);
+    }
+
+    .level-card-btn.selected {
+      background: rgba(34, 197, 94, 0.22);
+      border-color: var(--accent-green);
+      box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.25);
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+      border: none;
+      border-bottom: 5px solid #15803d;
+      color: #052e16;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      padding: 13px 28px;
+      border-radius: 18px;
+      cursor: pointer;
+      transition: transform 0.1s ease, filter 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.06);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:active {
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+    }
+
+    .btn-secondary {
+      background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+      border: none;
+      border-bottom: 5px solid #b45309;
+      color: #451a03;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      padding: 11px 22px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: transform 0.1s ease, filter 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-secondary:hover {
+      filter: brightness(1.06);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary:active {
+      transform: translateY(2px);
+      border-bottom-width: 2px;
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 11px 20px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 18px;
+    }
+
+    .stats-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .stat-box {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 12px 8px;
+    }
+
+    .stat-value {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--accent-amber);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    /* Kontrol Sentuh (Mobile / Tablet) */
+    #touch-controls {
+      position: absolute;
+      bottom: 18px;
+      left: 18px;
+      right: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      pointer-events: none;
+      z-index: 15;
+    }
+
+    .touch-cluster {
+      display: flex;
+      gap: 14px;
+      pointer-events: auto;
+    }
+
+    .touch-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.58);
+      backdrop-filter: blur(4px);
+      border: 3px solid rgba(255, 255, 255, 0.35);
+      color: #fff;
+      font-size: 1.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+      touch-action: none;
+      transition: transform 0.08s ease, background 0.1s ease;
+    }
+
+    .touch-btn.pressed {
+      background: rgba(74, 222, 128, 0.45);
+      border-color: #4ade80;
+      transform: scale(0.92);
+    }
+
+    .touch-btn-jump {
+      width: 74px;
+      height: 74px;
+      background: rgba(245, 158, 11, 0.48);
+      border-color: rgba(251, 191, 36, 0.7);
+      font-size: 1.4rem;
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 700;
+    }
+
+    /* Toast notifikasi kecil di dalam layar */
+    #toast-banner {
+      position: absolute;
+      top: 66px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.88);
+      border: 2px solid var(--accent-amber);
+      color: #fef3c7;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 0.95rem;
+      z-index: 16;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    #toast-banner.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(4px);
+    }
+
+    @media (max-width: 600px) {
+      .hud-pill {
+        padding: 5px 10px;
+        font-size: 0.82rem;
+        gap: 5px;
+      }
+      .level-selector {
+        grid-template-columns: 1fr;
+      }
+      .modal-card {
+        padding: 18px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="game-wrapper">
+    <!-- Kanvas Permainan Utama -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- HUD Permainan -->
+    <div id="hud" class="hidden">
+      <div class="hud-group">
+        <div class="hud-pill" id="hud-level" title="Level Saat Ini">
+          <span>🌴</span>
+          <span id="hud-level-text">Level 1: Hutan Hijau</span>
+        </div>
+        <div class="hud-pill" id="hud-lives" title="Nyawa Dino">
+          <span id="hud-hearts">❤️❤️❤️</span>
+        </div>
+      </div>
+
+      <div class="hud-group">
+        <div class="hud-pill" title="Telur Dinosaurus Terkumpul (+50 poin)">
+          <span>🥚</span>
+          <span id="hud-eggs">0 / 10</span>
+        </div>
+        <div class="hud-pill" title="Buah Terkumpul (+10 poin)">
+          <span>🍎</span>
+          <span id="hud-fruits">0 / 15</span>
+        </div>
+        <div class="hud-pill" title="Total Skor">
+          <span>⭐</span>
+          <span id="hud-score">0</span>
+        </div>
+        <button class="hud-btn" id="btn-mute" title="Suara & Musik">🔊</button>
+        <button class="hud-btn" id="btn-pause" title="Jeda Permainan">⏸️ Jeda</button>
+      </div>
+    </div>
+
+    <!-- Banner Notifikasi Ringkas -->
+    <div id="toast-banner"></div>
+
+    <!-- Kontrol Layar Sentuh (Responsif untuk Mobile/Tablet & Bisa Diaktifkan Kapan Saja) -->
+    <div id="touch-controls" class="hidden">
+      <div class="touch-cluster">
+        <button class="touch-btn" id="touch-left" aria-label="Gerak Kiri">◀</button>
+        <button class="touch-btn" id="touch-right" aria-label="Gerak Kanan">▶</button>
+      </div>
+      <div class="touch-cluster">
+        <button class="touch-btn touch-btn-jump" id="touch-jump" aria-label="Lompat">LOMPAT</button>
+      </div>
+    </div>
+
+    <!-- LAYAR 1: MAIN MENU -->
+    <div id="screen-menu" class="overlay">
+      <div class="modal-card">
+        <!-- Ilustrasi SVG Kartun Dino & Telur -->
+        <div style="display:flex; justify-content:center; margin-bottom:4px;">
+          <svg width="118" height="84" viewBox="0 0 140 100" aria-hidden="true">
+            <!-- Ekor Dino -->
+            <path d="M22 65 Q5 55 12 42 Q24 48 34 55 Z" fill="#22c55e" stroke="#14532d" stroke-width="3"/>
+            <!-- Duri Punggung -->
+            <polygon points="32,42 24,33 36,33" fill="#fbbf24" stroke="#92400e" stroke-width="2"/>
+            <polygon points="35,53 26,46 37,45" fill="#fbbf24" stroke="#92400e" stroke-width="2"/>
+            <!-- Badan & Kepala Dino -->
+            <rect x="32" y="22" width="44" height="54" rx="20" fill="#4ade80" stroke="#14532d" stroke-width="3.5"/>
+            <rect x="52" y="24" width="34" height="28" rx="14" fill="#4ade80" stroke="#14532d" stroke-width="3.5"/>
+            <!-- Perut Cerah -->
+            <path d="M56 48 Q72 48 70 72 L48 72 Q46 54 56 48 Z" fill="#bbf7d0"/>
+            <!-- Mata Ekspresif -->
+            <circle cx="67" cy="34" r="6.5" fill="#ffffff" stroke="#14532d" stroke-width="2"/>
+            <circle cx="69" cy="34" r="3.2" fill="#0f172a"/>
+            <circle cx="70" cy="32.5" r="1.2" fill="#ffffff"/>
+            <!-- Pipi & Senyum -->
+            <circle cx="76" cy="41" r="3" fill="#f87171" opacity="0.7"/>
+            <path d="M68 44 Q75 48 81 43" fill="none" stroke="#14532d" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Kaki -->
+            <rect x="38" y="72" width="12" height="14" rx="5" fill="#22c55e" stroke="#14532d" stroke-width="3"/>
+            <rect x="56" y="72" width="12" height="14" rx="5" fill="#22c55e" stroke="#14532d" stroke-width="3"/>
+            <!-- Telur Dinosaurus -->
+            <ellipse cx="106" cy="68" rx="16" ry="21" fill="#fef9c3" stroke="#854d0e" stroke-width="3"/>
+            <circle cx="101" cy="61" r="3.5" fill="#4ade80"/>
+            <circle cx="112" cy="67" r="4" fill="#4ade80"/>
+            <circle cx="103" cy="76" r="3" fill="#4ade80"/>
+          </svg>
+        </div>
+
+        <h1 class="game-title">Dino Run</h1>
+        <div class="game-subtitle">Petualangan Mencari Telur</div>
+
+        <div class="story-box">
+          Suatu hari, telur-telur kesayangan <strong>Dino</strong> dicuri oleh kawanan monster hutan! Bantu Dino melompati rintangan, menghindari musuh, mengumpulkan buah (+10), dan menyelamatkan seluruh telurnya (+50) hingga ke sarang akhir!
+        </div>
+
+        <div class="controls-grid">
+          <div class="control-item">
+            <div style="font-weight:800; color:#4ade80; margin-bottom:4px;">🏃 Bergerak</div>
+            <span class="key-badge">◀</span> <span class="key-badge">▶</span> atau <span class="key-badge">A</span> <span class="key-badge">D</span>
+          </div>
+          <div class="control-item">
+            <div style="font-weight:800; color:#fbbf24; margin-bottom:4px;">🦘 Melompat</div>
+            <span class="key-badge">▲</span> <span class="key-badge">W</span> atau <span class="key-badge">Spasi</span>
+          </div>
+          <div class="control-item">
+            <div style="font-weight:800; color:#38bdf8; margin-bottom:4px;">🎯 Misi Utama</div>
+            Kumpulkan Telur & Capai Garis Akhir!
+          </div>
+        </div>
+
+        <div style="text-align:left; font-weight:800; font-size:0.9rem; margin-bottom:8px; color:#e2e8f0;">
+          Pilih Lokasi Petualangan:
+        </div>
+        <div class="level-selector" id="level-selector">
+          <button type="button" class="level-card-btn selected" data-level="0">
+            <span style="font-size:1.5rem;">🌲</span>
+            <strong class="font-display">Level 1: Hutan Hijau</strong>
+            <span style="font-size:0.75rem; color:#94a3b8;">10 Telur • 15 Buah</span>
+          </button>
+          <button type="button" class="level-card-btn" data-level="1">
+            <span style="font-size:1.5rem;">🦇</span>
+            <strong class="font-display">Level 2: Gua Misterius</strong>
+            <span style="font-size:0.75rem; color:#94a3b8;">15 Telur • 20 Buah</span>
+          </button>
+          <button type="button" class="level-card-btn" data-level="2">
+            <span style="font-size:1.5rem;">🌋</span>
+            <strong class="font-display">Level 3: Gunung Berapi</strong>
+            <span style="font-size:0.75rem; color:#94a3b8;">20 Telur • 25 Buah</span>
+          </button>
+        </div>
+
+        <button type="button" class="btn-primary" id="btn-start-game">
+          <span>🚀 Mulai Petualangan</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- LAYAR 2: PAUSE -->
+    <div id="screen-pause" class="overlay hidden">
+      <div class="modal-card" style="max-width:420px;">
+        <div style="font-size:3rem;">⏸️</div>
+        <h2 class="font-display" style="font-size:2rem; margin:6px 0;">Permainan Dijeda</h2>
+        <p style="color:var(--text-muted); margin-bottom:18px;">Dino sedang beristirahat sejenak sebelum melanjutkan pencarian telur.</p>
+        <div class="btn-row" style="flex-direction:column;">
+          <button type="button" class="btn-primary" id="btn-resume">▶️ Lanjutkan Bermain</button>
+          <button type="button" class="btn-secondary" id="btn-restart-pause">🔄 Ulangi Level Ini</button>
+          <button type="button" class="btn-ghost" id="btn-menu-pause">🏠 Kembali ke Menu Utama</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAYAR 3: GAME OVER -->
+    <div id="screen-gameover" class="overlay hidden">
+      <div class="modal-card" style="max-width:450px;">
+        <div style="font-size:3.2rem;">💫</div>
+        <h2 class="font-display" style="font-size:2.1rem; color:#f87171; margin:4px 0;">Yah, Dino Kehabisan Nyawa!</h2>
+        <p id="gameover-reason" style="color:var(--text-muted); margin-bottom:14px;">Jangan menyerah! Ayo bantu Dino mencoba lagi dan selamatkan telur-telurnya.</p>
+        <div class="stats-summary">
+          <div class="stat-box">
+            <div class="stat-value" id="go-eggs">0/10</div>
+            <div class="stat-label">Telur</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="go-fruits">0/15</div>
+            <div class="stat-label">Buah</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="go-score">0</div>
+            <div class="stat-label">Skor Level</div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn-primary" id="btn-retry">🔄 Coba Lagi</button>
+          <button type="button" class="btn-ghost" id="btn-menu-go">🏠 Menu Utama</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAYAR 4: LEVEL SELESAI -->
+    <div id="screen-levelcomplete" class="overlay hidden">
+      <div class="modal-card" style="max-width:480px;">
+        <div style="font-size:3.2rem;">🎉</div>
+        <h2 class="font-display" style="font-size:2.1rem; color:#4ade80; margin:4px 0;">Level Berhasil Diselesaikan!</h2>
+        <p id="lc-subtitle" style="color:var(--text-muted); margin-bottom:12px;">Hebat! Dino berhasil melewati rintangan dan mencapai garis akhir.</p>
+        <div class="stats-summary">
+          <div class="stat-box">
+            <div class="stat-value" id="lc-eggs">10/10</div>
+            <div class="stat-label">Telur (+50)</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="lc-fruits">15/15</div>
+            <div class="stat-label">Buah (+10)</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="lc-score">0</div>
+            <div class="stat-label">Total Skor</div>
+          </div>
+        </div>
+        <div id="lc-egg-note" style="font-size:0.88rem; color:#fde047; margin-bottom:10px; font-weight:700;"></div>
+        <div class="btn-row">
+          <button type="button" class="btn-primary" id="btn-next-level">➡️ Lanjut Level Berikutnya</button>
+          <button type="button" class="btn-secondary" id="btn-replay-level">🔄 Main Ulang</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAYAR 5: TAMAT GAME (VICTORY SETELAH LEVEL 3) -->
+    <div id="screen-victory" class="overlay hidden">
+      <div class="modal-card" style="max-width:520px; border-color:#fbbf24;">
+        <div style="font-size:3.5rem;">🏆🦖🥚</div>
+        <h2 class="font-display" style="font-size:2.2rem; color:#fde047; margin:4px 0;">Selamat! Petualangan Selesai!</h2>
+        <p style="color:var(--text-light); line-height:1.5; margin-bottom:14px;">
+          Luar biasa! Dino telah menaklukkan Hutan Hijau, Gua Misterius, dan Gunung Berapi untuk menyelamatkan telur-telurnya dari para monster!
+        </p>
+        <div class="stats-summary">
+          <div class="stat-box">
+            <div class="stat-value" id="vic-eggs">0 / 45</div>
+            <div class="stat-label">Total Telur</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="vic-fruits">0 / 60</div>
+            <div class="stat-label">Total Buah</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="vic-score">0</div>
+            <div class="stat-label">Skor Akhir</div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button type="button" class="btn-primary" id="btn-play-again-all">🔁 Main Dari Awal</button>
+          <button type="button" class="btn-ghost" id="btn-menu-vic">🏠 Menu Utama</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * =========================================================================
+     * DINO RUN: PETUALANGAN MENCARI TELUR
+     * Permainan Platformer 2D Berbasis HTML5 Canvas & Web Audio API
+     * =========================================================================
+     */
+
+    // =========================================================================
+    // 1. SISTEM AUDIO PROSEDURAL (WEB AUDIO API - TANPA ASET EKSTERNAL)
+    // =========================================================================
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+        this.bgmTimer = null;
+        this.bgmStep = 0;
+        this.currentTheme = 'adventure'; // 'adventure' | 'volcano'
+        this.isPlayingBgm = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            this.ctx = new AudioCtx();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+
+      toggleMute() {
+        this.muted = !this.muted;
+        if (this.muted) {
+          this.stopBgm();
+        } else if (gameState.status === 'playing') {
+          this.startBgm(this.currentTheme);
+        }
+        return this.muted;
+      }
+
+      playTone(freq, type = 'sine', duration = 0.15, volume = 0.18, slideTo = null, delay = 0) {
+        if (this.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime + delay;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+        if (slideTo) {
+          osc.frequency.exponentialRampToValueAtTime(slideTo, now + duration);
+        }
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(volume, now + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + duration + 0.02);
+      }
+
+      playJump() {
+        this.playTone(250, 'sine', 0.2, 0.2, 580, 0);
+        this.playTone(320, 'triangle', 0.16, 0.12, 660, 0.02);
+      }
+
+      playFruit() {
+        this.playTone(587.33, 'sine', 0.11, 0.18, 783.99, 0);
+        this.playTone(880, 'triangle', 0.14, 0.15, 1046.5, 0.06);
+      }
+
+      playEgg() {
+        // Fanfare kecil yang ceria saat menemukan telur dinosaurus
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+        notes.forEach((n, idx) => {
+          this.playTone(n, 'triangle', 0.16, 0.2, null, idx * 0.065);
+        });
+      }
+
+      playHurt() {
+        this.playTone(210, 'sawtooth', 0.28, 0.24, 75, 0);
+        this.playTone(150, 'square', 0.25, 0.18, 60, 0.05);
+      }
+
+      playStomp() {
+        this.playTone(320, 'square', 0.14, 0.16, 120, 0);
+        this.playTone(480, 'sine', 0.12, 0.14, 620, 0.06);
+      }
+
+      playLevelComplete() {
+        const melody = [
+          { f: 523.25, d: 0.14, t: 0.00 },
+          { f: 659.25, d: 0.14, t: 0.14 },
+          { f: 783.99, d: 0.14, t: 0.28 },
+          { f: 1046.5, d: 0.35, t: 0.42 },
+          { f: 783.99, d: 0.14, t: 0.80 },
+          { f: 1046.5, d: 0.48, t: 0.96 }
+        ];
+        melody.forEach(m => this.playTone(m.f, 'triangle', m.d, 0.22, null, m.t));
+      }
+
+      playGameOver() {
+        const notes = [392.0, 349.23, 329.63, 261.63];
+        notes.forEach((n, idx) => {
+          this.playTone(n, 'sawtooth', 0.24, 0.16, n * 0.9, idx * 0.2);
+        });
+      }
+
+      startBgm(theme = 'adventure') {
+        this.currentTheme = theme;
+        this.stopBgm();
+        if (this.muted) return;
+        this.init();
+        this.isPlayingBgm = true;
+        this.bgmStep = 0;
+
+        // Melodi petualangan ceria untuk Level 1 & 2
+        const adventureMelody = [
+          261.63, 329.63, 392.00, 329.63, 349.23, 440.00, 392.00, 0,
+          329.63, 392.00, 523.25, 493.88, 392.00, 329.63, 293.66, 0,
+          261.63, 329.63, 392.00, 523.25, 440.00, 392.00, 349.23, 329.63,
+          293.66, 349.23, 329.63, 293.66, 261.63, 0, 261.63, 0
+        ];
+        const adventureBass = [
+          130.81, 0, 196.00, 0, 174.61, 0, 196.00, 0,
+          130.81, 0, 196.00, 0, 146.83, 0, 196.00, 0
+        ];
+
+        // Musik intens & epik untuk tantangan terakhir (Level 3: Gunung Berapi)
+        const volcanoMelody = [
+          220.00, 220.00, 261.63, 246.94, 220.00, 329.63, 293.66, 261.63,
+          246.94, 246.94, 293.66, 261.63, 246.94, 220.00, 196.00, 246.94,
+          220.00, 261.63, 329.63, 349.23, 329.63, 293.66, 261.63, 246.94,
+          220.00, 196.00, 220.00, 261.63, 329.63, 0, 440.00, 0
+        ];
+        const volcanoBass = [
+          110.00, 110.00, 110.00, 110.00, 130.81, 130.81, 146.83, 146.83,
+          98.00, 98.00, 98.00, 98.00, 110.00, 110.00, 123.47, 123.47
+        ];
+
+        const tempoMs = theme === 'volcano' ? 190 : 230;
+
+        this.bgmTimer = setInterval(() => {
+          if (this.muted || gameState.status !== 'playing') return;
+          const mel = theme === 'volcano' ? volcanoMelody : adventureMelody;
+          const bas = theme === 'volcano' ? volcanoBass : adventureBass;
+
+          const note = mel[this.bgmStep % mel.length];
+          const bassNote = bas[this.bgmStep % bas.length];
+
+          if (note > 0) {
+            this.playTone(
+              note,
+              theme === 'volcano' ? 'sawtooth' : 'triangle',
+              0.18,
+              theme === 'volcano' ? 0.065 : 0.08
+            );
+          }
+          if (bassNote > 0) {
+            this.playTone(
+              bassNote,
+              'sine',
+              0.22,
+              theme === 'volcano' ? 0.11 : 0.09
+            );
+          }
+          this.bgmStep++;
+        }, tempoMs);
+      }
+
+      stopBgm() {
+        this.isPlayingBgm = false;
+        if (this.bgmTimer) {
+          clearInterval(this.bgmTimer);
+          this.bgmTimer = null;
+        }
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    // =========================================================================
+    // 2. KONFIGURASI LEVEL SESUAI GAME DESIGN DOCUMENT (GDD)
+    // =========================================================================
+    /**
+     * Level 1: Hutan Hijau (10 Telur, 15 Buah) - Lubang, Duri, Monster Kecil
+     * Level 2: Gua Misterius (15 Telur, 20 Buah) - Lubang, Batu Jatuh, Kelelawar
+     * Level 3: Gunung Berapi (20 Telur, 25 Buah) - Lava, Batu Bergulir, Monster Api
+     */
+    const LEVEL_DEFINITIONS = [
+      {
+        id: 0,
+        name: 'Level 1: Hutan Hijau',
+        icon: '🌴',
+        theme: 'forest',
+        bgmTheme: 'adventure',
+        targetEggs: 10,
+        targetFruits: 15,
+        width: 4700,
+        groundY: 500,
+        skyTop: '#38bdf8',
+        skyBottom: '#bae6fd',
+        groundTop: '#22c55e',
+        groundBody: '#854d0e',
+        // Segmen tanah utama [x1, x2] (celah di antaranya adalah lubang jurang)
+        groundSegments: [
+          [0, 920],
+          [1040, 1980],
+          [2110, 3120],
+          [3260, 4700]
+        ],
+        // Platform melayang [x, y, w, h]
+        platforms: [
+          [260, 395, 150, 22],
+          [490, 320, 160, 22],
+          [730, 385, 140, 22],
+          [1160, 390, 160, 22],
+          [1410, 310, 170, 22],
+          [1680, 380, 150, 22],
+          [2240, 395, 160, 22],
+          [2490, 310, 170, 22],
+          [2770, 385, 160, 22],
+          [3420, 390, 160, 22],
+          [3690, 310, 180, 22],
+          [3980, 385, 160, 22]
+        ],
+        // Duri tajam di tanah [x, count]
+        spikes: [
+          [610, 2],
+          [1560, 2],
+          [2640, 3],
+          [3850, 2]
+        ],
+        // Monster hutan kecil berpatroli [x1, x2, y, speed]
+        monsters: [
+          { type: 'forest_monster', x1: 420, x2: 700, y: 500, speed: 95 },
+          { type: 'forest_monster', x1: 1180, x2: 1480, y: 500, speed: 110 },
+          { type: 'forest_monster', x1: 2220, x2: 2560, y: 500, speed: 115 },
+          { type: 'forest_monster', x1: 3400, x2: 3780, y: 500, speed: 125 },
+          { type: 'forest_monster', x1: 4020, x2: 4320, y: 500, speed: 120 }
+        ],
+        fallingRocks: [],
+        rollingRocks: [],
+        // Tepat 10 telur dinosaurus
+        eggs: [
+          [320, 355], [555, 280], [980, 390], [1480, 270], [1860, 455],
+          [2045, 385], [2560, 270], [3190, 385], [3765, 270], [4260, 455]
+        ],
+        // Tepat 15 buah-buahan (apel, pisang, beri)
+        fruits: [
+          [180, 460], [290, 355], [520, 280], [785, 345], [860, 460],
+          [1220, 350], [1440, 270], [1740, 340], [2300, 355], [2520, 270],
+          [2835, 345], [3020, 460], [3485, 350], [3725, 270], [4045, 345]
+        ],
+        finishX: 4480
+      },
+      {
+        id: 1,
+        name: 'Level 2: Gua Misterius',
+        icon: '🦇',
+        theme: 'cave',
+        bgmTheme: 'adventure',
+        targetEggs: 15,
+        targetFruits: 20,
+        width: 5600,
+        groundY: 500,
+        skyTop: '#1e1b4b',
+        skyBottom: '#312e81',
+        groundTop: '#6366f1',
+        groundBody: '#1e293b',
+        groundSegments: [
+          [0, 880],
+          [1010, 1940],
+          [2080, 3050],
+          [3200, 4240],
+          [4390, 5600]
+        ],
+        platforms: [
+          [240, 395, 150, 22],
+          [470, 315, 160, 22],
+          [700, 385, 140, 22],
+          [1120, 390, 150, 22],
+          [1360, 305, 170, 22],
+          [1630, 380, 150, 22],
+          [2190, 390, 160, 22],
+          [2450, 305, 165, 22],
+          [2720, 380, 150, 22],
+          [3320, 390, 160, 22],
+          [3580, 305, 170, 22],
+          [3860, 380, 160, 22],
+          [4530, 385, 160, 22],
+          [4800, 305, 170, 22]
+        ],
+        spikes: [
+          [590, 2],
+          [1510, 2],
+          [2580, 2],
+          [3720, 3],
+          [4950, 2]
+        ],
+        // Kelelawar terbang bolak-balik & naik-turun
+        monsters: [
+          { type: 'bat', x1: 380, x2: 760, y: 265, speed: 125, amp: 26 },
+          { type: 'bat', x1: 1220, x2: 1680, y: 255, speed: 140, amp: 30 },
+          { type: 'bat', x1: 2260, x2: 2740, y: 260, speed: 145, amp: 28 },
+          { type: 'bat', x1: 3400, x2: 3920, y: 250, speed: 155, amp: 32 },
+          { type: 'bat', x1: 4550, x2: 5050, y: 260, speed: 160, amp: 30 }
+        ],
+        // Batu/stalaktit jatuh saat Dino mendekat atau berulang
+        fallingRocks: [
+          { x: 520, triggerRange: 190 },
+          { x: 1280, triggerRange: 190 },
+          { x: 1790, triggerRange: 190 },
+          { x: 2360, triggerRange: 200 },
+          { x: 2910, triggerRange: 200 },
+          { x: 3500, triggerRange: 200 },
+          { x: 4080, triggerRange: 200 },
+          { x: 4720, triggerRange: 200 }
+        ],
+        rollingRocks: [],
+        // Tepat 15 telur dinosaurus
+        eggs: [
+          [300, 355], [535, 275], [945, 385], [1180, 350], [1430, 265],
+          [1840, 455], [2010, 385], [2255, 350], [2520, 265], [3125, 385],
+          [3385, 350], [3650, 265], [4315, 385], [4600, 345], [4870, 265]
+        ],
+        // Tepat 20 buah-buahan
+        fruits: [
+          [170, 460], [270, 355], [500, 275], [755, 345], [820, 460],
+          [1150, 350], [1395, 265], [1690, 340], [2220, 350], [2480, 265],
+          [2780, 340], [2970, 460], [3350, 350], [3615, 265], [3925, 340],
+          [4140, 460], [4565, 345], [4835, 265], [5120, 460], [5230, 460]
+        ],
+        finishX: 5380
+      },
+      {
+        id: 2,
+        name: 'Level 3: Gunung Berapi',
+        icon: '🌋',
+        theme: 'volcano',
+        bgmTheme: 'volcano',
+        targetEggs: 20,
+        targetFruits: 25,
+        width: 6500,
+        groundY: 500,
+        skyTop: '#7f1d1d',
+        skyBottom: '#ea580c',
+        groundTop: '#f97316',
+        groundBody: '#292524',
+        // Celah di antara segmen tanah pada Level 3 berisi kolam lava menyala!
+        groundSegments: [
+          [0, 900],
+          [1040, 1980],
+          [2130, 3100],
+          [3260, 4280],
+          [4440, 5450],
+          [5600, 6500]
+        ],
+        platforms: [
+          [230, 395, 150, 22],
+          [460, 310, 160, 22],
+          [700, 380, 145, 22],
+          [1140, 390, 150, 22],
+          [1380, 305, 165, 22],
+          [1650, 380, 150, 22],
+          [2240, 390, 155, 22],
+          [2490, 305, 165, 22],
+          [2760, 380, 150, 22],
+          [3370, 390, 160, 22],
+          [3630, 305, 165, 22],
+          [3910, 380, 155, 22],
+          [4560, 390, 160, 22],
+          [4830, 305, 170, 22],
+          [5110, 380, 155, 22],
+          [5750, 380, 160, 22]
+        ],
+        spikes: [
+          [590, 2],
+          [1540, 2],
+          [2630, 2],
+          [3780, 2],
+          [4980, 2]
+        ],
+        // Monster api yang bergerak cepat
+        monsters: [
+          { type: 'fire_monster', x1: 420, x2: 780, y: 500, speed: 155 },
+          { type: 'fire_monster', x1: 1200, x2: 1620, y: 500, speed: 165 },
+          { type: 'fire_monster', x1: 2280, x2: 2740, y: 500, speed: 175 },
+          { type: 'fire_monster', x1: 3420, x2: 3920, y: 500, speed: 180 },
+          { type: 'fire_monster', x1: 4600, x2: 5120, y: 500, speed: 185 },
+          { type: 'fire_monster', x1: 5720, x2: 6100, y: 500, speed: 175 }
+        ],
+        fallingRocks: [],
+        // Batu panas bergulir di segmen tanah [spawnX, minX, maxX, speed]
+        rollingRocks: [
+          { spawnX: 840, minX: 180, maxX: 860, speed: 190 },
+          { spawnX: 1920, minX: 1080, maxX: 1940, speed: 205 },
+          { spawnX: 3040, minX: 2170, maxX: 3060, speed: 215 },
+          { spawnX: 4220, minX: 3300, maxX: 4240, speed: 220 },
+          { spawnX: 5390, minX: 4480, maxX: 5410, speed: 225 }
+        ],
+        // Tepat 20 telur dinosaurus
+        eggs: [
+          [295, 355], [525, 270], [970, 380], [1205, 350], [1450, 265],
+          [1880, 455], [2055, 380], [2305, 350], [2560, 265], [3180, 380],
+          [3435, 350], [3700, 265], [4160, 455], [4360, 380], [4625, 350],
+          [4900, 265], [5340, 455], [5525, 380], [5820, 340], [6120, 455]
+        ],
+        // Tepat 25 buah-buahan
+        fruits: [
+          [160, 460], [260, 355], [490, 270], [755, 340], [835, 460],
+          [1170, 350], [1415, 265], [1710, 340], [2270, 350], [2520, 265],
+          [2820, 340], [3010, 460], [3400, 350], [3665, 265], [3975, 340],
+          [4190, 460], [4590, 350], [4865, 265], [5170, 340], [5370, 460],
+          [5680, 460], [5780, 340], [5865, 340], [6020, 460], [6180, 460]
+        ],
+        finishX: 6290
+      }
+    ];
+
+    // =========================================================================
+    // 3. STATE PERMAINAN & INPUT HANDLER
+    // =========================================================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const keys = {
+      left: false,
+      right: false,
+      jump: false
+    };
+
+    const gameState = {
+      status: 'menu', // 'menu' | 'playing' | 'paused' | 'gameover' | 'levelcomplete' | 'victory'
+      selectedLevelIdx: 0,
+      currentLevelIdx: 0,
+      lives: 3,
+      maxLives: 3,
+      totalScore: 0,
+      levelScore: 0,
+      eggsCollected: 0,
+      fruitsCollected: 0,
+      // Akumulasi seluruh level untuk layar tamat
+      campaignEggs: 0,
+      campaignFruits: 0,
+      campaignScore: 0,
+      cameraX: 0,
+      cameraY: 0,
+      shakeTimer: 0,
+      time: 0
+    };
+
+    // Entitas pemain (Dino)
+    const dino = {
+      x: 80,
+      y: 400,
+      w: 44,
+      h: 52,
+      vx: 0,
+      vy: 0,
+      speed: 295,
+      jumpForce: -650,
+      gravity: 1580,
+      onGround: false,
+      facing: 1, // 1 kanan, -1 kiri
+      animTimer: 0,
+      invulnTimer: 0,
+      coyoteTimer: 0,
+      jumpBufferTimer: 0
+    };
+
+    // Koleksi objek aktif pada level berjalan
+    let levelData = null;
+    let activeEggs = [];
+    let activeFruits = [];
+    let activeMonsters = [];
+    let activeFallingRocks = [];
+    let activeRollingRocks = [];
+    let particles = [];
+    let floatingTexts = [];
+    let ambientParticles = [];
+
+    // =========================================================================
+    // 4. INISIALISASI & RESIZE KANVAS RESPONSIF
+    // =========================================================================
+    let viewWidth = window.innerWidth;
+    let viewHeight = window.innerHeight;
+    const LOGICAL_HEIGHT = 600; // Tinggi dunia virtual tetap agar fisika konsisten di semua layar
+
+    function resizeCanvas() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      viewWidth = window.innerWidth;
+      viewHeight = window.innerHeight;
+      canvas.width = viewWidth * dpr;
+      canvas.height = viewHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // =========================================================================
+    // 5. PENGELOLAAN LEVEL & RESET ENTITAS
+    // =========================================================================
+    const FRUIT_TYPES = ['apple', 'banana', 'berry'];
+
+    function loadLevel(idx, preserveCampaign = false) {
+      gameState.currentLevelIdx = idx;
+      levelData = LEVEL_DEFINITIONS[idx];
+
+      if (!preserveCampaign) {
+        gameState.campaignEggs = 0;
+        gameState.campaignFruits = 0;
+        gameState.campaignScore = 0;
+      }
+
+      gameState.lives = gameState.maxLives;
+      gameState.levelScore = 0;
+      gameState.eggsCollected = 0;
+      gameState.fruitsCollected = 0;
+      gameState.cameraX = 0;
+      gameState.shakeTimer = 0;
+
+      // Reset posisi Dino
+      dino.x = 70;
+      dino.y = levelData.groundY - dino.h;
+      dino.vx = 0;
+      dino.vy = 0;
+      dino.onGround = true;
+      dino.facing = 1;
+      dino.invulnTimer = 0;
+      dino.coyoteTimer = 0;
+      dino.jumpBufferTimer = 0;
+
+      // Salin item telur
+      activeEggs = levelData.eggs.map(([x, y], i) => ({
+        id: i,
+        x,
+        y,
+        r: 15,
+        collected: false,
+        bobOffset: i * 0.7
+      }));
+
+      // Salin item buah
+      activeFruits = levelData.fruits.map(([x, y], i) => ({
+        id: i,
+        x,
+        y,
+        r: 13,
+        type: FRUIT_TYPES[i % FRUIT_TYPES.length],
+        collected: false,
+        bobOffset: i * 0.5
+      }));
+
+      // Salin monster
+      activeMonsters = levelData.monsters.map((m, i) => ({
+        ...m,
+        x: m.x1 + (m.x2 - m.x1) * 0.5,
+        baseY: m.y,
+        dir: i % 2 === 0 ? 1 : -1,
+        w: m.type === 'bat' ? 44 : 46,
+        h: m.type === 'bat' ? 30 : 40,
+        alive: true,
+        phase: i * 1.1
+      }));
+
+      // Salin batu jatuh (Level 2)
+      activeFallingRocks = levelData.fallingRocks.map((r, i) => ({
+        x: r.x,
+        y: 55,
+        startY: 55,
+        vy: 0,
+        r: 18,
+        state: 'idle', // 'idle' | 'shaking' | 'falling' | 'cooldown'
+        timer: 0,
+        triggerRange: r.triggerRange,
+        phase: i
+      }));
+
+      // Salin batu bergulir (Level 3)
+      activeRollingRocks = levelData.rollingRocks.map((r, i) => ({
+        ...r,
+        x: r.spawnX,
+        y: levelData.groundY - 19,
+        r: 19,
+        angle: 0,
+        cooldown: i * 0.6
+      }));
+
+      // Partikel suasana latar (daun/kunang-kunang/bara api)
+      ambientParticles = [];
+      for (let i = 0; i < 36; i++) {
+        ambientParticles.push({
+          x: Math.random() * 1400,
+          y: Math.random() * LOGICAL_HEIGHT,
+          size: 2 + Math.random() * 4,
+          speedX: (Math.random() - 0.5) * 35,
+          speedY: levelData.theme === 'volcano' ? -(25 + Math.random() * 45) : (10 + Math.random() * 20),
+          alpha: 0.35 + Math.random() * 0.5,
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+
+      particles = [];
+      floatingTexts = [];
+      updateHud();
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast-banner');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    // =========================================================================
+    // 6. PARTIKEL & TEKS MENGAMBANG
+    // =========================================================================
+    function spawnParticles(x, y, color, count = 12, speedScale = 1) {
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.5;
+        const speed = (60 + Math.random() * 160) * speedScale;
+        particles.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 40,
+          r: 3 + Math.random() * 4,
+          color,
+          life: 0.45 + Math.random() * 0.3,
+          maxLife: 0.75
+        });
+      }
+    }
+
+    function spawnFloatingText(x, y, text, color = '#fde047') {
+      floatingTexts.push({
+        x,
+        y,
+        text,
+        color,
+        life: 0.95
+      });
+    }
+
+    // =========================================================================
+    // 7. LOGIKA FISIKA, TABRAKAN & UPDATE PERMAINAN
+    // =========================================================================
+    function rectOverlap(ax, ay, aw, ah, bx, by, bw, bh) {
+      return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
+    }
+
+    function circleRectOverlap(cx, cy, cr, rx, ry, rw, rh) {
+      const closestX = Math.max(rx, Math.min(cx, rx + rw));
+      const closestY = Math.max(ry, Math.min(cy, ry + rh));
+      const dx = cx - closestX;
+      const dy = cy - closestY;
+      return dx * dx + dy * dy < cr * cr;
+    }
+
+    function hurtDino(reasonText) {
+      if (dino.invulnTimer > 0 || gameState.status !== 'playing') return;
+
+      gameState.lives--;
+      dino.invulnTimer = 1.65;
+      dino.vy = -340;
+      gameState.shakeTimer = 0.28;
+      sound.playHurt();
+      spawnParticles(dino.x + dino.w / 2, dino.y + dino.h / 2, '#f87171', 16, 1.1);
+      updateHud();
+
+      if (gameState.lives <= 0) {
+        gameState.status = 'gameover';
+        sound.stopBgm();
+        sound.playGameOver();
+        document.getElementById('gameover-reason').textContent = reasonText;
+        document.getElementById('go-eggs').textContent = `${gameState.eggsCollected}/${levelData.targetEggs}`;
+        document.getElementById('go-fruits').textContent = `${gameState.fruitsCollected}/${levelData.targetFruits}`;
+        document.getElementById('go-score').textContent = gameState.levelScore;
+        showOverlay('screen-gameover');
+      } else {
+        showToast(`Aduh! ${reasonText} (Sisa ${gameState.lives} nyawa)`);
+      }
+    }
+
+    function respawnFromPit() {
+      // Jika jatuh ke lubang/lava, kurangi 1 nyawa dan kembalikan Dino ke segmen tanah aman terdekat
+      if (gameState.status !== 'playing') return;
+
+      gameState.lives--;
+      dino.invulnTimer = 1.65;
+      gameState.shakeTimer = 0.3;
+      sound.playHurt();
+      updateHud();
+
+      if (gameState.lives <= 0) {
+        gameState.status = 'gameover';
+        sound.stopBgm();
+        sound.playGameOver();
+        const pitMsg = levelData.theme === 'volcano'
+          ? 'Dino terjatuh ke kolam lava panas!'
+          : 'Dino terjatuh ke dalam jurang!';
+        document.getElementById('gameover-reason').textContent = pitMsg;
+        document.getElementById('go-eggs').textContent = `${gameState.eggsCollected}/${levelData.targetEggs}`;
+        document.getElementById('go-fruits').textContent = `${gameState.fruitsCollected}/${levelData.targetFruits}`;
+        document.getElementById('go-score').textContent = gameState.levelScore;
+        showOverlay('screen-gameover');
+        return;
+      }
+
+      // Cari segmen tanah di belakang posisi jatuh
+      let safeX = 70;
+      for (const [x1, x2] of levelData.groundSegments) {
+        if (x1 <= dino.x) {
+          safeX = Math.max(x1 + 24, Math.min(dino.x - 90, x2 - 70));
+        }
+      }
+      dino.x = safeX;
+      dino.y = levelData.groundY - dino.h - 40;
+      dino.vx = 0;
+      dino.vy = 0;
+      spawnParticles(dino.x + dino.w / 2, dino.y + dino.h / 2, '#fbbf24', 14);
+      showToast(levelData.theme === 'volcano' ? 'Panas! Dino terpeleset ke lava!' : 'Hati-hati lubang jurang!');
+    }
+
+    function completeCurrentLevel() {
+      if (gameState.status !== 'playing') return;
+
+      sound.stopBgm();
+      sound.playLevelComplete();
+
+      gameState.campaignEggs += gameState.eggsCollected;
+      gameState.campaignFruits += gameState.fruitsCollected;
+      gameState.campaignScore += gameState.levelScore;
+
+      // Cek apakah ini level terakhir (Level 3: Gunung Berapi)
+      if (gameState.currentLevelIdx >= LEVEL_DEFINITIONS.length - 1) {
+        gameState.status = 'victory';
+        document.getElementById('vic-eggs').textContent = `${gameState.campaignEggs} / 45`;
+        document.getElementById('vic-fruits').textContent = `${gameState.campaignFruits} / 60`;
+        document.getElementById('vic-score').textContent = gameState.campaignScore;
+        showOverlay('screen-victory');
+      } else {
+        gameState.status = 'levelcomplete';
+        document.getElementById('lc-subtitle').textContent =
+          `Hebat! Dino menuntaskan ${levelData.name} dan mencapai sarang akhir!`;
+        document.getElementById('lc-eggs').textContent = `${gameState.eggsCollected}/${levelData.targetEggs}`;
+        document.getElementById('lc-fruits').textContent = `${gameState.fruitsCollected}/${levelData.targetFruits}`;
+        document.getElementById('lc-score').textContent = gameState.levelScore;
+
+        const eggNote = document.getElementById('lc-egg-note');
+        if (gameState.eggsCollected === levelData.targetEggs) {
+          eggNote.textContent = '🌟 Sempurna! Seluruh telur di level ini berhasil diselamatkan!';
+        } else {
+          eggNote.textContent = `💡 Kamu menyelamatkan ${gameState.eggsCollected} dari ${levelData.targetEggs} telur di level ini.`;
+        }
+        showOverlay('screen-levelcomplete');
+      }
+    }
+
+    function update(dt) {
+      gameState.time += dt;
+      if (gameState.shakeTimer > 0) {
+        gameState.shakeTimer = Math.max(0, gameState.shakeTimer - dt);
+      }
+
+      // Update partikel suasana
+      for (const ap of ambientParticles) {
+        ap.x += ap.speedX * dt;
+        ap.y += ap.speedY * dt;
+        if (ap.y < -10) ap.y = LOGICAL_HEIGHT + 10;
+        if (ap.y > LOGICAL_HEIGHT + 10) ap.y = -10;
+        if (ap.x < 0) ap.x += 1400;
+        if (ap.x > 1400) ap.x -= 1400;
+      }
+
+      if (gameState.status !== 'playing') return;
+
+      // Timer invulnerability & jump assist
+      if (dino.invulnTimer > 0) dino.invulnTimer = Math.max(0, dino.invulnTimer - dt);
+      if (dino.onGround) {
+        dino.coyoteTimer = 0.11;
+      } else {
+        dino.coyoteTimer = Math.max(0, dino.coyoteTimer - dt);
+      }
+      if (dino.jumpBufferTimer > 0) {
+        dino.jumpBufferTimer = Math.max(0, dino.jumpBufferTimer - dt);
+      }
+
+      // Gerakan horizontal Dino
+      let moveDir = 0;
+      if (keys.left) moveDir -= 1;
+      if (keys.right) moveDir += 1;
+
+      if (moveDir !== 0) {
+        dino.facing = moveDir;
+        dino.vx = moveDir * dino.speed;
+        dino.animTimer += dt * 11;
+      } else {
+        dino.vx *= Math.pow(0.001, dt);
+        if (Math.abs(dino.vx) < 8) dino.vx = 0;
+        dino.animTimer = 0;
+      }
+
+      // Eksekusi lompatan (mendukung coyote time & jump buffer agar responsif)
+      if (dino.jumpBufferTimer > 0 && dino.coyoteTimer > 0) {
+        dino.vy = dino.jumpForce;
+        dino.onGround = false;
+        dino.coyoteTimer = 0;
+        dino.jumpBufferTimer = 0;
+        sound.playJump();
+        spawnParticles(dino.x + dino.w / 2, dino.y + dino.h, '#ffffff', 6, 0.5);
+      }
+
+      // Gravitasi
+      dino.vy += dino.gravity * dt;
+      if (dino.vy > 920) dino.vy = 920;
+
+      // Update posisi X dan batasi tepi level
+      dino.x += dino.vx * dt;
+      if (dino.x < 0) dino.x = 0;
+      if (dino.x + dino.w > levelData.width) dino.x = levelData.width - dino.w;
+
+      // Simpan posisi Y sebelumnya untuk deteksi pendaratan satu arah pada platform
+      const prevBottom = dino.y + dino.h;
+      dino.y += dino.vy * dt;
+      dino.onGround = false;
+
+      // 1. Cek pijakan di segmen tanah utama
+      if (dino.vy >= 0 && prevBottom <= levelData.groundY + 14 && dino.y + dino.h >= levelData.groundY) {
+        const footLeft = dino.x + 8;
+        const footRight = dino.x + dino.w - 8;
+        for (const [segStart, segEnd] of levelData.groundSegments) {
+          if (footRight > segStart && footLeft < segEnd) {
+            dino.y = levelData.groundY - dino.h;
+            dino.vy = 0;
+            dino.onGround = true;
+            break;
+          }
+        }
+      }
+
+      // 2. Cek pijakan di platform melayang (one-way platform)
+      if (dino.vy >= 0) {
+        const footLeft = dino.x + 8;
+        const footRight = dino.x + dino.w - 8;
+        for (const [px, py, pw] of levelData.platforms) {
+          if (
+            footRight > px &&
+            footLeft < px + pw &&
+            prevBottom <= py + 12 &&
+            dino.y + dino.h >= py
+          ) {
+            dino.y = py - dino.h;
+            dino.vy = 0;
+            dino.onGround = true;
+            break;
+          }
+        }
+      }
+
+      // 3. Cek jatuh ke lubang jurang / kolam lava
+      if (dino.y > LOGICAL_HEIGHT + 25) {
+        respawnFromPit();
+        return;
+      }
+
+      // 4. Cek tabrakan dengan duri tajam
+      for (const [sx, count] of levelData.spikes) {
+        const spikeW = count * 24;
+        const spikeH = 22;
+        if (rectOverlap(dino.x + 7, dino.y + 6, dino.w - 14, dino.h - 8, sx + 3, levelData.groundY - spikeH + 4, spikeW - 6, spikeH - 4)) {
+          hurtDino('Dino tertusuk duri tajam!');
+          break;
+        }
+      }
+
+      // 5. Update & cek tabrakan dengan monster
+      for (const m of activeMonsters) {
+        if (!m.alive) continue;
+
+        m.x += m.dir * m.speed * dt;
+        if (m.x <= m.x1) {
+          m.x = m.x1;
+          m.dir = 1;
+        } else if (m.x + m.w >= m.x2) {
+          m.x = m.x2 - m.w;
+          m.dir = -1;
+        }
+
+        let monsterY = m.baseY - m.h;
+        if (m.type === 'bat') {
+          monsterY = m.baseY + Math.sin(gameState.time * 4.2 + m.phase) * m.amp;
+        }
+
+        if (rectOverlap(dino.x + 6, dino.y + 4, dino.w - 12, dino.h - 6, m.x + 4, monsterY + 4, m.w - 8, m.h - 6)) {
+          // Dino dapat melompat menginjak monster dari atas (kecuali monster api)
+          const isStomping = dino.vy > 0 && prevBottom <= monsterY + 18 && m.type !== 'fire_monster';
+          if (isStomping) {
+            m.alive = false;
+            dino.vy = -420;
+            gameState.levelScore += 25;
+            sound.playStomp();
+            spawnParticles(m.x + m.w / 2, monsterY + m.h / 2, '#a855f7', 14);
+            spawnFloatingText(m.x + m.w / 2, monsterY, '+25', '#c084fc');
+            updateHud();
+          } else {
+            const enemyName =
+              m.type === 'bat' ? 'Dino menabrak kelelawar gua!' :
+              m.type === 'fire_monster' ? 'Dino terkena monster api!' :
+              'Dino tertabrak monster hutan!';
+            hurtDino(enemyName);
+          }
+        }
+      }
+
+      // 6. Update & cek batu jatuh (Level 2: Gua Misterius)
+      for (const rock of activeFallingRocks) {
+        const distToDino = Math.abs(rock.x - (dino.x + dino.w / 2));
+        if (rock.state === 'idle') {
+          if (distToDino < rock.triggerRange) {
+            rock.state = 'shaking';
+            rock.timer = 0.42; // Peringatan bergetar singkat sebelum jatuh
+          }
+        } else if (rock.state === 'shaking') {
+          rock.timer -= dt;
+          if (rock.timer <= 0) {
+            rock.state = 'falling';
+            rock.vy = 120;
+          }
+        } else if (rock.state === 'falling') {
+          rock.vy += 1250 * dt;
+          rock.y += rock.vy * dt;
+
+          if (circleRectOverlap(rock.x, rock.y, rock.r - 2, dino.x + 5, dino.y + 5, dino.w - 10, dino.h - 8)) {
+            hurtDino('Dino tertimpa batu gua yang jatuh!');
+            rock.state = 'cooldown';
+            rock.timer = 2.2;
+            spawnParticles(rock.x, rock.y, '#94a3b8', 12);
+          } else if (rock.y >= levelData.groundY - rock.r) {
+            spawnParticles(rock.x, levelData.groundY - 6, '#94a3b8', 10, 0.8);
+            rock.state = 'cooldown';
+            rock.timer = 2.0;
+          }
+        } else if (rock.state === 'cooldown') {
+          rock.timer -= dt;
+          if (rock.timer <= 0) {
+            rock.y = rock.startY;
+            rock.vy = 0;
+            rock.state = 'idle';
+          }
+        }
+      }
+
+      // 7. Update & cek batu bergulir (Level 3: Gunung Berapi)
+      for (const rr of activeRollingRocks) {
+        if (rr.cooldown > 0) {
+          rr.cooldown -= dt;
+          continue;
+        }
+        rr.x -= rr.speed * dt;
+        rr.angle -= (rr.speed / rr.r) * dt;
+
+        if (circleRectOverlap(rr.x, rr.y, rr.r - 2, dino.x + 5, dino.y + 5, dino.w - 10, dino.h - 8)) {
+          hurtDino('Dino tertabrak batu panas bergulir!');
+          spawnParticles(rr.x, rr.y, '#f97316', 12);
+          rr.x = rr.spawnX;
+          rr.cooldown = 1.4;
+        } else if (rr.x < rr.minX) {
+          spawnParticles(rr.x, rr.y, '#fb923c', 8, 0.6);
+          rr.x = rr.spawnX;
+          rr.cooldown = 1.1;
+        }
+      }
+
+      // 8. Pengumpulan Telur Dinosaurus (+50 poin)
+      for (const egg of activeEggs) {
+        if (egg.collected) continue;
+        const bobY = egg.y + Math.sin(gameState.time * 4 + egg.bobOffset) * 5;
+        if (circleRectOverlap(egg.x, bobY, egg.r + 3, dino.x, dino.y, dino.w, dino.h)) {
+          egg.collected = true;
+          gameState.eggsCollected++;
+          gameState.levelScore += 50;
+          sound.playEgg();
+          spawnParticles(egg.x, bobY, '#fde047', 16, 1.05);
+          spawnFloatingText(egg.x, bobY - 12, '+50 Telur!', '#fde047');
+          updateHud();
+        }
+      }
+
+      // 9. Pengumpulan Buah-buahan (+10 poin)
+      for (const fruit of activeFruits) {
+        if (fruit.collected) continue;
+        const bobY = fruit.y + Math.sin(gameState.time * 4.5 + fruit.bobOffset) * 4;
+        if (circleRectOverlap(fruit.x, bobY, fruit.r + 3, dino.x, dino.y, dino.w, dino.h)) {
+          fruit.collected = true;
+          gameState.fruitsCollected++;
+          gameState.levelScore += 10;
+          sound.playFruit();
+          spawnParticles(fruit.x, bobY, '#4ade80', 10, 0.85);
+          spawnFloatingText(fruit.x, bobY - 10, '+10', '#86efac');
+          updateHud();
+        }
+      }
+
+      // 10. Cek garis akhir (Sarang / Bendera Finish)
+      if (dino.x + dino.w >= levelData.finishX) {
+        completeCurrentLevel();
+        return;
+      }
+
+      // 11. Update kamera mengikuti Dino dengan halus
+      const scale = viewHeight / LOGICAL_HEIGHT;
+      const visibleLogicalW = viewWidth / scale;
+      const targetCamX = dino.x - visibleLogicalW * 0.34;
+      const maxCamX = Math.max(0, levelData.width - visibleLogicalW);
+      gameState.cameraX += (Math.max(0, Math.min(maxCamX, targetCamX)) - gameState.cameraX) * Math.min(1, dt * 8);
+
+      // 12. Update partikel efek & teks skor melayang
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.vy += 320 * dt;
+        p.life -= dt;
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+
+      for (let i = floatingTexts.length - 1; i >= 0; i--) {
+        const ft = floatingTexts[i];
+        ft.y -= 42 * dt;
+        ft.life -= dt;
+        if (ft.life <= 0) floatingTexts.splice(i, 1);
+      }
+    }
+
+    // =========================================================================
+    // 8. RENDERING VISUAL KARTUN 2D
+    // =========================================================================
+    function drawBackground(visibleW) {
+      // Gradasi langit sesuai tema level
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, LOGICAL_HEIGHT);
+      skyGrad.addColorStop(0, levelData.skyTop);
+      skyGrad.addColorStop(1, levelData.skyBottom);
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, visibleW, LOGICAL_HEIGHT);
+
+      if (levelData.theme === 'forest') {
+        // Matahari cerah
+        ctx.fillStyle = 'rgba(254, 240, 138, 0.9)';
+        ctx.beginPath();
+        ctx.arc(visibleW - 120, 95, 44, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Awan bergerak paralaks lambat
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+        for (let i = 0; i < 8; i++) {
+          const cx = ((i * 340 - gameState.cameraX * 0.15) % (visibleW + 300) + (visibleW + 300)) % (visibleW + 300) - 150;
+          const cy = 75 + (i % 3) * 38;
+          ctx.beginPath();
+          ctx.arc(cx, cy, 24, 0, Math.PI * 2);
+          ctx.arc(cx + 22, cy - 8, 28, 0, Math.PI * 2);
+          ctx.arc(cx + 46, cy, 22, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Perbukitan hijau paralaks jauh
+        ctx.fillStyle = '#4ade80';
+        for (let i = -1; i < Math.ceil(visibleW / 280) + 2; i++) {
+          const hx = i * 280 - ((gameState.cameraX * 0.25) % 280);
+          ctx.beginPath();
+          ctx.arc(hx + 140, 510, 175, Math.PI, 0);
+          ctx.fill();
+        }
+
+        // Pepohonan siluet paralaks menengah
+        for (let i = -1; i < Math.ceil(visibleW / 190) + 2; i++) {
+          const tx = i * 190 - ((gameState.cameraX * 0.45) % 190) + 60;
+          ctx.fillStyle = '#78350f';
+          ctx.fillRect(tx - 8, 390, 16, 115);
+          ctx.fillStyle = '#16a34a';
+          ctx.beginPath();
+          ctx.arc(tx, 375, 38, 0, Math.PI * 2);
+          ctx.arc(tx - 22, 392, 26, 0, Math.PI * 2);
+          ctx.arc(tx + 22, 392, 26, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else if (levelData.theme === 'cave') {
+        // Kristal bercahaya & pilar gua di latar belakang
+        for (let i = -1; i < Math.ceil(visibleW / 240) + 2; i++) {
+          const px = i * 240 - ((gameState.cameraX * 0.3) % 240) + 80;
+          ctx.fillStyle = 'rgba(49, 46, 129, 0.7)';
+          ctx.beginPath();
+          ctx.moveTo(px - 45, 500);
+          ctx.lineTo(px - 20, 120);
+          ctx.lineTo(px + 25, 140);
+          ctx.lineTo(px + 50, 500);
+          ctx.fill();
+
+          // Kristal biru muda
+          ctx.fillStyle = '#38bdf8';
+          ctx.beginPath();
+          ctx.moveTo(px, 430);
+          ctx.lineTo(px - 10, 465);
+          ctx.lineTo(px + 10, 465);
+          ctx.closePath();
+          ctx.fill();
+        }
+
+        // Deretan stalaktit di langit-langit gua
+        ctx.fillStyle = '#3730a3';
+        for (let i = -1; i < Math.ceil(visibleW / 90) + 2; i++) {
+          const sx = i * 90 - ((gameState.cameraX * 0.6) % 90);
+          const len = 45 + ((i * 29) % 45);
+          ctx.beginPath();
+          ctx.moveTo(sx, 0);
+          ctx.lineTo(sx + 45, 0);
+          ctx.lineTo(sx + 22, len);
+          ctx.closePath();
+          ctx.fill();
+        }
+      } else if (levelData.theme === 'volcano') {
+        // Gunung berapi besar di kejauhan
+        for (let i = -1; i < Math.ceil(visibleW / 420) + 2; i++) {
+          const vx = i * 420 - ((gameState.cameraX * 0.22) % 420) + 180;
+          ctx.fillStyle = '#451a03';
+          ctx.beginPath();
+          ctx.moveTo(vx - 190, 500);
+          ctx.lineTo(vx - 45, 175);
+          ctx.lineTo(vx + 45, 175);
+          ctx.lineTo(vx + 190, 500);
+          ctx.closePath();
+          ctx.fill();
+
+          // Puncak kawah menyala
+          ctx.fillStyle = '#f97316';
+          ctx.beginPath();
+          ctx.moveTo(vx - 45, 175);
+          ctx.lineTo(vx + 45, 175);
+          ctx.lineTo(vx + 25, 215);
+          ctx.lineTo(vx, 195);
+          ctx.lineTo(vx - 25, 220);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+
+      // Render partikel suasana
+      for (const ap of ambientParticles) {
+        ctx.save();
+        ctx.globalAlpha = ap.alpha;
+        ctx.fillStyle =
+          levelData.theme === 'volcano' ? '#fde047' :
+          levelData.theme === 'cave' ? '#7dd3fc' : '#dcfce7';
+        ctx.beginPath();
+        ctx.arc(ap.x % visibleW, ap.y, ap.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function drawTerrainAndHazards() {
+      const gy = levelData.groundY;
+
+      // Jika Level 3 (Gunung Berapi), gambar kolam lava di dasar jurang
+      if (levelData.theme === 'volcano') {
+        const lavaGrad = ctx.createLinearGradient(0, gy + 20, 0, LOGICAL_HEIGHT);
+        lavaGrad.addColorStop(0, '#facc15');
+        lavaGrad.addColorStop(0.35, '#f97316');
+        lavaGrad.addColorStop(1, '#dc2626');
+        ctx.fillStyle = lavaGrad;
+        ctx.fillRect(0, gy + 24, levelData.width, LOGICAL_HEIGHT - gy);
+
+        // Gelombang permukaan lava
+        ctx.fillStyle = '#fef08a';
+        for (let lx = 0; lx < levelData.width; lx += 40) {
+          const waveY = gy + 24 + Math.sin(gameState.time * 5 + lx * 0.05) * 4;
+          ctx.beginPath();
+          ctx.arc(lx, waveY, 12, Math.PI, 0);
+          ctx.fill();
+        }
+      }
+
+      // Gambar setiap segmen tanah utama
+      for (const [x1, x2] of levelData.groundSegments) {
+        const w = x2 - x1;
+        // Badan tanah/batu
+        ctx.fillStyle = levelData.groundBody;
+        ctx.fillRect(x1, gy, w, LOGICAL_HEIGHT - gy + 40);
+
+        // Tekstur bintik bebatuan di dalam tanah
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+        for (let rx = x1 + 20; rx < x2 - 20; rx += 55) {
+          ctx.beginPath();
+          ctx.arc(rx, gy + 38 + ((rx * 7) % 45), 8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Lapisan rumput / permukaan atas
+        ctx.fillStyle = levelData.groundTop;
+        ctx.beginPath();
+        ctx.roundRect(x1, gy - 4, w, 18, [8, 8, 4, 4]);
+        ctx.fill();
+      }
+
+      // Gambar platform melayang
+      for (const [px, py, pw, ph] of levelData.platforms) {
+        ctx.fillStyle = levelData.groundBody;
+        ctx.beginPath();
+        ctx.roundRect(px, py, pw, ph, 10);
+        ctx.fill();
+
+        ctx.fillStyle = levelData.groundTop;
+        ctx.beginPath();
+        ctx.roundRect(px, py, pw, 9, [10, 10, 2, 2]);
+        ctx.fill();
+      }
+
+      // Gambar duri tajam
+      for (const [sx, count] of levelData.spikes) {
+        for (let i = 0; i < count; i++) {
+          const bx = sx + i * 24;
+          ctx.fillStyle = levelData.theme === 'volcano' ? '#fca5a5' : '#e2e8f0';
+          ctx.strokeStyle = '#334155';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(bx, gy);
+          ctx.lineTo(bx + 12, gy - 22);
+          ctx.lineTo(bx + 24, gy);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+      }
+    }
+
+    function drawCollectibles() {
+      // Gambar Telur Dinosaurus
+      for (const egg of activeEggs) {
+        if (egg.collected) continue;
+        const bobY = egg.y + Math.sin(gameState.time * 4 + egg.bobOffset) * 5;
+
+        ctx.save();
+        ctx.translate(egg.x, bobY);
+
+        // Kilau lembut di belakang telur
+        ctx.fillStyle = 'rgba(253, 224, 71, 0.25)';
+        ctx.beginPath();
+        ctx.arc(0, 0, 22 + Math.sin(gameState.time * 6) * 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bentuk telur oval
+        ctx.fillStyle = '#fef9c3';
+        ctx.strokeStyle = '#854d0e';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 12, 16, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Bintik-bintik hijau khas telur Dino
+        ctx.fillStyle = '#22c55e';
+        ctx.beginPath();
+        ctx.arc(-4, -5, 3, 0, Math.PI * 2);
+        ctx.arc(5, 0, 3.5, 0, Math.PI * 2);
+        ctx.arc(-2, 7, 2.8, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      // Gambar Buah-buahan (Apel, Pisang, Beri)
+      for (const fruit of activeFruits) {
+        if (fruit.collected) continue;
+        const bobY = fruit.y + Math.sin(gameState.time * 4.5 + fruit.bobOffset) * 4;
+
+        ctx.save();
+        ctx.translate(fruit.x, bobY);
+
+        if (fruit.type === 'apple') {
+          // Apel merah segar
+          ctx.fillStyle = '#ef4444';
+          ctx.strokeStyle = '#7f1d1d';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(0, 2, 11, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Daun hijau kecil
+          ctx.fillStyle = '#4ade80';
+          ctx.beginPath();
+          ctx.ellipse(4, -10, 5, 3, -0.4, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (fruit.type === 'banana') {
+          // Pisang kuning melengkung
+          ctx.strokeStyle = '#854d0e';
+          ctx.lineWidth = 2;
+          ctx.fillStyle = '#facc15';
+          ctx.beginPath();
+          ctx.arc(-2, -2, 13, 0.2, Math.PI * 0.85);
+          ctx.arc(-5, -6, 10, Math.PI * 0.85, 0.2, true);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        } else {
+          // Beri ungu/biru manis
+          ctx.fillStyle = '#a855f7';
+          ctx.strokeStyle = '#581c87';
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(-4, 3, 7, 0, Math.PI * 2);
+          ctx.arc(5, 3, 7, 0, Math.PI * 2);
+          ctx.arc(0, -4, 7, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+        }
+
+        ctx.restore();
+      }
+    }
+
+    function drawEnemiesAndRocks() {
+      // 1. Gambar Monster (Hutan / Kelelawar / Api)
+      for (const m of activeMonsters) {
+        if (!m.alive) continue;
+        let my = m.baseY - m.h;
+        if (m.type === 'bat') {
+          my = m.baseY + Math.sin(gameState.time * 4.2 + m.phase) * m.amp;
+        }
+
+        ctx.save();
+        ctx.translate(m.x + m.w / 2, my + m.h / 2);
+        if (m.dir < 0) ctx.scale(-1, 1);
+
+        if (m.type === 'forest_monster') {
+          // Monster Hutan Ungu Lucu tapi Galak
+          ctx.fillStyle = '#9333ea';
+          ctx.strokeStyle = '#3b0764';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.roundRect(-20, -16, 40, 32, 14);
+          ctx.fill();
+          ctx.stroke();
+
+          // Tanduk kecil
+          ctx.fillStyle = '#fde047';
+          ctx.beginPath();
+          ctx.moveTo(-12, -16);
+          ctx.lineTo(-8, -25);
+          ctx.lineTo(-3, -16);
+          ctx.moveTo(4, -16);
+          ctx.lineTo(9, -25);
+          ctx.lineTo(13, -16);
+          ctx.fill();
+
+          // Mata & Gigi
+          ctx.fillStyle = '#fff';
+          ctx.beginPath();
+          ctx.arc(7, -4, 5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(9, -4, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Kaki bergerak
+          const step = Math.sin(gameState.time * 12) * 4;
+          ctx.fillStyle = '#581c87';
+          ctx.fillRect(-13, 14 + step * 0.4, 9, 6);
+          ctx.fillRect(4, 14 - step * 0.4, 9, 6);
+        } else if (m.type === 'bat') {
+          // Kelelawar Gua dengan sayap mengepak
+          const flap = Math.sin(gameState.time * 16 + m.phase) * 10;
+          ctx.fillStyle = '#475569';
+          ctx.strokeStyle = '#0f172a';
+          ctx.lineWidth = 2;
+
+          // Sayap kiri & kanan
+          ctx.beginPath();
+          ctx.moveTo(-8, 0);
+          ctx.quadraticCurveTo(-24, -18 + flap, -28, 4 + flap * 0.5);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(8, 0);
+          ctx.quadraticCurveTo(24, -18 + flap, 28, 4 + flap * 0.5);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Badan kelelawar
+          ctx.fillStyle = '#334155';
+          ctx.beginPath();
+          ctx.arc(0, 0, 12, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.stroke();
+
+          // Mata merah menyala
+          ctx.fillStyle = '#f87171';
+          ctx.beginPath();
+          ctx.arc(-4, -2, 2.5, 0, Math.PI * 2);
+          ctx.arc(4, -2, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (m.type === 'fire_monster') {
+          // Monster Api Gunung Berapi
+          const flicker = Math.sin(gameState.time * 18) * 3;
+          ctx.fillStyle = '#ef4444';
+          ctx.strokeStyle = '#7f1d1d';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.moveTo(-20, 18);
+          ctx.lineTo(-18, -8);
+          ctx.lineTo(-8, -22 + flicker);
+          ctx.lineTo(0, -12);
+          ctx.lineTo(10, -24 - flicker);
+          ctx.lineTo(19, -6);
+          ctx.lineTo(20, 18);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          // Inti bara kuning
+          ctx.fillStyle = '#fde047';
+          ctx.beginPath();
+          ctx.arc(4, 2, 10, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Mata galak
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.arc(8, 0, 3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      // 2. Gambar Batu Jatuh (Level 2)
+      for (const rock of activeFallingRocks) {
+        if (rock.state === 'cooldown') continue;
+        const shakeX = rock.state === 'shaking' ? (Math.random() - 0.5) * 6 : 0;
+
+        ctx.save();
+        ctx.translate(rock.x + shakeX, rock.y);
+        ctx.fillStyle = '#64748b';
+        ctx.strokeStyle = '#1e293b';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(-16, -12);
+        ctx.lineTo(16, -12);
+        ctx.lineTo(10, 8);
+        ctx.lineTo(0, 20);
+        ctx.lineTo(-10, 8);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // 3. Gambar Batu Bergulir (Level 3)
+      for (const rr of activeRollingRocks) {
+        if (rr.cooldown > 0) continue;
+        ctx.save();
+        ctx.translate(rr.x, rr.y);
+        ctx.rotate(rr.angle);
+
+        ctx.fillStyle = '#57534e';
+        ctx.strokeStyle = '#ea580c';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, rr.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Retakan lava pada batu
+        ctx.strokeStyle = '#facc15';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-10, -5);
+        ctx.lineTo(2, 3);
+        ctx.lineTo(11, -6);
+        ctx.stroke();
+
+        ctx.restore();
+      }
+    }
+
+    function drawFinishGoal() {
+      const fx = levelData.finishX;
+      const gy = levelData.groundY;
+
+      // Tiang Bendera Finish
+      ctx.fillStyle = '#f8fafc';
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 2;
+      ctx.fillRect(fx, gy - 115, 8, 115);
+      ctx.strokeRect(fx, gy - 115, 8, 115);
+
+      // Bendera berkibar
+      const wave = Math.sin(gameState.time * 6) * 4;
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.moveTo(fx + 8, gy - 112);
+      ctx.quadraticCurveTo(fx + 35, gy - 118 + wave, fx + 62, gy - 95 + wave);
+      ctx.lineTo(fx + 8, gy - 76);
+      ctx.closePath();
+      ctx.fill();
+
+      // Sarang Jerami Hangat di Garis Akhir untuk Telur Dino
+      ctx.fillStyle = '#d97706';
+      ctx.strokeStyle = '#78350f';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.ellipse(fx + 36, gy - 6, 34, 11, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      // Label "FINIS"
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 14px Fredoka, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('FINIS', fx + 34, gy - 122);
+    }
+
+    function drawDino() {
+      // Efek berkedip saat invulnerable setelah terkena rintangan
+      if (dino.invulnTimer > 0 && Math.floor(dino.invulnTimer * 14) % 2 === 0) {
+        return;
+      }
+
+      ctx.save();
+      ctx.translate(dino.x + dino.w / 2, dino.y + dino.h / 2);
+      ctx.scale(dino.facing, 1);
+
+      const legSwing = dino.onGround ? Math.sin(dino.animTimer) * 6 : 5;
+
+      // Ekor Dino
+      ctx.fillStyle = '#22c55e';
+      ctx.strokeStyle = '#14532d';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(-14, 8);
+      ctx.quadraticCurveTo(-30, 2, -26, -8);
+      ctx.quadraticCurveTo(-18, -3, -12, 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Duri punggung kuning
+      ctx.fillStyle = '#fbbf24';
+      ctx.beginPath();
+      ctx.moveTo(-14, -12);
+      ctx.lineTo(-21, -17);
+      ctx.lineTo(-13, -20);
+      ctx.moveTo(-14, -2);
+      ctx.lineTo(-21, -6);
+      ctx.lineTo(-14, -10);
+      ctx.fill();
+
+      // Kaki belakang
+      ctx.fillStyle = '#16a34a';
+      ctx.beginPath();
+      ctx.roundRect(-10 - legSwing * 0.5, 14, 9, 12, 4);
+      ctx.fill();
+      ctx.stroke();
+
+      // Badan Dino
+      ctx.fillStyle = '#4ade80';
+      ctx.beginPath();
+      ctx.roundRect(-15, -18, 28, 36, 13);
+      ctx.fill();
+      ctx.stroke();
+
+      // Kepala Dino
+      ctx.beginPath();
+      ctx.roundRect(-4, -26, 26, 22, 11);
+      ctx.fill();
+      ctx.stroke();
+
+      // Perut hijau muda
+      ctx.fillStyle = '#bbf7d0';
+      ctx.beginPath();
+      ctx.roundRect(0, -3, 11, 18, 6);
+      ctx.fill();
+
+      // Kaki depan
+      ctx.fillStyle = '#22c55e';
+      ctx.beginPath();
+      ctx.roundRect(2 + legSwing * 0.5, 14, 9, 12, 4);
+      ctx.fill();
+      ctx.stroke();
+
+      // Mata ekspresif
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(10, -17, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(11.5, -17, 2.4, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Pipi & Senyum ceria
+      ctx.fillStyle = 'rgba(248, 113, 113, 0.7)';
+      ctx.beginPath();
+      ctx.arc(16, -11, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#14532d';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(13, -11, 5, 0.1, Math.PI * 0.75);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawEffects() {
+      // Partikel ledakan bintang/daun/percikan
+      for (const p of particles) {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Teks skor mengambang (+10, +50 Telur!)
+      for (const ft of floatingTexts) {
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, ft.life * 1.4);
+        ctx.font = 'bold 17px Fredoka, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.strokeStyle = 'rgba(15, 23, 42, 0.85)';
+        ctx.lineWidth = 4;
+        ctx.strokeText(ft.text, ft.x, ft.y);
+        ctx.fillStyle = ft.color;
+        ctx.fillText(ft.text, ft.x, ft.y);
+        ctx.restore();
+      }
+    }
+
+    function render() {
+      if (!levelData) return;
+
+      const scale = viewHeight / LOGICAL_HEIGHT;
+      const visibleLogicalW = viewWidth / scale;
+
+      ctx.save();
+      ctx.scale(scale, scale);
+
+      // Efek getar kamera ringan saat Dino terluka
+      let shakeOffsetX = 0;
+      let shakeOffsetY = 0;
+      if (gameState.shakeTimer > 0) {
+        shakeOffsetX = (Math.random() - 0.5) * 10;
+        shakeOffsetY = (Math.random() - 0.5) * 10;
+      }
+
+      // 1. Latar Belakang Paralaks
+      drawBackground(visibleLogicalW);
+
+      // 2. Dunia Permainan (tergeser kamera)
+      ctx.save();
+      ctx.translate(-gameState.cameraX + shakeOffsetX, shakeOffsetY);
+
+      drawTerrainAndHazards();
+      drawFinishGoal();
+      drawCollectibles();
+      drawEnemiesAndRocks();
+      drawDino();
+      drawEffects();
+
+      ctx.restore();
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // 9. PEMBARUAN HUD & NAVIGASI UI
+    // =========================================================================
+    function updateHud() {
+      if (!levelData) return;
+      document.getElementById('hud-level-text').textContent = levelData.name;
+
+      let heartsStr = '';
+      for (let i = 0; i < gameState.maxLives; i++) {
+        heartsStr += i < gameState.lives ? '❤️' : '🖤';
+      }
+      document.getElementById('hud-hearts').textContent = heartsStr;
+      document.getElementById('hud-eggs').textContent = `${gameState.eggsCollected} / ${levelData.targetEggs}`;
+      document.getElementById('hud-fruits').textContent = `${gameState.fruitsCollected} / ${levelData.targetFruits}`;
+      document.getElementById('hud-score').textContent = gameState.campaignScore + gameState.levelScore;
+    }
+
+    function hideAllOverlays() {
+      ['screen-menu', 'screen-pause', 'screen-gameover', 'screen-levelcomplete', 'screen-victory'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+    }
+
+    function showOverlay(id) {
+      hideAllOverlays();
+      document.getElementById(id).classList.remove('hidden');
+      document.getElementById('touch-controls').classList.add('hidden');
+    }
+
+    function startGameplay(levelIdx, preserveCampaign = false) {
+      loadLevel(levelIdx, preserveCampaign);
+      hideAllOverlays();
+      document.getElementById('hud').classList.remove('hidden');
+      updateTouchControlsVisibility();
+      gameState.status = 'playing';
+      sound.startBgm(levelData.bgmTheme);
+      showToast(`${levelData.name} — Kumpulkan ${levelData.targetEggs} telur!`);
+    }
+
+    function updateTouchControlsVisibility() {
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 900;
+      const touchEl = document.getElementById('touch-controls');
+      if (gameState.status === 'playing' && isTouchDevice) {
+        touchEl.classList.remove('hidden');
+      } else {
+        touchEl.classList.add('hidden');
+      }
+    }
+
+    // =========================================================================
+    // 10. EVENT LISTENER KEYBOARD, SENTUH, & TOMBOL UI
+    // =========================================================================
+    window.addEventListener('keydown', (e) => {
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'Space', ' '].includes(e.key)) {
+        e.preventDefault();
+      }
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        keys.left = true;
+      }
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        keys.right = true;
+      }
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === ' ') {
+        if (!keys.jump) {
+          dino.jumpBufferTimer = 0.14;
+        }
+        keys.jump = true;
+      }
+      if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+        if (gameState.status === 'playing') {
+          gameState.status = 'paused';
+          showOverlay('screen-pause');
+        } else if (gameState.status === 'paused') {
+          hideAllOverlays();
+          updateTouchControlsVisibility();
+          gameState.status = 'playing';
+        }
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') keys.left = false;
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') keys.right = false;
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.key === ' ') keys.jump = false;
+    });
+
+    // Kontrol Layar Sentuh (Touch & Pointer)
+    function bindTouchButton(btnId, keyName, isJump = false) {
+      const btn = document.getElementById(btnId);
+      const press = (e) => {
+        e.preventDefault();
+        btn.classList.add('pressed');
+        if (isJump && !keys.jump) {
+          dino.jumpBufferTimer = 0.15;
+        }
+        keys[keyName] = true;
+      };
+      const release = (e) => {
+        e.preventDefault();
+        btn.classList.remove('pressed');
+        keys[keyName] = false;
+      };
+      btn.addEventListener('touchstart', press, { passive: false });
+      btn.addEventListener('touchend', release, { passive: false });
+      btn.addEventListener('touchcancel', release, { passive: false });
+      btn.addEventListener('mousedown', press);
+      btn.addEventListener('mouseup', release);
+      btn.addEventListener('mouseleave', release);
+    }
+
+    bindTouchButton('touch-left', 'left', false);
+    bindTouchButton('touch-right', 'right', false);
+    bindTouchButton('touch-jump', 'jump', true);
+
+    // Pilihan Level di Menu Utama
+    document.querySelectorAll('.level-card-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.level-card-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        gameState.selectedLevelIdx = parseInt(btn.dataset.level, 10);
+        loadLevel(gameState.selectedLevelIdx, false);
+      });
+    });
+
+    // Tombol-tombol Navigasi
+    document.getElementById('btn-start-game').addEventListener('click', () => {
+      startGameplay(gameState.selectedLevelIdx, false);
+    });
+
+    document.getElementById('btn-mute').addEventListener('click', () => {
+      const isMuted = sound.toggleMute();
+      document.getElementById('btn-mute').textContent = isMuted ? '🔇' : '🔊';
+    });
+
+    document.getElementById('btn-pause').addEventListener('click', () => {
+      if (gameState.status === 'playing') {
+        gameState.status = 'paused';
+        showOverlay('screen-pause');
+      }
+    });
+
+    document.getElementById('btn-resume').addEventListener('click', () => {
+      hideAllOverlays();
+      updateTouchControlsVisibility();
+      gameState.status = 'playing';
+    });
+
+    document.getElementById('btn-restart-pause').addEventListener('click', () => {
+      startGameplay(gameState.currentLevelIdx, true);
+    });
+
+    document.getElementById('btn-retry').addEventListener('click', () => {
+      startGameplay(gameState.currentLevelIdx, true);
+    });
+
+    document.getElementById('btn-replay-level').addEventListener('click', () => {
+      // Kurangi skor level yang baru saja diselesaikan sebelum mengulang
+      gameState.campaignEggs -= gameState.eggsCollected;
+      gameState.campaignFruits -= gameState.fruitsCollected;
+      gameState.campaignScore -= gameState.levelScore;
+      startGameplay(gameState.currentLevelIdx, true);
+    });
+
+    document.getElementById('btn-next-level').addEventListener('click', () => {
+      const nextIdx = Math.min(LEVEL_DEFINITIONS.length - 1, gameState.currentLevelIdx + 1);
+      startGameplay(nextIdx, true);
+    });
+
+    document.getElementById('btn-play-again-all').addEventListener('click', () => {
+      startGameplay(0, false);
+    });
+
+    function returnToMainMenu() {
+      sound.stopBgm();
+      gameState.status = 'menu';
+      document.getElementById('hud').classList.add('hidden');
+      loadLevel(gameState.selectedLevelIdx, false);
+      showOverlay('screen-menu');
+    }
+
+    document.getElementById('btn-menu-pause').addEventListener('click', returnToMainMenu);
+    document.getElementById('btn-menu-go').addEventListener('click', returnToMainMenu);
+    document.getElementById('btn-menu-vic').addEventListener('click', returnToMainMenu);
+
+    // =========================================================================
+    // 11. GAME LOOP UTAMA
+    // =========================================================================
+    let lastTimestamp = 0;
+
+    function gameLoop(timestamp) {
+      if (!lastTimestamp) lastTimestamp = timestamp;
+      const dt = Math.min(0.05, (timestamp - lastTimestamp) / 1000);
+      lastTimestamp = timestamp;
+
+      update(dt);
+      render();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    window.onload = function () {
+      loadLevel(0, false);
+      requestAnimationFrame(gameLoop);
+    };
+  </script>
+</body>
+</html>
